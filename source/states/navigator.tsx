@@ -43,10 +43,22 @@ class Navigator extends StateHandler<NavigatorState> {
 	}
 	/** Close `page` at given index, default to `this.state.index`. */
 	public close(index: number = this.state.index) {
-		this.state = new NavigatorState({
-			index: this.state.index.clamp(0, this.state.pages.length - 1 - 1),
-			pages: [...this.state.pages.take(index), ...this.state.pages.skip(index + 1)]
-		});
+		switch (this.state.pages.length) {
+			case 1: {
+				this.state = new NavigatorState({
+					index: 0,
+					pages: [{ title: "New Tab", widget: build("FALLBACK", {}) }]
+				});
+				break;
+			}
+			default: {
+				this.state = new NavigatorState({
+					index: this.state.index.clamp(0, this.state.pages.length - 1 - 1),
+					pages: [...this.state.pages.take(index), ...this.state.pages.skip(index + 1)]
+				});
+				break;
+			}
+		}
 	}
 	/** Rename `page` at given index, default to `this.state.index`. */
 	public rename(title: string, index: number = this.state.index) {
