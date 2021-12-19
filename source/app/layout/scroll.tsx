@@ -18,13 +18,13 @@ class ScrollProps extends Casacade {
 }
 
 class Scroll extends StyleSheet<ScrollProps> {
-	protected postCSS() {
+	protected postCSS(): React.CSSProperties {
 		return {
 			overflowX: this.props.x,
 			overflowY: this.props.y
 		};
 	}
-	protected preCSS() {
+	protected preCSS(): React.CSSProperties {
 		return {};
 	}
 }

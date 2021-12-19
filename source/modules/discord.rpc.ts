@@ -37,11 +37,29 @@ class RichPresence {
 		this.joinSecret = args.joinSecret;
 		this.instance = args.instance;
 	}
-};
+}
+
+function args(table: Record<string, any>) {
+	const object: Record<string, any> = {};
+
+	for (const key of Object.keys(table)) {
+		switch (table[key]) {
+			case undefined: {
+				break;
+			}
+			default: {
+				object[key] = table[key];
+				break;
+			}
+		}
+	}
+	return object;
+}
+
 /** @see https://discord.com/developers/applications/{application_id}/information */
 class DiscordRPC extends StateHandler<RichPresence> {
-	private available: boolean;
-	private readonly client = new RPC.Client({ transport: "ipc" });
+	protected available: boolean;
+	protected readonly client = new RPC.Client({ transport: "ipc" });
 
 	constructor(args: {
 		state: DiscordRPC["_state"];
@@ -54,7 +72,7 @@ class DiscordRPC extends StateHandler<RichPresence> {
 		this.client.once("ready", () => {
 			this.update();
 		});
-		this.login(args.secret);
+		this.connect(args.secret);
 	}
 	public get state() {
 		return super.state;
@@ -62,21 +80,9 @@ class DiscordRPC extends StateHandler<RichPresence> {
 	public set state(state: DiscordRPC["_state"]) {
 		super.state = state;
 	}
-	private login(secret: string) {
-		if (this.available) {
-			throw new Error();
-		}
-		this.client.login({ "clientId": secret }).then(() => {
-			this.available = true;
-		}).catch(() => {
-			setTimeout(() => {
-				this.login(secret);
-			}, 1000 * 60);
-		});
-	}
 	public update(presence: RichPresence = this.state, preserve: boolean = true) {
 		if (preserve) {
-			this.state = new RichPresence({ ...this.unique(this.state), ...this.unique(presence) } as RichPresence);
+			this.state = new RichPresence({ ...args(this.state), ...args(presence) } as RichPresence);
 		} else {
 			this.state = presence;
 		}
@@ -84,21 +90,17 @@ class DiscordRPC extends StateHandler<RichPresence> {
 			this.client.setActivity(this.state);
 		}
 	}
-	private unique(record: Record<string, any>) {
-		const object: Record<string, any> = {};
-
-		for (const key of Object.keys(record)) {
-			switch (record[key]) {
-				case undefined: {
-					break;
-				}
-				default: {
-					object[key] = record[key];
-					break;
-				}
-			}
+	protected connect(secret: string) {
+		if (this.available) {
+			throw new Error();
 		}
-		return object;
+		this.client.login({ "clientId": secret }).then(() => {
+			this.available = true;
+		}).catch(() => {
+			setTimeout(() => {
+				this.connect(secret);
+			}, 1000 * 60);
+		});
 	}
 }
 

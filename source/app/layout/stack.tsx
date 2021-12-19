@@ -15,12 +15,12 @@ class StackProps extends Casacade {
 
 class Stack extends StyleSheet<StackProps> {
 	// @ts-ignore
-	protected postCSS() {
+	protected postCSS(): React.CSSProperties {
 		return {
 			position: "absolute"
 		};
 	}
-	protected preCSS() {
+	protected preCSS(): React.CSSProperties {
 		return {
 			width: Unit(100, "%"),
 			height: Unit(100, "%")

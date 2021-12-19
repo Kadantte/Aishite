@@ -13,13 +13,12 @@ class DraggableProps extends Casacade {
 }
 
 class Draggable extends StyleSheet<DraggableProps> {
-	// @ts-ignore
-	protected postCSS() {
+	protected postCSS(): React.CSSProperties {
 		return {
-			WebkitAppRegion: this.props.drag ? "drag" : "no-drag"
-		};
+			WebkitAppRegion: (this.props.drag ? "drag" : "no-drag")
+		} as const;
 	}
-	protected preCSS() {
+	protected preCSS(): React.CSSProperties {
 		return {};
 	}
 }

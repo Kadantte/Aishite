@@ -15,12 +15,12 @@ class ScrollProps extends Casacade {
 }
 
 class Scroll extends StyleSheet<ScrollProps> {
-	protected postCSS() {
+	protected postCSS(): React.CSSProperties {
 		return {
 			opacity: this.props.value / 100
 		};
 	}
-	protected preCSS() {
+	protected preCSS(): React.CSSProperties {
 		return {};
 	}
 }

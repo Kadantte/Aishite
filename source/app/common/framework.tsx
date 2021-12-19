@@ -73,7 +73,7 @@ export abstract class Stateful<P extends Props<any>, S> extends React.Component<
 	 * But some may attached to different `EventTarget` such as `Window`.
 	 * When the `EventListener` stays, it causes performance issue.
 	 * 
-	 * Binding `EventListener` through this very method will automatically add / remove `EventListener`
+	 * Binding `EventListener` through this very method will automatically add / remove `EventListener.`
 	 */
 	protected events(): Stateful<P, S>["bindings"] {
 		return [];
@@ -159,7 +159,10 @@ export abstract class StyleSheet<P extends Casacade> extends React.PureComponent
 	protected abstract preCSS(): React.CSSProperties;
 	/** @final */
 	public render() {
-		return (this.props.children instanceof Array ? this.props.children : [this.props.children]).filter((children) => children).map((children, x) => {
+		return (this.props.children instanceof Array ? this.props.children : [this.props.children]).map((children, x) => {
+			if (children === undefined) {
+				return children;
+			}
 			return React.cloneElement(children as JSX.Element, { key: x, style: { ...this.preCSS(), ...this.props.style, ...this.postCSS() }, ...this.props.modify });
 		});
 	}
@@ -167,10 +170,10 @@ export abstract class StyleSheet<P extends Casacade> extends React.PureComponent
 
 /** Inheirt CSS */
 const Mirror = React.memo(class Exotic extends StyleSheet<Casacade> {
-	protected postCSS() {
+	protected postCSS(): React.CSSProperties {
 		return {}
 	}
-	protected preCSS() {
+	protected preCSS(): React.CSSProperties {
 		return {};
 	}
 });

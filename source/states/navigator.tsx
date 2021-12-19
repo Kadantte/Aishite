@@ -1,6 +1,7 @@
 // views
 import Viewer from "@/app/views/viewer";
 import Browser from "@/app/views/browser";
+import Fallback from "@/app/views/fallback";
 // modules
 import settings from "@/modules/settings";
 // states
@@ -26,37 +27,44 @@ class Navigator extends StateHandler<NavigatorState> {
 			};
 		});
 	}
-	/** append `page` as well as change index */
+	/** Append `page` as well as change index. */
 	public open(name: string, type: string, args: any) {
 		this.state = new NavigatorState({
 			index: this.state.pages.length,
 			pages: [...this.state.pages, { title: name, widget: build(type, args) }]
 		});
 	}
-	/** jump to given index */
+	/** Jump to given index. */
 	public jump(index: number) {
 		this.state = new NavigatorState({
 			index: index,
 			pages: this.state.pages
 		});
 	}
-	/** close `page` at given index, default to `this.state.index` */
+	/** Close `page` at given index, default to `this.state.index`. */
 	public close(index: number = this.state.index) {
 		this.state = new NavigatorState({
 			index: this.state.index.clamp(0, this.state.pages.length - 1 - 1),
 			pages: [...this.state.pages.take(index), ...this.state.pages.skip(index + 1)]
 		});
 	}
-	/** rename `page` at given index, default to `this.state.index` */
+	/** Rename `page` at given index, default to `this.state.index`. */
 	public rename(title: string, index: number = this.state.index) {
 		this.state = new NavigatorState({
 			index: this.state.index,
 			pages: [...this.state.pages.take(index), { title: title, widget: this.state.pages[index].widget }, ...this.state.pages.skip(index + 1)]
 		});
 	}
-	/** reorder array of `page` */
+	/** Reorder array of `page`. */
 	public reorder(index_0: number, index_1: number) {
 		throw new Error("Unimplemented");
+	}
+	/** Replace current `page` with new `page`. */
+	public replace(name: string, type: string, args: any) {
+		this.state = new NavigatorState({
+			index: this.state.pages.length - 1,
+			pages: [...this.state.pages.take(this.state.pages.length - 1), { title: name, widget: build(type, args) }]
+		});
 	}
 }
 
@@ -85,13 +93,20 @@ function UUID(): string {
 function args(UUID: string) {
 	// component might be null
 	if (Navigator.controller[UUID]) {
+		// new instance
 		const args = { ...Navigator.controller[UUID]?.props };
 
 		delete args["data-key"];
 
 		for (const key of Object.keys(Navigator.controller[UUID]?.state ?? {})) {
-			if (args[key] !== undefined) {
-				args[key] = Navigator.controller[UUID]?.state[key];
+			switch (args[key]) {
+				case undefined: {
+					break;
+				}
+				default: {
+					args[key] = Navigator.controller[UUID]?.state[key];
+					break;
+				}
 			}
 		}
 		return args;
@@ -103,7 +118,10 @@ function build(type: string, args: any) {
 	// must be unique
 	const cache = UUID();
 
-	switch (type.toUpperCase()) {
+	switch (type) {
+		case "FALLBACK": {
+			return (<Fallback ref={(ref) => inspect(cache, ref)} key={cache} data-key={cache}/>);
+		}
 		case "BROWSER": {
 			return (<Browser ref={(ref) => inspect(cache, ref)} key={cache} data-key={cache} index={args.index ?? 0} query={args.query ?? "language:all"}/>);
 		}
@@ -111,7 +129,7 @@ function build(type: string, args: any) {
 			return (<Viewer ref={(ref) => inspect(cache, ref)} key={cache} data-key={cache} gallery={args.gallery ?? 6974}/>);
 		}
 		default: {
-			return (<section key={cache}>FALLBACK</section>);
+			return (<section key={cache}>UNKNOWN</section>);
 		}
 	}
 }
@@ -134,9 +152,23 @@ function inspect(UUID: string, ref: Nullable<React.Component<any, any>>) {
 		});
 	}
 }
+/** **Webpack** in fact change classes' name thus `constructor.name` isn't static, so this function has born. **tl;dr**: class name anchor. */
+function classname(widget: JSX.Element) {
+	// theres no difference between else if or just if in this case
+	if (widget.type === Fallback) {
+		return "FALLBACK";
+	}
+	if (widget.type === Browser) {
+		return "BROWSER";
+	}
+	if (widget.type === Viewer) {
+		return "VIEWER";
+	}
+	return widget.type.name ? widget.type.name.toUpperCase() : "UNKNOWN";
+}
 
 function transform(title: string, widget: JSX.Element) {
-	return { type: widget.type.name.toUpperCase(), name: title, args: args(widget.props["data-key"]) ?? widget.props };
+	return { type: classname(widget), name: title, args: args(widget.props["data-key"]) ?? widget.props };
 }
 
 const singleton = new Navigator({

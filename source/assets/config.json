@@ -15,22 +15,9 @@
 		"index": 0,
 		"pages": [
 			{
-				"type": "BROWSER",
-				"name": "language:all",
-				"args": {
-					"page": 0,
-					"clamp": 25,
-					"query": "language:all"
-				}
-			},
-			{
-				"type": "BROWSER",
-				"name": "language:korean",
-				"args": {
-					"page": 0,
-					"clamp": 25,
-					"query": "language:korean"
-				}
+				"type": "FALLBACK",
+				"name": "New Tab",
+				"args": {}
 			}
 		]
 	}

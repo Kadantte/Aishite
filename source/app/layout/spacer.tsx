@@ -13,13 +13,13 @@ class SpacerProps extends Casacade {
 }
 
 class Spacer extends StyleSheet<SpacerProps> {
-	protected postCSS() {
+	protected postCSS(): React.CSSProperties {
 		return {
 			flexGrow: this.props.grow ?? 1.0,
 			alignSelf: "stretch"
 		};
 	}
-	protected preCSS() {
+	protected preCSS(): React.CSSProperties {
 		return {};
 	}
 }

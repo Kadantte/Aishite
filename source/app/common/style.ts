@@ -1,5 +1,5 @@
 abstract class Style {
-	/** please check Mozila Foundation before any implementation */
+	/** Please check Mozila Foundation before any implementation. */
 	protected abstract compile(): React.CSSProperties;
 	/** @final */
 	public toStyle(): React.CSSProperties {

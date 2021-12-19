@@ -1,15 +1,15 @@
 // common
 import Unit from "@/app/common/unit";
 import Color from "@/app/common/color";
+import Transition from "@/app/common/transition";
 import { Props } from "@/app/common/props";
 import { Stateful } from "@/app/common/framework";
 
-class IconProps extends Props<SingleElement> {
+class IconProps extends Props<SingleChild> {
 	public readonly color?: Nullable<string>;
-	/** Whether to allow lower `z-index` elements triggering event when this `Container` overlaps. */
+	/** Whether to also trigger event from elements underneath. */
 	public readonly phantom?: boolean;
-	/** CSS transition duration in `ms`. */
-	public readonly duration?: number;
+	public readonly transition?: ConstructorParameters<typeof Transition>[0];
 	// events
 	public readonly onMouseUp?: (callback: Icon) => void;
 	public readonly onMouseDown?: (callback: Icon) => void;
@@ -21,7 +21,7 @@ class IconProps extends Props<SingleElement> {
 
 		this.color = args.color;
 		this.phantom = args.phantom;
-		this.duration = args.duration;
+		this.transition = args.transition;
 		this.onMouseUp = args.onMouseUp;
 		this.onMouseDown = args.onMouseDown;
 		this.onMouseEnter = args.onMouseEnter;
@@ -41,16 +41,13 @@ class Icon extends Stateful<IconProps, IconState> {
 	protected create() {
 		return new IconState({ color: null });
 	}
-	protected postCSS() {
+	protected postCSS(): React.CSSProperties {
 		return {
 			fill: this.state.color ?? this.props.color ?? Color.TEXT_000,
-			transitionDelay: Unit(0, "ms"),
-			transitionDuration: Unit(this.props.duration ?? 350, "ms"),
-			transitionProperty: "fill",
-			transitionTimingFunction: "ease-in-out"
+			...new Transition({ ...this.props.transition, property: ["fill"] }).toStyle()
 		};
 	}
-	protected preCSS() {
+	protected preCSS(): React.CSSProperties {
 		return {
 			width: Unit(12.5),
 			height: Unit(12.5)
@@ -85,9 +82,7 @@ class Icon extends Stateful<IconProps, IconState> {
 		return this.props.children;
 	}
 	public style(color: IconState["color"], callback?: () => void) {
-		this.setState({ ...this.state, color: color }, () => {
-			callback?.();
-		});
+		this.setState({ ...this.state, color: color }, callback);
 	}
 }
 

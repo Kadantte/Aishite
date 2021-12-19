@@ -1,6 +1,5 @@
 import Style from "@/app/common/style";
 
-/** @see https://developer.mozilla.org/en-US/docs/Web/CSS/background */
 class Background extends Style {
 	public readonly color?: string;
 	public readonly image?: string;

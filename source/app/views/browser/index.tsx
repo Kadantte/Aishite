@@ -6,6 +6,7 @@ import { Stateful, EventManager } from "@/app/common/framework";
 // layout
 import Row from "@/app/layout/row";
 import Size from "@/app/layout/size";
+import Text from "@/app/layout/text";
 import Form from "@/app/layout/form";
 import Center from "@/app/layout/center";
 import Column from "@/app/layout/column";
@@ -13,7 +14,10 @@ import Offset from "@/app/layout/offset";
 import Spacer from "@/app/layout/spacer";
 import Scroll from "@/app/layout/scroll";
 import Container from "@/app/layout/container";
+import Decoration from "@/app/layout/decoration";
+import { Cell, Grid } from "@/app/layout/grid";
 // widgets
+import Button from "@/app/widgets/button";
 import Paging from "@/app/widgets/paging";
 import Gallery from "@/app/views/browser/gallery";
 // icons
@@ -40,7 +44,6 @@ class BrowserState extends BrowserProps {
 	public init: boolean;
 	public length: number;
 	public gallery: Array<GalleryBlock>;
-	public breakpoint: number;
 
 	constructor(args: Args<BrowserState>) {
 		super(args);
@@ -48,7 +51,6 @@ class BrowserState extends BrowserProps {
 		this.init = args.init;
 		this.length = args.length;
 		this.gallery = args.gallery;
-		this.breakpoint = args.breakpoint;
 	}
 }
 
@@ -56,28 +58,21 @@ class Browser extends Stateful<BrowserProps, BrowserState> {
 	protected create() {
 		// TODO: use this.binds instead
 		navigator.handle((state) => {
-			if (this.visible()) {
-				if (this.state.init) this.macro_0();
-				// combination of macro_0 and macro_1
-				else this.setState({ ...this.state, init: true, breakpoint: this.grid() }, () => { this.gallery(this.state.query, this.state.index); });
-			}
+			if (this.visible() && !this.state.init) this.macro_0();
 		});
-		return new BrowserState({ init: false, index: this.props.index, query: this.props.query, length: 0, gallery: [], breakpoint: 0 });
+		return new BrowserState({ init: false, index: this.props.index, query: this.props.query, length: 0, gallery: [] });
 	}
 	protected events() {
 		return [
-			new EventManager(window, "resize", () => {
-				if (this.visible()) this.macro_0();
-			}),
 			new EventManager(this.handler, "DID_MOUNT", () => {
-				if (this.visible()) this.macro_1();
+				if (this.visible()) this.macro_0();
 			})
 		];
 	}
-	protected postCSS() {
+	protected postCSS(): React.CSSProperties {
 		return {};
 	}
-	protected preCSS() {
+	protected preCSS(): React.CSSProperties {
 		return {};
 	}
 	protected build() {
@@ -86,76 +81,103 @@ class Browser extends Stateful<BrowserProps, BrowserState> {
 				{/* SCROLL */}
 				<Spacer>
 					<Scroll x={"hidden"} y={"auto"}>
-						<section data-scrollable>
+						<section data-scrollable={"frame"}>
 							{/* QUERY */}
-							<Offset type={"margin"} all={Unit(15)} bottom={Unit(0)}>
-								<Size height={Unit(40)}>
-									<Container decoration={{ border: { radius: Unit(4.5) }, shadow: [[Color.DARK_100, 0, 0, 5, 0]], background: { color: Color.DARK_300 } }}
-										onMouseEnter={(I) => {
-											I.style({ background: { color: Color.DARK_400 } });
-										}}
-										onMouseLeave={(I) => {
-											I.style(null);
-										}}>
-										<Size height={Unit(100, "%")}>
-											<Row>
-												<Offset type={"margin"} left={Unit(10)} right={Unit(10)}>
-													<Form id={"query"} toggle={!this.state.gallery.empty} fallback={this.state.query.length ? this.state.query : "language:all"}
-														onType={(text) => {
-															return true;
-														}}
-														onSubmit={(text) => {
-															// reset gallery
-															this.setState({ ...this.state, index: 0, query: text.length ? text : "language:all", length: 0, gallery: [] }, () => {
-																// update gallery
-																this.gallery(this.state.query, this.state.index);
-																// rename
-																navigator.rename(this.state.query);
-															});
-														}}
-													/>
-												</Offset>
-												<Size width={Unit(50)}>
-													<Center x={true} y={true}>
-														<Close color={Color.DARK_500}
-															onMouseDown={(I) => {
+							<Offset type={"margin"} all={Unit(15)}>
+								<Grid
+									gap={Unit(15)}
+									rows={[
+										Unit(40),
+										Unit(1, "fr")
+									]}
+									columns={[
+										Unit(1, "fr")
+									]}
+									template={[
+										["query"],
+										["gallery"]
+									]}>
+									<Cell area={"query"}>
+										<Container decoration={{ shadow: [[Color.DARK_100, 0, 0, 5, 0]], corner: { all: Unit(4.5) }, background: { color: Color.DARK_300 } }}
+											onMouseEnter={(I) => {
+												I.style({ background: { color: Color.DARK_400 } });
+											}}
+											onMouseLeave={(I) => {
+												I.style(null);
+											}}>
+											<Size height={Unit(100, "%")}>
+												<Row>
+													<Offset type={"margin"} left={Unit(10)} right={Unit(10)}>
+														<Form toggle={!this.state.gallery.empty} fallback={this.state.query.length ? this.state.query : "language:all"}
+															onType={(text) => {
+																return true;
+															}}
+															onSubmit={(text) => {
 																// reset gallery
-																this.setState({ ...this.state, index: 0, query: "language:all", length: 0, gallery: [] }, () => {
+																this.setState({ ...this.state, index: 0, query: text.length ? text : "language:all", length: 0, gallery: [] }, () => {
 																	// update gallery
 																	this.gallery(this.state.query, this.state.index);
 																	// rename
 																	navigator.rename(this.state.query);
 																});
 															}}
-															onMouseEnter={(I) => {
-																I.style(Color.TEXT_000);
-															}}
-															onMouseLeave={(I) => {
-																I.style(null);
-															}}
 														/>
-													</Center>
-												</Size>
-											</Row>
-										</Size>
-									</Container>
-								</Size>
-							</Offset>
-							{/* GALLERY-LIST */}
-							<Offset type={"margin"} all={Unit(7.5)}>
-								<section>
-									<Row wrap={true}>
-										{this.state.gallery.map((gallery, x) => {
-											return (
-												<Column key={x} basis={Unit(100 / this.state.breakpoint, "%")}>
-													<Offset type={"margin"} all={Unit(7.5)}>
-														<Gallery gallery={gallery}/>
 													</Offset>
-												</Column>
-											);
-										})}
-									</Row>
-								</section>
+													<Size width={Unit(50)}>
+														<Center x={true} y={true}>
+															<Close color={Color.DARK_500}
+																onMouseDown={(I) => {
+																	// reset gallery
+																	this.setState({ ...this.state, index: 0, query: "language:all", length: 0, gallery: [] }, () => {
+																		// update gallery
+																		this.gallery(this.state.query, this.state.index);
+																		// rename
+																		navigator.rename(this.state.query);
+																	});
+																}}
+																onMouseEnter={(I) => {
+																	I.style(Color.TEXT_000);
+																}}
+																onMouseLeave={(I) => {
+																	I.style(null);
+																}}
+															/>
+														</Center>
+													</Size>
+												</Row>
+											</Size>
+										</Container>
+									</Cell>
+									<Cell area={"gallery"}>
+										<Grid
+											gap={Unit(15)}
+											rows={{
+												times: "auto",
+												values: [Unit(455)]
+											}}
+											columns={{
+												times: "auto-fit",
+												minimum: Unit(1920 / (5 + 1))
+											}}>
+											{this.state.gallery.map((gallery, x) => {
+												return (
+													<Gallery key={x} gallery={gallery}
+														onTagClick={(tag) => {
+															// cache
+															const query = this.node()!.querySelector("input")!;
+
+															if (query.value.includes(tag)) {
+																query.value = query.value.replace(tag, "").replace(/\s$/, "").replace(/\s\s+/g, "\u0020");
+															} else {
+																query.value += "\u0020" + tag;
+															}
+														}}
+													/>
+												);
+											})}
+										</Grid>
+									</Cell>
+								</Grid>
 							</Offset>
 						</section>
 					</Scroll>
@@ -164,20 +186,48 @@ class Browser extends Stateful<BrowserProps, BrowserState> {
 				{(() => {
 					if (this.state.length > 1) {
 						return (
-							<Paging toggle={!this.state.gallery.empty} index={this.state.index} length={this.state.length} breakpoint={7}
-								onPageChange={(index) => {
-									if (!this.visible()) {
-										return false;
-									}
-									// reset gallery
-									this.setState({ ...this.state, index: index, gallery: [] }, () => {
-										// update gallery
-										this.gallery(this.state.query, this.state.index);
-									});
-									// approve
-									return true;
-								}}
-							/>
+							<Size height={Unit(45)}>
+								<Decoration shadow={[[Color.DARK_100, 0, 0, 5, 0]]} background={{ color: Color.DARK_100 }}>
+									<Paging toggle={!this.state.gallery.empty} index={this.state.index} length={this.state.length} overflow={7} shortcut={{ first: true, last: true }}
+										onPaging={(index) => {
+											if (!this.visible()) {
+												return false;
+											}
+											// reset gallery
+											this.setState({ ...this.state, index: index, gallery: [] }, () => {
+												// update gallery
+												this.gallery(this.state.query, this.state.index);
+											});
+											// approve
+											return true;
+										}}
+										onButton={(key, index, indexing, jump) => {
+											return (
+												<Size key={key} type={"minimum"} width={Unit(50)}>
+													<Offset type={"margin"} top={Unit(7.5)} bottom={Unit(7.5)}>
+														<Offset type={"padding"} left={Unit(7.5)} right={Unit(7.5)}>
+															<Button decoration={{ corner: { all: Unit(3.5) } }}
+																onMouseDown={(I) => {
+																	I.style(null, () => {
+																		jump();
+																	});
+																}}
+																onMouseEnter={(I) => {
+																	I.style({ background: { color: Color.DARK_200 } });
+																}}
+																onMouseLeave={(I) => {
+																	I.style(null);
+																}}
+																children={<Text color={!this.state.gallery.empty && this.state.length ? indexing ? Color.SPOTLIGHT : Color.TEXT_000 : Color.DARK_500}>{typeof index === "string" ? index : (index + 1).toString()}</Text>}
+															/>
+														</Offset>
+													</Offset>
+												</Size>
+											);
+										}}
+									/>
+								</Decoration>
+							</Size>
 						);
 					}
 				})()}
@@ -229,10 +279,7 @@ class Browser extends Stateful<BrowserProps, BrowserState> {
 		});
 	}
 	public macro_0() {
-		const cache = this.grid(); if (cache !== this.state.breakpoint) this.setState({ ...this.state, breakpoint: cache });
-	}
-	public macro_1() {
-		this.setState({ ...this.state, init: true }, () => { this.gallery(this.state.query, this.state.index); });
+		this.setState({ ...this.state, init: true }, () => this.gallery(this.state.query, this.state.index));
 	}
 }
 

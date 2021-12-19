@@ -6,18 +6,22 @@ import { Stateful, EventManager } from "@/app/common/framework";
 // layout
 import Row from "@/app/layout/row";
 import Size from "@/app/layout/size";
+import Offset from "@/app/layout/offset";
 import Spacer from "@/app/layout/spacer";
 import Column from "@/app/layout/column";
 import Draggable from "@/app/layout/draggable";
 // Statefuls
 import Button from "@/app/widgets/button";
-import Navigator from "@/app/widgets/navigator";
 import Viewport from "@/app/widgets/view";
+import Navigator from "@/app/widgets/navigator";
 // assets
+import Plus from "@/app/icons/plus";
 import Close from "@/app/icons/close";
 import Maximize from "@/app/icons/maximize";
 import Minimize from "@/app/icons/minimize";
 import Unmaximize from "@/app/icons/unmaximize";
+// states
+import navigator from "@/states/navigator";
 // api
 import { BridgeEvent } from "@/api";
 
@@ -57,12 +61,12 @@ class App extends Stateful<AppProps, AppState> {
 			})
 		];
 	}
-	protected postCSS() {
+	protected postCSS(): React.CSSProperties {
 		return {
 			background: Color.DARK_000
 		};
 	}
-	protected preCSS() {
+	protected preCSS(): React.CSSProperties {
 		return {};
 	}
 	protected build() {
@@ -73,56 +77,74 @@ class App extends Stateful<AppProps, AppState> {
 					if (!this.state.fullscreen) {
 						return (
 							<Draggable drag={true}>
-								<Row id="titlebar">
-									<Spacer>
-										<Navigator/>
-									</Spacer>
-									<Size width={Unit(75)}>
-										<section></section>
-									</Size>
-									<Size width={Unit(50)} height={Unit(40)}>
-										<Button id="minimize"
-											onMouseDown={(I) => {
-												window.API.minimize();
-											}}
-											onMouseEnter={(I) => {
-												I.style({ background: { color: Color.DARK_100 } });
-											}}
-											onMouseLeave={(I) => {
-												I.style(null);
-											}}
-											children={<Minimize/>}
-										/>
-										<Button id="maximize"
-											onMouseDown={(I) => {
-												if (this.state.maximize) {
-													window.API.unmaximize();
-												} else {
-													window.API.maximize();
-												}
-											}}
-											onMouseEnter={(I) => {
-												I.style({ background: { color: Color.DARK_100 } });
-											}}
-											onMouseLeave={(I) => {
-												I.style(null);
-											}}
-											children={this.state.maximize ? <Unmaximize/> : <Maximize/>}
-										/>
-										<Button id="close"
-											onMouseDown={(I) => {
-												window.API.close("titlebar");
-											}}
-											onMouseEnter={(I) => {
-												I.style({ background: { color: Color.SPOTLIGHT } });
-											}}
-											onMouseLeave={(I) => {
-												I.style(null);
-											}}
-											children={<Close/>}
-										/>
-									</Size>
-								</Row>
+								<Size height={Unit(40)}>
+									<Row id="titlebar">
+										<Spacer>
+											<Navigator/>
+										</Spacer>
+										<Offset type={"margin"} all={Unit(20 - 13.25)}>
+											<Size width={Unit(26.5)} height={Unit(26.5)}>
+												<Button decoration={{ corner: { all: Unit(2.5) }, background: { color: Color.DARK_100 } }}
+													onMouseDown={(I) => {
+														navigator.open("New Tab", "FALLBACK", {});
+													}}
+													onMouseEnter={(I) => {
+														I.style({ background: { color: Color.DARK_300 } });
+													}}
+													onMouseLeave={(I) => {
+														I.style(null);
+													}}
+													children={<Plus/>}
+												/>
+											</Size>
+										</Offset>
+										<Size width={Unit(69)}>
+											<section></section>
+										</Size>
+										<Size width={Unit(50)}>
+											<Button id={"minimize"}
+												onMouseDown={(I) => {
+													window.API.minimize();
+												}}
+												onMouseEnter={(I) => {
+													I.style({ background: { color: Color.DARK_100 } });
+												}}
+												onMouseLeave={(I) => {
+													I.style(null);
+												}}
+												children={<Minimize/>}
+											/>
+											<Button id={"maximize"}
+												onMouseDown={(I) => {
+													if (this.state.maximize) {
+														window.API.unmaximize();
+													} else {
+														window.API.maximize();
+													}
+												}}
+												onMouseEnter={(I) => {
+													I.style({ background: { color: Color.DARK_100 } });
+												}}
+												onMouseLeave={(I) => {
+													I.style(null);
+												}}
+												children={this.state.maximize ? <Unmaximize/> : <Maximize/>}
+											/>
+											<Button id={"close"}
+												onMouseDown={(I) => {
+													window.API.close("titlebar");
+												}}
+												onMouseEnter={(I) => {
+													I.style({ background: { color: Color.SPOTLIGHT } });
+												}}
+												onMouseLeave={(I) => {
+													I.style(null);
+												}}
+												children={<Close/>}
+											/>
+										</Size>
+									</Row>
+								</Size>
 							</Draggable>
 						);
 					}

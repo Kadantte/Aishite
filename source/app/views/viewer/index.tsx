@@ -47,15 +47,15 @@ class Viewer extends Stateful<ViewerProps, ViewerState> {
 			})
 		];
 	}
-	protected postCSS() {
+	protected postCSS(): React.CSSProperties {
 		return {};
 	}
-	protected preCSS() {
+	protected preCSS(): React.CSSProperties {
 		return {};
 	}
 	protected build() {
 		return (
-			<section id={"viewer"} data-scrollable>
+			<section id={"viewer"} data-scrollable={"frame"}>
 				{(() => {
 					if (this.state.script) {
 						return (

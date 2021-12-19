@@ -21,10 +21,10 @@ class ImageProps extends Props<undefined> {
 }
 
 class Image extends Stateless<ImageProps> {
-	protected postCSS() {
+	protected postCSS(): React.CSSProperties {
 		return {};
 	}
-	protected preCSS() {
+	protected preCSS(): React.CSSProperties {
 		return {};
 	}
 	protected build() {

@@ -1,4 +1,4 @@
-export class Props<C extends TextElement | ArrayElement | SingleElement | undefined> {
+export class Props<C extends TextChild | SingleChild | ArrayChild | undefined> {
 	public readonly id?: string;
 	public readonly style?: React.CSSProperties;
 	public readonly children?: C;
@@ -10,7 +10,7 @@ export class Props<C extends TextElement | ArrayElement | SingleElement | undefi
 	}
 }
 
-export class FlipFlop<C extends TextElement | ArrayElement | SingleElement | undefined> extends Props<C> {
+export class FlipFlop<C extends TextChild | SingleChild | ArrayChild | undefined> extends Props<C> {
 	public readonly toggle: boolean;
 
 	constructor(args: FlipFlop<C>) {
@@ -23,7 +23,7 @@ export class FlipFlop<C extends TextElement | ArrayElement | SingleElement | und
 export class Casacade {
 	public readonly style?: React.CSSProperties;
 	public readonly modify?: Record<string, any>;
-	public readonly children: ArrayElement;
+	public readonly children: ArrayChild;
 
 	constructor(args: Casacade) {
 		this.style = args.style;

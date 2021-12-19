@@ -6,16 +6,16 @@ import Container from "@/app/layout/container";
 
 /** Shorthand combination of `Container` and `Center`. */
 class Button extends Stateless<Container["props"]> {
-	protected preCSS() {
+	protected postCSS(): React.CSSProperties {
 		return {};
 	}
-	protected postCSS() {
+	protected preCSS(): React.CSSProperties {
 		return {};
 	}
 	protected build() {
 		return (
 			<Container {...this.props}>
-				<Center x={true} y={true} children={this.props.children as SingleElement}/>
+				<Center x={true} y={true} children={this.props.children as SingleChild}/>
 			</Container>
 		);
 	}

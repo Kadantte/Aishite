@@ -4,7 +4,7 @@ import { Props } from "@/app/common/props";
 import { Stateless } from "@/app/common/framework";
 import { Vertical, Alignment } from "@/app/common/flex";
 
-class ColumnProps extends Props<ArrayElement> {
+class ColumnProps extends Props<ArrayChild> {
 	public readonly wrap?: boolean;
 	public readonly basis?: Unit;
 	public readonly direction?: Vertical;
@@ -22,7 +22,7 @@ class ColumnProps extends Props<ArrayElement> {
 
 class Column extends Stateless<ColumnProps> {
 	// @ts-ignore
-	protected postCSS() {
+	protected postCSS(): React.CSSProperties {
 		return {
 			display: "flex",
 			flexWrap: this.props.wrap ? "wrap" : "nowrap",
@@ -31,8 +31,9 @@ class Column extends Stateless<ColumnProps> {
 			justifyContent: this.props.alignment ?? Alignment.FLEX_START
 		};
 	}
-	protected preCSS() {
+	protected preCSS(): React.CSSProperties {
 		return {
+			width: Unit(100, "%"),
 			height: Unit(100, "%"),
 			flexShrink: 0.0
 		};

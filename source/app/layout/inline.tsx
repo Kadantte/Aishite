@@ -14,12 +14,12 @@ class InlineProps extends Casacade {
 	}
 }
 class Inline extends StyleSheet<InlineProps> {
-	protected postCSS() {
+	protected postCSS(): React.CSSProperties {
 		return {
 			display: this.props.type === "flex" ? "inline-flex" : "inline-block"
 		};
 	}
-	protected preCSS() {
+	protected preCSS(): React.CSSProperties {
 		return {};
 	}
 }

@@ -20,14 +20,14 @@ class SizeProps extends Casacade {
 }
 
 class Size extends StyleSheet<SizeProps> {
-	protected postCSS() {
+	protected postCSS(): React.CSSProperties {
 		return {
 			[this.props.type === "minimum" ? "minWidth" : this.props.type === "maximum" ? "maxWidth" : "width"]: this.props.width,
 			[this.props.type === "minimum" ? "minHeight" : this.props.type === "maximum" ? "maxHeight" : "height"]: this.props.height,
 			flexShrink: typeof (this.props?.width ?? this.props?.height) === "string" && /%$/.test((this.props?.width ?? this.props?.height) as string) ? 1.0 : 0.0
 		};
 	}
-	protected preCSS() {
+	protected preCSS(): React.CSSProperties {
 		return {};
 	}
 }

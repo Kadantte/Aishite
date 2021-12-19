@@ -40,14 +40,14 @@ class Form extends Stateful<FormProps, FormState> {
 			})
 		];
 	}
-	protected postCSS() {
+	protected postCSS(): React.CSSProperties {
 		return {
 			color: Color.TEXT_000,
 			width: Unit(100, "%"),
 			height: Unit(100, "%")
 		};
 	}
-	protected preCSS() {
+	protected preCSS(): React.CSSProperties {
 		return {};
 	}
 	protected build() {
@@ -75,8 +75,6 @@ class Form extends Stateful<FormProps, FormState> {
 								if (node) {
 									// trigger
 									this.props.onSubmit?.(node.value);
-									// reset
-									node.value = "";
 								}
 								break;
 							}

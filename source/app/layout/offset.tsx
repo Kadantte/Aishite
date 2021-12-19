@@ -26,7 +26,7 @@ class OffsetProps extends Casacade {
 }
 
 class Offset extends StyleSheet<OffsetProps> {
-	protected postCSS() {
+	protected postCSS(): React.CSSProperties {
 		return {
 			[this.props.type + "Top"]: this.props.top ?? this.props.all,
 			[this.props.type + "Left"]: this.props.left ?? this.props.all,
@@ -34,7 +34,7 @@ class Offset extends StyleSheet<OffsetProps> {
 			[this.props.type + "Bottom"]: this.props.bottom ?? this.props.all
 		};
 	}
-	protected preCSS() {
+	protected preCSS(): React.CSSProperties {
 		return {};
 	}
 }

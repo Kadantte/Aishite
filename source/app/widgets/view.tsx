@@ -34,14 +34,14 @@ class Viewport extends Stateful<ViewportProps, ViewportState> {
 		});
 		return new ViewportState({});
 	}
-	protected postCSS() {
+	protected postCSS(): React.CSSProperties {
 		return {};
 	}
-	protected preCSS() {
+	protected preCSS(): React.CSSProperties {
 		return {};
 	}
 	protected build() {
-		return (<>{navigator.state.pages.map((page, x) => <section key={x} data-scrollable style={{ display: navigator.state.index === x ? "block" : "none", width: Unit(100, "%"), height: Unit(100, "%"), overflow: "auto" }}>{page.widget}</section>)}</>);
+		return (<>{navigator.state.pages.map((page, x) => <section key={x} data-scrollable={"frame"} style={{ display: navigator.state.index === x ? "block" : "none", width: Unit(100, "%"), height: Unit(100, "%"), overflow: "auto" }}>{page.widget}</section>)}</>);
 	}
 }
 

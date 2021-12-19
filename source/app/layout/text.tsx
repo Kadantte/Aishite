@@ -1,19 +1,22 @@
 // common
 import Unit from "@/app/common/unit";
 import Color from "@/app/common/color";
+import Transition from "@/app/common/transition";
 import { Props } from "@/app/common/props";
 import { Stateless } from "@/app/common/framework";
 
-class TextProps extends Props<TextElement> {
+type TextType = "italic" | "normal" | "oblique";
+type TextWeight = "bold" | "normal" | "bolder" | "lighter";
+
+class TextProps extends Props<TextChild> {
 	public readonly size?: Unit;
-	public readonly type?: "italic" | "normal" | "oblique";
+	public readonly type?: TextType;
 	public readonly color?: string;
 	public readonly family?: string;
-	public readonly weight?: "bold" | "normal" | "bolder" | "lighter";
-	/** CSS `transition-duration` */
-	public readonly duration?: number;
+	public readonly weight?: TextWeight;
+	public readonly transition?: ConstructorParameters<typeof Transition>[0];
 	/** @required */
-	declare public readonly children: string;
+	declare public readonly children: TextChild;
 
 	constructor(args: Args<TextProps>) {
 		super(args);
@@ -23,26 +26,23 @@ class TextProps extends Props<TextElement> {
 		this.color = args.color;
 		this.family = args.family;
 		this.weight = args.weight;
-		this.duration = args.duration;
+		this.transition = args.transition;
 	}
 }
 
 class Text extends Stateless<TextProps> {
-	protected postCSS() {
+	protected postCSS(): React.CSSProperties {
 		return {
 			color: this.props.color ?? Color.TEXT_000,
 			fontSize: this.props.size,
 			fontStyle: this.props.type,
 			fontFamily: this.props.family,
 			fontWeight: this.props.weight,
-			transitionDelay: Unit(0, "ms"),
-			transitionDuration: Unit(this.props.duration ?? 350, "ms"),
-			transitionProperty: "color",
-			transitionTimingFunction: "ease-in-out"
+			...new Transition({ ...this.props.transition, property: ["color"] }).toStyle()
 		};
 	}
 	// @ts-ignore
-	protected preCSS() {
+	protected preCSS(): React.CSSProperties {
 		return {
 			overflow: "hidden",
 			whiteSpace: "nowrap",

@@ -23,7 +23,7 @@ class PositionProps extends Casacade {
 
 class Position extends StyleSheet<PositionProps> {
 	// @ts-ignore
-	protected postCSS() {
+	protected postCSS(): React.CSSProperties {
 		return {
 			position: "absolute",
 			top: this.props.top ?? this.props.all,
@@ -32,7 +32,7 @@ class Position extends StyleSheet<PositionProps> {
 			bottom: this.props.bottom ?? this.props.all
 		};
 	}
-	protected preCSS() {
+	protected preCSS(): React.CSSProperties {
 		return {};
 	}
 }

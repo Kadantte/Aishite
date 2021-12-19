@@ -36,10 +36,10 @@ class Navigator extends Stateful<NavigatorProps, NavigatorState> {
 		});
 		return new NavigatorState({});
 	}
-	protected postCSS() {
+	protected postCSS(): React.CSSProperties {
 		return {};
 	}
-	protected preCSS() {
+	protected preCSS(): React.CSSProperties {
 		return {};
 	}
 	protected build() {
@@ -48,9 +48,9 @@ class Navigator extends Stateful<NavigatorProps, NavigatorState> {
 				{navigator.state.pages.map((page, x) => {
 					return (
 						<Spacer key={x}>
-							<Size type={"minimum"} width={Unit(5 + 19.5 + 5)}>
+							<Size type={"minimum"} width={Unit(29.5)}>
 								<Size type={"maximum"} width={Unit(250)}>
-									<Container decoration={{ border: { top: [4.5, "solid", navigator.state.index === x ? Color.SPOTLIGHT : "transparent"], bottom: [4.5] }, background: { color: navigator.state.index === x ? Color.DARK_200 : Color.DARK_000 } }}
+									<Container decoration={{ border: { top: [2.5, "solid", navigator.state.index === x ? Color.SPOTLIGHT : "transparent"], bottom: [2.5] }, background: { color: navigator.state.index === x ? Color.DARK_200 : Color.DARK_000 } }}
 										onMouseDown={(I) => {
 											if (navigator.state.index !== x) {
 												I.style(null, () => {
@@ -60,18 +60,18 @@ class Navigator extends Stateful<NavigatorProps, NavigatorState> {
 										}}
 										onMouseEnter={(I) => {
 											if (navigator.state.index !== x) {
-												I.style({ border: { top: [4.5, "solid", Color.DARK_200] }, background: { color: Color.DARK_100 } });
+												I.style({ border: { top: [2.5, "solid", Color.DARK_200] }, background: { color: Color.DARK_100 } });
 											}
 										}}
 										onMouseLeave={(I) => {
 											I.style(null);
 										}}>
-										<Position all={Unit(5)} left={Unit(10)} right={Unit(5 + 19.5 + 5)}>
+										<Position all={Unit(7.5)} left={Unit(10)} right={Unit(29.5)}>
 											<Text id={"title"}>{page.title}</Text>
 										</Position>
-										<Position all={Unit(5)} left={"auto"}>
+										<Position all={Unit(7.5)} left={"auto"} right={Unit(5)}>
 											<Size width={Unit(19.5)} height={Unit(19.5)}>
-												<Button decoration={{ border: { radius: Unit(2.5) } }}
+												<Button decoration={{ corner: { all: Unit(2.5) } }}
 													onMouseDown={(I) => {
 														navigator.close(x);
 													}}
@@ -81,7 +81,7 @@ class Navigator extends Stateful<NavigatorProps, NavigatorState> {
 													onMouseLeave={(I) => {
 														I.style(null);
 													}}
-													children={<Close></Close>}
+													children={<Close/>}
 												/>
 											</Size>
 										</Position>

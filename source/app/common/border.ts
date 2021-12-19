@@ -3,14 +3,12 @@ import Style from "@/app/common/style";
 
 type BorderType = "dashed" | "dotted" | "double" | "groove" | "hidden" | "inset" | "none" | "outset" | "ridge" | "solid";
 
-/** @see https://developer.mozilla.org/en-US/docs/Web/CSS/border */
 class Border extends Style {
 	public readonly all?: Parameters<typeof compiler>;
 	public readonly top?: Parameters<typeof compiler>;
 	public readonly left?: Parameters<typeof compiler>;
 	public readonly right?: Parameters<typeof compiler>;
 	public readonly bottom?: Parameters<typeof compiler>;
-	public readonly radius?: Unit;
 
 	constructor(args: Args<Border>) {
 		super();
@@ -20,7 +18,6 @@ class Border extends Style {
 		this.left = args.left;
 		this.right = args.right;
 		this.bottom = args.bottom;
-		this.radius = args.radius;
 	}
 	protected compile() {
 		return {
@@ -29,7 +26,6 @@ class Border extends Style {
 			borderLeft: this.left ? compiler(...this.left) : undefined,
 			borderRight: this.right ? compiler(...this.right) : undefined,
 			borderBottom: this.bottom ? compiler(...this.bottom) : undefined,
-			borderRadius: this.radius
 		};
 	}
 }

@@ -1,5 +1,5 @@
-declare type TextElement = string | number;
+declare type TextChild = Array<string> | string;
 
-declare type ArrayElement = Array<SingleElement> | SingleElement;
+declare type ArrayChild = Array<SingleChild> | SingleChild;
 
-declare type SingleElement = JSX.Element | Element | undefined;
+declare type SingleChild = JSX.Element | Element | undefined;
