@@ -8,11 +8,13 @@ import Row from "@/app/layout/row";
 import Size from "@/app/layout/size";
 import Text from "@/app/layout/text";
 import Spacer from "@/app/layout/spacer";
+import Offset from "@/app/layout/offset";
 import Position from "@/app/layout/position";
 import Container from "@/app/layout/container";
 // widgets
 import Button from "@/app/widgets/button";
-// icons
+// assets
+import Plus from "@/app/icons/plus";
 import Close from "@/app/icons/close";
 // states
 import navigator from "@/states/navigator";
@@ -90,7 +92,23 @@ class Navigator extends Stateful<NavigatorProps, NavigatorState> {
 							</Size>
 						</Spacer>
 					);
-				})}
+				}) as never}
+				<Offset type={"margin"} all={Unit(20 - 13.25)}>
+					<Size width={Unit(26.5)} height={Unit(26.5)}>
+						<Button decoration={{ corner: { all: Unit(2.5) }, background: { color: Color.DARK_100 } }}
+							onMouseDown={(I) => {
+								navigator.open("New Tab", "FALLBACK", {});
+							}}
+							onMouseEnter={(I) => {
+								I.style({ background: { color: Color.DARK_300 } });
+							}}
+							onMouseLeave={(I) => {
+								I.style(null);
+							}}
+							children={<Plus/>}
+						/>
+					</Size>
+				</Offset>
 			</Row>
 		);
 	}
