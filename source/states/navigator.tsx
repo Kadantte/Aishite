@@ -67,16 +67,16 @@ class Navigator extends StateHandler<NavigatorState> {
 			pages: [...this.state.pages.take(index), { title: title, widget: this.state.pages[index].widget }, ...this.state.pages.skip(index + 1)]
 		});
 	}
-	/** Reorder array of `page`. */
-	public reorder(index_0: number, index_1: number) {
-		throw new Error("Unimplemented");
-	}
 	/** Replace current `page` with new `page`. */
 	public replace(name: string, type: string, args: any) {
 		this.state = new NavigatorState({
-			index: this.state.pages.length - 1,
-			pages: [...this.state.pages.take(this.state.pages.length - 1), { title: name, widget: build(type, args) }]
+			index: this.state.index,
+			pages: [...this.state.pages.take(this.state.index), { title: name, widget: build(type, args) }, ...this.state.pages.skip(this.state.index + 1)]
 		});
+	}
+	/** Reorder array of `page`. */
+	public reorder(index_0: number, index_1: number) {
+		throw new Error("Unimplemented");
 	}
 }
 

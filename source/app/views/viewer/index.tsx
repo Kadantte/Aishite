@@ -75,7 +75,7 @@ class Viewer extends Stateful<ViewerProps, ViewerState> {
 		);
 	}
 	/**
-	 * Wwhether the component is visible
+	 * Whether the component is visible
 	 */
 	public visible() {
 		// @ts-ignore

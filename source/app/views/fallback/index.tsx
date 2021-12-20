@@ -1,24 +1,20 @@
 // common
 import Unit from "@/app/common/unit";
-import { Props } from "@/app/common/props";
-import { Stateful, Stateless } from "@/app/common/framework";
-import Row from "@/app/layout/row";
-import Center from "@/app/layout/center";
-import Button from "@/app/widgets/button";
-import Size from "@/app/layout/size";
-import Stack from "@/app/layout/stack";
-import Box from "@/app/layout/box";
-import Spacer from "@/app/layout/spacer";
-import Container from "@/app/layout/container";
-import Offset from "@/app/layout/offset";
 import Color from "@/app/common/color";
-import Position from "@/app/layout/position";
-import Column from "@/app/layout/column";
-import { Grid, Cell } from "@/app/layout/grid";
-import Scroll from "@/app/layout/scroll";
-import Paging from "@/app/widgets/paging";
+import { Props } from "@/app/common/props";
+import { Stateful } from "@/app/common/framework";
+// layout
+import Size from "@/app/layout/size";
 import Text from "@/app/layout/text";
+import Stack from "@/app/layout/stack";
+import Spacer from "@/app/layout/spacer";
+import Offset from "@/app/layout/offset";
+import Center from "@/app/layout/center";
+import Column from "@/app/layout/column";
 import Transform from "@/app/layout/transform";
+// widgets
+import Button from "@/app/widgets/button";
+import Paging from "@/app/widgets/paging";
 // states
 import navigator from "@/states/navigator";
 
@@ -108,6 +104,9 @@ class Fallback extends Stateful<FallbackProps, FallbackState> {
 					<Offset type={"margin"} top={Unit(29.5)} bottom={Unit(29.5)}>
 						<Paging toggle={true} index={0} length={3} overflow={3} shortcut={{ first: false, last: false }}
 							onPaging={(index) => {
+								if (!this.visible()) {
+									return false;
+								}
 								// update
 								this.setState({ ...this.state, index: index });
 								// approve
@@ -142,7 +141,17 @@ class Fallback extends Stateful<FallbackProps, FallbackState> {
 			</Column>
 		);
 	}
-
+	/**
+	 * Whether the component is visible
+	 */
+	public visible() {
+		// @ts-ignore
+		if (this.props["data-key"]) {
+			// @ts-ignore
+			return navigator.state.pages[navigator.state.index].widget.props["data-key"] === this.props["data-key"];
+		}
+		return this.node()?.closest("section[style*=\"display: block\"]") !== null;
+	}
 }
 
 export default Fallback;

@@ -241,7 +241,7 @@ class Browser extends Stateful<BrowserProps, BrowserState> {
 		return Math.round(window.outerWidth / (1920 / 5));
 	}
 	/**
-	 * Wwhether the component is visible
+	 * Whether the component is visible
 	 */
 	public visible() {
 		// @ts-ignore

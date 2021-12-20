@@ -3,6 +3,7 @@ import Unit from "@/app/common/unit";
 import Color from "@/app/common/color";
 import { Props } from "@/app/common/props";
 import { Stateful } from "@/app/common/framework";
+import { Alignment } from "@/app/common/flex";
 // layout
 import Row from "@/app/layout/row";
 import Size from "@/app/layout/size";
@@ -46,7 +47,7 @@ class Navigator extends Stateful<NavigatorProps, NavigatorState> {
 	}
 	protected build() {
 		return (
-			<Row id={"navigator"}>
+			<Row id={"navigator"} alignment={Alignment.FLEX_END}>
 				{navigator.state.pages.map((page, x) => {
 					return (
 						<Spacer key={x}>
