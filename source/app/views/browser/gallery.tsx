@@ -78,18 +78,18 @@ class Gallery extends Stateful<GalleryProps, GalleryState> {
 		return (
 			<Container id={"gallery"} decoration={{ shadow: [[Color.DARK_100, 0, 0, 5, 0]], corner: { all: Unit(4.5) }, background: { color: Color.DARK_400 } }}
 				onMouseEnter={(I) => {
-					if (this.state.background !== Ayanami.INFORMATION) {
-						this.setState({ ...this.state, background: Ayanami.THUMBNAIL_1 });
-					}
-					// manipulate style anyways
-					I.style({ corner: { all: Unit(14.5) } });
+					I.style({ corner: { all: Unit(14.5) } }, () => {
+						if (this.state.background !== Ayanami.INFORMATION) {
+							this.setState({ ...this.state, background: Ayanami.THUMBNAIL_1 });
+						}
+					});
 				}}
 				onMouseLeave={(I) => {
-					if (this.state.background !== Ayanami.INFORMATION) {
-						this.setState({ ...this.state, background: Ayanami.THUMBNAIL_0 });
-					}
-					// manipulate style anyways
-					I.style(null);
+					I.style(null, () => {
+						if (this.state.background !== Ayanami.INFORMATION) {
+							this.setState({ ...this.state, background: Ayanami.THUMBNAIL_0 });
+						}
+					});
 				}}>
 				<Stack>
 					{/* BACKGROUND */}

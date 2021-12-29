@@ -57,22 +57,15 @@ function args(table: Record<string, any>) {
 }
 
 /** @see https://discord.com/developers/applications/{application_id}/information */
-class DiscordRPC extends StateHandler<RichPresence> {
-	protected available: boolean;
+class DiscordRPC extends StateHandler<{ rpc: RichPresence, secret: string; }> {
+	protected connection: boolean = false;
 	protected readonly client = new RPC.Client({ transport: "ipc" });
 
-	constructor(args: {
-		state: DiscordRPC["_state"];
-		secret: string;
-	}) {
-		super({ state: args.state });
-
-		this.available = false;
-
-		this.client.once("ready", () => {
-			this.update();
-		});
-		this.connect(args.secret);
+	protected create() {
+		// attach function before connecting
+		this.client.once("ready", this.update());
+		// connect
+		this.connect(this.state.secret);
 	}
 	public get state() {
 		return super.state;
@@ -80,40 +73,39 @@ class DiscordRPC extends StateHandler<RichPresence> {
 	public set state(state: DiscordRPC["_state"]) {
 		super.state = state;
 	}
-	public update(presence: RichPresence = this.state, preserve: boolean = true) {
-		if (preserve) {
-			this.state = new RichPresence({ ...args(this.state), ...args(presence) } as RichPresence);
+	public update(rpc: RichPresence = this.state.rpc, override: boolean = false) {
+		if (override) {
+			this.state = { ...this.state, rpc: rpc };
 		} else {
-			this.state = presence;
+			this.state = { ...this.state, rpc: new RichPresence({ ...args(this.state), ...args(rpc) } as Args<RichPresence>) };
 		}
-		if (this.available) {
-			this.client.setActivity(this.state);
-		}
+		// await until
+		until(() => this.connection).then(() => this.client.setActivity(this.state));
 	}
-	protected connect(secret: string) {
-		if (this.available) {
-			throw new Error();
-		}
-		this.client.login({ "clientId": secret }).then(() => {
-			this.available = true;
-		}).catch(() => {
-			setTimeout(() => {
-				this.connect(secret);
-			}, 1000 * 60);
-		});
+	public connect(secret: string) {
+		// prevent multiple connection
+		if (this.connection) throw new Error();
+		// connecting hearts!
+		this.client.login({ clientId: secret }).then(() => this.connection = true).catch(() => setTimeout(() => this.connect(secret), 1000 * 60));
 	}
 }
 
 const singleton = new DiscordRPC({
-	state: new RichPresence({
-		details: "Starting...",
-		startTimestamp: Date.now(),
-		largeImageKey: "icon",
-		largeImageText: "Sombian#7940",
-		smallImageKey: "discord",
-		smallImageText: "discord.gg/Gp7tWCe"
-	}),
-	secret: "526951055079112724"
+	state: {
+		rpc: new RichPresence({
+			// lore
+			details: "Starting...",
+			// large image
+			largeImageKey: "icon",
+			largeImageText: "Sombian#7940",
+			// small image
+			smallImageKey: "discord",
+			smallImageText: "discord.gg/Gp7tWCe",
+			// time elapsed
+			startTimestamp: Date.now()
+		}),
+		secret: "526951055079112724"
+	}
 });
 
 export default singleton;

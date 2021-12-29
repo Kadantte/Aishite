@@ -32,7 +32,8 @@ class Request {
 								request: { ...args.request, url: http.headers["location"] },
 								private: { ...args.private, redirects: (args.private.redirects ?? 0) + 1 }
 							}),
-							progress);
+							progress
+						);
 					}
 				}
 			});
@@ -47,7 +48,8 @@ class Request {
 									...args,
 									private: { ...args.private, retry: (args.private.retry ?? 0) + 1 }
 								}),
-								progress);
+								progress
+							);
 						}
 						// continue
 					}
@@ -111,15 +113,19 @@ class Request {
 	}
 }
 
+type RequestType = "GET" | "PUT" | "POST" | "DELETE" | "HEAD";
+
+type RequestHeaders = Record<string, string>;
+
 class RequestOptions {
 	public readonly request: {
 		url: string;
 		type: XMLHttpRequestResponseType;
-		method: "GET" | "PUT" | "POST" | "DELETE" | "HEAD";
+		method: RequestType;
 	};
 	public readonly partial: {
-		headers?: Record<string, string>;
 		retry?: number;
+		headers?: RequestHeaders;
 		redirects?: number;
 	};
 	public readonly private: {
@@ -140,7 +146,7 @@ class RequestResponse {
 		code: number;
 		message: string;
 	};
-	public readonly headers: Record<string, string>;
+	public readonly headers: RequestHeaders;
 
 	constructor(args: Args<RequestResponse>) {
 		this.encode = args.encode;

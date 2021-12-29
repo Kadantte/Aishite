@@ -83,11 +83,13 @@ export type GalleryScript = {
 
 let common_js: Nullable<string> = null;
 
-request.GET("https://ltn.hitomi.la/common.js", { type: "text" }).then((response) => {
-	common_js = [
-		...response.encode.split(/\n/g).filter((section) => /^var\s(gg)/.test(section)),
-		...response.encode.split(/\nfunction\s/g).filter((section) =>/^(subdomain_from_galleryid|subdomain_from_url|url_from_url|full_path_from_hash|url_from_hash|url_from_url_from_hash)/.test(section)).map((section) => ["function", section].join("\u0020"))
-	].join(("\n"));
+request.GET("https://ltn.hitomi.la/common.js", { type: "text" }).then((response_0) => {
+	request.GET("https://ltn.hitomi.la/gg.js", { type: "text" }).then((response_1) => {
+		common_js = [
+			...response_0.encode.split(/\n/g).filter((section) => /^var\s(gg)/.test(section)),
+			...response_0.encode.split(/\nfunction\s/g).filter((section) =>/^(subdomain_from_galleryid|subdomain_from_url|url_from_url|full_path_from_hash|url_from_hash|url_from_url_from_hash)/.test(section)).map((section) => ["function", section].join("\u0020"))
+		].join(("\n")) + response_1.encode;
+	});
 });
 
 export async function GalleryBlock(id: number): Promise<GalleryBlock> {

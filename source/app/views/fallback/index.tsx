@@ -118,9 +118,7 @@ class Fallback extends Stateful<FallbackProps, FallbackState> {
 										<Offset type={"margin"} left={Unit(69)} right={Unit(69)}>
 											<Button decoration={{ corner: { all: Unit(100, "%") }, shadow: [[Color.DARK_100, 0, 0, 5, 0]], background: { color: indexing ? Color.SPOTLIGHT : Color.DARK_500 } }}
 												onMouseDown={(I) => {
-													I.style(null, () => {
-														jump();
-													});
+													I.style(null, jump);
 												}}
 												onMouseEnter={(I) => {
 													if (!indexing) {

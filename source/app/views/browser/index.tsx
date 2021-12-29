@@ -208,9 +208,7 @@ class Browser extends Stateful<BrowserProps, BrowserState> {
 														<Offset type={"padding"} left={Unit(7.5)} right={Unit(7.5)}>
 															<Button decoration={{ corner: { all: Unit(3.5) } }}
 																onMouseDown={(I) => {
-																	I.style(null, () => {
-																		jump();
-																	});
+																	I.style(null, jump);
 																}}
 																onMouseEnter={(I) => {
 																	I.style({ background: { color: Color.DARK_200 } });
