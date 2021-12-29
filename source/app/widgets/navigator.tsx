@@ -47,7 +47,7 @@ class Navigator extends Stateful<NavigatorProps, NavigatorState> {
 	}
 	protected build() {
 		return (
-			<Row id={"navigator"} alignment={Alignment.FLEX_END}>
+			<Row id={"navigator"}>
 				{navigator.state.pages.map((page, x) => {
 					return (
 						<Spacer key={x}>

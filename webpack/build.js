@@ -84,9 +84,14 @@ function build(section) {
 					description: package.description
 				}), { }, () => {
 					builder.build({
-						targets: builder.Platform.WINDOWS.createTarget("portable"),
+						targets: builder.Platform.WINDOWS.createTarget("zip"),
 						config: {
-							appId: "any.material.org.aishite",
+							nsis: {
+								oneClick: false,
+								perMachine: true,
+								installerIcon: "../source/assets/aishite.ico",
+								uninstallerIcon: "../source/assets/aishite.ico"
+							},
 							files: [
 								"build/*.js",
 								"build/*.json",
@@ -95,7 +100,7 @@ function build(section) {
 							directories: {
 								output: "releases"
 							},
-							icon: "../source/assets/aishite.ico",
+							icon: "../source/assets/aishite.ico"
 						}
 					});
 				}

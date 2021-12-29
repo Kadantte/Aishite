@@ -92,12 +92,12 @@ class NavigatorState {
 		this.pages = args.pages;
 	}
 }
-/** Actually...its a `GUID` but who really cares. */
-function UUID(): string {
+
+function GUID(): string {
 	const unique = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
 	// prevent duplication
 	if (Navigator.controller[unique]) {
-		return UUID();
+		return GUID();
 	}
 	return unique;
 }
@@ -128,7 +128,7 @@ function args(UUID: string) {
 
 function build(type: string, args: any) {
 	// must be unique
-	const cache = UUID();
+	const cache = GUID();
 
 	switch (type) {
 		case "FALLBACK": {
@@ -186,7 +186,7 @@ function transform(title: string, widget: JSX.Element) {
 const singleton = new Navigator({
 	state: new NavigatorState({
 		index: settings.state.navigator.index,
-		pages: settings.state.navigator.pages.map((page) => { return { title: page.name, widget: build(page.type, page.args) }; })
+		pages: settings.state.navigator.pages.map((page) => ({ title: page.name, widget: build(page.type, page.args) }))
 	})
 });
 

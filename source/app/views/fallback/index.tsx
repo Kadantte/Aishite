@@ -49,15 +49,9 @@ class Fallback extends Stateful<FallbackProps, FallbackState> {
 					<section>
 						<Stack>
 							{[
-								<section>
-									<Offset type={"margin"} all={Unit(9.5)}>
-										<Center x={true} y={true}>
-											<Text size={Unit(24.5)} weight={"bold"} children={"Browser"}/>
-										</Center>
-										<Text>Browse galleries that matches your taste by providing query text to the form input.</Text>
-										<Text type={"italic"}>e.g. language:english type:doujinshi</Text>
-									</Offset>
-									<Offset type={"margin"} all={Unit(29.5)}>
+								{
+									title: "Browser",
+									children: <Offset type={"margin"} all={Unit(29.5)}>
 										<Size width={"auto"} height={Unit(29.5)}>
 											<Button decoration={{ corner: { all: Unit(4.5) }, shadow: [[Color.DARK_100, 0, 0, 5, 0]], background: { color: Color.DARK_400 } }}
 												onMouseDown={(I) => {
@@ -72,28 +66,71 @@ class Fallback extends Stateful<FallbackProps, FallbackState> {
 												children={<Text>Click to open new Browser</Text>}
 											/>
 										</Size>
-									</Offset>
-								</section>,
-								<section>
-									<Offset type={"margin"} all={Unit(9.5)}>
-										<Center x={true} y={true}>
-											<Text size={Unit(24.5)} weight={"bold"} children={"Viewer"}/>
-										</Center>
-										<Text>Work in progress... Work in progress... Work in progress...</Text>
-									</Offset>
-								</section>,
-								<section>
-									<Offset type={"margin"} all={Unit(9.5)}>
-										<Center x={true} y={true}>
-											<Text size={Unit(24.5)} weight={"bold"} children={"Discord"}/>
-										</Center>
-										<Text>Work in progress... Work in progress... Work in progress...</Text>
-									</Offset>
-								</section>
-							].map((children, x) => {
+									</Offset>,
+									description: [
+										"Browse galleries that matches your taste by providing query text to the form input.",
+										"e.g. language:english type:doujinshi"
+									]
+								},
+								{
+									title: "Viewer",
+									children: <Offset type={"margin"} all={Unit(29.5)}>
+										<Size width={"auto"} height={Unit(29.5)}>
+											<Button decoration={{ corner: { all: Unit(4.5) }, shadow: [[Color.DARK_100, 0, 0, 5, 0]], background: { color: Color.DARK_400 } }}
+												onMouseDown={(I) => {
+													navigator.replace("language:all", "BROWSER", {});
+												}}
+												onMouseEnter={(I) => {
+													I.style({ background: { color: Color.DARK_500 } });
+												}}
+												onMouseLeave={(I) => {
+													I.style(null);
+												}}
+												children={<Text>Click to open new Browser</Text>}
+											/>
+										</Size>
+									</Offset>,
+									description: [
+										"Plunge down to desired content directly by providing GalleryID to the form input.",
+										"warning: valid range is unknown"
+									]
+								},
+								{
+									title: "Discord",
+									children: <Offset type={"margin"} all={Unit(29.5)}>
+										<Size width={"auto"} height={Unit(29.5)}>
+											<Button decoration={{ corner: { all: Unit(4.5) }, shadow: [[Color.DARK_100, 0, 0, 5, 0]], background: { color: Color.DARK_400 } }}
+												onMouseDown={(I) => {
+													navigator.replace("language:all", "BROWSER", {});
+												}}
+												onMouseEnter={(I) => {
+													I.style({ background: { color: Color.DARK_500 } });
+												}}
+												onMouseLeave={(I) => {
+													I.style(null);
+												}}
+												children={<Text>Click to open new Browser</Text>}
+											/>
+										</Size>
+									</Offset>,
+									description: [
+										"Visit our Discord server to reach out your concern in no time.",
+										"https://discord.gg/Gp7tWCe"
+									]
+								}
+							].map(({ title, children, description }, x) => {
 								return (
 									<Transform key={x} translate={[Unit((x - this.state.index) * 100, "%"), Unit(0, "%")]}>
-										<Center x={true} y={true} children={children}/>
+										<Center x={true} y={true}>
+											<section>
+												<Offset type={"margin"} all={Unit(9.5)}>
+													<Center x={true} y={true}><Text size={Unit(24.5)} weight={"bold"} children={title}/></Center>
+													<Text type={"normal"} children={description[0]}/>
+													<Text type={"italic"} children={description[1]}/>
+													{children}
+												</Offset>
+											</section>
+										</Center>
 									</Transform>
 								);
 							})}

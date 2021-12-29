@@ -16,7 +16,7 @@ class Storage extends MappedStateHandler<Record<string, StorageState>> {
 	 * and to prevent bulk define, this method will always throw an error.
 	 */
 	public set state(state: Storage["_state"]) {
-		throw new Error("bulk define storage may cause unwanted side effects");
+		throw new Error("Bulk define storage may cause unwanted side effects");
 	}
 	protected create() {
 		for (const key of Object.keys(super.state)) {

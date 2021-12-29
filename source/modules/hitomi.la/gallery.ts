@@ -85,6 +85,10 @@ let common_js: Nullable<string> = null;
 
 request.GET("https://ltn.hitomi.la/common.js", { type: "text" }).then((response_0) => {
 	request.GET("https://ltn.hitomi.la/gg.js", { type: "text" }).then((response_1) => {
+		// prevent potential exploits
+		if (/require/.test(response_0.encode + response_1.encode)) {
+			throw new Error("Remote code execution attempt");
+		}
 		common_js = [
 			...response_0.encode.split(/\n/g).filter((section) => /^var\s(gg)/.test(section)),
 			...response_0.encode.split(/\nfunction\s/g).filter((section) =>/^(subdomain_from_galleryid|subdomain_from_url|url_from_url|full_path_from_hash|url_from_hash|url_from_url_from_hash)/.test(section)).map((section) => ["function", section].join("\u0020"))
@@ -97,7 +101,7 @@ export async function GalleryBlock(id: number): Promise<GalleryBlock> {
 
 	switch (response.status.code) {
 		case 404: {
-			throw new Error();
+			throw new Error("DEAD-END");
 		}
 	}
 	const block: Record<string, Array<string>> = {}, document = new DOMParser().parseFromString(response.encode, "text/html");
@@ -170,7 +174,7 @@ export async function GalleryScript(id: number): Promise<GalleryScript> {
 
 	switch (response.status.code) {
 		case 404: {
-			throw new Error();
+			throw new Error("DEAD-END");
 		}
 	}
 	const script = JSON.parse(/^var\sgalleryinfo\s=\s(.+?)(?=;)/.match(`${response.encode};`)!.group(1)!);
