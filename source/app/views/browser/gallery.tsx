@@ -154,7 +154,7 @@ class Gallery extends Stateful<GalleryProps, GalleryState> {
 																											}
 																											// alter
 																											case "No.": {
-																												this.props.onTagClick?.(`id:${tag}`);
+																												this.props.onTagClick?.(`id:${tag.toString()}`);
 																												break;
 																											}
 																											case "Tags:": {
@@ -166,7 +166,7 @@ class Gallery extends Stateful<GalleryProps, GalleryState> {
 																												break;
 																											}
 																											default: {
-																												this.props.onTagClick?.(`${fragment.key.replace(/^([A-Za-z]+):$/, ($0, $1) => $1.toLowerCase())}:${tag}`)
+																												this.props.onTagClick?.(`${fragment.key.replace(/^([A-Za-z]+):$/, ($0, $1) => $1.toLowerCase())}:${tag.toString().replace(/\s/g, "_")}`);
 																												break;
 																											}
 																										}

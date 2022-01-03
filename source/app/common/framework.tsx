@@ -6,11 +6,11 @@ import ReactDOM from "react-dom";
 // common
 import { Props, Casacade } from "@/app/common/props";
 
-export class EventManager<T extends (EventEmitter & any) | EventTarget | Stateful<Props<any>, {}>["handler"]> {
+export class EventManager<T extends (EventEmitter & any) | EventTarget | (Stateful<Props<any>, {}>["handler"])> {
 	constructor(
-		public readonly instance: T,
-		public readonly event: T extends EventEmitter ? string : T extends { addEventListener(type: infer K, listener: (...args: unknown[]) => any, options?: unknown): void } ? K : keyof T,
-		public readonly listener: T extends EventEmitter ? (...args: any[]) => void : T extends EventTarget ? (...args: any[]) => any : T[keyof T]
+		public readonly self: T,
+		public readonly event: T extends EventEmitter ? string : T extends { addEventListener(type: infer K, listener: (...args: Array<unknown>) => any, options?: unknown): void } ? K : keyof T,
+		public readonly handler: T extends EventEmitter ? (...args: Array<any>) => void : T extends EventTarget ? (...args: Array<any>) => void : T[keyof T]
 	) {
 		// TODO: none
 	}
@@ -27,7 +27,7 @@ export abstract class Stateful<P extends Props<any>, S> extends React.Component<
 		"SHOULD_UPDATE": (props: P, state: S, context: any) => boolean;
 	};
 	/** Cache listener functions to automatically added / removed upon (mount) state change. */
-	private readonly bindings: Array<EventManager<(EventEmitter & any) | EventTarget | Stateful<Props<any>, {}>["handler"]>>;
+	private readonly bindings: Array<EventManager<(EventEmitter & any) | EventTarget | (Stateful<Props<any>, {}>["handler"])>>;
 
 	constructor(public props: P) {
 		super(props);
@@ -80,22 +80,22 @@ export abstract class Stateful<P extends Props<any>, S> extends React.Component<
 	};
 	private attach() {
 		for (const cache of this.bindings) {
-			if (cache.instance instanceof EventEmitter) {
-				cache.instance.addListener(cache.event as string, cache.listener);
-			} else if (cache.instance instanceof EventTarget) {
-				cache.instance.addEventListener(cache.event as string, cache.listener as (...args: any[]) => void);
-			} else if (cache.instance === this.handler) {
-				this.handler[cache.event as keyof Stateful<P, S>["handler"]] = cache.listener as any;
+			if (cache.self instanceof EventEmitter) {
+				cache.self.addListener(cache.event as string, cache.handler);
+			} else if (cache.self instanceof EventTarget) {
+				cache.self.addEventListener(cache.event as string, cache.handler as (...args: any[]) => void);
+			} else if (cache.self === this.handler) {
+				this.handler[cache.event as keyof Stateful<P, S>["handler"]] = cache.handler as any;
 			}
 		}
 	}
 	private unattach() {
 		for (const cache of this.bindings) {
-			if (cache.instance instanceof EventEmitter) {
-				cache.instance.removeListener(cache.event as string, cache.listener);
-			} else if (cache.instance instanceof EventTarget) {
-				cache.instance.removeEventListener(cache.event as string, cache.listener as (...args: any[]) => void);
-			} else if (cache.instance === this.handler) {
+			if (cache.self instanceof EventEmitter) {
+				cache.self.removeListener(cache.event as string, cache.handler);
+			} else if (cache.self instanceof EventTarget) {
+				cache.self.removeEventListener(cache.event as string, cache.handler as (...args: any[]) => void);
+			} else if (cache.self === this.handler) {
 				this.handler[cache.event as keyof Stateful<P, S>["handler"]] = (() => { }) as any;
 			}
 		}

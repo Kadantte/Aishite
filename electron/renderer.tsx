@@ -35,15 +35,15 @@ window.API = {
 	//
 	// 3. Individual [BridgeEvent] listeners
 	//
-	// calls back close() with different vertify arguments
+	// calls back close() with different validate arguments
 	//
 	// 4. close() Function
 	//
 	// calls [API_COMMAND] to truly close [BrowserWindow]
 	//
-	[API_COMMAND.CLOSE](vertify: string) {
-		if (!certification.contains(vertify)) {
-			certification.add(vertify);
+	[API_COMMAND.CLOSE](validate: string) {
+		if (!certification.contains(validate)) {
+			certification.add(validate);
 		} else {
 			throw new Error();
 		}

@@ -6,6 +6,16 @@ import { MappedStateHandler } from "@/states";
 // api
 import { BridgeEvent } from "@/api";
 
+class StorageState {
+	public readonly path: string;
+	public state: any;
+
+	constructor(args: Args<StorageState>) {
+		this.path = args.path;
+		this.state = args.state;
+	}
+}
+
 class Storage extends MappedStateHandler<Record<string, StorageState>> {
 	public get state() {
 		return super.state;
@@ -22,14 +32,14 @@ class Storage extends MappedStateHandler<Record<string, StorageState>> {
 		for (const key of Object.keys(super.state)) {
 			this.register(key, super.state[key].path, super.state[key].state);
 		}
-
+		// every 5 mins
 		setInterval(() => {
 			for (const key of Object.keys(this.state)) {
 				// export file
 				this.export(key);
 			}
 		}, 1000 * 60 * 5);
-
+		// before close
 		window.bridge.handle(BridgeEvent.CLOSE, () => {
 			for (const key of Object.keys(this.state)) {
 				// export file
@@ -59,16 +69,6 @@ class Storage extends MappedStateHandler<Record<string, StorageState>> {
 	private export(key: keyof Storage["_state"]) {
 		node_fs.mkdirSync(node_path.dirname(this.state[key].path), { recursive: true });
 		node_fs.writeFileSync(this.state[key].path, JSON.stringify(this.state[key].state));
-	}
-}
-
-class StorageState {
-	public readonly path: string;
-	public state: any;
-
-	constructor(args: Args<StorageState>) {
-		this.path = args.path;
-		this.state = args.state;
 	}
 }
 

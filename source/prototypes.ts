@@ -1,19 +1,25 @@
 Object.defineProperty(Array.prototype, "last", {
 	get: function last() {
 		return (this as Array<any>)[(this as Array<any>).length - 1];
-	}
+	},
+	enumerable: false,
+	configurable: false
 });
 
 Object.defineProperty(Array.prototype, "first", {
 	get: function first() {
 		return (this as Array<any>)[0];
-	}
+	},
+	enumerable: false,
+	configurable: false
 });
 
 Object.defineProperty(Array.prototype, "empty", {
 	get: function empty() {
 		return (this as Array<any>).length === 0;
-	}
+	},
+	enumerable: false,
+	configurable: false
 });
 
 Array.prototype.skip = function (count: number) {
@@ -82,20 +88,7 @@ Number.prototype.absolute = function () {
 }
 
 RegExp.prototype.match = function (string: string) {
-	return this.test(string) ? new RegExpCapture({ groups: this.exec(string)! }) : null;
-}
-
-export class RegExpCapture {
-	private readonly groups: Array<string>;
-
-	constructor(args: {
-		groups: Array<string>;
-	}) {
-		this.groups = args.groups;
-	}
-	public group(index: number) {
-		return this.groups[index] ?? null;
-	}
+	return this.test(string) ? new RegExpCapture({ groups: this.exec(string) ?? [] }) : null;
 }
 
 window.until = function (condition: () => boolean, duration: number = 100) {
@@ -111,7 +104,7 @@ window.until = function (condition: () => boolean, duration: number = 100) {
 	});
 }
 
-window.inject = function (before: (...args: any[]) => any, after: (...args: any[]) => any) {
+window.inject = function (before: (...args: Array<any>) => any, after: (...args: Array<any>) => any) {
 	return function () {
 		// @ts-ignore
 		before.apply(this, arguments);
@@ -122,4 +115,16 @@ window.inject = function (before: (...args: any[]) => any, after: (...args: any[
 
 window.random = function (minimum: number, maximum: number) {
 	return Math.floor(Math.random() * (maximum - minimum + 1)) + minimum;
+}
+
+export class RegExpCapture {
+	/** DO NOT MODIFY UNLESS CERTAIN. */
+	protected readonly groups: Array<string>;
+
+	constructor(args: { groups: Array<string>; }) {
+		this.groups = args.groups;
+	}
+	public group(index: number) {
+		return this.groups[index] ?? null;
+	}
 }

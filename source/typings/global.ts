@@ -1,23 +1,21 @@
-// node.js
-import { EventEmitter } from "events"
 // api
 import { API_COMMAND, BridgeEvent } from "@/api"
 
 declare global {
 	/** @see electron/main.ts */
 	interface Window {
-		readonly bridge: EventEmitter & {
-			handle(event: BridgeEvent, callback: (...args: any[]) => void): void
-			trigger(event: BridgeEvent, ...args: any[]): void
-		}
 		readonly API: {
-			[API_COMMAND.CLOSE](vertify: string): Promise<void>;
+			[API_COMMAND.CLOSE](validate: string): Promise<void>;
 			[API_COMMAND.FOCUS](): Promise<void>;
 			[API_COMMAND.BLUR](): Promise<void>;
 			[API_COMMAND.MINIMIZE](): Promise<void>;
 			[API_COMMAND.MAXIMIZE](): Promise<void>;
 			[API_COMMAND.UNMAXIMIZE](): Promise<void>;
 			[API_COMMAND.FULLSCREEN](): Promise<void>;
+		}
+		readonly bridge: EventTarget & {
+			handle(event: BridgeEvent, callback: (...args: Array<any>) => void): void;
+			trigger(event: BridgeEvent, ...args: Array<any>): void;
 		}
 	}
 	/** @see modules/hitomi/suggest.ts */

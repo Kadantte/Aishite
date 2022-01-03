@@ -19,7 +19,9 @@ app.on("ready", () => {
 			// allow renderer interacts with nodejs
 			nodeIntegration: true,
 			// isolate preload
-			contextIsolation: false
+			contextIsolation: false,
+			// allow webworker interacts with nodejs
+			nodeIntegrationInWorker: true
 
 		},
 		backgroundColor: "#00000000"
@@ -76,7 +78,7 @@ app.on("ready", () => {
 	window.on(BridgeEvent.LEAVE_FULL_SCREEN, () => {
 		window.webContents.send(BridgeEvent.LEAVE_FULL_SCREEN);
 	});
-	ipcMain.handle("API", (event, command: API_COMMAND, ...args: any[]) => {
+	ipcMain.handle("API", (event, command: API_COMMAND, ...args: Array<any>) => {
 		setTimeout(() => {
 			switch (command) {
 				case API_COMMAND.CLOSE: {

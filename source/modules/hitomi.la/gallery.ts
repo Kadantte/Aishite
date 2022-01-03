@@ -12,8 +12,7 @@ export enum Category {
 	GROUP = "group",
 	TAG = "tag",
 	MALE = "male",
-	FEMALE = "female",
-	STATUS = "status"
+	FEMALE = "female"
 }
 
 export class GalleryTag {
@@ -84,15 +83,13 @@ export type GalleryScript = {
 let common_js: Nullable<string> = null;
 
 request.GET("https://ltn.hitomi.la/common.js", { type: "text" }).then((response_0) => {
+	// your mom is GG
 	request.GET("https://ltn.hitomi.la/gg.js", { type: "text" }).then((response_1) => {
 		// prevent potential exploits
-		if (/require/.test(response_0.encode + response_1.encode)) {
+		if (/(eval|require)/g.test(response_0.encode + response_1.encode)) {
 			throw new Error("Remote code execution attempt");
 		}
-		common_js = [
-			...response_0.encode.split(/\n/g).filter((section) => /^var\s(gg)/.test(section)),
-			...response_0.encode.split(/\nfunction\s/g).filter((section) =>/^(subdomain_from_galleryid|subdomain_from_url|url_from_url|full_path_from_hash|url_from_hash|url_from_url_from_hash)/.test(section)).map((section) => ["function", section].join("\u0020"))
-		].join(("\n")) + response_1.encode;
+		common_js = "var\u0020gg;" + response_0.encode.split(/\nfunction\s/g).filter((section) => new RegExp(`^(${["subdomain_from_url", "url_from_url", "full_path_from_hash", "real_full_path_from_hash", "url_from_hash", "url_from_url_from_hash", "rewrite_tn_paths"].join("|")})`).test(section)).map((section) => "function\u0020" + section).join("\n") + response_1.encode;
 	});
 });
 
@@ -180,6 +177,8 @@ export async function GalleryScript(id: number): Promise<GalleryScript> {
 	const script = JSON.parse(/^var\sgalleryinfo\s=\s(.+?)(?=;)/.match(`${response.encode};`)!.group(1)!);
 
 	await until(() => common_js !== null);
+
+	console.debug(common_js);
 
 	return {
 		id: script["id"],

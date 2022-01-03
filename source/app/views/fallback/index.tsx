@@ -74,22 +74,7 @@ class Fallback extends Stateful<FallbackProps, FallbackState> {
 								},
 								{
 									title: "Viewer",
-									children: <Offset type={"margin"} all={Unit(29.5)}>
-										<Size width={"auto"} height={Unit(29.5)}>
-											<Button decoration={{ corner: { all: Unit(4.5) }, shadow: [[Color.DARK_100, 0, 0, 5, 0]], background: { color: Color.DARK_400 } }}
-												onMouseDown={(I) => {
-													navigator.replace("language:all", "BROWSER", {});
-												}}
-												onMouseEnter={(I) => {
-													I.style({ background: { color: Color.DARK_500 } });
-												}}
-												onMouseLeave={(I) => {
-													I.style(null);
-												}}
-												children={<Text>Click to open new Browser</Text>}
-											/>
-										</Size>
-									</Offset>,
+									children: undefined,
 									description: [
 										"Plunge down to desired content directly by providing GalleryID to the form input.",
 										"warning: valid range is unknown"
@@ -97,22 +82,7 @@ class Fallback extends Stateful<FallbackProps, FallbackState> {
 								},
 								{
 									title: "Discord",
-									children: <Offset type={"margin"} all={Unit(29.5)}>
-										<Size width={"auto"} height={Unit(29.5)}>
-											<Button decoration={{ corner: { all: Unit(4.5) }, shadow: [[Color.DARK_100, 0, 0, 5, 0]], background: { color: Color.DARK_400 } }}
-												onMouseDown={(I) => {
-													navigator.replace("language:all", "BROWSER", {});
-												}}
-												onMouseEnter={(I) => {
-													I.style({ background: { color: Color.DARK_500 } });
-												}}
-												onMouseLeave={(I) => {
-													I.style(null);
-												}}
-												children={<Text>Click to open new Browser</Text>}
-											/>
-										</Size>
-									</Offset>,
+									children: undefined,
 									description: [
 										"Visit our Discord server to reach out your concern in no time.",
 										"https://discord.gg/Gp7tWCe"

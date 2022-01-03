@@ -6,8 +6,8 @@
 		]
 	},
 	"download": {
-		"file": "(id).(extension)",
-		"folder": "./downloads/",
+		"file": "(index).(extension)",
+		"folder": "./downloads/(id)/",
 		"threads": 5,
 		"concurrent": 5
 	},
