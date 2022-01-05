@@ -1,8 +1,9 @@
+// TOP-LEVEL
+import PageView from "@/app/views";
 // common
 import Unit from "@/app/common/unit";
 import Color from "@/app/common/color";
 import { Props } from "@/app/common/props";
-import { Stateful } from "@/app/common/framework";
 // layout
 import Size from "@/app/layout/size";
 import Text from "@/app/layout/text";
@@ -32,7 +33,7 @@ class FallbackState {
 	}
 }
 
-class Fallback extends Stateful<FallbackProps, FallbackState> {
+class Fallback extends PageView<FallbackProps, FallbackState> {
 	protected create() {
 		return new FallbackState({ index: 0 });
 	}
@@ -145,17 +146,6 @@ class Fallback extends Stateful<FallbackProps, FallbackState> {
 				</Size>
 			</Column>
 		);
-	}
-	/**
-	 * Whether the component is visible
-	 */
-	protected visible() {
-		// @ts-ignore
-		if (this.props["data-key"]) {
-			// @ts-ignore
-			return navigator.state.pages[navigator.state.index].widget.props["data-key"] === this.props["data-key"];
-		}
-		return this.node()?.closest("section[style*=\"display: block\"]") !== null;
 	}
 }
 

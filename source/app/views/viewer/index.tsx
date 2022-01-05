@@ -1,7 +1,9 @@
+// TOP-LEVEL
+import PageView from "@/app/views";
 // common
 import Unit from "@/app/common/unit";
 import { Props } from "@/app/common/props";
-import { Stateful, EventManager } from "@/app/common/framework";
+import { EventManager } from "@/app/common/framework";
 // layout
 import Size from "@/app/layout/size";
 import Image from "@/app/layout/image";
@@ -32,7 +34,7 @@ class ViewerState {
 	}
 }
 
-class Viewer extends Stateful<ViewerProps, ViewerState> {
+class Viewer extends PageView<ViewerProps, ViewerState> {
 	protected create() {
 		// TODO: use this.binds instead
 		navigator.handle((state) => {
@@ -73,17 +75,6 @@ class Viewer extends Stateful<ViewerProps, ViewerState> {
 				})()}
 			</section>
 		);
-	}
-	/**
-	 * Whether the component is visible
-	 */
-	protected visible() {
-		// @ts-ignore
-		if (this.props["data-key"]) {
-			// @ts-ignore
-			return navigator.state.pages[navigator.state.index].widget.props["data-key"] === this.props["data-key"];
-		}
-		return this.node()?.closest("section[style*=\"display: block\"]") !== null;
 	}
 	protected macro_0() {
 		GalleryScript(this.props.gallery).then((script) => { this.setState({ ...this.state, init: true, script: script }); });

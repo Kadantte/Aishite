@@ -18,6 +18,8 @@ import Close from "@/app/icons/close";
 import Maximize from "@/app/icons/maximize";
 import Minimize from "@/app/icons/minimize";
 import Unmaximize from "@/app/icons/unmaximize";
+// states
+import navigator from "@/states/navigator";
 // api
 import { BridgeEvent } from "@/api";
 
@@ -43,6 +45,13 @@ class App extends Stateful<AppProps, AppState> {
 	}
 	protected events() {
 		return [
+			new EventManager(window, "keydown", (event: React.KeyboardEvent) => {
+				// CTRL + W
+				if (event.ctrlKey && event.key === "w") {
+					// close
+					navigator.close();
+				}
+			}),
 			new EventManager(window.bridge, BridgeEvent.MAXIMIZE, () => {
 				this.setState({ ...this.state, maximize: true });
 			}),

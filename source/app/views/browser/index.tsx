@@ -1,8 +1,10 @@
+// TOP-LEVEL
+import PageView from "@/app/views";
 // common
 import Unit from "@/app/common/unit";
 import Color from "@/app/common/color";
 import { Props } from "@/app/common/props";
-import { Stateful, EventManager } from "@/app/common/framework";
+import { EventManager } from "@/app/common/framework";
 // layout
 import Row from "@/app/layout/row";
 import Size from "@/app/layout/size";
@@ -54,7 +56,7 @@ class BrowserState extends BrowserProps {
 	}
 }
 
-class Browser extends Stateful<BrowserProps, BrowserState> {
+class Browser extends PageView<BrowserProps, BrowserState> {
 	protected create() {
 		// TODO: use this.binds instead
 		navigator.handle((state) => {
@@ -237,17 +239,6 @@ class Browser extends Stateful<BrowserProps, BrowserState> {
 	 */
 	protected grid() {
 		return Math.round(window.outerWidth / (1920 / 5));
-	}
-	/**
-	 * Whether the component is visible
-	 */
-	protected visible() {
-		// @ts-ignore
-		if (this.props["data-key"]) {
-			// @ts-ignore
-			return navigator.state.pages[navigator.state.index].widget.props["data-key"] === this.props["data-key"];
-		}
-		return this.node()?.closest("section[style*=\"display: block\"]") !== null;
 	}
 	/**
 	 * Update gallery blocks based on current (state / props) `query` and `index`.

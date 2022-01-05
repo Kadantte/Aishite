@@ -1,7 +1,9 @@
 // electron
-import { app, session, BrowserWindow, ipcMain } from "electron";
+import { app, session, Menu, BrowserWindow, ipcMain } from "electron";
 // api
 import { API_COMMAND, BridgeEvent } from "@/api";
+
+Menu.setApplicationMenu(null);
 
 app.on("ready", () => {
 	// create window
