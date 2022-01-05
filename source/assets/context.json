@@ -1,0 +1,9 @@
+{
+	"title": "Hitomi.la",
+	"location": {
+		"hostname": "hitomi.la"
+	},
+	"contextElement": {
+		"clientHeight": true
+	}
+}
