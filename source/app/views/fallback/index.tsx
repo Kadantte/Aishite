@@ -149,7 +149,7 @@ class Fallback extends Stateful<FallbackProps, FallbackState> {
 	/**
 	 * Whether the component is visible
 	 */
-	public visible() {
+	protected visible() {
 		// @ts-ignore
 		if (this.props["data-key"]) {
 			// @ts-ignore

@@ -77,7 +77,7 @@ class Viewer extends Stateful<ViewerProps, ViewerState> {
 	/**
 	 * Whether the component is visible
 	 */
-	public visible() {
+	protected visible() {
 		// @ts-ignore
 		if (this.props["data-key"]) {
 			// @ts-ignore
@@ -85,7 +85,7 @@ class Viewer extends Stateful<ViewerProps, ViewerState> {
 		}
 		return this.node()?.closest("section[style*=\"display: block\"]") !== null;
 	}
-	public macro_0() {
+	protected macro_0() {
 		GalleryScript(this.props.gallery).then((script) => { this.setState({ ...this.state, init: true, script: script }); });
 	}
 }

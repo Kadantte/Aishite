@@ -42,9 +42,9 @@ class WorkerFile {
 					// write
 					stream.write(new Uint8Array(index ? this.xhr.response.slice(index) : this.xhr.response));
 					// update BPS
-					WorkerFile.bytes_per_second += this.xhr.response.length - index;
+					WorkerFile.bytes_per_second += this.xhr.response.byteLength - index;
 					// update index
-					index = this.xhr.response.length;
+					index = this.xhr.response.byteLength;
 					// update bytes
 					this.bytes = offset + event.loaded;
 				}
@@ -56,7 +56,6 @@ class WorkerFile {
 					case 404: {
 						// communicate
 						comment("STATUS", "ERROR");
-						break;
 					}
 					default: {
 						stream.close(() => resolve());
@@ -69,24 +68,26 @@ class WorkerFile {
 				if (!this.size) this.size = event.total;
 			});
 			this.xhr.send();
+			// communicate
+			comment("STATUS", "WORKING");
 		});
 	}
-	pause() {
-		if (!this.xhr) {
-			throw new Error("You cannot pause aborted request");
-		}
-		this.xhr.abort();
-		// communicate
-		comment("STATUS", "PAUSED");
-	}
-	resume() {
-		if (this.xhr) {
-			throw new Error("You cannot resume ongoing request");
-		}
-		this.start();
-		// communicate
-		comment("STATUS", "WORKING");
-	}
+	// pause() {
+	// 	if (!this.xhr) {
+	// 		throw new Error("You cannot pause aborted request");
+	// 	}
+	// 	this.xhr.abort();
+	// 	// communicate
+	// 	comment("STATUS", "PAUSED");
+	// }
+	// resume() {
+	// 	if (this.xhr) {
+	// 		throw new Error("You cannot resume ongoing request");
+	// 	}
+	// 	this.start();
+	// 	// communicate
+	// 	comment("STATUS", "WORKING");
+	// }
 }
 
 let spawn = 0;
@@ -163,16 +164,22 @@ self.addEventListener("message", (event) => {
 			trace_on();
 			break;
 		}
-		case "PAUSE": {
-			WorkerFile.files.map((file) => file.pause());
+		case "STOP": {
+			WorkerFile.files.map((file) => file.xhr.abort());
 			trace_off();
-			break;
+			close();
+			break;	
 		}
-		case "RESUME": {
-			WorkerFile.files.map((file) => file.resume());
-			trace_on();
-			break;
-		}
+		// case "PAUSE": {
+		// 	WorkerFile.files.map((file) => file.pause());
+		// 	trace_off();
+		// 	break;
+		// }
+		// case "RESUME": {
+		// 	WorkerFile.files.map((file) => file.resume());
+		// 	trace_on();
+		// 	break;
+		// }
 		case "REMOVE": {
 			WorkerFile.files.map((file) => node_fs.unlinkSync(file.path));
 			trace_off();

@@ -1,15 +1,12 @@
-// nodejs
-import { EventEmitter } from "events";
-
 export class StateHandler<State> {
 	private _state: State;
 	private readonly _UUID: number;
-	private readonly _event: EventEmitter;
+	private readonly _event: EventTarget;
 
 	constructor(args: { state: StateHandler<State>["_state"] }) {
 		this._state = args.state;
 		this._UUID = random(0, 6974);
-		this._event = new EventEmitter();
+		this._event = new EventTarget();
 
 		this.create();
 	}
@@ -28,13 +25,13 @@ export class StateHandler<State> {
 
 		console.debug(callback);
 
-		this._event.emit(this._UUID.toString(), callback);
+		this._event.dispatchEvent(new CustomEvent(this._UUID.toString(), { detail: callback }));
 	}
 	protected create(): void {
 		console.debug("This class has default class constructor");
 	}
 	public handle(callback: (state: StateCallback<StateHandler<State>["_state"]>) => void) {
-		this._event.on(this._UUID.toString(), callback);
+		this._event.addEventListener(this._UUID.toString(), (event) => (callback((event as Event & { detail: StateCallback<StateHandler<State>["_state"]> }).detail)));
 	}
 }
 
@@ -51,12 +48,12 @@ class StateCallback<State> {
 export class MappedStateHandler<Value> {
 	private _state: Value;
 	private readonly _UUID: number;
-	private readonly _event: EventEmitter;
+	private readonly _event: EventTarget;
 
 	constructor(args: { state: MappedStateHandler<Value>["_state"] }) {
 		this._state = args.state;
 		this._UUID = random(0, 6974);
-		this._event = new EventEmitter();
+		this._event = new EventTarget();
 
 		this.create();
 	}
@@ -71,7 +68,7 @@ export class MappedStateHandler<Value> {
 
 		this._state = state;
 
-		this._event.emit(this._UUID.toString(), null);
+		this._event.dispatchEvent(new CustomEvent(this._UUID.toString(), { detail: null }));
 	}
 	protected create(): void {
 		console.debug("This class has default class constructor");
@@ -93,11 +90,9 @@ export class MappedStateHandler<Value> {
 
 		console.debug(callback);
 
-		this._event.emit(this._UUID.toString(), callback);
+		this._event.dispatchEvent(new CustomEvent(this._UUID.toString(), { detail: callback }));
 	}
-	//
-	// **WARNING**: use modify() instead, if possible
-	//
+	/** **WARNING**: Use modify() instead, if possible. */
 	public notify(key: keyof MappedStateHandler<Value>["_state"], value: Nullable<Value[keyof Value]>) {
 		//
 		// nested objects may want to share same instance but still informs property changes
@@ -106,10 +101,10 @@ export class MappedStateHandler<Value> {
 
 		console.debug(callback);
 
-		this._event.emit(this._UUID.toString(), callback);
+		this._event.dispatchEvent(new CustomEvent(this._UUID.toString(), { detail: callback }));
 	}
 	public handle(callback: (state: MappedStateCallback<Value>) => void) {
-		this._event.on(this._UUID.toString(), callback);
+		this._event.addEventListener(this._UUID.toString(), (event) => (callback((event as Event & { detail: MappedStateCallback<Value> }).detail)));
 	}
 }
 

@@ -235,13 +235,13 @@ class Browser extends Stateful<BrowserProps, BrowserState> {
 	/**
 	 * Based on 1920*1080
 	 */
-	public grid() {
+	protected grid() {
 		return Math.round(window.outerWidth / (1920 / 5));
 	}
 	/**
 	 * Whether the component is visible
 	 */
-	public visible() {
+	protected visible() {
 		// @ts-ignore
 		if (this.props["data-key"]) {
 			// @ts-ignore
@@ -252,7 +252,7 @@ class Browser extends Stateful<BrowserProps, BrowserState> {
 	/**
 	 * Update gallery blocks based on current (state / props) `query` and `index`.
 	 */
-	public gallery(query: string, index: number) {
+	protected gallery(query: string, index: number) {
 		// fetch
 		SearchQuery(query).then((response) => {
 			// to avoid bottleneck, make requests then assign them in order
@@ -276,7 +276,7 @@ class Browser extends Stateful<BrowserProps, BrowserState> {
 			}
 		});
 	}
-	public macro_0() {
+	protected macro_0() {
 		this.setState({ ...this.state, init: true }, () => this.gallery(this.state.query, this.state.index));
 	}
 }
