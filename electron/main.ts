@@ -104,6 +104,9 @@ app.on("ready", () => {
 				case API_COMMAND.FULLSCREEN: {
 					return window.setFullScreen(!window.isFullScreen());
 				}
+				case API_COMMAND.DEVELOPMENT: {
+					return window.webContents.toggleDevTools();
+				}
 			}
 		}, /** @see https://github.com/electron/electron/issues/24759 */ 150);
 	});

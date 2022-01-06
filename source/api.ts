@@ -5,7 +5,8 @@ export enum API_COMMAND {
 	MINIMIZE = "minimize",
 	MAXIMIZE = "maximize",
 	UNMAXIMIZE = "unmaximize",
-	FULLSCREEN = "fullscreen"
+	FULLSCREEN = "fullscreen",
+	DEVELOPMENT = "development"
 }
 
 export enum BridgeEvent {

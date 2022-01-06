@@ -11,6 +11,12 @@ class Navigator extends StateHandler<NavigatorState> {
 	/** DO NOT MODIFY UNLESS CERTAIN. */
 	public static readonly controller: Record<string, Nullable<React.Component<any, any>>> = {};
 
+	protected create() {
+		window.addEventListener("keydown", (event) => {
+			// CTRL + W
+			if (!event.altKey && event.ctrlKey && !event.shiftKey && event.key === "w") this.close();
+		});
+	}
 	public get state() {
 		return super.state;
 	}

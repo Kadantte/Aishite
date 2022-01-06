@@ -12,6 +12,7 @@ declare global {
 			[API_COMMAND.MAXIMIZE](): Promise<void>;
 			[API_COMMAND.UNMAXIMIZE](): Promise<void>;
 			[API_COMMAND.FULLSCREEN](): Promise<void>;
+			[API_COMMAND.DEVELOPMENT](): Promise<void>;
 		}
 		readonly bridge: EventTarget & {
 			handle(event: BridgeEvent, callback: (...args: Array<any>) => void): void;

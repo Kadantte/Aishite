@@ -71,6 +71,9 @@ window.API = {
 	},
 	[API_COMMAND.FULLSCREEN]() {
 		return call(API_COMMAND.FULLSCREEN);
+	},
+	[API_COMMAND.DEVELOPMENT]() {
+		return call(API_COMMAND.DEVELOPMENT);
 	}
 }
 ipcRenderer.on(BridgeEvent.CLOSE, () => {
