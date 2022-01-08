@@ -182,7 +182,7 @@ function classname(widget: JSX.Element) {
 	if (widget.type === Viewer) {
 		return "VIEWER";
 	}
-	return widget.type.name ? widget.type.name.toUpperCase() : "UNKNOWN";
+	return "UNKNOWN";
 }
 
 function transform(title: string, widget: JSX.Element) {

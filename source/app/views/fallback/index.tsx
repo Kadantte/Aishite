@@ -4,6 +4,7 @@ import PageView from "@/app/views";
 import Unit from "@/app/common/unit";
 import Color from "@/app/common/color";
 import { Props } from "@/app/common/props";
+import { EventManager } from "@/app/common/framework";
 // layout
 import Size from "@/app/layout/size";
 import Text from "@/app/layout/text";
@@ -16,6 +17,8 @@ import Transform from "@/app/layout/transform";
 // widgets
 import Button from "@/app/widgets/button";
 import Paging from "@/app/widgets/paging";
+// modules
+import discord from "@/modules/discord";
 // states
 import navigator from "@/states/navigator";
 
@@ -35,7 +38,18 @@ class FallbackState {
 
 class Fallback extends PageView<FallbackProps, FallbackState> {
 	protected create() {
+		// TODO: use this.binds instead
+		navigator.handle((state) => {
+			if (this.visible()) this.discord(false);
+		});
 		return new FallbackState({ index: 0 });
+	}
+	protected events() {
+		return [
+			new EventManager(this.handler, "DID_MOUNT", () => {
+				if (this.visible()) this.discord(false);
+			})
+		];
 	}
 	protected postCSS(): React.CSSProperties {
 		return {};
@@ -146,6 +160,22 @@ class Fallback extends PageView<FallbackProps, FallbackState> {
 				</Size>
 			</Column>
 		);
+	}
+	protected discord(loaded: boolean) {
+		switch (loaded) {
+			case true: {
+				break;
+			}
+			case false: {
+				discord.update({
+					state: "IDLE",
+					details: "Beep-beep...",
+					partyMax: undefined,
+					partySize: undefined
+				});
+				break;
+			}
+		}
 	}
 }
 

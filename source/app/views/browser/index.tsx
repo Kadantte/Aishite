@@ -25,6 +25,7 @@ import Gallery from "@/app/views/browser/gallery";
 // icons
 import Close from "@/app/icons/close";
 // modules
+import discord from "@/modules/discord";
 import { SearchQuery } from "@/modules/hitomi.la/search";
 import { GalleryBlock } from "@/modules/hitomi.la/gallery";
 // states
@@ -60,14 +61,24 @@ class Browser extends PageView<BrowserProps, BrowserState> {
 	protected create() {
 		// TODO: use this.binds instead
 		navigator.handle((state) => {
-			if (this.visible() && !this.state.init) this.macro_0();
+			if (this.visible()) {
+				if (!this.state.init) {
+					// loading
+					this.discord(false);
+					// init
+					this.macro_0(() => {
+						if (this.visible()) this.discord(true);
+					});
+				}
+				this.discord(!this.state.gallery.empty);
+			}
 		});
 		return new BrowserState({ init: false, index: this.props.index, query: this.props.query, length: 0, gallery: [] });
 	}
 	protected events() {
 		return [
 			new EventManager(this.handler, "DID_MOUNT", () => {
-				if (this.visible()) this.macro_0();
+				if (this.visible()) { this.discord(false); this.macro_0(() => { if (this.visible()) this.discord(true); }); }
 			})
 		];
 	}
@@ -243,7 +254,7 @@ class Browser extends PageView<BrowserProps, BrowserState> {
 	/**
 	 * Update gallery blocks based on current (state / props) `query` and `index`.
 	 */
-	protected gallery(query: string, index: number) {
+	protected gallery(query: string, index: number, callback?: () => void) {
 		// fetch
 		SearchQuery(query).then((response) => {
 			// to avoid bottleneck, make requests then assign them in order
@@ -259,6 +270,8 @@ class Browser extends PageView<BrowserProps, BrowserState> {
 					if (block.length === array.length) {
 						// update
 						this.setState({ ...this.state, length: Math.ceil(response.length / 25), gallery: block });
+						// callaback
+						return callback?.();
 					}
 				}).catch(() => {
 					// fallback
@@ -267,8 +280,32 @@ class Browser extends PageView<BrowserProps, BrowserState> {
 			}
 		});
 	}
-	protected macro_0() {
-		this.setState({ ...this.state, init: true }, () => this.gallery(this.state.query, this.state.index));
+	protected macro_0(callback?: () => void) {
+		this.setState({ ...this.state, init: true }, () => {
+			this.gallery(this.state.query, this.state.index, () => callback?.());
+		});
+	}
+	protected discord(loaded: boolean) {
+		switch (loaded) {
+			case true: {
+				discord.update({
+					state: "Browsing",
+					details: this.state.query,
+					partyMax: this.state.length,
+					partySize: this.state.index + 1
+				});
+				break;
+			}
+			case false: {
+				discord.update({
+					state: "Browsing",
+					details: "Loading...",
+					partyMax: undefined,
+					partySize: undefined
+				});
+				break;
+			}
+		}
 	}
 }
 

@@ -39,33 +39,18 @@ class RichPresence {
 	}
 }
 
-function args(table: Record<string, any>) {
-	const object: Record<string, any> = {};
-
-	for (const key of Object.keys(table)) {
-		switch (table[key]) {
-			case undefined: {
-				break;
-			}
-			default: {
-				object[key] = table[key];
-				break;
-			}
-		}
-	}
-	return object;
-}
-
 /** @see https://discord.com/developers/applications/{application_id}/information */
 class DiscordRPC extends StateHandler<{ rpc: RichPresence, secret: string; }> {
 	protected connection: boolean = false;
 	protected readonly client = new RPC.Client({ transport: "ipc" });
 
 	protected create() {
-		// attach function before connecting
-		this.client.once("ready", this.update());
-		// connect
-		this.connect(this.state.secret);
+		until(() => this.client).then(() => {
+			// attach function before connecting
+			this.client.on("ready", () => this.update());
+			// connect
+			this.connect(this.state.secret);
+		});
 	}
 	public get state() {
 		return super.state;
@@ -77,10 +62,10 @@ class DiscordRPC extends StateHandler<{ rpc: RichPresence, secret: string; }> {
 		if (override) {
 			this.state = { ...this.state, rpc: rpc };
 		} else {
-			this.state = { ...this.state, rpc: new RichPresence({ ...args(this.state), ...args(rpc) } as Args<RichPresence>) };
+			this.state = { ...this.state, rpc: new RichPresence({ ...this.state.rpc, ...rpc } as Args<RichPresence>) };
 		}
 		// await until
-		until(() => this.connection).then(() => this.client.setActivity(this.state));
+		until(() => this.connection).then(() => this.client.setActivity(this.state.rpc));
 	}
 	public connect(secret: string) {
 		// prevent multiple connection
@@ -97,10 +82,12 @@ const singleton = new DiscordRPC({
 			details: "Starting...",
 			// large image
 			largeImageKey: "icon",
-			largeImageText: "Sombian#7940",
+			largeImageText: "Made by Sombian#7940",
 			// small image
 			smallImageKey: "discord",
 			smallImageText: "discord.gg/Gp7tWCe",
+			// party
+			partyId: "My Soul, Your Beat!",
 			// time elapsed
 			startTimestamp: Date.now()
 		}),
