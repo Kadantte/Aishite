@@ -3,16 +3,11 @@ import request from "@/modules/request";
 
 export type GalleryVersion = "tagindex" | "galleriesindex" | "languagesindex" | "nozomiurlindex";
 
-export const GalleryVersion: {
-	tagindex: Nullable<string>;
-	galleriesindex: Nullable<string>;
-	languagesindex: Nullable<string>;
-	nozomiurlindex: Nullable<string>;
-} = {
-	tagindex: null,
-	galleriesindex: null,
-	languagesindex: null,
-	nozomiurlindex: null
+export const GalleryVersion = {
+	tagindex: null as Nullable<string>,
+	galleriesindex: null as Nullable<string>,
+	languagesindex: null as Nullable<string>,
+	nozomiurlindex: null as Nullable<string>
 };
 
 for (const directory of ["tagindex", "galleriesindex", "languagesindex", "nozomiurlindex"]) {
