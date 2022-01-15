@@ -1,7 +1,5 @@
 // modules
 import request from "@/modules/request";
-// modules/hitomi.la
-import { Source } from "@/modules/hitomi.la/source";
 // assets
 const context = require("@/assets/context.json");
 
@@ -147,7 +145,7 @@ export async function GalleryBlock(id: number): Promise<GalleryBlock> {
 				break;
 			}
 			case "thumbnail": {
-				block[extractor.name] = await Promise.all(block[extractor.name].map(async (thumbnail) => "https:" + await Source(thumbnail)));
+				block[extractor.name] = block[extractor.name].map((thumbnail) => "https:" + thumbnail);
 				break;
 			}
 		}
