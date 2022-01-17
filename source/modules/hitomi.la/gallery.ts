@@ -162,7 +162,7 @@ export async function GalleryBlock(id: number): Promise<GalleryBlock> {
 		character: block["character"],
 		artist: block["artist"],
 		tags: block["tags"].map((tag) => {
-			return new GalleryTag({ type: /(♂)$/.test(tag) ? Category.MALE : /(♀)$/.test(tag) ? Category.FEMALE : Category.TAG, value: tag.replace(/\s?(♂|♀)/, "").replace(/\s/g, "_") });
+			return new GalleryTag({ type: /♂$/.test(tag) ? Category.MALE : /♀$/.test(tag) ? Category.FEMALE : Category.TAG, value: tag.replace(/\s?[♂♀]$/, "").replace(/\s/g, "_") });
 		}),
 		date: block["date"].first as string
 	};

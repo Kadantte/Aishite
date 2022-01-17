@@ -46,7 +46,7 @@ class Paging extends Stateful<PagingProps, PagingState> {
 	protected events() {
 		return [
 			new EventManager(window, "keydown", (event: React.KeyboardEvent) => {
-				if (this.props.toggle) {
+				if (this.props.toggle && !document.querySelector("input:focus")) {
 					switch (event.key) {
 						case "ArrowLeft": {
 							this.jump(this.state.index - 1);

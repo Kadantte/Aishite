@@ -121,7 +121,7 @@ class Browser extends PageView<BrowserProps, BrowserState> {
 											<Size height={Unit(100, "%")}>
 												<Row>
 													<Offset type={"margin"} left={Unit(10)} right={Unit(10)}>
-														<Form toggle={!this.state.gallery.empty} fallback={this.state.query.length ? this.state.query : "language:all"}
+														<Form toggle={!this.state.gallery.empty} value={this.state.query} fallback={this.state.query.length ? this.state.query : "language:all"}
 															onType={(text) => {
 																return true;
 															}}

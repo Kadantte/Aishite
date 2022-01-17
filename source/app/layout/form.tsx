@@ -5,13 +5,16 @@ import { FlipFlop } from "@/app/common/props";
 import { Stateful, EventManager } from "@/app/common/framework";
 
 class FormProps extends FlipFlop<undefined> {
+	public readonly value?: string;
 	public readonly fallback?: string;
+	// events
 	public readonly onType?: (callback: string) => boolean;
 	public readonly onSubmit?: (callback: string) => void;
 
 	constructor(args: Args<FormProps>) {
 		super(args);
 
+		this.value = args.value;
 		this.fallback = args.fallback;
 		this.onType = args.onType;
 		this.onSubmit = args.onSubmit;
@@ -52,7 +55,7 @@ class Form extends Stateful<FormProps, FormState> {
 	}
 	protected build() {
 		return (
-			<input id={this.props.id} placeholder={this.props.fallback}
+			<input id={this.props.id} defaultValue={this.props.value} placeholder={this.props.fallback}
 				onBlur={(event) => {
 					this.setState({ ...this.state, focus: false });
 				}}

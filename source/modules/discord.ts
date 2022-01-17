@@ -47,7 +47,14 @@ class DiscordRPC extends StateHandler<{ rpc: RichPresence, secret: string; }> {
 	protected create() {
 		until(() => this.client).then(() => {
 			// attach function before connecting
-			this.client.on("ready", () => this.update());
+			this.client.on("ready", () => {
+				this.connection = true;
+			});
+			this.client.on("error", () => {
+				this.connection = false;
+				// reconnect
+				this.connect(this.state.secret);
+			});
 			// connect
 			this.connect(this.state.secret);
 		});
@@ -71,7 +78,7 @@ class DiscordRPC extends StateHandler<{ rpc: RichPresence, secret: string; }> {
 		// prevent multiple connection
 		if (this.connection) throw new Error();
 		// connecting hearts!
-		this.client.login({ clientId: secret }).then(() => this.connection = true).catch(() => setTimeout(() => this.connect(secret), 1000 * 60));
+		this.client.login({ clientId: secret }).then(() => this.update()).catch(() => setTimeout(() => this.connect(secret), 1000 * 60));
 	}
 }
 
