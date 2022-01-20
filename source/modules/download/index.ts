@@ -1,6 +1,8 @@
 /** @see https://stackoverflow.com/questions/38715001/how-to-make-web-workers-with-typescript-and-webpack */
 import _ from "file-loader?name=[name].js!./worker";
 // modules
+import storage from "@/modules/storage";
+// modules/hitomi.la
 import { GalleryBlock, GalleryScript } from "@/modules/hitomi.la/gallery";
 // states
 import { MappedStateHandler } from "@/states";
@@ -8,6 +10,13 @@ import { MappedStateHandler } from "@/states";
 import { BridgeEvent } from "@/api";
 
 import settings from "@/modules/settings";
+
+type Cache = {
+	file: string;
+	folder: string;
+	caches: Array<number>;
+	status: WorkerStatus;
+}
 
 enum WorkerStatus {
 	READY = "READY",
@@ -37,15 +46,13 @@ export class Downloader extends MappedStateHandler<Record<number, DownloaderStat
 	}
 	public set state(state: Downloader["_state"]) {
 		super.state = state;
-		// WIP
-
 	}
 	protected create() {
 		// WIP
 	}
 	public start(id: number) {
 		return new Promise<WorkerStatus>((resolve, reject) => {
-			// concurrent limit
+			// concurrent
 			if (Object.keys(Downloader.workers).length >= settings.state.download.concurrent) {
 				// queue
 				this.queue(id);
@@ -53,9 +60,11 @@ export class Downloader extends MappedStateHandler<Record<number, DownloaderStat
 				return resolve(this.state[id].status);
 			}
 			const worker = new Worker(_);
-			// assign
+			// assign/worker
 			Downloader.workers[id] = worker;
-			// state
+			// assign/storage
+			storage.state[id].state = { file: settings.state.download.file, folder: settings.state.download.folder, caches: [], status: this.state[id].status };
+			// notify
 			this.modify(id, new DownloaderState({ status: WorkerStatus.READY, bytes_per_second: 0 }));
 			// handler
 			worker.addEventListener("message", (event) => {
@@ -66,6 +75,8 @@ export class Downloader extends MappedStateHandler<Record<number, DownloaderStat
 					case "BPS": {
 						// notify
 						this.modify(id, new DownloaderState({ ...this.state[id], bytes_per_second: args.bytes_per_second }));
+						// update
+						storage.state[id].state = { ...storage.state[id].state, status: this.state[id].status } as Cache;
 						break;
 					}
 					case "STATUS": {
@@ -73,15 +84,11 @@ export class Downloader extends MappedStateHandler<Record<number, DownloaderStat
 						this.modify(id, new DownloaderState({ ...this.state[id], status: args }));
 
 						switch (args as WorkerStatus) {
-							case WorkerStatus.ERROR: {
-								// WIP
-								break;
-							}
-							case WorkerStatus.WORKING: {
-								// WIP
-								break;
-							}
+							case WorkerStatus.ERROR:
 							case WorkerStatus.FINISHED: {
+								// drop
+								delete Downloader.workers[id];
+								// resolve
 								return resolve(this.state[id].status);
 							}
 						}
@@ -95,7 +102,7 @@ export class Downloader extends MappedStateHandler<Record<number, DownloaderStat
 				GalleryScript(id).then((script) => {
 					// communicate
 					this.comment(id, "START", {
-						files: script.files.map((file, index) => ({ url: file.url, path: this.guidance(block, index, file.url.split(/\./).last ?? "unknown") })),
+						files: script.files.map((file, index) => ({ url: file.url, path: this.pathfinder(settings.state.download.file, settings.state.download.folder, block, index, file.url.split(/\./).last ?? "unknown") })),
 						concurrent: settings.state.download.concurrent
 					});
 				});
@@ -138,9 +145,9 @@ export class Downloader extends MappedStateHandler<Record<number, DownloaderStat
 		// communicate
 		Downloader.workers[id].postMessage({ type: type, args: args });
 	}
-	protected guidance(block: GalleryBlock, index: number, extension: string) {
+	protected pathfinder(file: string, folder: string, block: GalleryBlock, index: number, extension: string) {
 		// cache
-		let path = settings.state.download.folder + "/" + settings.state.download.file;
+		let path = file + "/" + folder;
 		// @ts-ignore
 		block["index"] = index;
 		// @ts-ignore

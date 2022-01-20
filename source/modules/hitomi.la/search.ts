@@ -65,7 +65,7 @@ export async function SearchQuery(query: string) {
 */
 async function unknown_0(region: Nullable<string>, type: string, value: string) {
 	return new Promise<Array<number>>((resolve, reject) => {
-		request.GET(`https://${["ltn.hitomi.la", "n", region, `${type}-${value}`].filter((_) => _).join("/")}.nozomi`, { type: "arraybuffer" }).then((response) => {
+		request.GET(`https://${["ltn.hitomi.la", "n", region, `${type}-${value}`].filter((_) => _).join("/")}.nozomi`, "arraybuffer").then((response) => {
 			switch (response.status.code) {
 				case 200: {
 					const array: Buffer = Buffer.from(response.encode);

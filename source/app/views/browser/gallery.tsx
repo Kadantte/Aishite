@@ -99,14 +99,14 @@ class Gallery extends Stateful<GalleryProps, GalleryState> {
 							// INDEX: 0
 							// WIDGET: THUMBNAIL_0
 							//
-							<Decoration background={{ image: `url(${this.props.gallery.thumbnail[0]})` }}>
+							<Decoration background={{ image: [0, 1, 2].map((index) => "url(" + this.props.gallery.thumbnail[index] + ")").join(",") }}>
 								<section></section>
 							</Decoration>,
 							//
 							// INDEX: 1
 							// WIDGET: THUMBNAIL_1
 							//
-							<Decoration background={{ image: `url(${this.props.gallery.thumbnail[1]})` }}>
+							<Decoration background={{ image: [3, 4, 5].map((index) => "url(" + this.props.gallery.thumbnail[index] + ")").join(",") }}>
 								<section></section>
 							</Decoration>,
 							//

@@ -70,5 +70,5 @@ async function unknown_1() {
  * @see loadBinaryData
  */
 async function unknown_2(url: string) {
-	return new Uint8Array(Buffer.from((await request.GET(url, { type: "arraybuffer" })).encode));
+	return new Uint8Array((await request.GET(url, "arraybuffer")).encode);
 }

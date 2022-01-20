@@ -177,10 +177,10 @@ class Browser extends PageView<BrowserProps, BrowserState> {
 													<Gallery key={x} gallery={gallery}
 														onTagClick={(tag) => {
 															// cache
-															const query = this.node()!.querySelector("input")!;
+															const query = this.node()!.getElementsByTagName("input")!.item(0)!;
 
 															if (query.value.includes(tag)) {
-																query.value = query.value.replace(tag, "").replace(/\s$/, "").replace(/\s\s+/g, "\u0020");
+																query.value = query.value.replace(tag, "").replace(/^\s/, "").replace(/\s$/, "").replace(/\s\s+/g, "\u0020");
 															} else {
 																query.value += "\u0020" + tag;
 															}

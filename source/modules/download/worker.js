@@ -4,6 +4,15 @@ const node_fs = require("fs");
 function comment(type, args) {
 	// communicate
 	postMessage({ type: type, args: args });
+
+	if (type === "STATUS") {
+		switch (args) {
+			case "ERROR":
+			case "FINISHED": {
+				return close();
+			}
+		}
+	}
 }
 
 class WorkerFile {
@@ -52,16 +61,19 @@ class WorkerFile {
 			// complete
 			this.xhr.addEventListener("loadend", (event) => {
 				// check for DEAD-END
-				switch (this.xhr.status) {
-					case 404: {
-						// communicate
-						comment("STATUS", "ERROR");
+				stream.close(() => {
+					switch (this.xhr.status) {
+						case 404: {
+							if (!offset) node_fs.unlinkSync(this.path);
+							comment("STATUS", "ERROR");
+							break;
+						}
+						default: {
+							resolve();
+							break;
+						}
 					}
-					default: {
-						stream.close(() => resolve());
-						break;
-					}
-				}
+				});
 			});
 			// size
 			this.xhr.addEventListener("loadstart", (event) => {
@@ -101,10 +113,7 @@ function cycle(thread) {
 		WorkerFile.finished++;
 		// finished
 		if (WorkerFile.files.length === WorkerFile.finished) {
-			// communicate
-			comment("STATUS", "FINISHED");
-			// terminate
-			return close();
+			return comment("STATUS", "FINISHED");
 		}
 		// indexing
 		for (const worker of WorkerFile.files) {
@@ -119,7 +128,6 @@ function trace_on() {
 	if (progress) throw new Error("Interval is defined");
 	// every 1 second
 	progress = setInterval(() => {
-		// communicate
 		comment("BPS", {
 			files: WorkerFile.files.map((file) => ({ url: file["url"], path: file["path"], size: file["size"], bytes: file["bytes"] })),
 			bytes_per_second: WorkerFile.bytes_per_second
@@ -168,7 +176,7 @@ self.addEventListener("message", (event) => {
 			WorkerFile.files.map((file) => file.xhr.abort());
 			trace_off();
 			close();
-			break;	
+			break;
 		}
 		// case "PAUSE": {
 		// 	WorkerFile.files.map((file) => file.pause());

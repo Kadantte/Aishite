@@ -149,7 +149,7 @@ async function unknown_3(type: "global" | "galleries" | "languages" | "nozomiurl
 */
 async function unknown_4(url: string, offset: number, length: number) {
 	return new Promise<Uint8Array>(async (resolve, reject) => {
-		return resolve(new Uint8Array(Buffer.from((await request.GET(url, { type: "arraybuffer", options: { headers: { "range": `bytes=${offset}-${length}` } } })).encode, "binary")));
+		return resolve(new Uint8Array((await request.GET(url, "arraybuffer", { headers: { "range": "bytes=" + offset + "-" + length } })).encode));
 	});
 }
 /**

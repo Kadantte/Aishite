@@ -25,15 +25,16 @@ class RequestOptions {
 	}
 }
 
-class RequestResponse {
-	public readonly encode: string;
+class RequestResponse<T extends XMLHttpRequestResponseType> {
+	public readonly encode: T extends "arraybuffer" ? ArrayBuffer : T extends "document" ? Document : T extends "json" ? JSON : T extends "text" ? string : (ArrayBuffer | Document | JSON | string);
 	public readonly status: {
 		code: number;
 		message: string;
 	};
 	public readonly headers: RequestHeaders;
 
-	constructor(args: Args<RequestResponse>) {
+	constructor(args: Args<RequestResponse<T>>) {
+		// @ts-ignore
 		this.encode = args.encode;
 		this.status = args.status;
 		this.headers = args.headers;
@@ -43,7 +44,7 @@ class RequestResponse {
 /** @see https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/Using_XMLHttpRequest */
 class Request {
 	public async send(args: RequestOptions) {
-		return new Promise<RequestResponse>((resolve, reject) => {
+		return new Promise<RequestResponse<any>>((resolve, reject) => {
 			const http = {
 				xhr: new XMLHttpRequest(),
 				headers: <Record<string, string>>{}
@@ -118,20 +119,25 @@ class Request {
 			http.xhr.send();
 		});
 	}
-	public GET(url: string, args?: { type?: RequestOptions["request"]["type"], options?: RequestOptions["partial"] }) {
-		return this.send(new RequestOptions({ request: { url: url, type: args?.type ?? "text", method: "GET" }, partial: { ...args?.options }, private: {} }));
+	public GET(url: string, type: "arraybuffer", options?: RequestOptions["partial"]): Promise<RequestResponse<"arraybuffer">>
+	public GET(url: string, type: "document", options?: RequestOptions["partial"]): Promise<RequestResponse<"document">>
+	public GET(url: string, type: "json", options?: RequestOptions["partial"]): Promise<RequestResponse<"json">>
+	public GET(url: string, type: "text", options?: RequestOptions["partial"]): Promise<RequestResponse<"text">>
+	
+	public GET(url: string, type: RequestOptions["request"]["type"], options?: RequestOptions["partial"]) {
+		return this.send(new RequestOptions({ request: { url: url, type: type, method: "GET" }, partial: { ...options }, private: {} }));
 	}
-	public PUT(url: string, args?: { type?: RequestOptions["request"]["type"], options?: RequestOptions["partial"] }) {
-		return this.send(new RequestOptions({ request: { url: url, type: args?.type ?? "text", method: "PUT" }, partial: { ...args?.options }, private: {} }));
+	public PUT(url: string, type: RequestOptions["request"]["type"], options?: RequestOptions["partial"]) {
+		return this.send(new RequestOptions({ request: { url: url, type: type, method: "PUT" }, partial: { ...options }, private: {} }));
 	}
-	public POST(url: string, args?: { type?: RequestOptions["request"]["type"], options?: RequestOptions["partial"] }) {
-		return this.send(new RequestOptions({ request: { url: url, type: args?.type ?? "text", method: "POST" }, partial: { ...args?.options }, private: {} }));
+	public POST(url: string, type: RequestOptions["request"]["type"], options?: RequestOptions["partial"]) {
+		return this.send(new RequestOptions({ request: { url: url, type: type, method: "POST" }, partial: { ...options }, private: {} }));
 	}
-	public HEAD(url: string, args?: { type?: RequestOptions["request"]["type"], options?: RequestOptions["partial"] }) {
-		return this.send(new RequestOptions({ request: { url: url, type: args?.type ?? "text", method: "HEAD" }, partial: { ...args?.options }, private: {} }));
+	public HEAD(url: string, type: RequestOptions["request"]["type"], options?: RequestOptions["partial"]) {
+		return this.send(new RequestOptions({ request: { url: url, type: type, method: "DELETE" }, partial: { ...options }, private: {} }));
 	}
-	public DELETE(url: string, args?: { type?: RequestOptions["request"]["type"], options?: RequestOptions["partial"] }) {
-		return this.send(new RequestOptions({ request: { url: url, type: args?.type ?? "text", method: "DELETE" }, partial: { ...args?.options }, private: {} }));
+	public DELETE(url: string, type: RequestOptions["request"]["type"], options?: RequestOptions["partial"]) {
+		return this.send(new RequestOptions({ request: { url: url, type: type, method: "DELETE" }, partial: { ...options }, private: {} }));
 	}
 }
 

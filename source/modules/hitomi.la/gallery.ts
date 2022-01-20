@@ -63,7 +63,7 @@ export type GalleryBlock = {
 	readonly type: string;
 	readonly title: string;
 	readonly language: string;
-	readonly thumbnail: [string, string];
+	readonly thumbnail: [string, string, string, string, string, string];
 	readonly character?: Array<string>;
 	readonly artist?: Array<string>;
 	readonly series?: string;
@@ -84,9 +84,9 @@ export type GalleryScript = {
 
 let common_js: Nullable<string> = null;
 
-request.GET("https://ltn.hitomi.la/common.js", { type: "text" }).then((response_0) => {
+request.GET("https://ltn.hitomi.la/common.js", "text").then((response_0) => {
 	// your mom is GG
-	request.GET("https://ltn.hitomi.la/gg.js", { type: "text" }).then((response_1) => {
+	request.GET("https://ltn.hitomi.la/gg.js", "text").then((response_1) => {
 		// prevent potential exploits
 		if (/(eval|require)/g.test(response_0.encode + response_1.encode)) {
 			throw new Error("Remote code execution attempt");
@@ -96,14 +96,18 @@ request.GET("https://ltn.hitomi.la/common.js", { type: "text" }).then((response_
 });
 
 export async function GalleryBlock(id: number): Promise<GalleryBlock> {
-	const response = await request.GET(`https://ltn.hitomi.la/galleryblock/${id}.html`, { type: "text" });
+	const response = await request.GET(`https://ltn.hitomi.la/galleryblock/${id}.html`, "text");
 
 	switch (response.status.code) {
 		case 404: {
 			throw new Error("DEAD-END");
 		}
 	}
-	const block: Record<string, Array<string>> = {}, document = new DOMParser().parseFromString(response.encode, "text/html");
+	const block: Record<string, Array<string>> = {};
+
+	await until(() => common_js !== null);
+
+	const document: Document = new DOMParser().parseFromString(eval(common_js + "rewrite_tn_paths(response.encode)"), "text/html");
 
 	let index = 0;
 
@@ -116,60 +120,39 @@ export async function GalleryBlock(id: number): Promise<GalleryBlock> {
 		index++;
 	}
 
-	for (const extractor of Object.values([
-		{
-			"name": "title",
-			"query": "h1"
-		},
-		{
-			"name": "thumbnail",
-			"query": ".lazyload",
-			"attribute": "data-src"
-		},
-		{
-			"name": "artist",
-			"query": ".artist-list"
-		},
-		{
-			"name": "date",
-			"query": ".date"
-		}
-	])) {
-		block[extractor.name] = Object.values(document.querySelectorAll(extractor.query)).map((element) => {
-			return extractor.attribute ? element.getAttribute(extractor.attribute) ?? "N/A" : (element as HTMLElement).innerText ?? "N/A"
-		});
-
-		switch (extractor.name) {
-			case "artist": {
-				block[extractor.name] = block[extractor.name].map((artist) => artist.replace(/\s\s+/g, "").replace(/\n/g, ""));
-				break;
-			}
-			case "thumbnail": {
-				block[extractor.name] = block[extractor.name].map((thumbnail) => "https:" + thumbnail);
-				break;
-			}
-		}
+	for (const extractor of Object.values([{ "name": "title", "query": "h1" }, { "name": "artist", "query": ".artist-list" }, { "name": "date", "query": ".date" }])) {
+		block[extractor.name] = Object.values(document.querySelectorAll(extractor.query)).map((element) => (element as HTMLElement).innerText ?? "N/A");
 	}
 
 	return {
 		id: id,
-		type: block["type"].first as string,
-		title: block["title"].first as string,
+		type: block["type"].first!,
+		title: block["title"].first!,
 		group: block["group"]?.first,
 		series: block["series"]?.first,
-		language: block["language"].first as string,
-		thumbnail: block["thumbnail"] as [string, string],
-		character: block["character"],
-		artist: block["artist"],
-		tags: block["tags"].map((tag) => {
-			return new GalleryTag({ type: /♂$/.test(tag) ? Category.MALE : /♀$/.test(tag) ? Category.FEMALE : Category.TAG, value: tag.replace(/\s?[♂♀]$/, "").replace(/\s/g, "_") });
+		language: block["language"].first!,
+		// @ts-ignore
+		thumbnail: Array.prototype.concat.apply([], Object.values(document.querySelectorAll("picture > img, picture > source")).map((element) => {
+			return element.getAttribute("data-srcset")?.split("\u0020").filter((url) => url.length > 3) ?? [element.getAttribute("data-src")];
+		})).map((url) => {
+			return "https:" + url;
 		}),
-		date: block["date"].first as string
+		character: block["character"],
+		artist: block["artist"].map((artist) => {
+			return artist.replace(/\s\s+/g, "").replace(/\n/g, "");
+		}),
+		tags: block["tags"].map((tag) => {
+			return new GalleryTag({
+				type: /♂$/.test(tag) ? Category.MALE : /♀$/.test(tag) ? Category.FEMALE : Category.TAG,
+				value: tag.replace(/\s?[♂♀]$/, "").replace(/\s/g, "_")
+			});
+		}),
+		date: block["date"].first!
 	};
 }
 
 export async function GalleryScript(id: number): Promise<GalleryScript> {
-	const response = await request.GET(`https://ltn.hitomi.la/galleries/${id}.js`, { type: "text" });
+	const response = await request.GET(`https://ltn.hitomi.la/galleries/${id}.js`, "text");
 
 	switch (response.status.code) {
 		case 404: {
