@@ -273,10 +273,7 @@ class Browser extends PageView<BrowserProps, BrowserState> {
 						// callaback
 						return callback?.();
 					}
-				}).catch(() => {
-					// fallback
-					return this.gallery("language:all", 0);
-				});
+				}).catch((error) => console.debug(error));
 			}
 		});
 	}

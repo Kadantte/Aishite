@@ -1,7 +1,5 @@
 // modules
 import request from "@/modules/request";
-// assets
-const context = require("@/assets/context.json");
 
 export enum Category {
 	ID = "id",
@@ -91,7 +89,9 @@ request.GET("https://ltn.hitomi.la/common.js", "text").then((response_0) => {
 		if (/(eval|require)/g.test(response_0.encode + response_1.encode)) {
 			throw new Error("Remote code execution attempt");
 		}
-		common_js = "var\u0020gg={};" + response_0.encode.split(/\nfunction\s/g).filter((section) => new RegExp(`^(${["subdomain_from_url", "url_from_url", "full_path_from_hash", "real_full_path_from_hash", "url_from_hash", "url_from_url_from_hash", "rewrite_tn_paths"].join("|")})`).test(section)).map((section) => "function\u0020" + section).join("\n") + response_1.encode.replace(/document/g, "context");
+		common_js = "var\u0020gg;" + response_0.encode.split(/\nfunction\s/g).filter((section) => new RegExp(`^(${["subdomain_from_url", "url_from_url", "full_path_from_hash", "real_full_path_from_hash", "url_from_hash", "url_from_url_from_hash", "rewrite_tn_paths"].join("|")})`).test(section)).map((section) => "function\u0020" + section).join("\n") + response_1.encode.split("\n").filter((section) => !/if\s\([\D\d]+\)\s{\sreturn\s[\d]+;\s}/.test(section)).join("\n");
+
+		console.debug(common_js);
 	});
 });
 
@@ -162,8 +162,6 @@ export async function GalleryScript(id: number): Promise<GalleryScript> {
 	const script = JSON.parse(/^var\sgalleryinfo\s=\s(.+?)(?=;)/.match(`${response.encode};`)!.group(1)!);
 
 	await until(() => common_js !== null);
-
-	console.debug(common_js);
 
 	return {
 		id: script["id"],

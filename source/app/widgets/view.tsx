@@ -19,7 +19,7 @@ class ViewportState {
  * This widget will display `navigator`'s current view,
  * and will scroll up to top upon `navigator` receive changes.
  * One may define which `Element` to scroll up
- * by declaring `data-scrollable` custom attribute to desired.
+ * by declare `data-scrollable` custom attribute to desired element.
  */
 class Viewport extends Stateful<ViewportProps, ViewportState> {
 	protected create() {
