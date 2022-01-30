@@ -1,7 +1,7 @@
 {
 	"name": "aishite",
 	"main": "build/main.js",
-	"version": "2.0.6",
+	"version": "2.0.7",
 	"description": "Thine shine I'll be...",
 	"scripts": {
 		"serve": "node webpack/serve.js",
