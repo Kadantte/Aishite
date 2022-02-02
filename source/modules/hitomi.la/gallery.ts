@@ -150,7 +150,11 @@ export async function GalleryBlock(id: number): Promise<GalleryBlock> {
 		date: block["date"].first!
 	};
 }
-
+/**
+ * 
+ * @alias reader.js
+ * @see make_image_element
+ */
 export async function GalleryScript(id: number): Promise<GalleryScript> {
 	const response = await request.GET(`https://ltn.hitomi.la/galleries/${id}.js`, "text");
 
@@ -173,7 +177,7 @@ export async function GalleryScript(id: number): Promise<GalleryScript> {
 				//
 				// DANGER ZONE!
 				//
-				url: eval(common_js + "url_from_url_from_hash(id, file)"),
+				url: eval(common_js + "url_from_url_from_hash(id, file, \"webp\", undefined, \"a\")"),
 				//
 				// DANGER ZONE!
 				//
