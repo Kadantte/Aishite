@@ -6,12 +6,26 @@ import Fallback from "@/app/views/fallback";
 import settings from "@/modules/settings";
 // states
 import { StateHandler } from "@/states";
+// API
+import { BridgeEvent } from "@/api";
 
 class Navigator extends StateHandler<NavigatorState> {
 	/** DO NOT MODIFY UNLESS CERTAIN. */
 	public static readonly controller: Record<string, Nullable<React.Component<any, any>>> = {};
 
 	protected create() {
+		// scheme
+		window.bridge.handle(BridgeEvent.OPEN_URL, (args) => {
+			// cache
+			const URL = (args[0] as Array<string>).filter((arg) => arg.substring(0, 12) === "hitomi.la://")?.first?.replace(/\/$/, "");
+			// might be null..?
+			if (URL) {
+				// cache
+				const paramters = new URLSearchParams(URL);
+				// open sasamie
+				this.open(paramters.get("name") ?? "New Tab", paramters.get("type") ?? "FALLBACK", JSON.parse(paramters.get("args") ?? "{}"));
+			}
+		});
 		window.addEventListener("keydown", (event) => {
 			// CTRL + W
 			if (!event.altKey && event.ctrlKey && !event.shiftKey && event.key === "w") this.close();
@@ -33,7 +47,7 @@ class Navigator extends StateHandler<NavigatorState> {
 			};
 		});
 	}
-	/** Append `page` as well as change index. */
+	/** Append `page` as well as change `this.state.index`. */
 	public open(name: string, type: string, args: any) {
 		this.state = new NavigatorState({
 			index: this.state.pages.length,
@@ -136,7 +150,7 @@ function build(type: string, args: any) {
 	// must be unique
 	const cache = GUID();
 
-	switch (type) {
+	switch (type.toUpperCase()) {
 		case "FALLBACK": {
 			return (<Fallback ref={(ref) => inspect(cache, ref)} key={cache} data-key={cache}/>);
 		}

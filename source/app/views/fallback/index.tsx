@@ -161,8 +161,8 @@ class Fallback extends PageView<FallbackProps, FallbackState> {
 			</Column>
 		);
 	}
-	protected discord(loaded: boolean) {
-		switch (loaded) {
+	protected discord(state: boolean) {
+		switch (state) {
 			case true: {
 				break;
 			}

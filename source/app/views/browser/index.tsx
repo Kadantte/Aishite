@@ -282,8 +282,8 @@ class Browser extends PageView<BrowserProps, BrowserState> {
 			this.gallery(this.state.query, this.state.index, () => callback?.());
 		});
 	}
-	protected discord(loaded: boolean) {
-		switch (loaded) {
+	protected discord(state: boolean) {
+		switch (state) {
 			case true: {
 				discord.update({
 					state: "Browsing",

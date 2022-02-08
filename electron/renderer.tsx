@@ -76,28 +76,31 @@ window.API = {
 		return call(API_COMMAND.DEVELOPMENT);
 	}
 }
-ipcRenderer.on(BridgeEvent.CLOSE, () => {
+ipcRenderer.on(BridgeEvent.CLOSE, (event, args) => {
 	window.API.close("renderer");
 });
-ipcRenderer.on(BridgeEvent.FOCUS, () => {
-	window.bridge.trigger(BridgeEvent.BLUR);
+ipcRenderer.on(BridgeEvent.FOCUS, (event, args) => {
+	window.bridge.trigger(BridgeEvent.BLUR, args);
 });
-ipcRenderer.on(BridgeEvent.BLUR, () => {
-	window.bridge.trigger(BridgeEvent.BLUR);
+ipcRenderer.on(BridgeEvent.BLUR, (event, args) => {
+	window.bridge.trigger(BridgeEvent.BLUR, args);
 });
-ipcRenderer.on(BridgeEvent.MINIMIZE, () => {
-	window.bridge.trigger(BridgeEvent.MINIMIZE);
+ipcRenderer.on(BridgeEvent.OPEN_URL, (event, args) => {
+	window.bridge.trigger(BridgeEvent.OPEN_URL, args);
 });
-ipcRenderer.on(BridgeEvent.MAXIMIZE, () => {
-	window.bridge.trigger(BridgeEvent.MAXIMIZE);
+ipcRenderer.on(BridgeEvent.MINIMIZE, (event, args) => {
+	window.bridge.trigger(BridgeEvent.MINIMIZE, args);
 });
-ipcRenderer.on(BridgeEvent.UNMAXIMIZE, () => {
-	window.bridge.trigger(BridgeEvent.UNMAXIMIZE);
+ipcRenderer.on(BridgeEvent.MAXIMIZE, (event, args) => {
+	window.bridge.trigger(BridgeEvent.MAXIMIZE, args);
 });
-ipcRenderer.on(BridgeEvent.ENTER_FULL_SCREEN, () => {
-	window.bridge.trigger(BridgeEvent.ENTER_FULL_SCREEN);
+ipcRenderer.on(BridgeEvent.UNMAXIMIZE, (event, args) => {
+	window.bridge.trigger(BridgeEvent.UNMAXIMIZE, args);
 });
-ipcRenderer.on(BridgeEvent.LEAVE_FULL_SCREEN, () => {
-	window.bridge.trigger(BridgeEvent.LEAVE_FULL_SCREEN);
+ipcRenderer.on(BridgeEvent.ENTER_FULL_SCREEN, (event, args) => {
+	window.bridge.trigger(BridgeEvent.ENTER_FULL_SCREEN, args);
+});
+ipcRenderer.on(BridgeEvent.LEAVE_FULL_SCREEN, (event, args) => {
+	window.bridge.trigger(BridgeEvent.LEAVE_FULL_SCREEN, args);
 });
 ReactDOM.render(<App></App>, document.getElementById("app"));

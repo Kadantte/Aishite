@@ -95,12 +95,12 @@ class Viewer extends PageView<ViewerProps, ViewerState> {
 			this.setState({ ...this.state, init: true, script: script }, () => callback?.());
 		});
 	}
-	protected discord(loaded: boolean) {
-		switch (loaded) {
+	protected discord(state: boolean) {
+		switch (state) {
 			case true: {
 				discord.update({
 					state: "Reading",
-					details: `#${this.state.script!.id}\u0020${this.state.script!.title}`,
+					details: "#" + this.state.script?.id + "\u0020" + this.state.script?.title,
 					partyMax: undefined,
 					partySize: undefined
 				});

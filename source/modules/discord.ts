@@ -4,59 +4,76 @@ import * as RPC from "discord-rpc";
 import { StateHandler } from "@/states";
 
 /** @see https://discord.com/developers/docs/rich-presence/how-to */
-class RichPresence {
-	public state?: string;
-	public details: string;
-	public startTimestamp?: number;
-	public endTimestamp?: number;
-	public largeImageKey?: string;
-	public largeImageText?: string;
-	public smallImageKey?: string;
-	public smallImageText?: string;
-	public partyId?: string;
-	public partySize?: number;
-	public partyMax?: number;
-	public matchSecret?: string;
-	public spectateSecret?: string;
-	public joinSecret?: string;
-	public instance?: boolean;
+type RichPresence = {
+	readonly state?: string;
+	readonly details: string;
+	readonly startTimestamp?: number;
+	readonly endTimestamp?: number;
+	readonly largeImageKey?: string;
+	readonly largeImageText?: string;
+	readonly smallImageKey?: string;
+	readonly smallImageText?: string;
+	readonly primaryButton?: { readonly label: string; readonly url?: string; };
+	readonly secondaryButton?: { readonly label: string; readonly url?: string; };
+	readonly partyId?: string;
+	readonly partySize?: number;
+	readonly partyMax?: number;
+	readonly matchSecret?: string;
+	readonly spectateSecret?: string;
+	readonly joinSecret?: string;
+	readonly instance?: boolean;
+}
 
-	constructor(args: Args<RichPresence>) {
-		this.state = args.state;
-		this.details = args.details;
-		this.startTimestamp = args.startTimestamp;
-		this.endTimestamp = args.endTimestamp;
-		this.largeImageKey = args.largeImageKey;
-		this.largeImageText = args.largeImageText;
-		this.smallImageKey = args.smallImageKey;
-		this.smallImageText = args.smallImageText;
-		this.partyId = args.partyId;
-		this.partySize = args.partySize;
-		this.partyMax = args.partyMax;
-		this.spectateSecret = args.spectateSecret;
-		this.joinSecret = args.joinSecret;
-		this.instance = args.instance;
-	}
+/** @see https://discord.com/developers/docs/topics/rpc#setactivity */
+function RichPresence(activity: RichPresence) {
+	// cache
+	const buttons = [activity.primaryButton, activity.secondaryButton].filter((button) => button);
+
+	return {
+		pid: process.pid,
+		activity: {
+			state: activity.state,
+			details: activity.details,
+			timestamps: {
+				start: activity.startTimestamp,
+				end: activity.endTimestamp
+			},
+			assets: {
+				large_image: activity.largeImageKey,
+				large_text: activity.largeImageText,
+				small_image: activity.smallImageKey,
+				small_text: activity.smallImageText,
+			},
+			party: {
+				id: activity.partyId,
+				size: activity.partySize && activity.partyMax ? [activity.partySize, activity.partyMax] : undefined
+			},
+			buttons: buttons.isEmpty() ? undefined : buttons,
+			secrets: buttons.isEmpty() ? { join: activity.joinSecret, spectate: activity.spectateSecret, match: activity.matchSecret } : undefined,
+			instance: activity.instance
+		}
+	};
 }
 
 /** @see https://discord.com/developers/applications/{application_id}/information */
-class DiscordRPC extends StateHandler<{ rpc: RichPresence, secret: string; }> {
+class DiscordRPC extends StateHandler<{ activity: RichPresence, token: string; }> {
 	protected connection: boolean = false;
 	protected readonly client = new RPC.Client({ transport: "ipc" });
 
 	protected create() {
-		until(() => this.client).then(() => {
+		until(() => this.client !== null).then(() => {
 			// attach function before connecting
 			this.client.on("ready", () => {
 				this.connection = true;
 			});
-			this.client.on("error", () => {
+			// @ts-ignore
+			this.client.transport.once("close", () => {
 				this.connection = false;
 				// reconnect
-				this.connect(this.state.secret);
+				this.connect(this.state.token);
 			});
 			// connect
-			this.connect(this.state.secret);
+			this.connect(this.state.token);
 		});
 	}
 	public get state() {
@@ -65,14 +82,12 @@ class DiscordRPC extends StateHandler<{ rpc: RichPresence, secret: string; }> {
 	public set state(state: DiscordRPC["_state"]) {
 		super.state = state;
 	}
-	public update(rpc: RichPresence = this.state.rpc, override: boolean = false) {
-		if (override) {
-			this.state = { ...this.state, rpc: rpc };
-		} else {
-			this.state = { ...this.state, rpc: new RichPresence({ ...this.state.rpc, ...rpc } as Args<RichPresence>) };
-		}
-		// await until
-		until(() => this.connection).then(() => this.client.setActivity(this.state.rpc));
+	public update(activity: RichPresence = this.state.activity, override: boolean = false) {
+		// conditional override
+		this.state = { ...this.state, activity: Object.assign(override ? {} : this.state.activity, activity) };
+		console.log(RichPresence(this.state.activity))
+		// @ts-ignore
+		until(() => this.connection).then(() => this.client.request("SET_ACTIVITY", RichPresence(this.state.activity)));
 	}
 	public connect(secret: string) {
 		// prevent multiple connection
@@ -84,7 +99,7 @@ class DiscordRPC extends StateHandler<{ rpc: RichPresence, secret: string; }> {
 
 const singleton = new DiscordRPC({
 	state: {
-		rpc: new RichPresence({
+		activity: {
 			// lore
 			details: "Starting...",
 			// large image
@@ -93,12 +108,17 @@ const singleton = new DiscordRPC({
 			// small image
 			smallImageKey: "discord",
 			smallImageText: "discord.gg/Gp7tWCe",
+			// buttons
+			primaryButton: {
+				label: "Get Aishite for FREE!",
+				url: "https://github.com/Any-Material/Aishite"
+			},
 			// party
 			partyId: "My Soul, Your Beat!",
 			// time elapsed
 			startTimestamp: Date.now()
-		}),
-		secret: "526951055079112724"
+		},
+		token: "526951055079112724"
 	}
 });
 

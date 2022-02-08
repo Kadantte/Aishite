@@ -13,6 +13,7 @@ export enum BridgeEvent {
 	BLUR = "blur",
 	FOCUS = "focus",
 	CLOSE = "close",
+	OPEN_URL = "open-url",
 	MINIMIZE = "minimize",
 	MAXIMIZE = "maximize",
 	UNMAXIMIZE = "unmaximize",
