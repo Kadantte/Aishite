@@ -140,7 +140,7 @@ class Gallery extends Stateful<GalleryProps, GalleryState> {
 																			<Text children={fragment.key}></Text>
 																			{/* VALUE */}
 																			<Offset type={"margin"} all={Unit(2.5)}>
-																				{(fragment.value instanceof Array ? fragment.value.empty ? ["N/A"] : fragment.value : [fragment.value ?? "N/A"]).map((tag, y) => {
+																				{(fragment.value instanceof Array ? fragment.value.isEmpty() ? ["N/A"] : fragment.value : [fragment.value ?? "N/A"]).map((tag, y) => {
 																					return (
 																						<Size key={y} type={"maximum"} width={Unit(69, "%")}>
 																							<Offset type={"padding"} all={Unit(4.5)} left={Unit(6.5)} right={Unit(6.5)}>

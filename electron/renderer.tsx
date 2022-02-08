@@ -42,13 +42,13 @@ window.API = {
 	// calls [API_COMMAND] to truly close [BrowserWindow]
 	//
 	[API_COMMAND.CLOSE](validate: string) {
-		if (!certification.contains(validate)) {
+		if (!certification.includes(validate)) {
 			certification.add(validate);
 		} else {
 			throw new Error();
 		}
 		for (const validator of settings.state.general.dependency) {
-			if (!certification.contains(validator)) {
+			if (!certification.includes(validator)) {
 				return window.bridge.trigger(BridgeEvent.CLOSE);
 			}
 		}

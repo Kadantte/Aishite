@@ -78,7 +78,7 @@ class Container extends Stateful<ContainerProps, ContainerState> {
 			</Decoration>
 		);
 	}
-	public style(decoration: ContainerState["decoration"], callback?: () => void) {
+	public style(decoration: ContainerState["decoration"], callback?: Method) {
 		this.setState({ ...this.state, decoration: decoration }, callback);
 	}
 }

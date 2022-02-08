@@ -179,7 +179,7 @@ async function unknown_5(type: string, buffer: Uint8Array, bundle: SuggestBundle
 					return [fragment[1], index];
 				}
 			}
-			if (!bundle.buffer.empty) {
+			if (!bundle.buffer.isEmpty()) {
 				return [fragment[1], bundle.buffer.length];
 			}
 			return [true, 0];
@@ -192,7 +192,7 @@ async function unknown_5(type: string, buffer: Uint8Array, bundle: SuggestBundle
 			}
 			return true;
 		}
-		if (bundle.buffer.empty) return resolve(null);
+		if (bundle.buffer.isEmpty()) return resolve(null);
 
 		const [exist, index] = mystery_1(buffer, bundle);
 

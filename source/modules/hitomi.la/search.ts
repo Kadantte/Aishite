@@ -2,6 +2,7 @@
 import request from "@/modules/request";
 // modules/hitomi.la
 import { Endian } from "@/modules/hitomi.la/suggest";
+import { Category } from "@/modules/hitomi.la/gallery";
 import { suggestJS } from "@/modules/hitomi.la/suggest";
 import { GalleryVersion } from "@/modules/hitomi.la/version";
 
@@ -19,7 +20,7 @@ class Instruction {
  * @see do_search
 */
 export async function SearchQuery(query: string) {
-	return new Promise<Array<number>>(async (resolve, reject) => {
+	return new Promise<Array<number>>((resolve, reject) => {
 		// result
 		let sigma: Array<number> = [];
 		// tokens
@@ -29,7 +30,7 @@ export async function SearchQuery(query: string) {
 
 		for (let index = 0; index < keyword.length; index++) {
 			// save instruction
-			unknown_1(keyword[index].replace(/^-/, "")).then(async (response) => {
+			unknown_1(keyword[index].replace(/^-/, "")).then((response) => {
 				//
 				// true: positive
 				// false: negative
@@ -39,7 +40,7 @@ export async function SearchQuery(query: string) {
 				if (Object.keys(token).length === keyword.length) {
 					for (const segment of token) {
 						// initial
-						if (sigma.empty && segment.type) {
+						if (sigma.isEmpty() && segment.type) {
 							sigma = segment.value;
 							continue;
 						}
@@ -49,9 +50,9 @@ export async function SearchQuery(query: string) {
 						sigma = sigma.filter((id) => range.has(id) === segment.type);
 					}
 					// fallback
-					if (sigma.empty) {
+					if (sigma.isEmpty()) {
 						// language:all
-						return resolve(await unknown_0(null, "index", "all"));
+						return unknown_0(null, "index", "all").then((response) => resolve(response));
 					}
 					return resolve(sigma);
 				}
@@ -92,14 +93,14 @@ async function unknown_1(query: string) {
 			const fragment = query.replace(/_/g, "\u0020").split(/:/) as [string, string];
 
 			switch (fragment[0]) {
-				case "id": {
+				case Category.ID: {
 					return resolve([Number(fragment[1])]);
 				}
-				case "male":
-				case "female": {
+				case Category.MALE:
+				case Category.FEMALE: {
 					return resolve(unknown_0("tag", fragment.join(":"), "all"));
 				}
-				case "language": {
+				case Category.LANGUAGE: {
 					return resolve(unknown_0(null, "index", fragment[1]));
 				}
 				default: {

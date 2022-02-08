@@ -6,11 +6,13 @@ import ReactDOM from "react-dom";
 // common
 import { Props, Casacade } from "@/app/common/props";
 
+type Widget = JSX.Element | Element;
+
 export class EventManager<T extends (EventEmitter & any) | EventTarget | (Stateful<Props<any>, {}>["handler"])> {
 	constructor(
 		public readonly self: T,
 		public readonly event: T extends EventEmitter ? string : T extends { addEventListener(type: infer K, listener: (...args: Array<unknown>) => any, options?: unknown): void } ? K : keyof T,
-		public readonly handler: T extends EventEmitter ? (...args: Array<any>) => void : T extends EventTarget ? (...args: Array<any>) => void : T[keyof T]
+		public readonly handler: T extends EventEmitter ? Method : T extends EventTarget ? Method : T[keyof T]
 	) {
 		// TODO: none
 	}
@@ -21,9 +23,9 @@ export abstract class Stateful<P extends Props<any>, S> extends React.Component<
 	public state: S;
 	/** Storage of `React.Component` events. */
 	public readonly handler: {
-		"DID_MOUNT": () => void,
-		"WILL_UPDATE": () => void,
-		"WILL_UNMOUNT": () => void,
+		"DID_MOUNT": Method,
+		"WILL_UPDATE": Method,
+		"WILL_UNMOUNT": Method,
 		"SHOULD_UPDATE": (props: P, state: S, context: any) => boolean;
 	};
 	/** Cache listener functions to automatically added / removed upon (mount) state change. */
@@ -77,7 +79,7 @@ export abstract class Stateful<P extends Props<any>, S> extends React.Component<
 	 */
 	protected events(): Stateful<P, S>["bindings"] {
 		return [];
-	};
+	}
 	private attach() {
 		for (const cache of this.bindings) {
 			if (cache.self instanceof EventEmitter) {
@@ -100,17 +102,18 @@ export abstract class Stateful<P extends Props<any>, S> extends React.Component<
 			}
 		}
 	}
-	/** CSS will be applied **AFTER** `this.props.style`. */
+	/** Return value will be applied after `this.props.style`. */
 	protected abstract postCSS(): React.CSSProperties;
-	/** CSS will be applied **BEFORE** `this.props.style`. */
+	/** Return value will be applied before `this.props.style`. */
 	protected abstract preCSS(): React.CSSProperties;
 	/** **UNSAFE**: Directly pass `HTMLElement` attributes to children. */
 	protected modify(): Casacade["modify"] {
 		return {};
 	}
 	/** This is a wrapper to inheirt `this.props.style` automation. */
-	protected abstract build(): JSX.Element | Element;
-	/** Prefer using `build` instead. */
+	protected abstract build(): Widget;
+	/** Consider using `this.build` instead. */
+	@final()
 	public render() {
 		return <Mirror style={{ ...this.preCSS(), ...this.props.style, ...this.postCSS() }} modify={this.modify()}>{this.build()}</Mirror>;
 	}
@@ -125,17 +128,18 @@ export abstract class Stateful<P extends Props<any>, S> extends React.Component<
 }
 
 export abstract class Stateless<P extends Props<any>> extends React.PureComponent<P, {}> {
-	/** CSS will be applied **AFTER** `this.props.style`. */
+	/** Return value will be applied after `this.props.style`. */
 	protected abstract postCSS(): React.CSSProperties;
-	/** CSS will be applied **BEFORE** `this.props.style`. */
+	/** Return value will be applied before `this.props.style`. */
 	protected abstract preCSS(): React.CSSProperties;
 	/** **UNSAFE**: Directly pass `HTMLElement` attributes to children. */
 	protected modify(): Casacade["modify"] {
 		return {};
 	}
 	/** This is a wrapper to inheirt `this.props.style` automation. */
-	protected abstract build(): JSX.Element | Element;
-	/** Prefer using `build` instead. */
+	protected abstract build(): Widget;
+	/** Consider using `this.build` instead. */
+	@final()
 	public render() {
 		return <Mirror style={{ ...this.preCSS(), ...this.props.style, ...this.postCSS() }} modify={this.modify()} children={this.build()}/>;
 	}
@@ -153,11 +157,12 @@ export abstract class StyleSheet<P extends Casacade> extends React.PureComponent
 	constructor(public props: P) {
 		super(props);
 	}
-	/** CSS will be applied **AFTER** `this.props.style`. */
+	/** Return value will be applied after `this.props.style`. */
 	protected abstract postCSS(): React.CSSProperties;
-	/** CSS will be applied **BEFORE** `this.props.style`. */
+	/** Return value will be applied before `this.props.style`. */
 	protected abstract preCSS(): React.CSSProperties;
-	/** @final */
+	/** Consider using `this.build` instead. */
+	@final()
 	public render() {
 		return (this.props.children instanceof Array ? this.props.children : [this.props.children]).map((children, x) => {
 			if (children === undefined) {

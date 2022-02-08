@@ -15,9 +15,12 @@
 		"index": 0,
 		"pages": [
 			{
-				"type": "FALLBACK",
-				"name": "New Tab",
-				"args": {}
+				"type": "BROWSER",
+				"name": "language:all",
+				"args": {
+					"index": 0,
+					"query": "language:all"
+				}
 			}
 		]
 	}

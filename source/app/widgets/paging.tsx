@@ -11,7 +11,7 @@ class PagingProps extends FlipFlop<undefined> {
 	public readonly overflow: number;
 	public readonly shortcut: { first: boolean; last: boolean };
 	public readonly onPaging?: (index: number) => boolean;
-	public readonly onButton?: (key: string, index: "First" | "Last" | number, indexing: boolean, jump: () => void) => SingleChild;
+	public readonly onButton?: (key: string, index: "First" | "Last" | number, indexing: boolean, jump: Method) => SingleChild;
 
 	constructor(args: Args<PagingProps>) {
 		super(args);

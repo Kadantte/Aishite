@@ -70,7 +70,7 @@ class Browser extends PageView<BrowserProps, BrowserState> {
 						if (this.visible()) this.discord(true);
 					});
 				}
-				this.discord(!this.state.gallery.empty);
+				this.discord(!this.state.gallery.isEmpty());
 			}
 		});
 		return new BrowserState({ init: false, index: this.props.index, query: this.props.query, length: 0, gallery: [] });
@@ -121,7 +121,7 @@ class Browser extends PageView<BrowserProps, BrowserState> {
 											<Size height={Unit(100, "%")}>
 												<Row>
 													<Offset type={"margin"} left={Unit(10)} right={Unit(10)}>
-														<Form toggle={!this.state.gallery.empty} value={this.state.query} fallback={this.state.query.length ? this.state.query : "language:all"}
+														<Form toggle={!this.state.gallery.isEmpty()} value={this.state.query} fallback={this.state.query.length ? this.state.query : "language:all"}
 															onType={(text) => {
 																return true;
 															}}
@@ -201,7 +201,7 @@ class Browser extends PageView<BrowserProps, BrowserState> {
 						return (
 							<Size height={Unit(45)}>
 								<Decoration shadow={[[Color.DARK_100, 0, 0, 5, 0]]} background={{ color: Color.DARK_100 }}>
-									<Paging toggle={!this.state.gallery.empty} index={this.state.index} length={this.state.length} overflow={7} shortcut={{ first: true, last: true }}
+									<Paging toggle={!this.state.gallery.isEmpty()} index={this.state.index} length={this.state.length} overflow={7} shortcut={{ first: true, last: true }}
 										onPaging={(index) => {
 											if (!this.visible()) {
 												return false;
@@ -229,7 +229,7 @@ class Browser extends PageView<BrowserProps, BrowserState> {
 																onMouseLeave={(I) => {
 																	I.style(null);
 																}}
-																children={<Text color={!this.state.gallery.empty && this.state.length ? indexing ? Color.SPOTLIGHT : Color.TEXT_000 : Color.DARK_500}>{typeof index === "string" ? index : (index + 1).toString()}</Text>}
+																children={<Text color={!this.state.gallery.isEmpty() && this.state.length ? indexing ? Color.SPOTLIGHT : Color.TEXT_000 : Color.DARK_500}>{typeof index === "string" ? index : (index + 1).toString()}</Text>}
 															/>
 														</Offset>
 													</Offset>
@@ -254,7 +254,7 @@ class Browser extends PageView<BrowserProps, BrowserState> {
 	/**
 	 * Update gallery blocks based on current (state / props) `query` and `index`.
 	 */
-	protected gallery(query: string, index: number, callback?: () => void) {
+	protected gallery(query: string, index: number, callback?: Method) {
 		// fetch
 		SearchQuery(query).then((response) => {
 			// to avoid bottleneck, make requests then assign them in order
@@ -277,7 +277,7 @@ class Browser extends PageView<BrowserProps, BrowserState> {
 			}
 		});
 	}
-	protected macro_0(callback?: () => void) {
+	protected macro_0(callback?: Method) {
 		this.setState({ ...this.state, init: true }, () => {
 			this.gallery(this.state.query, this.state.index, () => callback?.());
 		});

@@ -3,9 +3,14 @@ import { app, session, Menu, BrowserWindow, ipcMain } from "electron";
 // api
 import { API_COMMAND, BridgeEvent } from "@/api";
 
-Menu.setApplicationMenu(null);
-
 app.on("ready", () => {
+	// clear cache
+	session.defaultSession.clearCache();
+	// bypass origin policy
+	session.defaultSession.webRequest.onBeforeSendHeaders({ urls: ["*://*.hitomi.la/*"] }, (details, callback) => {
+		details.requestHeaders["referer"] = "https://hitomi.la/";
+		return callback({ requestHeaders: details.requestHeaders });
+	});
 	// create window
 	const window = new BrowserWindow({
 		icon: "source/assets/aishite.ico",
@@ -28,31 +33,22 @@ app.on("ready", () => {
 		},
 		backgroundColor: "#00000000"
 	});
-	// webpack or ASAR
-	window.loadFile("build/index.html");
-	// development
-	if (!app.isPackaged) {
-		// hot-reload
-		require("fs").watch("build/preload.js").on("change", () => {
-			window.reload();
-		});
-		require("fs").watch("build/renderer.js").on("change", () => {
-			window.reload();
-		});
-	}
-	// clear cache
-	session.defaultSession.clearCache();
-	// bypass origin policy
-	session.defaultSession.webRequest.onBeforeSendHeaders({ urls: ["*://*.hitomi.la/*"] }, (details, callback) => {
-		details.requestHeaders["referer"] = "https://hitomi.la/";
-		return callback({ requestHeaders: details.requestHeaders });
-	});
 	window.on("ready-to-show", () => {
 		window.show();
 	});
 	window.on("unresponsive", () => {
 		window.reload();
 	});
+	// webpack or ASAR
+	window.loadFile("build/index.html");
+
+	if (app.isPackaged) {
+		Menu.setApplicationMenu(null)
+	} else {
+		require("fs").watch("build/preload.js").on("change", () => window.reload());
+		require("fs").watch("build/renderer.js").on("change", () => window.reload());
+	}
+	// bridge
 	window.on(BridgeEvent.CLOSE, (event) => {
 		// prevent close
 		event.preventDefault();

@@ -90,7 +90,7 @@ class Viewer extends PageView<ViewerProps, ViewerState> {
 			</section>
 		);
 	}
-	protected macro_0(callback?: () => void) {
+	protected macro_0(callback?: Method) {
 		GalleryScript(this.props.gallery).then((script) => {
 			this.setState({ ...this.state, init: true, script: script }, () => callback?.());
 		});

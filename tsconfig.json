@@ -16,11 +16,14 @@
 		"experimentalDecorators": true
 	},
 	"files": [
+		"source/decorators.ts",
+		"source/prototypes.ts",
 		"source/typings/args.ts",
 		"source/typings/await.ts",
 		"source/typings/child.ts",
 		"source/typings/global.ts",
 		"source/typings/loader.ts",
+		"source/typings/method.ts",
 		"source/typings/nullable.ts",
 		"source/typings/properties.ts",
 		"source/typings/stylesheet.ts"

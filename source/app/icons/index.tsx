@@ -81,7 +81,7 @@ class Icon extends Stateful<IconProps, IconState> {
 		}
 		return this.props.children;
 	}
-	public style(color: IconState["color"], callback?: () => void) {
+	public style(color: IconState["color"], callback?: Method) {
 		this.setState({ ...this.state, color: color }, callback);
 	}
 }

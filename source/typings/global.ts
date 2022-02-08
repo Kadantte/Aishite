@@ -15,7 +15,7 @@ declare global {
 			[API_COMMAND.DEVELOPMENT](): Promise<void>;
 		}
 		readonly bridge: EventTarget & {
-			handle(event: BridgeEvent, callback: (...args: Array<any>) => void): void;
+			handle(event: BridgeEvent, callback: Method): void;
 			trigger(event: BridgeEvent, ...args: Array<any>): void;
 		}
 	}
@@ -27,20 +27,14 @@ declare global {
 	interface Array<T> {
 		last?: T;
 		first?: T;
-		empty: boolean;
+		
+		isEmpty(): boolean;
 
 		skip(count: number): Array<T>;
 		take(count: number): Array<T>;
 
 		add(...args: T[]): Array<T>;
 		remove(...args: T[]): Array<T>;
-
-		match(element: T): number;
-		contains(element: T): boolean;
-		/** @deprecated */
-		push(...args: T[]): void;
-		/** @deprecated */
-		indexOf(element: T): number;
 	}
 	interface ArrayBuffer {
 		skip(count: number): ArrayBuffer;
@@ -53,8 +47,6 @@ declare global {
 	}
 	interface RegExp {
 		match(string: string): Nullable<RegExpCapture>;
-		/** @deprecated */
-		exec(string: string): Nullable<Array<string>>;
 	}
 	interface RegExpCapture {
 		group(index: number): Nullable<string>;
