@@ -75,11 +75,11 @@ class Storage extends MappedStateHandler<Record<string, StorageState>> {
 const singleton = new Storage({
 	state: {
 		"config": new StorageState({
-			path: "./config.json",
+			path: node_path.resolve(__dirname, "..", "config.json"),
 			state: {}
 		}),
 		"bookmark": new StorageState({
-			path: "./bookmark.json",
+			path: node_path.resolve(__dirname, "..", "bookmark.json"),
 			state: []
 		})
 	}

@@ -97,19 +97,11 @@ class Viewer extends PageView<ViewerProps, ViewerState> {
 	}
 	protected discord(state: boolean) {
 		switch (state) {
-			case true: {
-				discord.update({
-					state: "Reading",
-					details: "#" + this.state.script?.id + "\u0020" + this.state.script?.title,
-					partyMax: undefined,
-					partySize: undefined
-				});
-				break;
-			}
+			case true:
 			case false: {
 				discord.update({
-					state: "Reading",
-					details: "Loading...",
+					state: `Reading (${this.props.gallery})`,
+					details: this.state.script ? this.state.script.title : "Loading...",
 					partyMax: undefined,
 					partySize: undefined
 				});

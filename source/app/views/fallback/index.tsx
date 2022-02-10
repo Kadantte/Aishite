@@ -163,9 +163,7 @@ class Fallback extends PageView<FallbackProps, FallbackState> {
 	}
 	protected discord(state: boolean) {
 		switch (state) {
-			case true: {
-				break;
-			}
+			case true:
 			case false: {
 				discord.update({
 					state: "IDLE",

@@ -103,4 +103,5 @@ ipcRenderer.on(BridgeEvent.ENTER_FULL_SCREEN, (event, args) => {
 ipcRenderer.on(BridgeEvent.LEAVE_FULL_SCREEN, (event, args) => {
 	window.bridge.trigger(BridgeEvent.LEAVE_FULL_SCREEN, args);
 });
+
 ReactDOM.render(<App></App>, document.getElementById("app"));

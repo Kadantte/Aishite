@@ -10,18 +10,28 @@ let window: Nullable<BrowserWindow> = null;
 
 const instance = app.requestSingleInstanceLock();
 
-if (!app.isPackaged && process.platform === "win32") {
-	app.setAsDefaultProtocolClient("hitomi.la", process.argv[0], [node_path.resolve(process.argv[1])]);
-} else {
-	app.setAsDefaultProtocolClient("hitomi.la");
-}
-
 if (instance) {
 	app.on("second-instance", (event, argv) => {
 		window?.webContents.send(BridgeEvent.OPEN_URL, argv);
 	});
 } else {
 	app.quit();
+}
+
+if (app.isPackaged) {
+	// remove default shortcuts
+	// Menu.setApplicationMenu(null);
+	// URL scheme
+	app.setAsDefaultProtocolClient("hitomi.la");
+} else {
+	// auto-reload
+	node_fs.watch(node_path.resolve(__dirname, "preload.js")).on("change", () => window?.reload());
+	node_fs.watch(node_path.resolve(__dirname, "renderer.js")).on("change", () => window?.reload());
+
+	if (process.platform === "win32") {
+		// URL scheme
+		app.setAsDefaultProtocolClient("hitomi.la", process.argv[0], [node_path.resolve(process.argv[1])]);
+	}
 }
 
 app.on("ready", () => {
@@ -62,13 +72,6 @@ app.on("ready", () => {
 	});
 	// webpack or ASAR
 	window.loadFile(node_path.resolve(__dirname, "index.html"));
-
-	if (app.isPackaged) {
-		Menu.setApplicationMenu(null);
-	} else {
-		node_fs.watch(node_path.resolve(__dirname, "preload.js")).on("change", () => window?.reload());
-		node_fs.watch(node_path.resolve(__dirname, "renderer.js")).on("change", () => window?.reload());
-	}
 	// bridge
 	window.on(BridgeEvent.CLOSE, (event) => {
 		// prevent

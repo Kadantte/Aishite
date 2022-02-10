@@ -113,8 +113,6 @@ const singleton = new DiscordRPC({
 				label: "Get Aishite for FREE!",
 				url: "https://github.com/Any-Material/Aishite"
 			},
-			// party
-			partyId: "My Soul, Your Beat!",
 			// time elapsed
 			startTimestamp: Date.now()
 		},
