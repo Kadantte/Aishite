@@ -20,14 +20,15 @@ const compiler = {
 };
 const boilerplate = {
 	mode: "development",
-	devtool: "inline-nosources-cheap-module-source-map",
+	watch: false,
 	plugins: [
 		new webpack.DefinePlugin({
 			"process.env": {
 				"NODE_ENV": JSON.stringify("production")
 			}
 		})
-	]
+	],
+	devtool: "inline-nosources-source-map"
 };
 
 compiler["main"].instance = webpack({

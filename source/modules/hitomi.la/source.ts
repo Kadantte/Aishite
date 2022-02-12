@@ -13,7 +13,7 @@ const support = {
 
 var dependency: Nullable<unknown> = null;
 
-export function Source(source: string) {
+export function canvas(source: string) {
 	return unknown_0(source);
 }
 /**

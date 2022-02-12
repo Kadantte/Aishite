@@ -23,7 +23,7 @@ export class GalleryTag {
 		this.type = args.type;
 		this.value = args.value;
 	}
-	public url() {
+	public toURL() {
 		switch (this.type) {
 			case Category.LANGUAGE: {
 				return `https://ltn.hitomi.la/index-${this.value}.nozomi`;

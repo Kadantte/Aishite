@@ -20,7 +20,7 @@ if (instance) {
 
 if (app.isPackaged) {
 	// remove default shortcuts
-	// Menu.setApplicationMenu(null);
+	Menu.setApplicationMenu(null);
 	// URL scheme
 	app.setAsDefaultProtocolClient("hitomi.la");
 } else {
@@ -38,10 +38,7 @@ app.on("ready", () => {
 	// clear cache
 	session.defaultSession.clearCache();
 	// bypass origin policy
-	session.defaultSession.webRequest.onBeforeSendHeaders({ urls: ["*://*.hitomi.la/*"] }, (details, callback) => {
-		details.requestHeaders["referer"] = "https://hitomi.la/";
-		return callback({ requestHeaders: details.requestHeaders });
-	});
+	session.defaultSession.webRequest.onBeforeSendHeaders({ urls: ["*://*.hitomi.la/*"] }, (details, callback) => callback({ requestHeaders: Object.assign({ Referer: "https://hitomi.la" }, details.requestHeaders) }));
 	// create window
 	window = new BrowserWindow({
 		icon: "source/assets/aishite.ico",

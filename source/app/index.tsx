@@ -45,10 +45,10 @@ class App extends Stateful<AppProps, AppState> {
 		return [
 			new EventManager(window, "keydown", (event: React.KeyboardEvent) => {
 				switch (event.key) {
-					case "F11": {
-						window.API.fullscreen();
-						break;
-					}
+					// case "F11": {
+					// 	window.API.fullscreen();
+					// 	break;
+					// }
 					case "F12": {
 						window.API.development();
 						break;

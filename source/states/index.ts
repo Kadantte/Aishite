@@ -92,7 +92,7 @@ export class MappedStateHandler<Value> {
 
 		this._event.dispatchEvent(new CustomEvent(this._UUID.toString(), { detail: callback }));
 	}
-	/** **WARNING**: Use modify() instead, if possible. */
+	@deprecated()
 	public notify(key: keyof MappedStateHandler<Value>["_state"], value: Nullable<Value[keyof Value]>) {
 		//
 		// nested objects may want to share same instance but still informs property changes
