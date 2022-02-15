@@ -3,7 +3,6 @@ import Unit from "@/app/common/unit";
 import Color from "@/app/common/color";
 import { Props } from "@/app/common/props";
 import { Stateful } from "@/app/common/framework";
-import { Alignment } from "@/app/common/flex";
 // layout
 import Row from "@/app/layout/row";
 import Size from "@/app/layout/size";
@@ -70,7 +69,7 @@ class Navigator extends Stateful<NavigatorProps, NavigatorState> {
 											I.style(null);
 										}}>
 										<Position all={Unit(7.5)} left={Unit(10)} right={Unit(29.5)}>
-											<Text id={"title"}>{page.title}</Text>
+											<Text id={"title"}>{[{ value: page.title }]}</Text>
 										</Position>
 										<Position all={Unit(7.5)} left={"auto"} right={Unit(5)}>
 											<Size width={Unit(19.5)} height={Unit(19.5)}>

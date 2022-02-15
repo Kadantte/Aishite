@@ -2,12 +2,10 @@
 import { Casacade } from "@/app/common/props";
 import { StyleSheet } from "@/app/common/framework";
 
-type ScrollType = "auto" | "clip" | "hidden" | "scroll" | "visible";
-
 /** @see https://developer.mozilla.org/en-US/docs/Web/CSS/overflow */
 class ScrollProps extends Casacade {
-	public readonly x: ScrollType;
-	public readonly y: ScrollType;
+	public readonly x: React.CSSProperties["overflowX"];
+	public readonly y: React.CSSProperties["overflowY"];
 
 	constructor(args: Args<ScrollProps>) {
 		super(args);

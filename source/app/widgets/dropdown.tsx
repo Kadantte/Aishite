@@ -1,18 +1,41 @@
 // common
-import { Props } from "@/app/common/props";
+import Unit from "@/app/common/unit";
+import Color from "@/app/common/color";
+import { FlipFlop } from "@/app/common/props";
 import { Stateful } from "@/app/common/framework";
-import Stack from "../layout/stack";
+import { EventManager } from "@/app/common/framework";
+// layout
+import Row from "@/app/layout/row";
+import Size from "@/app/layout/size";
+import Text from "@/app/layout/text";
+import Form from "@/app/layout/form";
+import Stack from "@/app//layout/stack";
+import Center from "@/app/layout/center";
+import Column from "@/app/layout/column";
+import Offset from "@/app/layout/offset";
+import Spacer from "@/app/layout/spacer";
+import Scroll from "@/app/layout/scroll";
+import Container from "@/app/layout/container";
+import Decoration from "@/app/layout/decoration";
+import { Cell, Grid } from "@/app/layout/grid";
+// widgets
+import Button from "@/app/widgets/button";
 
-class DropdownProps extends Props<undefined> {
+class DropdownProps extends FlipFlop<undefined> {
 	public readonly index: number;
 	public readonly items: Array<string>;
-	public readonly onClick?: (callback: string) => void;
+	public readonly onReset?: (callback: string) => void;
+	public readonly onSelect?: (callback: string) => void;
+	public readonly onTyping?: (callback: string) => void;
 
 	constructor(args: Args<DropdownProps>) {
 		super(args);
 
 		this.index = args.index;
 		this.items = args.items;
+		this.onReset = args.onReset;
+		this.onSelect = args.onSelect;
+		this.onTyping = args.onTyping;
 	}
 }
 
@@ -36,9 +59,20 @@ class Dropdown extends Stateful<DropdownProps, DropdownState> {
 	}
 	protected build() {
 		return (
-			<Stack>
-				
-			</Stack>
+			<Container id={"dropdown"}>
+				<Stack>
+					{/* QUERY */}
+					<Form toggle={this.props.toggle}></Form>
+					{/* MENU */}
+					<section>
+						{this.props.items.map((item, index) => {
+							return (
+								<Button key={index}></Button>
+							);
+						})}
+					</section>
+				</Stack>
+			</Container>
 		);
 	}
 }

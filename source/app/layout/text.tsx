@@ -1,47 +1,38 @@
 // common
 import Unit from "@/app/common/unit";
-import Color from "@/app/common/color";
 import Transition from "@/app/common/transition";
-import { Props } from "@/app/common/props";
 import { Stateless } from "@/app/common/framework";
 
-type TextType = "italic" | "normal" | "oblique";
-type TextWeight = "bold" | "normal" | "bolder" | "lighter";
+type TextBuilder = {
+	readonly value: string;
+} & {
+	readonly size?: Unit;
+	readonly style?: React.CSSProperties["fontStyle"];
+	readonly color?: string;
+	readonly family?: string;
+	readonly weight?: React.CSSProperties["fontWeight"];
+} | "\n";
 
-class TextProps extends Props<TextChild> {
-	public readonly size?: Unit;
-	public readonly type?: TextType;
-	public readonly color?: string;
-	public readonly family?: string;
-	public readonly weight?: TextWeight;
+class TextProps {
+	public readonly id?: string;
+	public readonly style?: React.CSSProperties;
 	public readonly transition?: ConstructorParameters<typeof Transition>[0];
-	/** @required */
-	declare public readonly children: TextChild;
+	@required
+	public readonly children: Array<TextBuilder>;
 
 	constructor(args: Args<TextProps>) {
-		super(args);
 
-		this.size = args.size;
-		this.type = args.type;
-		this.color = args.color;
-		this.family = args.family;
-		this.weight = args.weight;
+		this.id = args.id;
+		this.style = args.style;
+		this.children = args.children;
 		this.transition = args.transition;
 	}
 }
 
 class Text extends Stateless<TextProps> {
 	protected postCSS(): React.CSSProperties {
-		return {
-			color: this.props.color ?? Color.TEXT_000,
-			fontSize: this.props.size,
-			fontStyle: this.props.type,
-			fontFamily: this.props.family,
-			fontWeight: this.props.weight,
-			...new Transition({ ...this.props.transition, property: ["color"] }).toStyle()
-		};
+		return {};
 	}
-	// @ts-ignore
 	protected preCSS(): React.CSSProperties {
 		return {
 			overflow: "hidden",
@@ -50,7 +41,31 @@ class Text extends Stateless<TextProps> {
 		};
 	}
 	protected build() {
-		return (<section id={this.props.id}>{this.props.children}</section>);
+		return (
+			<section id={this.props.id}>
+				{this.props.children.map((builder, index) => {
+					// linebreak
+					if (builder === "\n") {
+						return (<br></br>);
+					}
+					return (
+						<section key={index} style={Object.assign(
+							{
+								display: "initial"
+							},
+							new Transition({ ...this.props.transition, property: ["color"] }).toStyle(),
+							{
+								color: builder.color,
+								fontSize: builder.size,
+								fontStyle: builder.style,
+								fontFamily: builder.family,
+								fontWeight: builder.weight
+							},
+						)}>{builder.value}</section>
+					);
+				})}
+			</section>
+		);
 	}
 }
 

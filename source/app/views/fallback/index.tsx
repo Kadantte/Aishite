@@ -78,29 +78,32 @@ class Fallback extends PageView<FallbackProps, FallbackState> {
 												onMouseLeave={(I) => {
 													I.style(null);
 												}}
-												children={<Text>Click to open new Browser</Text>}
+												children={<Text>{[{ value: "Click to open new Browser" }]}</Text>}
 											/>
 										</Size>
 									</Offset>,
 									description: [
-										"Browse galleries that matches your taste by providing query text to the form input.",
-										"e.g. language:english type:doujinshi"
+										{ value: "Browse galleries that matches your taste by providing query text to the form input." },
+										"\n",
+										{ value: "e.g. language:english type:doujinshi", style: "italic" }
 									]
 								},
 								{
 									title: "Viewer",
 									children: undefined,
 									description: [
-										"Plunge down to desired content directly by providing GalleryID to the form input.",
-										"warning: valid range is unknown"
+										{ value: "Plunge down to desired content directly by providing GalleryID to the form input." },
+										"\n",
+										{ value: "warning: valid range is unknown", style: "italic" }
 									]
 								},
 								{
 									title: "Discord",
 									children: undefined,
 									description: [
-										"Visit our Discord server to reach out your concern in no time.",
-										"https://discord.gg/Gp7tWCe"
+										{ value: "Visit our Discord server to reach out your concern in no time." },
+										"\n",
+										{ value: "https://discord.gg/Gp7tWCe", style: "italic" }
 									]
 								}
 							].map(({ title, children, description }, x) => {
@@ -109,9 +112,8 @@ class Fallback extends PageView<FallbackProps, FallbackState> {
 										<Center x={true} y={true}>
 											<section>
 												<Offset type={"margin"} all={Unit(9.5)}>
-													<Center x={true} y={true}><Text size={Unit(24.5)} weight={"bold"} children={title}/></Center>
-													<Text type={"normal"} children={description[0]}/>
-													<Text type={"italic"} children={description[1]}/>
+													<Center x={true} y={true}><Text>{[{ value: title, size: Unit(24.5), weight: "bold" }]}</Text></Center>
+													<Text>{description as any}</Text>
 													{children}
 												</Offset>
 											</section>
@@ -124,7 +126,7 @@ class Fallback extends PageView<FallbackProps, FallbackState> {
 				</Spacer>
 				<Size height={Unit(20)}>
 					<Offset type={"margin"} top={Unit(29.5)} bottom={Unit(29.5)}>
-						<Paging toggle={true} index={0} length={3} overflow={3} shortcut={{ first: false, last: false }}
+						<Paging toggle={true} index={0} length={3} overflow={3} firstShortcut={false} lastShortcut={false}
 							onPaging={(index) => {
 								if (!this.visible()) {
 									return false;
@@ -134,7 +136,7 @@ class Fallback extends PageView<FallbackProps, FallbackState> {
 								// approve
 								return true;
 							}}
-							onButton={(key, index, indexing, jump) => {
+							builder={(key, index, indexing, jump) => {
 								return (
 									<Size key={key} width={Unit(20)}>
 										<Offset type={"margin"} left={Unit(69)} right={Unit(69)}>

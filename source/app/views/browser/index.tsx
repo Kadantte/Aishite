@@ -122,7 +122,7 @@ class Browser extends PageView<BrowserProps, BrowserState> {
 												<Row>
 													<Offset type={"margin"} left={Unit(10)} right={Unit(10)}>
 														<Form toggle={!this.state.gallery.isEmpty()} value={this.state.query} fallback={this.state.query.length ? this.state.query : "language:all"}
-															onType={(text) => {
+															onTyping={(text) => {
 																return true;
 															}}
 															onSubmit={(text) => {
@@ -201,7 +201,7 @@ class Browser extends PageView<BrowserProps, BrowserState> {
 						return (
 							<Size height={Unit(45)}>
 								<Decoration shadow={[[Color.DARK_100, 0, 0, 5, 0]]} background={{ color: Color.DARK_100 }}>
-									<Paging toggle={!this.state.gallery.isEmpty()} index={this.state.index} length={this.state.length} overflow={7} shortcut={{ first: true, last: true }}
+									<Paging toggle={!this.state.gallery.isEmpty()} index={this.state.index} length={this.state.length} overflow={7} firstShortcut={true} lastShortcut={true}
 										onPaging={(index) => {
 											if (!this.visible()) {
 												return false;
@@ -214,7 +214,7 @@ class Browser extends PageView<BrowserProps, BrowserState> {
 											// approve
 											return true;
 										}}
-										onButton={(key, index, indexing, jump) => {
+										builder={(key, index, indexing, jump) => {
 											return (
 												<Size key={key} type={"minimum"} width={Unit(50)}>
 													<Offset type={"margin"} top={Unit(7.5)} bottom={Unit(7.5)}>
@@ -229,7 +229,7 @@ class Browser extends PageView<BrowserProps, BrowserState> {
 																onMouseLeave={(I) => {
 																	I.style(null);
 																}}
-																children={<Text color={!this.state.gallery.isEmpty() && this.state.length ? indexing ? Color.SPOTLIGHT : Color.TEXT_000 : Color.DARK_500}>{typeof index === "string" ? index : (index + 1).toString()}</Text>}
+																children={<Text>{[{ value: typeof index === "string" ? index : (index + 1).toString(), color: !this.state.gallery.isEmpty() && this.state.length ? indexing ? Color.SPOTLIGHT : Color.TEXT_000 : Color.DARK_500 }]}</Text>}
 															/>
 														</Offset>
 													</Offset>

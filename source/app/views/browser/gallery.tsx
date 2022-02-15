@@ -137,7 +137,7 @@ class Gallery extends Stateful<GalleryProps, GalleryState> {
 																	<section>
 																		<Inline type={"flex"}>
 																			{/* KEY */}
-																			<Text children={fragment.key}></Text>
+																			<Text>{[{ value: fragment.key }]}</Text>
 																			{/* VALUE */}
 																			<Offset type={"margin"} all={Unit(2.5)}>
 																				{(fragment.value instanceof Array ? fragment.value.isEmpty() ? ["N/A"] : fragment.value : [fragment.value ?? "N/A"]).map((tag, y) => {
@@ -152,9 +152,9 @@ class Gallery extends Stateful<GalleryProps, GalleryState> {
 																											case "Date:": {
 																												break;
 																											}
-																											// alter
+																											// modify
 																											case "No.": {
-																												this.props.onTagClick?.(`id:${tag.toString()}`);
+																												this.props.onTagClick?.("id:" + tag.toString());
 																												break;
 																											}
 																											case "Tags:": {
@@ -162,11 +162,11 @@ class Gallery extends Stateful<GalleryProps, GalleryState> {
 																												break;
 																											}
 																											case "Language:": {
-																												this.props.onTagClick?.(`language:${Object.keys(languages).filter((tongue) => languages[tongue as keyof typeof languages] === tag)}`);
+																												this.props.onTagClick?.("language:" + Object.keys(languages).filter((tongue) => languages[tongue as keyof typeof languages] === tag));
 																												break;
 																											}
 																											default: {
-																												this.props.onTagClick?.(`${fragment.key.replace(/^([A-Za-z]+):$/, ($0, $1) => $1.toLowerCase())}:${tag.toString().replace(/\s/g, "_")}`);
+																												this.props.onTagClick?.(fragment.key.replace(/^([A-Za-z]+):$/, ($0, $1) => $1.toLowerCase()) + ":" + tag.toString().replace(/\s/g, "_"));
 																												break;
 																											}
 																										}
@@ -177,7 +177,7 @@ class Gallery extends Stateful<GalleryProps, GalleryState> {
 																									onMouseLeave={(I) => {
 																										I.style(null);
 																									}}
-																									children={tag instanceof GalleryTag ? (<><Text size={Unit(13.5)} color={Color[tag.type.toUpperCase() as "TAG" | "MALE" | "FEMALE"]} children={tag.type}/>:<Text size={Unit(13.5)} children={tag.value}/></>) : <Text size={Unit(13.5)} children={tag.toString()}/>}
+																									children={<Text>{(tag instanceof GalleryTag ? [{ value: tag.type, color: Color[tag.type.toUpperCase() as keyof typeof Color] }, { value: ":" + tag.value }] : [{ value: tag.toString() }]).map((item) => ({ ...item, size: Unit(13.5) }))}</Text>}
 																								/>
 																							</Offset>
 																						</Size>
@@ -219,7 +219,7 @@ class Gallery extends Stateful<GalleryProps, GalleryState> {
 										// WIDGET: TITLE
 										//
 										<Size type={"maximum"} width={Unit(90, "%")}>
-											<Text weight={"bold"} children={this.props.gallery.title}></Text>
+											<Text>{[{ value: this.props.gallery.title, weight: "bold" }]}</Text>
 										</Size>,
 										//
 										// INDEX: 1

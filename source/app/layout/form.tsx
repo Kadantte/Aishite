@@ -8,7 +8,7 @@ class FormProps extends FlipFlop<undefined> {
 	public readonly value?: string;
 	public readonly fallback?: string;
 	// events
-	public readonly onType?: (callback: string) => boolean;
+	public readonly onTyping?: (callback: string) => boolean;
 	public readonly onSubmit?: (callback: string) => void;
 
 	constructor(args: Args<FormProps>) {
@@ -16,7 +16,7 @@ class FormProps extends FlipFlop<undefined> {
 
 		this.value = args.value;
 		this.fallback = args.fallback;
-		this.onType = args.onType;
+		this.onTyping = args.onTyping;
 		this.onSubmit = args.onSubmit;
 	}
 }
@@ -83,7 +83,7 @@ class Form extends Stateful<FormProps, FormState> {
 							}
 							default: {
 								// trigger
-								return this.props.onType?.(event.key);
+								return this.props.onTyping?.(event.key);
 							}
 						}
 					}

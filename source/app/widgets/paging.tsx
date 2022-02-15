@@ -9,9 +9,12 @@ class PagingProps extends FlipFlop<undefined> {
 	public readonly index: number;
 	public readonly length: number;
 	public readonly overflow: number;
-	public readonly shortcut: { first: boolean; last: boolean };
+	public readonly firstShortcut: boolean;
+	public readonly lastShortcut: boolean;
+	// events
 	public readonly onPaging?: (index: number) => boolean;
-	public readonly onButton?: (key: string, index: "First" | "Last" | number, indexing: boolean, jump: Method) => SingleChild;
+	// builder
+	public readonly builder?: (key: string, index: "First" | "Last" | number, indexing: boolean, jump: Method) => SingleChild;
 
 	constructor(args: Args<PagingProps>) {
 		super(args);
@@ -19,9 +22,10 @@ class PagingProps extends FlipFlop<undefined> {
 		this.index = args.index;
 		this.length = args.length;
 		this.overflow = args.overflow;
-		this.shortcut = args.shortcut;
+		this.firstShortcut = args.firstShortcut;
+		this.lastShortcut = args.lastShortcut;
 		this.onPaging = args.onPaging;
-		this.onButton = args.onButton;
+		this.builder = args.builder;
 	}
 }
 
@@ -65,14 +69,22 @@ class Paging extends Stateful<PagingProps, PagingState> {
 		return (
 			<Row id={"paging"}>
 				<Spacer><section></section></Spacer>
-				{this.props.shortcut.first ? this.props.onButton?.("F", "First", false, () => this.jump(0)) : undefined}
+				{(() => {
+					if (this.props.firstShortcut) {
+						return this.props.builder?.("\\", "First", false, () => this.jump(0));
+					}
+				})()}
 				{new Array(this.props.overflow.clamp(0, this.props.length)).fill(null).map((_, x) => {
 					// cache
 					const index = this.offset(x);
 					// UWU?
-					return (this.props.onButton?.(x.toString(), index, index === this.state.index, () => this.jump(this.offset(x))) ?? <section>{index}</section>);
+					return this.props.builder?.(x.toString(), index, index === this.state.index, () => this.jump(this.offset(x)));
 				}) as never}
-				{this.props.shortcut.last ? this.props.onButton?.("L", "Last", false, () => this.jump(Infinity)) : undefined}
+				{(() => {
+					if (this.props.lastShortcut) {
+						return this.props.builder?.("\/", "Last", false, () => this.jump(Infinity));
+					}
+				})()}
 				<Spacer><section></section></Spacer>
 			</Row>
 		);

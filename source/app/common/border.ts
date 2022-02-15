@@ -1,8 +1,6 @@
 import Unit from "@/app/common/unit";
 import Style from "@/app/common/style";
 
-type BorderType = "dashed" | "dotted" | "double" | "groove" | "hidden" | "inset" | "none" | "outset" | "ridge" | "solid";
-
 class Border extends Style {
 	public readonly all?: Parameters<typeof compiler>;
 	public readonly top?: Parameters<typeof compiler>;
@@ -30,7 +28,7 @@ class Border extends Style {
 	}
 }
 
-function compiler(width: number, style?: BorderType, color?: string) {
+function compiler(width: number, style?: React.CSSProperties["borderStyle"], color?: string) {
 	return [Unit(width), style ?? "hidden", color ?? "transparent"].join("\u0020");
 }
 

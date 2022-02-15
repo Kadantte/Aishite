@@ -1,13 +1,11 @@
 import Unit from "@/app/common/unit";
 import Style from "@/app/common/style";
 
-type TransitionType = "ease" | "ease-in" | "ease-out" | "ease-in-out" | "linear" | "step-start" | "step-end";
-
 class Transition extends Style {
 	public readonly delay?: number;
 	public readonly duration?: number;
 	public readonly property?: Array<string>;
-	public readonly function?: TransitionType;
+	public readonly function?: React.CSSProperties["transitionTimingFunction"];
 
 	constructor(args: Args<Transition>) {
 		super();

@@ -1,6 +1,6 @@
 // app
-import "@/decorators";
 import "@/prototypes";
+import "@/decorators";
 // api
 import { BridgeEvent } from "@/api";
 

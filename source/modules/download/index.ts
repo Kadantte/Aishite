@@ -162,7 +162,7 @@ export class Downloader extends MappedStateHandler<Record<number, DownloaderStat
 					break;
 				}
 				default: {
-					if (block[key as keyof GalleryBlock]) path = path.replace(new RegExp(`\((${key})\)`), block[key as keyof GalleryBlock]!.toString());
+					if (block[key as keyof GalleryBlock]) path = path.replace(new RegExp("(" + key + ")"), block[key as keyof GalleryBlock]!.toString());
 					break;
 				}
 			}
