@@ -171,7 +171,7 @@ export async function GalleryScript(id: number): Promise<GalleryScript> {
 		type: script["type"],
 		title: script["title"],
 		language: script["language"],
-		files: Object.values(script["files"] as Array<any>).map((file) => {
+		files: Object.values(script["files"] as Array<any> ?? []).map((file) => {
 			return new GalleryFile({
 				//
 				// DANGER ZONE!
@@ -185,7 +185,7 @@ export async function GalleryScript(id: number): Promise<GalleryScript> {
 				height: file["height"]
 			});
 		}),
-		tags: Object.values(script["tags"] as Array<any>).map((tag) => {
+		tags: Object.values(script["tags"] as Array<any> ?? []).map((tag) => {
 			return new GalleryTag({
 				type: tag["male"] ? tag["female"] ? Category.TAG : Category.MALE : Category.FEMALE,
 				value: tag["tag"]
