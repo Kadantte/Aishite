@@ -100,7 +100,7 @@ export async function GalleryBlock(id: number): Promise<GalleryBlock> {
 
 	switch (response.status.code) {
 		case 404: {
-			throw new Error("DEAD-END");
+			throw new Error("ERROR 404");
 		}
 	}
 	const block: Record<string, Array<string>> = {};
@@ -159,7 +159,7 @@ export async function GalleryScript(id: number): Promise<GalleryScript> {
 
 	switch (response.status.code) {
 		case 404: {
-			throw new Error("DEAD-END");
+			throw new Error("ERROR 404");
 		}
 	}
 	const script = JSON.parse(/^var\sgalleryinfo\s=\s(.+?)(?=;)/.match(response.encode + ";")!.group(1)!);

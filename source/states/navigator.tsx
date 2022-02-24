@@ -131,14 +131,12 @@ function args(UUID: string) {
 		delete args["data-key"];
 
 		for (const key of Object.keys(Navigator.controller[UUID]?.state ?? {})) {
-			switch (args[key]) {
-				case undefined: {
-					break;
-				}
-				default: {
-					args[key] = Navigator.controller[UUID]?.state[key];
-					break;
-				}
+			if (args[key] === undefined) {
+				continue;
+			}
+			else if (typeof args[key] === typeof Navigator.controller[UUID]?.state[key]) {
+				// update
+				args[key] = Navigator.controller[UUID]?.state[key];
 			}
 		}
 		return args;

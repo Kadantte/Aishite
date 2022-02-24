@@ -26,12 +26,13 @@ class ViewerProps extends Props<undefined> {
 
 class ViewerState {
 	public init: boolean;
-	/** Oh boy... due to the `navigatior`'s design I can't name this to `gallery`. */
-	public script?: GalleryScript;
+	public width: number;
+	public gallery?: GalleryScript;
 
 	constructor(args: Args<ViewerState>) {
 		this.init = args.init;
-		this.script = args.script;
+		this.width = args.width;
+		this.gallery = args.gallery;
 	}
 }
 
@@ -54,10 +55,13 @@ class Viewer extends PageView<ViewerProps, ViewerState> {
 				}
 			}
 		});
-		return new ViewerState({ init: false, script: undefined });
+		return new ViewerState({ init: false, width: NaN, gallery: undefined });
 	}
 	protected events() {
 		return [
+			new EventManager(window, "resize", () => {
+				if (this.visible()) this.setState({ ...this.state, width: this.node()?.offsetWidth ?? this.state.width });
+			}),
 			new EventManager(this.handler, "DID_MOUNT", () => {
 				if (this.visible()) { this.discord(false); this.macro_0(() => { if (this.visible()) this.discord(true); }); }
 			})
@@ -73,13 +77,13 @@ class Viewer extends PageView<ViewerProps, ViewerState> {
 		return (
 			<section id={"viewer"} data-scrollable={"frame"}>
 				{(() => {
-					if (this.state.script) {
+					if (this.state.gallery) {
 						return (
 							<Size width={Unit(1000)}>
 								<Size type={"minimum"} width={Unit(500)}>
 									<Size type={"maximum"} width={Unit(100, "%")}>
 										<Offset type={"margin"} all={"auto"}>
-											{this.state.script.files.map((file, x) => <Image key={x} source={file.url}/>)}
+											{this.state.gallery.files.map((file, x) => <Image key={x} source={file.url} height={file.height / (file.width / this.state.width.clamp(0, 1000))}/>)}
 										</Offset>
 									</Size>
 								</Size>
@@ -91,8 +95,8 @@ class Viewer extends PageView<ViewerProps, ViewerState> {
 		);
 	}
 	protected macro_0(callback?: Method) {
-		GalleryScript(this.props.gallery).then((script) => {
-			this.setState({ ...this.state, init: true, script: script }, () => callback?.());
+		GalleryScript(this.props.gallery).then((gallery) => {
+			this.setState({ ...this.state, init: true, width: this.node()?.offsetWidth ?? this.state.width, gallery: gallery }, () => callback?.());
 		});
 	}
 	protected discord(state: boolean) {
@@ -101,7 +105,7 @@ class Viewer extends PageView<ViewerProps, ViewerState> {
 			case false: {
 				discord.update({
 					state: `Reading (${this.props.gallery})`,
-					details: this.state.script ? this.state.script.title : "Loading...",
+					details: this.state.gallery ? this.state.gallery.title : "Loading...",
 					partyMax: undefined,
 					partySize: undefined
 				});
