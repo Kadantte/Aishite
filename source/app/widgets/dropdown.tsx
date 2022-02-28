@@ -26,6 +26,7 @@ class DropdownProps extends FlipFlop<undefined> {
 	public readonly highlight?: string;
 	public readonly controller?: React.RefObject<HTMLInputElement>;
 	public readonly onReset?: () => void;
+	public readonly onIndex?: (callback: number) => void;
 	public readonly onSelect?: (callback: string) => void;
 	public readonly onSubmit?: (callback: string) => void;
 	public readonly onChange?: (callback: string) => void;
@@ -41,6 +42,7 @@ class DropdownProps extends FlipFlop<undefined> {
 		this.highlight = args.highlight;
 		this.controller = args.controller;
 		this.onReset = args.onReset;
+		this.onIndex = args.onIndex;
 		this.onSelect = args.onSelect;
 		this.onSubmit = args.onSubmit;
 		this.onChange = args.onChange;
@@ -103,25 +105,19 @@ class Dropdown extends Stateful<DropdownProps, DropdownState> {
 									this.props.onChange?.(text);
 								}}
 								onTyping={(text) => {
-									// cache
-									let offset = 0;
-
 									switch (text) {
-										case "ArrowUp": {
-											offset = -1;
-											break;
-										}
+										case "ArrowUp":
 										case "ArrowDown": {
-											offset = 1;
-											break;
+											if (!this.props.options.isEmpty()) {
+												// update index
+												this.setState({ ...this.state, index: ((isNaN(this.state.index) ? -1 : this.state.index) + (text === "ArrowUp" ? -1 : 1)).clamp(0, this.props.options.length - 1) }, () => {
+													// auto-scroll
+													this.node()?.querySelector("[id=\"options\"]")?.scrollTo({ top: this.state.index * 40 });
+													// event
+													this.props.onIndex?.(this.state.index);
+												});
+											}
 										}
-									}
-									if (offset) {
-										// update index
-										this.setState({ ...this.state, index: ((isNaN(this.state.index) ? -1 : this.state.index) + offset).clamp(0, this.props.options.length - 1) }, () => {
-											// auto-scroll
-											this.node()?.querySelector("[id=\"options\"]")?.scrollTo({ top: this.state.index * 40 });
-										});
 									}
 									return this.props.onTyping?.(text) ?? true;
 								}}
@@ -151,12 +147,11 @@ class Dropdown extends Stateful<DropdownProps, DropdownState> {
 									return (
 										<Container id={x.toString()} key={x} height={Unit(40)} decoration={{ background: { color: this.state.index === x ? Color.DARK_500 : undefined } }}
 											onMouseDown={() => {
-												this.props.onSelect?.(option[0]);
 												// reset index
-												this.setState({ ...this.state, index: NaN });
+												this.setState({ ...this.state, index: NaN }, () => this.props.onSelect?.(option[0]));
 											}}
 											onMouseEnter={(I) => {
-												this.setState({ ...this.state, index: x });
+												this.setState({ ...this.state, index: x }, () => this.props.onIndex?.(x));
 											}}
 											onMouseLeave={(I) => {
 												// this.setState({ ...this.state, index: NaN });

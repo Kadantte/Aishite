@@ -91,11 +91,15 @@ class Form extends Stateful<FormProps, FormState> {
 								}
 								break;
 							}
-							default: {
-								// trigger
-								return this.props.onTyping?.(event.key);
+							case "ArrowUp":
+							case "ArrowDown": {
+								// return false
+								event.preventDefault();
+								break;
 							}
 						}
+						// trigger
+						return this.props.onTyping?.(event.key);
 					}
 				}}
 			/>

@@ -107,7 +107,7 @@ export abstract class Stateful<P extends Props<any>, S> extends React.Component<
 	protected abstract postCSS(): React.CSSProperties;
 	/** Return value will be applied before `this.props.style`. */
 	protected abstract preCSS(): React.CSSProperties;
-	/** Automatically define with & height. */
+	/** Automatically define width & height. */
 	protected constraint(): React.CSSProperties {
 		return {
 			...new Size({ type: undefined, width: this.props.width, height: this.props.height }).toStyle(),
@@ -141,7 +141,7 @@ export abstract class Stateless<P extends Props<any>> extends React.PureComponen
 	protected abstract postCSS(): React.CSSProperties;
 	/** Return value will be applied before `this.props.style`. */
 	protected abstract preCSS(): React.CSSProperties;
-	/** Automatically define with & height. */
+	/** Automatically define width & height. */
 	protected constraint(): React.CSSProperties {
 		return {
 			...new Size({ type: undefined, width: this.props.width, height: this.props.height }).toStyle(),
@@ -181,7 +181,7 @@ export abstract class StyleSheet<P extends Casacade> extends React.PureComponent
 	/** Consider using `this.build` instead. */
 	@final()
 	public render() {
-		return (this.props.children instanceof Array ? this.props.children : [this.props.children]).map((children, x) => {
+		return [this.props.children].flat().map((children, x) => {
 			if (children === undefined) {
 				return children;
 			}

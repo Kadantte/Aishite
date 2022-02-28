@@ -127,18 +127,15 @@ class Browser extends PageView<BrowserProps, BrowserState> {
 													navigator.rename(this.state.query);
 												});
 											}}
+											onIndex={(index) => {
+												// update
+												this.query()!.value = this.query()!.value.split(/\s+/).slice(0, -1).concat((this.state.suggests[index].field + ":" + this.state.suggests[index].value).replace(/\s+/g, "_")).join("\u0020");
+											}}
 											onSelect={(text) => {
 												// expire
 												SuggestExpire();
 												// reset suggestions
-												this.setState({ ...this.state, suggests: [] }, () => {
-													// cache
-													const query = this.query();
-
-													if (query) {
-														query.value = query.value.split(/\s+/).slice(0, -1).concat(text.replace(/\s+/g, "_")).join("\u0020");
-													}
-												});
+												this.setState({ ...this.state, suggests: [] });
 											}}
 											onSubmit={(text) => {
 												// expire

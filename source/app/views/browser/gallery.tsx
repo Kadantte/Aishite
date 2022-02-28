@@ -119,7 +119,7 @@ class Gallery extends Stateful<GalleryProps, GalleryState> {
 										<section>
 											<Position all={Unit(15)}>
 												<Scroll x={"hidden"} y={"auto"}>
-													<section>
+													<section data-scrollable={"elegant"}>
 														{[
 															{ key: "No.", value: this.props.gallery.id },
 															{ key: "Type:", value: this.props.gallery.type },
