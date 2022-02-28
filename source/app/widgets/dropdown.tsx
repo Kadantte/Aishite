@@ -85,7 +85,7 @@ class Dropdown extends Stateful<DropdownProps, DropdownState> {
 						<Offset type={"margin"} left={Unit(10)} right={Unit(10)}>
 							<Form toggle={this.props.toggle} value={this.props.value} fallback={this.props.fallback} controller={this.props.controller}
 								onBlur={() => {
-									this.setState({ ...this.state, focused: false, index: 0 });
+									this.setState({ ...this.state, focused: false });
 								}}
 								onFocus={() => {
 									this.setState({ ...this.state, focused: true });
