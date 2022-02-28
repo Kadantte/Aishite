@@ -79,7 +79,7 @@ function build(section) {
 					description: package.description
 				}), { }, () => {
 					builder.build({
-						targets: builder.Platform.WINDOWS.createTarget("portable"),
+						targets: builder.Platform.WINDOWS.createTarget("zip"),
 						config: {
 							nsis: {
 								oneClick: false,

@@ -1,11 +1,12 @@
 // common
 import Unit from "@/app/common/unit";
+import Size from "@/app/common/size";
 import Color from "@/app/common/color";
 import Transition from "@/app/common/transition";
 import { Props } from "@/app/common/props";
 import { Stateful } from "@/app/common/framework";
 
-class IconProps extends Props<SingleChild> {
+class IconProps extends Props<undefined> {
 	public readonly color?: Nullable<string>;
 	/** Whether to also trigger event from elements underneath. */
 	public readonly phantom?: boolean;
@@ -37,7 +38,7 @@ class IconState {
 	}
 }
 
-class Icon extends Stateful<IconProps, IconState> {
+abstract class Icon extends Stateful<IconProps, IconState> {
 	protected create() {
 		return new IconState({ color: null });
 	}
@@ -49,8 +50,7 @@ class Icon extends Stateful<IconProps, IconState> {
 	}
 	protected preCSS(): React.CSSProperties {
 		return {
-			width: Unit(12.5),
-			height: Unit(12.5)
+			...new Size({ width: Unit(12.5), height: Unit(12.5) }).toStyle()
 		};
 	}
 	protected modify() {
@@ -75,12 +75,8 @@ class Icon extends Stateful<IconProps, IconState> {
 			}
 		};
 	}
-	protected build() {
-		if (!this.props.children) {
-			throw new Error("Missing children");
-		}
-		return this.props.children;
-	}
+	protected abstract build(): JSX.Element | Element;
+	/** Override current style. */
 	public style(color: IconState["color"], callback?: Method) {
 		this.setState({ ...this.state, color: color }, callback);
 	}

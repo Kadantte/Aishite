@@ -5,11 +5,11 @@ import { Props } from "@/app/common/props";
 import { Stateful, EventManager } from "@/app/common/framework";
 // layout
 import Row from "@/app/layout/row";
-import Size from "@/app/layout/size";
-import Spacer from "@/app/layout/spacer";
 import Column from "@/app/layout/column";
-import Draggable from "@/app/layout/draggable";
-// Statefuls
+// layout/casacade
+import Spacer from "@/app/layout/casacade/spacer";
+import Draggable from "@/app/layout/casacade/draggable";
+// widgets
 import Button from "@/app/widgets/button";
 import Viewport from "@/app/widgets/view";
 import Navigator from "@/app/widgets/navigator";
@@ -18,6 +18,8 @@ import Close from "@/app/icons/close";
 import Maximize from "@/app/icons/maximize";
 import Minimize from "@/app/icons/minimize";
 import Unmaximize from "@/app/icons/unmaximize";
+// modules
+import request from "@/modules/request";
 // api
 import { BridgeEvent } from "@/api";
 
@@ -39,11 +41,21 @@ class AppState {
 
 class App extends Stateful<AppProps, AppState> {
 	protected create() {
+		// https://github.com/Any-Material/Aishite/releases/download/{version}/{artifact}
+		request.GET("https://api.github.com/repos/Any-Material/Aishite/releases?per_page=100", "json").then((response) => {
+			// parse version string to number
+			function HAL_K45(version: string) {
+				return Number(version.replace(/\./g, ""));
+			}
+			if (HAL_K45(response.encode["0"]["tag_name"]) > HAL_K45(require("@/../package.json")["version"])) {
+				// update available	
+			}
+		});
 		return new AppState({ maximize: false, fullscreen: false });
 	}
 	protected events() {
 		return [
-			new EventManager(window, "keydown", (event: React.KeyboardEvent) => {
+			new EventManager(window, "keydown", (event: KeyboardEvent) => {
 				switch (event.key) {
 					// case "F11": {
 					// 	window.API.fullscreen();
@@ -81,66 +93,54 @@ class App extends Stateful<AppProps, AppState> {
 		return (
 			<Column id={"root"}>
 				{/* TITLEBAR */}
-				{(() => {
-					if (!this.state.fullscreen) {
-						return (
-							<Draggable drag={true}>
-								<Size height={Unit(40)}>
-									<Row id="titlebar">
-										<Spacer>
-											<Navigator/>
-										</Spacer>
-										<Size width={Unit(69)}>
-											<section></section>
-										</Size>
-										<Size width={Unit(50)}>
-											<Button id={"minimize"}
-												onMouseDown={(I) => {
-													window.API.minimize();
-												}}
-												onMouseEnter={(I) => {
-													I.style({ background: { color: Color.DARK_100 } });
-												}}
-												onMouseLeave={(I) => {
-													I.style(null);
-												}}
-												children={<Minimize/>}
-											/>
-											<Button id={"maximize"}
-												onMouseDown={(I) => {
-													if (this.state.maximize) {
-														window.API.unmaximize();
-													} else {
-														window.API.maximize();
-													}
-												}}
-												onMouseEnter={(I) => {
-													I.style({ background: { color: Color.DARK_100 } });
-												}}
-												onMouseLeave={(I) => {
-													I.style(null);
-												}}
-												children={this.state.maximize ? <Unmaximize/> : <Maximize/>}
-											/>
-											<Button id={"close"}
-												onMouseDown={(I) => {
-													window.API.close("titlebar");
-												}}
-												onMouseEnter={(I) => {
-													I.style({ background: { color: Color.SPOTLIGHT } });
-												}}
-												onMouseLeave={(I) => {
-													I.style(null);
-												}}
-												children={<Close/>}
-											/>
-										</Size>
-									</Row>
-								</Size>
-							</Draggable>
-						);
-					}
-				})()}
+				<Draggable drag={true}>
+					<Row id="titlebar" height={Unit(40)} visible={!this.state.fullscreen}>
+						<Spacer>
+							<Navigator size={{ maximum: { width: calculate("100% - 69px - 50px - 50px - 50px") } }}/>
+						</Spacer>
+						<section style={{ width: Unit(69) }}/>
+						<Button id={"minimize"} width={Unit(50)}
+							onMouseDown={(I) => {
+								window.API.minimize();
+							}}
+							onMouseEnter={(I) => {
+								I.style({ background: { color: Color.DARK_100 } });
+							}}
+							onMouseLeave={(I) => {
+								I.style(null);
+							}}
+							children={<Minimize/>}
+						/>
+						<Button id={"maximize"} width={Unit(50)}
+							onMouseDown={(I) => {
+								if (this.state.maximize) {
+									window.API.unmaximize();
+								} else {
+									window.API.maximize();
+								}
+							}}
+							onMouseEnter={(I) => {
+								I.style({ background: { color: Color.DARK_100 } });
+							}}
+							onMouseLeave={(I) => {
+								I.style(null);
+							}}
+							children={this.state.maximize ? <Unmaximize/> : <Maximize/>}
+						/>
+						<Button id={"close"} width={Unit(50)}
+							onMouseDown={(I) => {
+								window.API.close("titlebar");
+							}}
+							onMouseEnter={(I) => {
+								I.style({ background: { color: Color.SPOTLIGHT } });
+							}}
+							onMouseLeave={(I) => {
+								I.style(null);
+							}}
+							children={<Close/>}
+						/>
+					</Row>
+				</Draggable>
 				{/* CONTENT */}
 				<section style={{ width: Unit(100, "%"), height: Unit(100, "%"), background: Color.DARK_200 }}>
 					<Viewport/>

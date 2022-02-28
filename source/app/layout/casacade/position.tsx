@@ -22,7 +22,6 @@ class PositionProps extends Casacade {
 }
 
 class Position extends StyleSheet<PositionProps> {
-	// @ts-ignore
 	protected postCSS(): React.CSSProperties {
 		return {
 			position: "absolute",

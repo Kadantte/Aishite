@@ -1,7 +1,7 @@
 abstract class Style {
 	/** Please check Mozila Foundation before any implementation. */
 	protected abstract compile(): React.CSSProperties;
-	/** @final */
+	@final()
 	public toStyle(): React.CSSProperties {
 		const style = this.compile();
 

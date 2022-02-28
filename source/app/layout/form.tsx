@@ -1,23 +1,31 @@
 // common
 import Unit from "@/app/common/unit";
-import Color from "@/app/common/color";
+import Size from "@/app/common/size";
 import { FlipFlop } from "@/app/common/props";
 import { Stateful, EventManager } from "@/app/common/framework";
 
 class FormProps extends FlipFlop<undefined> {
 	public readonly value?: string;
 	public readonly fallback?: string;
+	public readonly controller?: React.RefObject<HTMLInputElement>;
 	// events
-	public readonly onTyping?: (callback: string) => boolean;
+	public readonly onBlur?: () => void;
+	public readonly onFocus?: () => void;
 	public readonly onSubmit?: (callback: string) => void;
+	public readonly onChange?: (callback: string) => void;
+	public readonly onTyping?: (callback: string) => boolean;
 
 	constructor(args: Args<FormProps>) {
 		super(args);
 
 		this.value = args.value;
 		this.fallback = args.fallback;
-		this.onTyping = args.onTyping;
+		this.controller = args.controller;
+		this.onBlur = args.onBlur;
+		this.onFocus = args.onFocus;
 		this.onSubmit = args.onSubmit;
+		this.onChange = args.onChange;
+		this.onTyping = args.onTyping;
 	}
 }
 
@@ -35,6 +43,7 @@ class Form extends Stateful<FormProps, FormState> {
 	}
 	protected events() {
 		return [
+			// @ts-ignore
 			new EventManager(this.handler, "SHOULD_UPDATE", (props) => {
 				if (this.props.toggle !== props.toggle) {
 					this.node<HTMLInputElement>()?.blur();
@@ -44,31 +53,32 @@ class Form extends Stateful<FormProps, FormState> {
 		];
 	}
 	protected postCSS(): React.CSSProperties {
-		return {
-			color: Color.TEXT_000,
-			width: Unit(100, "%"),
-			height: Unit(100, "%")
-		};
+		return {};
 	}
 	protected preCSS(): React.CSSProperties {
-		return {};
+		return {
+			...new Size({ width: Unit(100, "%"), height: Unit(100, "%") }).toStyle()
+		};
 	}
 	protected build() {
 		return (
-			<input id={this.props.id} defaultValue={this.props.value} placeholder={this.props.fallback}
+			<input id={this.props.id} ref={this.props.controller} readOnly={!this.props.toggle} placeholder={this.props.fallback} defaultValue={this.props.value}
 				onBlur={(event) => {
-					this.setState({ ...this.state, focus: false });
+					this.setState({ ...this.state, focus: false }, () => this.props.onBlur?.());
 				}}
 				onFocus={(event) => {
 					if (!this.props.toggle) {
 						this.node<HTMLInputElement>()?.blur();
 					}
-					this.setState({ ...this.state, focus: true });
+					this.setState({ ...this.state, focus: true }, () => this.props.onFocus?.());
+				}}
+				onChange={(event) => {
+					this.props.onChange?.(event.target.value);
 				}}
 				onKeyDown={(event) => {
-					if (!this.props.toggle) {
-						return false;
-					}
+					// if (!this.props.toggle) {
+					// 	return false;
+					// }
 					if (this.state.focus) {
 						switch (event.key) {
 							case "Enter": {

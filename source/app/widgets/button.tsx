@@ -5,7 +5,7 @@ import Center from "@/app/layout/center";
 import Container from "@/app/layout/container";
 
 /** Shorthand combination of `Container` and `Center`. */
-class Button extends Stateless<Container["props"]> {
+class Button extends Stateless<Container["props"] & { children?: Child }> {
 	protected postCSS(): React.CSSProperties {
 		return {};
 	}
@@ -14,8 +14,8 @@ class Button extends Stateless<Container["props"]> {
 	}
 	protected build() {
 		return (
-			<Container {...this.props}>
-				<Center x={true} y={true} children={this.props.children as SingleChild}/>
+			<Container id={"button"} {...this.props}>
+				<Center x={true} y={true} children={this.props.children}/>
 			</Container>
 		);
 	}

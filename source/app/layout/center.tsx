@@ -1,9 +1,10 @@
 // common
 import Unit from "@/app/common/unit";
+import Size from "@/app/common/size";
 import { Props } from "@/app/common/props";
 import { Stateless } from "@/app/common/framework";
 
-class CenterProps extends Props<SingleChild> {
+class CenterProps extends Props<Child> {
 	public readonly x: boolean;
 	public readonly y: boolean;
 
@@ -25,8 +26,7 @@ class Center extends Stateless<CenterProps> {
 	}
 	protected preCSS(): React.CSSProperties {
 		return {
-			width: Unit(100, "%"),
-			height: Unit(100, "%")
+			...new Size({ width: Unit(100, "%"), height: Unit(100, "%") }).toStyle()
 		};
 	}
 	protected build() {

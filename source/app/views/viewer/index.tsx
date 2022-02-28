@@ -5,9 +5,9 @@ import Unit from "@/app/common/unit";
 import { Props } from "@/app/common/props";
 import { EventManager } from "@/app/common/framework";
 // layout
-import Size from "@/app/layout/size";
 import Image from "@/app/layout/image";
-import Offset from "@/app/layout/offset";
+// layout/casacade
+import Offset from "@/app/layout/casacade/offset";
 // modules
 import discord from "@/modules/discord";
 import { GalleryScript } from "@/modules/hitomi.la/gallery";
@@ -79,15 +79,9 @@ class Viewer extends PageView<ViewerProps, ViewerState> {
 				{(() => {
 					if (this.state.gallery) {
 						return (
-							<Size width={Unit(1000)}>
-								<Size type={"minimum"} width={Unit(500)}>
-									<Size type={"maximum"} width={Unit(100, "%")}>
-										<Offset type={"margin"} all={"auto"}>
-											{this.state.gallery.files.map((file, x) => <Image key={x} source={file.url} height={file.height / (file.width / this.state.width.clamp(0, 1000))}/>)}
-										</Offset>
-									</Size>
-								</Size>
-							</Size>
+							<Offset type={"margin"} all={"auto"}>
+								{this.state.gallery.files.map((file, x) => <Image key={x} source={file.url} width={Unit(1000)} height={file.height / (file.width / this.state.width.clamp(0, 1000))} size={{ minimum: { width: Unit(500) }, maximum: { width: Unit(100, "%") } }}/>)}
+							</Offset>
 						);
 					}
 				})()}

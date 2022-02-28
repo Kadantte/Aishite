@@ -25,6 +25,7 @@ class DecorationProps extends Casacade {
 class Decoration extends StyleSheet<DecorationProps> {
 	protected postCSS(): React.CSSProperties {
 		return {
+			// automate
 			...(this.props.shadow ? new Shadow(this.props.shadow).toStyle() : {}),
 			...(this.props.border ? new Border(this.props.border).toStyle() : {}),
 			...(this.props.corner ? new Corner(this.props.corner).toStyle() : {}),

@@ -3,7 +3,8 @@ import { FlipFlop } from "@/app/common/props";
 import { Stateful, EventManager } from "@/app/common/framework";
 // layout
 import Row from "@/app/layout/row";
-import Spacer from "@/app/layout/spacer";
+// layout/casacade
+import Spacer from "@/app/layout/casacade/spacer";
 
 class PagingProps extends FlipFlop<undefined> {
 	public readonly index: number;
@@ -14,7 +15,7 @@ class PagingProps extends FlipFlop<undefined> {
 	// events
 	public readonly onPaging?: (index: number) => boolean;
 	// builder
-	public readonly builder?: (key: string, index: "First" | "Last" | number, indexing: boolean, jump: Method) => SingleChild;
+	public readonly builder?: (key: string, index: "First" | "Last" | number, indexing: boolean, jump: Method) => Child;
 
 	constructor(args: Args<PagingProps>) {
 		super(args);
@@ -73,7 +74,8 @@ class Paging extends Stateful<PagingProps, PagingState> {
 					if (this.props.firstShortcut) {
 						return this.props.builder?.("\\", "First", false, () => this.jump(0));
 					}
-				})()}
+					return
+				})() as never}
 				{new Array(this.props.overflow.clamp(0, this.props.length)).fill(null).map((_, x) => {
 					// cache
 					const index = this.offset(x);
@@ -84,7 +86,7 @@ class Paging extends Stateful<PagingProps, PagingState> {
 					if (this.props.lastShortcut) {
 						return this.props.builder?.("\/", "Last", false, () => this.jump(Infinity));
 					}
-				})()}
+				})() as never}
 				<Spacer><section></section></Spacer>
 			</Row>
 		);

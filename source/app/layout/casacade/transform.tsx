@@ -23,11 +23,8 @@ class TransformProps extends Casacade {
 class Transform extends StyleSheet<TransformProps> {
 	protected postCSS(): React.CSSProperties {
 		return {
-			transform: [
-				`scale(${this.props.scale?.[0] ?? 1.0},${this.props.scale?.[1] ?? this.props.scale?.[0] ?? 1.0})`,
-				`rotate(${this.props.rotate ?? 0}deg)`,
-				`translate(${this.props.translate?.[0] ?? 0.0},${this.props.translate?.[1] ?? this.props.translate?.[0] ?? 0.0})`
-			].join("\u0020"),
+			transform: ["scale(" + (this.props.scale?.[0] ?? 1.0) + "," + (this.props.scale?.[1] ?? this.props.scale?.[0] ?? 1.0) + ")", "rotate(" + (this.props.rotate ?? 0) + "deg)", "translate(" + (this.props.translate?.[0] ?? 0.0) + "," + (this.props.translate?.[1] ?? this.props.translate?.[0] ?? 0.0) + ")"].join("\u0020"),
+			// automate
 			...new Transition({ ...this.props.transition, property: ["transform"] }).toStyle()
 		};
 	}

@@ -26,7 +26,7 @@ class RequestOptions {
 }
 
 class RequestResponse<T extends XMLHttpRequestResponseType> {
-	public readonly encode: T extends "arraybuffer" ? ArrayBuffer : T extends "document" ? Document : T extends "json" ? JSON : T extends "text" ? string : (ArrayBuffer | Document | JSON | string);
+	public readonly encode: T extends "arraybuffer" ? ArrayBuffer : T extends "document" ? Document : T extends "json" ? Record<string, any> : T extends "text" ? string : (ArrayBuffer | Document | JSON | string);
 	public readonly status: {
 		code: number;
 		message: string;

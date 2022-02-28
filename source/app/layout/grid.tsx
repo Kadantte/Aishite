@@ -6,7 +6,7 @@ import { Stateless, StyleSheet } from "@/app/common/framework";
 type GridRepeat = number | "auto" | "auto-fit" | "auto-fill";
 
 function minmax(args: { minimum: Unit, maximum?: Unit }) {
-	return `minmax(${args.minimum},${args.maximum ?? "auto"})`;
+	return "minmax(" + args.minimum + "," + (args.maximum ?? "auto") + ")";
 }
 
 function values(args: { values: Array<Unit> }) {
@@ -17,7 +17,7 @@ function attribute(args: ({ times: GridRepeat } & (Parameters<typeof minmax>[0] 
 	if (args instanceof Array) {
 		return values({ values: args });
 	} else if (typeof args.times === "number" || args.times === "auto-fit" || args.times === "auto-fill") {
-		return `repeat(${args.times},${attribute({ ...args, times: "auto" })})`;
+		return "repeat(" + args.times + "," + attribute({ ...args, times: "auto" }) + ")";
 	}
 	return args.hasOwnProperty("values") ? values(args as Parameters<typeof values>[0]) : minmax(args as Parameters<typeof minmax>[0]);
 }
@@ -29,7 +29,7 @@ function property(args: Parameters<typeof attribute>[0], type: "rows" | "columns
 	return "gridAuto" + type.replace(/^([A-Za-z])([A-Za-z]+)$/, ($0, $1, $2) => $1.toUpperCase() + $2);
 }
 /**
- * Example usage:
+ * e.g.
  * ```
  * <Grid.Layout
  * 	row={[
@@ -43,13 +43,13 @@ function property(args: Parameters<typeof attribute>[0], type: "rows" | "columns
  * 	["A", "B", "B"],
  * 	["A", "B", "B"]
  * 	]}>
- * 	<Grid.Cell id={"A"}/>
- * 	<Grid.Cell id={"B"}/>
- * 	<Grid.Cell id={"C"}/>
+ * 	<Cell id={"A"}/>
+ * 	<Cell id={"B"}/>
+ * 	<Cell id={"C"}/>
  * </Grid.Layout>
  * ```
  */
-class GridProps extends Props<ArrayChild> {
+class GridProps extends Props<Children> {
 	public readonly gap?: Unit;
 	public readonly rows: Parameters<typeof attribute>[0];
 	public readonly columns: Parameters<typeof attribute>[0];
@@ -84,17 +84,22 @@ class Grid extends Stateless<GridProps> {
 }
 
 class CellProps extends Casacade {
-	declare public readonly area: string;
+	public readonly area: string;
+	public readonly overflow?: boolean;
 
 	constructor(args: Args<CellProps>) {
 		super(args);
+
+		this.area = args.area;
+		this.overflow = args.overflow;
 	}
 }
 
 class Cell extends StyleSheet<CellProps> {
 	protected postCSS(): React.CSSProperties {
 		return {
-			gridArea: this.props.area
+			gridArea: this.props.area,
+			overflow: this.props.overflow ? "visible" : undefined
 		};
 	}
 	protected preCSS(): React.CSSProperties {

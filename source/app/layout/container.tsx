@@ -2,11 +2,11 @@
 import { Props } from "@/app/common/props";
 import { Stateful } from "@/app/common/framework";
 import Transition from "@/app/common/transition";
-// layout
-import Draggable from "@/app/layout/draggable";
-import Decoration from "@/app/layout/decoration";
+// layout/casacade
+import Draggable from "@/app/layout/casacade/draggable";
+import Decoration from "@/app/layout/casacade/decoration";
 
-class ContainerProps extends Props<ArrayChild> {
+class ContainerProps extends Props<Children> {
 	/** Whether to also trigger event from elements underneath. */
 	public readonly phantom?: boolean;
 	public readonly transition?: ConstructorParameters<typeof Transition>[0];

@@ -154,3 +154,9 @@ Object.defineProperty(window, "random", {
 		return Math.floor(Math.random() * (maximum - minimum + 1)) + minimum;
 	}
 });
+
+Object.defineProperty(window, "calculate", {
+	value: function (expression: string) {
+		return "calc(" + expression + ")";
+	}
+});

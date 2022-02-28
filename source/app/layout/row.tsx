@@ -1,10 +1,11 @@
 // common
 import Unit from "@/app/common/unit";
+import Size from "@/app/common/size";
 import { Props } from "@/app/common/props";
 import { Stateless } from "@/app/common/framework";
 import { Horizontal, Alignment } from "@/app/common/flex";
 
-class RowProps extends Props<ArrayChild> {
+class RowProps extends Props<Children> {
 	public readonly wrap?: boolean;
 	public readonly basis?: Unit;
 	public readonly direction?: Horizontal;
@@ -21,7 +22,6 @@ class RowProps extends Props<ArrayChild> {
 }
 
 class Row extends Stateless<RowProps> {
-	/** @ts-ignore */
 	protected postCSS(): React.CSSProperties {
 		return {
 			display: "flex",
@@ -33,9 +33,7 @@ class Row extends Stateless<RowProps> {
 	}
 	protected preCSS(): React.CSSProperties {
 		return {
-			width: Unit(100, "%"),
-			height: Unit(100, "%"),
-			flexShrink: 1.0
+			...new Size({ width: Unit(100, "%"), height: Unit(100, "%") }).toStyle()
 		};
 	}
 	protected build() {

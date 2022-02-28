@@ -27,9 +27,9 @@ declare global {
 	interface Array<T> {
 		last?: T;
 		first?: T;
-		
+		/** Wether the array is empty. */
 		isEmpty(): boolean;
-
+		
 		skip(count: number): Array<T>;
 		take(count: number): Array<T>;
 
@@ -54,6 +54,7 @@ declare global {
 	function until(condition: () => boolean, duration?: number): Promise<void>;
 	function inject(before: (...args: any[]) => any, after: (...args: any[]) => any): (...args: any[]) => any;
 	function random(minimum: number, maximum: number): number;
+	function calculate(expression: string): string;
 }
 
 export default {}

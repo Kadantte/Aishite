@@ -55,8 +55,12 @@ class Suggestion {
 	}
 }
 
-export function Suggest(query: string) {
+export function SuggestTags(query: string) {
 	return unknown_0(query.replace(/_/g, "\u0020"));
+}
+
+export function SuggestExpire() {
+	serial++;
 }
 /**
  * @alias search.js
@@ -64,7 +68,8 @@ export function Suggest(query: string) {
  */
 async function unknown_0(query: string) {
 	return new Promise<Array<Suggestion>>(async (resolve, reject) => {
-		serial++;
+		// expire
+		SuggestExpire();
 
 		const UUID = serial;
 		//

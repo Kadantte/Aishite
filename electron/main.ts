@@ -55,6 +55,8 @@ app.on("ready", () => {
 			nodeIntegration: true,
 			// isolate preload
 			contextIsolation: false,
+			// early adaptor
+			experimentalFeatures: true,
 			// allow webworker interacts with nodejs
 			nodeIntegrationInWorker: true
 

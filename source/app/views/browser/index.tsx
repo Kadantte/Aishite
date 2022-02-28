@@ -1,3 +1,5 @@
+// react
+import React from "react";
 // TOP-LEVEL
 import PageView from "@/app/views";
 // common
@@ -6,28 +8,24 @@ import Color from "@/app/common/color";
 import { Props } from "@/app/common/props";
 import { EventManager } from "@/app/common/framework";
 // layout
-import Row from "@/app/layout/row";
-import Size from "@/app/layout/size";
 import Text from "@/app/layout/text";
-import Form from "@/app/layout/form";
-import Center from "@/app/layout/center";
 import Column from "@/app/layout/column";
-import Offset from "@/app/layout/offset";
-import Spacer from "@/app/layout/spacer";
-import Scroll from "@/app/layout/scroll";
-import Container from "@/app/layout/container";
-import Decoration from "@/app/layout/decoration";
 import { Cell, Grid } from "@/app/layout/grid";
+// layout/casacade
+import Offset from "@/app/layout/casacade/offset";
+import Spacer from "@/app/layout/casacade/spacer";
+import Scroll from "@/app/layout/casacade/scroll";
+import Decoration from "@/app/layout/casacade/decoration";
 // widgets
 import Button from "@/app/widgets/button";
 import Paging from "@/app/widgets/paging";
 import Gallery from "@/app/views/browser/gallery";
-// icons
-import Close from "@/app/icons/close";
+import Dropdown from "@/app/widgets/dropdown";
 // modules
 import discord from "@/modules/discord";
 import { SearchQuery } from "@/modules/hitomi.la/search";
 import { GalleryBlock } from "@/modules/hitomi.la/gallery";
+import { SuggestTags, SuggestExpire } from "@/modules/hitomi.la/suggest";
 // states
 import navigator from "@/states/navigator";
 
@@ -47,13 +45,19 @@ class BrowserState extends BrowserProps {
 	public init: boolean;
 	public length: number;
 	public gallery: Array<GalleryBlock>;
+	public suggests: Await<ReturnType<typeof SuggestTags>>;
+	public highlight: string;
+	public controller: React.RefObject<HTMLInputElement>;
 
-	constructor(args: Args<BrowserState>) {
+	constructor(args: Omit<Args<BrowserState>, "controller">) {
 		super(args);
 
 		this.init = args.init;
 		this.length = args.length;
 		this.gallery = args.gallery;
+		this.suggests = args.suggests;
+		this.highlight = args.highlight;
+		this.controller = React.createRef();
 	}
 }
 
@@ -73,7 +77,7 @@ class Browser extends PageView<BrowserProps, BrowserState> {
 				this.discord(!this.state.gallery.isEmpty());
 			}
 		});
-		return new BrowserState({ init: false, index: this.props.index, query: this.props.query, length: 0, gallery: [] });
+		return new BrowserState({ init: false, index: this.props.index, query: this.props.query, length: 0, gallery: [], suggests: [], highlight: "" });
 	}
 	protected events() {
 		return [
@@ -101,65 +105,70 @@ class Browser extends PageView<BrowserProps, BrowserState> {
 									gap={Unit(15)}
 									rows={[
 										Unit(40),
-										Unit(1, "fr")
+										Unit(1.0, "fr")
 									]}
 									columns={[
-										Unit(1, "fr")
+										Unit(1.0, "fr")
 									]}
 									template={[
 										["query"],
 										["gallery"]
 									]}>
-									<Cell area={"query"}>
-										<Container decoration={{ shadow: [[Color.DARK_100, 0, 0, 5, 0]], corner: { all: Unit(4.5) }, background: { color: Color.DARK_300 } }}
-											onMouseEnter={(I) => {
-												I.style({ background: { color: Color.DARK_400 } });
+									<Cell area={"query"} overflow={true}>
+										<Dropdown toggle={!this.state.gallery.isEmpty()} index={0} options={this.state.suggests.map((suggest) => [suggest.field + ":" + suggest.value, suggest.count.toString()])} value={this.state.query} fallback={this.state.query.length ? this.state.query : "language:all"} highlight={this.state.highlight} controller={this.state.controller}
+											onReset={() => {
+												// expire
+												SuggestExpire();
+												// reset gallery
+												this.setState({ ...this.state, index: 0, query: "language:all", length: 0, gallery: [], suggests: [] }, () => {
+													// update gallery
+													this.gallery(this.state.query, this.state.index);
+													// rename
+													navigator.rename(this.state.query);
+												});
 											}}
-											onMouseLeave={(I) => {
-												I.style(null);
-											}}>
-											<Size height={Unit(100, "%")}>
-												<Row>
-													<Offset type={"margin"} left={Unit(10)} right={Unit(10)}>
-														<Form toggle={!this.state.gallery.isEmpty()} value={this.state.query} fallback={this.state.query.length ? this.state.query : "language:all"}
-															onTyping={(text) => {
-																return true;
-															}}
-															onSubmit={(text) => {
-																// reset gallery
-																this.setState({ ...this.state, index: 0, query: text.length ? text : "language:all", length: 0, gallery: [] }, () => {
-																	// update gallery
-																	this.gallery(this.state.query, this.state.index);
-																	// rename
-																	navigator.rename(this.state.query);
-																});
-															}}
-														/>
-													</Offset>
-													<Size width={Unit(50)}>
-														<Center x={true} y={true}>
-															<Close color={Color.DARK_500}
-																onMouseDown={(I) => {
-																	// reset gallery
-																	this.setState({ ...this.state, index: 0, query: "language:all", length: 0, gallery: [] }, () => {
-																		// update gallery
-																		this.gallery(this.state.query, this.state.index);
-																		// rename
-																		navigator.rename(this.state.query);
-																	});
-																}}
-																onMouseEnter={(I) => {
-																	I.style(Color.TEXT_000);
-																}}
-																onMouseLeave={(I) => {
-																	I.style(null);
-																}}
-															/>
-														</Center>
-													</Size>
-												</Row>
-											</Size>
-										</Container>
+											onSelect={(text) => {
+												// expire
+												SuggestExpire();
+												// reset suggestions
+												this.setState({ ...this.state, suggests: [] }, () => {
+													// cache
+													const query = this.query();
+
+													if (query) {
+														query.value = query.value.split(/\s+/).slice(0, -1).concat(text.replace(/\s+/g, "_")).join("\u0020");
+													}
+												});
+											}}
+											onSubmit={(text) => {
+												// expire
+												SuggestExpire();
+												// reset gallery
+												this.setState({ ...this.state, index: 0, query: text.length ? text : "language:all", length: 0, gallery: [], suggests: [] }, () => {
+													// update gallery
+													this.gallery(this.state.query, this.state.index);
+													// rename
+													navigator.rename(this.state.query);
+												});
+											}}
+											onChange={(text) => {
+												// expire
+												SuggestExpire();
+												// update highlight
+												this.state.highlight = text.split(/\s+/).last?.split(/:/).last ?? "";
+												// reset suggestions
+												if (!this.state.suggests.isEmpty()) {
+													this.setState({ ...this.state, suggests: [] });
+												}
+												// fetch
+												SuggestTags(this.state.highlight).then((suggestions) => {
+													// updage suggestions
+													if (!suggestions.isEmpty()) {
+														this.setState({ ...this.state, suggests: suggestions });
+													}
+												});
+											}}
+										/>
 									</Cell>
 									<Cell area={"gallery"}>
 										<Grid
@@ -177,12 +186,14 @@ class Browser extends PageView<BrowserProps, BrowserState> {
 													<Gallery key={x} gallery={gallery}
 														onTagClick={(tag) => {
 															// cache
-															const query = this.node()!.getElementsByTagName("input")!.item(0)!;
+															const query = this.query();
 
-															if (query.value.includes(tag)) {
-																query.value = query.value.replace(tag, "").replace(/^\s/, "").replace(/\s$/, "").replace(/\s\s+/g, "\u0020");
-															} else {
-																query.value += "\u0020" + tag;
+															if (query) {
+																if (query.value.includes(tag)) {
+																	query.value = query.value.replace(tag, "").replace(/^\s/, "").replace(/\s$/, "").replace(/\s\s+/g, "\u0020");
+																} else {
+																	query.value += "\u0020" + tag;
+																}
 															}
 														}}
 													/>
@@ -199,46 +210,42 @@ class Browser extends PageView<BrowserProps, BrowserState> {
 				{(() => {
 					if (this.state.length > 1) {
 						return (
-							<Size height={Unit(45)}>
-								<Decoration shadow={[[Color.DARK_100, 0, 0, 5, 0]]} background={{ color: Color.DARK_100 }}>
-									<Paging toggle={!this.state.gallery.isEmpty()} index={this.state.index} length={this.state.length} overflow={7} firstShortcut={true} lastShortcut={true}
-										onPaging={(index) => {
-											if (!this.visible()) {
-												return false;
-											}
-											// reset gallery
-											this.setState({ ...this.state, index: index, gallery: [] }, () => {
-												// update gallery
-												this.gallery(this.state.query, this.state.index);
-											});
-											// approve
-											return true;
-										}}
-										builder={(key, index, indexing, jump) => {
-											return (
-												<Size key={key} type={"minimum"} width={Unit(50)}>
-													<Offset type={"margin"} top={Unit(7.5)} bottom={Unit(7.5)}>
-														<Offset type={"padding"} left={Unit(7.5)} right={Unit(7.5)}>
-															<Button decoration={{ corner: { all: Unit(3.5) } }}
-																onMouseDown={(I) => {
-																	I.style(null, jump);
-																}}
-																onMouseEnter={(I) => {
-																	I.style({ background: { color: Color.DARK_200 } });
-																}}
-																onMouseLeave={(I) => {
-																	I.style(null);
-																}}
-																children={<Text>{[{ value: typeof index === "string" ? index : (index + 1).toString(), color: !this.state.gallery.isEmpty() && this.state.length ? indexing ? Color.SPOTLIGHT : Color.TEXT_000 : Color.DARK_500 }]}</Text>}
-															/>
-														</Offset>
-													</Offset>
-												</Size>
-											);
-										}}
-									/>
-								</Decoration>
-							</Size>
+							<Decoration shadow={[[Color.DARK_100, 0, 0, 5, 0]]} background={{ color: Color.DARK_100 }}>
+								<Paging toggle={!this.state.gallery.isEmpty()} index={this.state.index} length={this.state.length} overflow={7} firstShortcut={true} lastShortcut={true} height={Unit(45)}
+									onPaging={(index) => {
+										if (!this.visible()) {
+											return false;
+										}
+										// reset gallery
+										this.setState({ ...this.state, index: index, gallery: [] }, () => {
+											// update gallery
+											this.gallery(this.state.query, this.state.index);
+										});
+										// approve
+										return true;
+									}}
+									builder={(key, index, indexing, jump) => {
+										return (
+											<Offset key={key} type={"margin"} top={Unit(7.5)} bottom={Unit(7.5)}>
+												<Offset type={"padding"} left={Unit(7.5)} right={Unit(7.5)}>
+													<Button size={{ minimum: { width: Unit(50) } }} decoration={{ corner: { all: Unit(3.5) } }}
+														onMouseDown={(I) => {
+															I.style(null, jump);
+														}}
+														onMouseEnter={(I) => {
+															I.style({ background: { color: Color.DARK_200 } });
+														}}
+														onMouseLeave={(I) => {
+															I.style(null);
+														}}
+														children={<Text>{[{ value: typeof index === "string" ? index : (index + 1).toString(), color: !this.state.gallery.isEmpty() && this.state.length ? indexing ? Color.SPOTLIGHT : Color.TEXT_000 : Color.DARK_500 }]}</Text>}
+													/>
+												</Offset>
+											</Offset>
+										);
+									}}
+								/>
+							</Decoration>
 						);
 					}
 				})()}
@@ -250,6 +257,10 @@ class Browser extends PageView<BrowserProps, BrowserState> {
 	 */
 	protected grid() {
 		return Math.round(window.outerWidth / (1920 / 5));
+	}
+	protected query() {
+		// return this.node()?.getElementsByTagName("input")?.item(0);
+		return this.state.controller.current;
 	}
 	/**
 	 * Update gallery blocks based on current (state / props) `query` and `index`.

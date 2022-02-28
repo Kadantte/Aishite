@@ -4,6 +4,7 @@ import { EventEmitter } from "events";
 import React from "react";
 import ReactDOM from "react-dom";
 // common
+import Size from "@/app/common/size";
 import { Props, Casacade } from "@/app/common/props";
 
 type Widget = JSX.Element | Element;
@@ -85,7 +86,7 @@ export abstract class Stateful<P extends Props<any>, S> extends React.Component<
 			if (cache.self instanceof EventEmitter) {
 				cache.self.addListener(cache.event as string, cache.handler);
 			} else if (cache.self instanceof EventTarget) {
-				cache.self.addEventListener(cache.event as string, cache.handler as (...args: any[]) => void);
+				cache.self.addEventListener(cache.event as string, cache.handler as Method);
 			} else if (cache.self === this.handler) {
 				this.handler[cache.event as keyof Stateful<P, S>["handler"]] = cache.handler as any;
 			}
@@ -96,7 +97,7 @@ export abstract class Stateful<P extends Props<any>, S> extends React.Component<
 			if (cache.self instanceof EventEmitter) {
 				cache.self.removeListener(cache.event as string, cache.handler);
 			} else if (cache.self instanceof EventTarget) {
-				cache.self.removeEventListener(cache.event as string, cache.handler as (...args: any[]) => void);
+				cache.self.removeEventListener(cache.event as string, cache.handler as Method);
 			} else if (cache.self === this.handler) {
 				this.handler[cache.event as keyof Stateful<P, S>["handler"]] = (() => { }) as any;
 			}
@@ -106,6 +107,14 @@ export abstract class Stateful<P extends Props<any>, S> extends React.Component<
 	protected abstract postCSS(): React.CSSProperties;
 	/** Return value will be applied before `this.props.style`. */
 	protected abstract preCSS(): React.CSSProperties;
+	/** Automatically define with & height. */
+	protected constraint(): React.CSSProperties {
+		return {
+			...new Size({ type: undefined, width: this.props.width, height: this.props.height }).toStyle(),
+			...(this.props.size?.minimum ? new Size({ ...this.props.size.minimum, type: "minimum" }).toStyle() : {}),
+			...(this.props.size?.maximum ? new Size({ ...this.props.size.maximum, type: "maximum" }).toStyle() : {})
+		};
+	}
 	/** **UNSAFE**: Directly pass `HTMLElement` attributes to children. */
 	protected modify(): Casacade["modify"] {
 		return {};
@@ -115,7 +124,7 @@ export abstract class Stateful<P extends Props<any>, S> extends React.Component<
 	/** Consider using `this.build` instead. */
 	@final()
 	public render() {
-		return <Mirror style={{ ...this.preCSS(), ...this.props.style, ...this.postCSS() }} modify={this.modify()}>{this.build()}</Mirror>;
+		return <Mirror style={{ ...this.preCSS(), ...this.props.style, ...this.constraint(), ...this.postCSS(), ...this.props.override, ...(this.props.visible === true || this.props.visible === undefined ? {} : { display: "none" }) }} modify={this.modify()}>{this.build()}</Mirror>;
 	}
 	/** Built-in macro to retrieve self `HTMLElement`. */
 	public node<T extends Element = HTMLElement>() {
@@ -132,6 +141,14 @@ export abstract class Stateless<P extends Props<any>> extends React.PureComponen
 	protected abstract postCSS(): React.CSSProperties;
 	/** Return value will be applied before `this.props.style`. */
 	protected abstract preCSS(): React.CSSProperties;
+	/** Automatically define with & height. */
+	protected constraint(): React.CSSProperties {
+		return {
+			...new Size({ type: undefined, width: this.props.width, height: this.props.height }).toStyle(),
+			...(this.props.size?.minimum ? new Size({ ...this.props.size.minimum, type: "minimum" }).toStyle() : {}),
+			...(this.props.size?.maximum ? new Size({ ...this.props.size.maximum, type: "maximum" }).toStyle() : {})
+		};
+	}
 	/** **UNSAFE**: Directly pass `HTMLElement` attributes to children. */
 	protected modify(): Casacade["modify"] {
 		return {};
@@ -141,7 +158,7 @@ export abstract class Stateless<P extends Props<any>> extends React.PureComponen
 	/** Consider using `this.build` instead. */
 	@final()
 	public render() {
-		return <Mirror style={{ ...this.preCSS(), ...this.props.style, ...this.postCSS() }} modify={this.modify()} children={this.build()}/>;
+		return <Mirror style={{ ...this.preCSS(), ...this.props.style, ...this.constraint(), ...this.postCSS(), ...this.props.override, ...(this.props.visible === true || this.props.visible === undefined ? {} : { display: "none" }) }} modify={this.modify()} children={this.build()}/>;
 	}
 	/** Built-in macro to retrieve self `HTMLElement`. */
 	public node<T extends Element = HTMLElement>() {

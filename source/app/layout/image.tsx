@@ -6,8 +6,6 @@ const transparent = "data:image/gif;base64,R0lGODlhAQABAAAAACwAAAAAAQABAAA=";
 
 class ImageProps extends Props<undefined> {
 	public readonly source: string;
-	public readonly width?: number;
-	public readonly height?: number;
 	// events
 	public readonly onError?: (callback: Image) => void;
 	public readonly onLoaded?: (callback: Image) => void;
@@ -16,8 +14,6 @@ class ImageProps extends Props<undefined> {
 		super(args);
 
 		this.source = args.source;
-		this.width = args.width;
-		this.height = args.height;
 		this.onError = args.onError;
 		this.onLoaded = args.onLoaded;
 	}
@@ -32,7 +28,7 @@ class Image extends Stateless<ImageProps> {
 	}
 	protected build() {
 		return (
-			<img id={this.props.id} src={transparent} width={this.props.width} height={this.props.height}
+			<img id={this.props.id} src={transparent}
 				onLoad={(event) => {
 					// @ts-ignore
 					switch (event.target.src) {

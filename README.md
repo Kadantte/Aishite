@@ -39,7 +39,4 @@ npm run serve
 
 # Instruction
 
-Instruction is currently unavailable due to none actually reads them,<br>
-but asks question anyways regarding how to use.<br>
-This was extrmely fraustrating to me since I tried my best to document every single details.<br>
-For this sake, I have no intends to write my own ever again.<br>
+WIP

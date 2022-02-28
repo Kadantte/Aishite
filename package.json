@@ -8,13 +8,17 @@
 		"build": "node webpack/build.js",
 		"setup": "npm install & node node_modules/electron/install.js"
 	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/Any-Material/Aishite.git"
+	},
 	"devDependencies": {
 		"@types/node": "17.0.21",
 		"@types/react": "17.0.39",
 		"@types/react-dom": "17.0.11",
 		"@types/discord-rpc": "4.0.0",
 		"discord-rpc": "4.0.1",
-		"electron": "17.0.1",
+		"electron": "16.0.8",
 		"electron-builder": "22.14.13",
 		"file-loader": "6.2.0",
 		"html-webpack-plugin": "5.5.0",

@@ -1,5 +1,6 @@
 // common
 import Unit from "@/app/common/unit";
+import Size from "@/app/common/size";
 import Transition from "@/app/common/transition";
 import { Stateless } from "@/app/common/framework";
 
@@ -15,15 +16,23 @@ type TextBuilder = {
 
 class TextProps {
 	public readonly id?: string;
+	public readonly size?: {
+		minimum?: ConstructorParameters<typeof Size>[0];
+		maximum?: ConstructorParameters<typeof Size>[0];
+	};
 	public readonly style?: React.CSSProperties;
+	public readonly width?: Unit
+	public readonly height?: Unit;
 	public readonly transition?: ConstructorParameters<typeof Transition>[0];
 	@required
 	public readonly children: Array<TextBuilder>;
 
 	constructor(args: Args<TextProps>) {
-
 		this.id = args.id;
+		this.size = args.size;
 		this.style = args.style;
+		this.width = args.width;
+		this.height = args.height;
 		this.children = args.children;
 		this.transition = args.transition;
 	}
@@ -49,19 +58,16 @@ class Text extends Stateless<TextProps> {
 						return (<br key={index}></br>);
 					}
 					return (
-						<section key={index} style={Object.assign(
-							{
-								display: "initial"
-							},
-							new Transition({ ...this.props.transition, property: ["color"] }).toStyle(),
-							{
-								color: builder.color,
-								fontSize: builder.size,
-								fontStyle: builder.style,
-								fontFamily: builder.family,
-								fontWeight: builder.weight
-							},
-						)}>{builder.value}</section>
+						<section key={index} style={{
+							display: "initial",
+							color: builder.color,
+							fontSize: builder.size,
+							fontStyle: builder.style,
+							fontFamily: builder.family,
+							fontWeight: builder.weight,
+							// automate
+							...new Transition({ ...this.props.transition, property: ["color"] }).toStyle(),
+						}}>{builder.value}</section>
 					);
 				})}
 			</section>

@@ -133,7 +133,7 @@ export async function GalleryBlock(id: number): Promise<GalleryBlock> {
 		language: block["language"].first!,
 		// @ts-ignore
 		thumbnail: Array.prototype.concat.apply([], Object.values(document.querySelectorAll("picture > img, picture > source")).map((element) => {
-			return element.getAttribute("data-srcset")?.split("\u0020").filter((url) => url.length > 3) ?? [element.getAttribute("data-src")];
+			return element.getAttribute("data-srcset")?.split(/\s/).filter((url) => url.length > 3) ?? [element.getAttribute("data-src")];
 		})).map((url) => {
 			return "https:" + url;
 		}),

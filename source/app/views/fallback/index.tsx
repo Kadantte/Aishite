@@ -6,14 +6,14 @@ import Color from "@/app/common/color";
 import { Props } from "@/app/common/props";
 import { EventManager } from "@/app/common/framework";
 // layout
-import Size from "@/app/layout/size";
 import Text from "@/app/layout/text";
-import Stack from "@/app/layout/stack";
-import Spacer from "@/app/layout/spacer";
-import Offset from "@/app/layout/offset";
 import Center from "@/app/layout/center";
 import Column from "@/app/layout/column";
-import Transform from "@/app/layout/transform";
+// layout/casacade
+import Stack from "@/app/layout/casacade/stack";
+import Spacer from "@/app/layout/casacade/spacer";
+import Offset from "@/app/layout/casacade/offset";
+import Transform from "@/app/layout/casacade/transform";
 // widgets
 import Button from "@/app/widgets/button";
 import Paging from "@/app/widgets/paging";
@@ -67,20 +67,18 @@ class Fallback extends PageView<FallbackProps, FallbackState> {
 								{
 									title: "Browser",
 									children: <Offset type={"margin"} all={Unit(29.5)}>
-										<Size width={"auto"} height={Unit(29.5)}>
-											<Button decoration={{ corner: { all: Unit(4.5) }, shadow: [[Color.DARK_100, 0, 0, 5, 0]], background: { color: Color.DARK_400 } }}
-												onMouseDown={(I) => {
-													navigator.replace("language:all", "BROWSER", {});
-												}}
-												onMouseEnter={(I) => {
-													I.style({ background: { color: Color.DARK_500 } });
-												}}
-												onMouseLeave={(I) => {
-													I.style(null);
-												}}
-												children={<Text>{[{ value: "Click to open new Browser" }]}</Text>}
-											/>
-										</Size>
+										<Button width={"auto"} height={Unit(29.5)} decoration={{ corner: { all: Unit(4.5) }, shadow: [[Color.DARK_100, 0, 0, 5, 0]], background: { color: Color.DARK_400 } }}
+											onMouseDown={(I) => {
+												navigator.replace("language:all", "BROWSER", {});
+											}}
+											onMouseEnter={(I) => {
+												I.style({ background: { color: Color.DARK_500 } });
+											}}
+											onMouseLeave={(I) => {
+												I.style(null);
+											}}
+											children={<Text>{[{ value: "Click to open new Browser" }]}</Text>}
+										/>
 									</Offset>,
 									description: [
 										{ value: "Browse galleries that matches your taste by providing query text to the form input." },
@@ -124,42 +122,38 @@ class Fallback extends PageView<FallbackProps, FallbackState> {
 						</Stack>
 					</section>
 				</Spacer>
-				<Size height={Unit(20)}>
-					<Offset type={"margin"} top={Unit(29.5)} bottom={Unit(29.5)}>
-						<Paging toggle={true} index={0} length={3} overflow={3} firstShortcut={false} lastShortcut={false}
-							onPaging={(index) => {
-								if (!this.visible()) {
-									return false;
-								}
-								// update
-								this.setState({ ...this.state, index: index });
-								// approve
-								return true;
-							}}
-							builder={(key, index, indexing, jump) => {
-								return (
-									<Size key={key} width={Unit(20)}>
-										<Offset type={"margin"} left={Unit(69)} right={Unit(69)}>
-											<Button decoration={{ corner: { all: Unit(100, "%") }, shadow: [[Color.DARK_100, 0, 0, 5, 0]], background: { color: indexing ? Color.SPOTLIGHT : Color.DARK_500 } }}
-												onMouseDown={(I) => {
-													I.style(null, jump);
-												}}
-												onMouseEnter={(I) => {
-													if (!indexing) {
-														I.style({ background: { color: Color.TEXT_000 } });
-													}
-												}}
-												onMouseLeave={(I) => {
-													I.style(null);
-												}}
-											/>
-										</Offset>
-									</Size>
-								);
-							}}
-						/>
-					</Offset>
-				</Size>
+				<Offset type={"margin"} top={Unit(29.5)} bottom={Unit(29.5)}>
+					<Paging height={Unit(20)} toggle={true} index={0} length={3} overflow={3} firstShortcut={false} lastShortcut={false}
+						onPaging={(index) => {
+							if (!this.visible()) {
+								return false;
+							}
+							// update
+							this.setState({ ...this.state, index: index });
+							// approve
+							return true;
+						}}
+						builder={(key, index, indexing, jump) => {
+							return (
+								<Offset key={key} type={"margin"} left={Unit(69)} right={Unit(69)}>
+									<Button width={Unit(20)} decoration={{ corner: { all: Unit(100, "%") }, shadow: [[Color.DARK_100, 0, 0, 5, 0]], background: { color: indexing ? Color.SPOTLIGHT : Color.DARK_500 } }}
+										onMouseDown={(I) => {
+											I.style(null, jump);
+										}}
+										onMouseEnter={(I) => {
+											if (!indexing) {
+												I.style({ background: { color: Color.TEXT_000 } });
+											}
+										}}
+										onMouseLeave={(I) => {
+											I.style(null);
+										}}
+									/>
+								</Offset>
+							);
+						}}
+					/>
+				</Offset>
 			</Column>
 		);
 	}
