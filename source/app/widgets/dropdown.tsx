@@ -19,7 +19,7 @@ import Position from "@/app/layout/casacade/position";
 import Close from "@/app/icons/close";
 
 class DropdownProps extends FlipFlop<undefined> {
-	public readonly index: number;
+	public readonly index?: number;
 	public readonly options: Array<[name: string, addition: string]>;
 	public readonly value?: string;
 	public readonly fallback?: string;
@@ -62,7 +62,7 @@ class DropdownState {
 
 class Dropdown extends Stateful<DropdownProps, DropdownState> {
 	protected create() {
-		return new DropdownState({ index: this.props.index, entered: false, focused: false });
+		return new DropdownState({ index: this.props.index ?? NaN, entered: false, focused: false });
 	}
 	protected postCSS(): React.CSSProperties {
 		return {};
@@ -91,7 +91,13 @@ class Dropdown extends Stateful<DropdownProps, DropdownState> {
 									this.setState({ ...this.state, focused: true });
 								}}
 								onSubmit={(text) => {
-									this.props.onSubmit?.(text);
+									if (isNaN(this.state.index)) {
+										this.props.onSubmit?.(text);
+									} else {
+										this.props.onSelect?.(this.props.options[this.state.index][0]);
+										// reset index
+										this.setState({ ...this.state, index: NaN });
+									}
 								}}
 								onChange={(text) => {
 									this.props.onChange?.(text);
@@ -112,7 +118,7 @@ class Dropdown extends Stateful<DropdownProps, DropdownState> {
 									}
 									if (offset) {
 										// update index
-										this.setState({ ...this.state, index: (this.state.index + offset).clamp(0, this.props.options.length - 1) }, () => {
+										this.setState({ ...this.state, index: ((isNaN(this.state.index) ? -1 : this.state.index) + offset).clamp(0, this.props.options.length - 1) }, () => {
 											// auto-scroll
 											this.node()?.querySelector("[id=\"options\"]")?.scrollTo({ top: this.state.index * 40 });
 										});
@@ -146,6 +152,8 @@ class Dropdown extends Stateful<DropdownProps, DropdownState> {
 										<Container id={x.toString()} key={x} height={Unit(40)} decoration={{ background: { color: this.state.index === x ? Color.DARK_500 : undefined } }}
 											onMouseDown={() => {
 												this.props.onSelect?.(option[0]);
+												// reset index
+												this.setState({ ...this.state, index: NaN });
 											}}
 											onMouseEnter={(I) => {
 												this.setState({ ...this.state, index: x });

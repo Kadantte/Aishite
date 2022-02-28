@@ -207,48 +207,42 @@ class Browser extends PageView<BrowserProps, BrowserState> {
 					</Scroll>
 				</Spacer>
 				{/* PAGING */}
-				{(() => {
-					if (this.state.length > 1) {
-						return (
-							<Decoration shadow={[[Color.DARK_100, 0, 0, 5, 0]]} background={{ color: Color.DARK_100 }}>
-								<Paging toggle={!this.state.gallery.isEmpty()} index={this.state.index} length={this.state.length} overflow={7} firstShortcut={true} lastShortcut={true} height={Unit(45)}
-									onPaging={(index) => {
-										if (!this.visible()) {
-											return false;
-										}
-										// reset gallery
-										this.setState({ ...this.state, index: index, gallery: [] }, () => {
-											// update gallery
-											this.gallery(this.state.query, this.state.index);
-										});
-										// approve
-										return true;
-									}}
-									builder={(key, index, indexing, jump) => {
-										return (
-											<Offset key={key} type={"margin"} top={Unit(7.5)} bottom={Unit(7.5)}>
-												<Offset type={"padding"} left={Unit(7.5)} right={Unit(7.5)}>
-													<Button size={{ minimum: { width: Unit(50) } }} decoration={{ corner: { all: Unit(3.5) } }}
-														onMouseDown={(I) => {
-															I.style(null, jump);
-														}}
-														onMouseEnter={(I) => {
-															I.style({ background: { color: Color.DARK_200 } });
-														}}
-														onMouseLeave={(I) => {
-															I.style(null);
-														}}
-														children={<Text>{[{ value: typeof index === "string" ? index : (index + 1).toString(), color: !this.state.gallery.isEmpty() && this.state.length ? indexing ? Color.SPOTLIGHT : Color.TEXT_000 : Color.DARK_500 }]}</Text>}
-													/>
-												</Offset>
-											</Offset>
-										);
-									}}
-								/>
-							</Decoration>
-						);
-					}
-				})()}
+				<Decoration shadow={[[Color.DARK_100, 0, 0, 5, 0]]} background={{ color: Color.DARK_100 }}>
+					<Paging visible={this.state.length > 1} toggle={!this.state.gallery.isEmpty()} index={this.state.index} length={this.state.length} overflow={7} firstShortcut={true} lastShortcut={true} height={Unit(45)}
+						onPaging={(index) => {
+							if (!this.visible()) {
+								return false;
+							}
+							// reset gallery
+							this.setState({ ...this.state, index: index, gallery: [] }, () => {
+								// update gallery
+								this.gallery(this.state.query, this.state.index);
+							});
+							// approve
+							return true;
+						}}
+						builder={(key, index, indexing, jump) => {
+							return (
+								<Offset key={key} type={"margin"} top={Unit(7.5)} bottom={Unit(7.5)}>
+									<Offset type={"padding"} left={Unit(7.5)} right={Unit(7.5)}>
+										<Button size={{ minimum: { width: Unit(50) } }} decoration={{ corner: { all: Unit(3.5) } }}
+											onMouseDown={(I) => {
+												I.style(null, jump);
+											}}
+											onMouseEnter={(I) => {
+												I.style({ background: { color: Color.DARK_200 } });
+											}}
+											onMouseLeave={(I) => {
+												I.style(null);
+											}}
+											children={<Text>{[{ value: typeof index === "string" ? index : (index + 1).toString(), color: !this.state.gallery.isEmpty() && this.state.length ? indexing ? Color.SPOTLIGHT : Color.TEXT_000 : Color.DARK_500 }]}</Text>}
+										/>
+									</Offset>
+								</Offset>
+							);
+						}}
+					/>
+				</Decoration>
 			</Column>
 		);
 	}
