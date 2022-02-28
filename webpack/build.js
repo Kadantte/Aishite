@@ -28,7 +28,7 @@ const boilerplate = {
 			}
 		})
 	],
-	devtool: "inline-nosources-source-map"
+	devtool: "inline-nosources-cheap-module-source-map"
 };
 
 compiler["main"].instance = webpack({

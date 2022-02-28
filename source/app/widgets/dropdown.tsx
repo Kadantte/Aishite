@@ -93,7 +93,7 @@ class Dropdown extends Stateful<DropdownProps, DropdownState> {
 									this.setState({ ...this.state, focused: true });
 								}}
 								onSubmit={(text) => {
-									if (isNaN(this.state.index)) {
+									if (isNaN(this.state.index) || this.props.options.isEmpty()) {
 										this.props.onSubmit?.(text);
 									} else {
 										this.props.onSelect?.(this.props.options[this.state.index][0]);
@@ -124,7 +124,7 @@ class Dropdown extends Stateful<DropdownProps, DropdownState> {
 							/>
 						</Offset>
 						<Center width={Unit(50)} x={true} y={true}>
-							<Close
+							<Close color={Color.DARK_500}
 								onMouseDown={(I) => {
 									this.props.onReset?.();
 								}}
@@ -162,7 +162,7 @@ class Dropdown extends Stateful<DropdownProps, DropdownState> {
 													<Text>{option[0].split(this.props.highlight!).map((value, index, array) => array.length > index + 1 ? value.length === 0 ? { value: this.props.highlight, color: Color.SPOTLIGHT } : [{ value: value }, { value: this.props.highlight, color: Color.SPOTLIGHT }] : { value: value }).flat().map((text) => ({ ...text, size: Unit(14.0) }))}</Text>
 													{/* description */}
 													<Position right={Unit(10)}>
-														<Text>{[{ value: option[1], size: Unit(14.0) }]}</Text>
+														<Text>{[{ value: option[1], size: Unit(14.0), color: Color.DARK_200 }]}</Text>
 													</Position>
 												</Offset>
 											</Center>
