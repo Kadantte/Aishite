@@ -115,7 +115,7 @@ class Browser extends PageView<BrowserProps, BrowserState> {
 										["gallery"]
 									]}>
 									<Cell area={"query"} overflow={true}>
-										<Dropdown toggle={!this.state.gallery.isEmpty()} index={0} options={this.state.suggests.map((suggest) => [suggest.field + ":" + suggest.value, suggest.count.toString()])} value={this.state.query} fallback={this.state.query.length ? this.state.query : "language:all"} highlight={this.state.highlight} controller={this.state.controller}
+										<Dropdown toggle={!this.state.gallery.isEmpty()} index={0} options={this.state.suggests.map((suggest) => [suggest.field + ":" + suggest.value, suggest.count.toString()])} value={this.state.query === "language:all" ? undefined : this.state.query} fallback={this.state.query.length ? this.state.query : "language:all"} highlight={this.state.highlight} controller={this.state.controller}
 											onReset={() => {
 												// expire
 												SuggestExpire();
@@ -247,7 +247,7 @@ class Browser extends PageView<BrowserProps, BrowserState> {
 	 * Based on 1920*1080
 	 */
 	protected grid() {
-		return Math.round(window.outerWidth / (1920 / 5));
+		return Math.round(window.outerWidth / (screen.width / 5));
 	}
 	protected query() {
 		// return this.node()?.getElementsByTagName("input")?.item(0);

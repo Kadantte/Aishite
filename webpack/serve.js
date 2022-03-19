@@ -71,9 +71,8 @@ function build(section) {
 	if (!reload && Object.values(compiler).every((instance) => instance.state)) {
 		const electron = require("child_process").spawn("npx.cmd", ["electron", "."], { args: ["--colors", "--debug=5858"], stdio: [process.stdin, process.stdout, "pipe"] });
 
-		electron.on("close", () => {
-			return process.exit();
-		});
+		electron.on("close", () => process.exit());
+		
 		reload++;
 	}
 }

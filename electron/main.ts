@@ -18,9 +18,10 @@ if (instance) {
 	app.quit();
 }
 
+// remove default shortcuts
+Menu.setApplicationMenu(null);
+
 if (app.isPackaged) {
-	// remove default shortcuts
-	Menu.setApplicationMenu(null);
 	// URL scheme
 	app.setAsDefaultProtocolClient("hitomi.la");
 } else {
