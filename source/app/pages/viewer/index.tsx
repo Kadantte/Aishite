@@ -1,5 +1,5 @@
 // TOP-LEVEL
-import PageView from "@/app/views";
+import PageView from "@/app/pages";
 // common
 import Unit from "@/app/common/unit";
 import { Props } from "@/app/common/props";
@@ -10,9 +10,10 @@ import Image from "@/app/layout/image";
 import Offset from "@/app/layout/casacade/offset";
 // modules
 import discord from "@/modules/discord";
-import { GalleryScript } from "@/modules/hitomi.la/gallery";
 // states
-import navigator from "@/states/navigator";
+import navigator from "@/manager/navigator";
+// apis
+import { GalleryScript } from "@/apis/hitomi.la/gallery";
 
 class ViewerProps extends Props<undefined> {
 	public gallery: number;

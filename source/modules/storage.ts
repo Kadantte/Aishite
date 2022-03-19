@@ -2,7 +2,7 @@
 import * as node_fs from "fs";
 import * as node_path from "path";
 // states
-import { MappedStateHandler } from "@/states";
+import { MappedStateHandler } from "@/manager";
 // api
 import { BridgeEvent } from "@/api";
 

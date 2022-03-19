@@ -25,11 +25,11 @@ import Bookmark from "@/app/icons/bookmark";
 import Download from "@/app/icons/download";
 import Discovery from "@/app/icons/discovery";
 // states
-import navigator from "@/states/navigator";
+import navigator from "@/manager/navigator";
 // assets
 import languages from "@/assets/languages.json";
-// modules
-import { GalleryTag, GalleryBlock } from "@/modules/hitomi.la/gallery";
+// apis
+import { GalleryTag, GalleryBlock } from "@/apis/hitomi.la/gallery";
 
 enum Asuka {
 	TITLE = 0,

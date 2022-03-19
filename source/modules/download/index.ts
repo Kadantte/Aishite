@@ -3,9 +3,9 @@ import _ from "file-loader?name=[name].js!./worker";
 // modules
 import storage from "@/modules/storage";
 // modules/hitomi.la
-import { GalleryBlock, GalleryScript } from "@/modules/hitomi.la/gallery";
+import { GalleryBlock, GalleryScript } from "@/apis/hitomi.la/gallery";
 // states
-import { MappedStateHandler } from "@/states";
+import { MappedStateHandler } from "@/manager";
 // api
 import { BridgeEvent } from "@/api";
 

@@ -1,7 +1,7 @@
 // common
 import { Stateful } from "@/app/common/framework";
 // states
-import navigator from "@/states/navigator";
+import navigator from "@/manager/navigator";
 
 abstract class PageView<P, S> extends Stateful<P, S> {
 	protected abstract create(): S;

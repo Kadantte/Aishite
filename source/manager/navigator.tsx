@@ -1,11 +1,11 @@
-// views
-import Viewer from "@/app/views/viewer";
-import Browser from "@/app/views/browser";
-import Fallback from "@/app/views/fallback";
+// pages
+import Viewer from "@/app/pages/viewer";
+import Browser from "@/app/pages/browser";
+import Fallback from "@/app/pages/fallback";
 // modules
 import settings from "@/modules/settings";
 // states
-import { StateHandler } from "@/states";
+import { StateHandler } from "@/manager";
 // API
 import { BridgeEvent } from "@/api";
 

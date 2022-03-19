@@ -38,7 +38,7 @@ export class GalleryTag {
 		}
 	}
 	public toString() {
-		return this.type + ":" + this.value;
+		return `${this.type}:${this.value}`;
 	}
 }
 
@@ -61,7 +61,7 @@ export type GalleryBlock = {
 	readonly type: string;
 	readonly title: string;
 	readonly language: string;
-	readonly thumbnail: [string, string, string, string, string, string];
+	readonly thumbnail: Array<String>;
 	readonly character?: Array<string>;
 	readonly artist?: Array<string>;
 	readonly series?: string;
@@ -86,10 +86,10 @@ request.GET("https://ltn.hitomi.la/common.js", "text").then((response_0) => {
 	// your mom is GG
 	request.GET("https://ltn.hitomi.la/gg.js", "text").then((response_1) => {
 		// prevent potential exploits
-		if (/(eval|require)/g.test(response_0.encode + response_1.encode)) {
-			throw new Error("Remote code execution attempt");
+		if (/(eval|require)/g.test(response_0.body + response_1.body)) {
+			throw new Error("Remote code execution attempt detected");
 		}
-		common_js = "var\u0020gg;\n" + response_0.encode.split(/\nfunction\s/g).filter((section) => new RegExp(`^(${["subdomain_from_url", "url_from_url", "full_path_from_hash", "real_full_path_from_hash", "url_from_hash", "url_from_url_from_hash", "rewrite_tn_paths"].join("|")})`).test(section)).map((section) => "function\u0020" + section).join("\n") + response_1.encode.split("\n").filter((section) => !/if\s\([\D\d]+\)\s{\sreturn\s[\d]+;\s}/.test(section)).join("\n");
+		common_js = "var\u0020gg;\n" + response_0.body.split(/\nfunction\s/g).filter((section) => new RegExp(`^(${["subdomain_from_url", "url_from_url", "full_path_from_hash", "real_full_path_from_hash", "url_from_hash", "url_from_url_from_hash", "rewrite_tn_paths"].join("|")})`).test(section)).map((section) => "function\u0020" + section).join("\n") + response_1.body.split("\n").filter((section) => !/if\s\([\D\d]+\)\s{\sreturn\s[\d]+;\s}/.test(section)).join("\n");
 
 		console.debug(common_js);
 	});
@@ -107,7 +107,7 @@ export async function GalleryBlock(id: number): Promise<GalleryBlock> {
 
 	await until(() => common_js !== null);
 
-	const document: Document = new DOMParser().parseFromString(eval(common_js + "rewrite_tn_paths(response.encode)"), "text/html");
+	const document: Document = new DOMParser().parseFromString(eval(common_js + "rewrite_tn_paths(response.body)"), "text/html");
 
 	let index = 0;
 
@@ -126,28 +126,16 @@ export async function GalleryBlock(id: number): Promise<GalleryBlock> {
 
 	return {
 		id: id,
-		type: block["type"].first!,
-		title: block["title"].first!,
-		group: block["group"]?.first,
-		series: block["series"]?.first,
-		language: block["language"].first!,
-		// @ts-ignore
-		thumbnail: Array.prototype.concat.apply([], Object.values(document.querySelectorAll("picture > img, picture > source")).map((element) => {
-			return element.getAttribute("data-srcset")?.split(/\s/).filter((url) => url.length > 3) ?? [element.getAttribute("data-src")];
-		})).map((url) => {
-			return "https:" + url;
-		}),
+		type: block["type"][0],
+		title: block["title"][0],
+		group: block["group"]?.[0],
+		series: block["series"]?.[0],
+		language: block["language"][0],
+		thumbnail: Object.values(document.querySelectorAll("picture > img, picture > source")).map((element) => element.getAttribute("data-srcset")?.split(/\s/).filter((text) => /^\/\//.test(text)) ?? [element.getAttribute("data-src")]).flat().map((text) => `https:${text}`),
 		character: block["character"],
-		artist: block["artist"].map((artist) => {
-			return artist.replace(/\s\s+/g, "").replace(/\n/g, "");
-		}),
-		tags: block["tags"].map((tag) => {
-			return new GalleryTag({
-				type: /♂$/.test(tag) ? Category.MALE : /♀$/.test(tag) ? Category.FEMALE : Category.TAG,
-				value: tag.replace(/\s?[♂♀]$/, "").replace(/\s/g, "_")
-			});
-		}),
-		date: block["date"].first!
+		artist: block["artist"],
+		tags: block["tags"].map((tag) => new GalleryTag({type: /♂$/.test(tag) ? Category.MALE : /♀$/.test(tag) ? Category.FEMALE : Category.TAG, value: tag.replace(/\s?[♂♀]$/, "").replace(/\s/g, "_")})),
+		date: block["date"][0]
 	};
 }
 /**
@@ -162,7 +150,7 @@ export async function GalleryScript(id: number): Promise<GalleryScript> {
 			throw new Error("ERROR 404");
 		}
 	}
-	const script = JSON.parse(/^var\sgalleryinfo\s=\s(.+?)(?=;)/.match(response.encode + ";")!.group(1)!);
+	const script = JSON.parse(response.body.replace(/^var\sgalleryinfo\s=\s/, ""));
 
 	await until(() => common_js !== null);
 
@@ -171,26 +159,8 @@ export async function GalleryScript(id: number): Promise<GalleryScript> {
 		type: script["type"],
 		title: script["title"],
 		language: script["language"],
-		files: Object.values(script["files"] as Array<any> ?? []).map((file) => {
-			return new GalleryFile({
-				//
-				// DANGER ZONE!
-				//
-				url: eval(common_js + "url_from_url_from_hash(id, file, \"webp\", undefined, \"a\")"),
-				//
-				// DANGER ZONE!
-				//
-				name: file["name"],
-				width: file["width"],
-				height: file["height"]
-			});
-		}),
-		tags: Object.values(script["tags"] as Array<any> ?? []).map((tag) => {
-			return new GalleryTag({
-				type: tag["male"] ? tag["female"] ? Category.TAG : Category.MALE : Category.FEMALE,
-				value: tag["tag"]
-			});
-		}),
+		files: (script["files"] as Array<any> ?? []).map((file) => new GalleryFile({url: eval(common_js + "url_from_url_from_hash(id, file, \"webp\", undefined, \"a\")"),name: file["name"],width: file["width"],height: file["height"]})),
+		tags: (script["tags"] as Array<any> ?? []).map((tag) => new GalleryTag({type: tag["male"] ? tag["female"] ? Category.TAG : Category.MALE : Category.FEMALE, value: tag["tag"] })),
 		date: script["date"]
 	};
 }

@@ -1,7 +1,7 @@
 // react
 import React from "react";
 // TOP-LEVEL
-import PageView from "@/app/views";
+import PageView from "@/app/pages";
 // common
 import Unit from "@/app/common/unit";
 import Color from "@/app/common/color";
@@ -19,15 +19,16 @@ import Decoration from "@/app/layout/casacade/decoration";
 // widgets
 import Button from "@/app/widgets/button";
 import Paging from "@/app/widgets/paging";
-import Gallery from "@/app/views/browser/gallery";
+import Gallery from "@/app/pages/browser/gallery";
 import Dropdown from "@/app/widgets/dropdown";
 // modules
 import discord from "@/modules/discord";
-import { SearchQuery } from "@/modules/hitomi.la/search";
-import { GalleryBlock } from "@/modules/hitomi.la/gallery";
-import { SuggestTags, SuggestExpire } from "@/modules/hitomi.la/suggest";
 // states
-import navigator from "@/states/navigator";
+import navigator from "@/manager/navigator";
+// apis
+import { SearchQuery } from "@/apis/hitomi.la/search";
+import { GalleryBlock } from "@/apis/hitomi.la/gallery";
+import { SuggestTags, SuggestExpire } from "@/apis/hitomi.la/suggest";
 
 class BrowserProps extends Props<undefined> {
 	public index: number;

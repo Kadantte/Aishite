@@ -17,7 +17,7 @@ import Button from "@/app/widgets/button";
 import Plus from "@/app/icons/plus";
 import Close from "@/app/icons/close";
 // states
-import navigator from "@/states/navigator";
+import navigator from "@/manager/navigator";
 
 class NavigatorProps extends Props<undefined> {
 	constructor(args: Args<NavigatorProps>) {

@@ -1,6 +1,6 @@
 # About
 
-[![Discord](https://discordapp.com/api/guilds/611859053714341888/widget.png?style=shield)](https://discord.gg/Gp7tWCe)
+[comment]: [![Discord](https://discordapp.com/api/guilds/611859053714341888/widget.png?style=shield)](https://discord.gg/Gp7tWCe)
 [![Downloads](https://img.shields.io/github/downloads/Any-Material/Aishite/total.svg)](https://github.com/Any-Material/Aishite/releases)
 
 `Aishite` is a fully secure, and light-weight desktop application for [hitomi.la](https://hitomi.la),<br>
@@ -11,7 +11,7 @@ is written in [TypeScript](https://github.com/microsoft/TypeScript) and powered 
 
 ## Q. **App** is not showing anything!
 
-If you ever encounter this issue, it means something is blocking your `http(s)-request` to the server.<br>
+If you ever encounter this issue, it means something is blocking your `http?s-request` to the server.<br>
 Thankfully, recent change to our code allows debugging much easier.<br>
 Thus please file an issue with debugger logs attached to.<br>
 In addition, if you live in `South Korea`, chances are high that it's due to<br>
@@ -27,6 +27,13 @@ It's definitely slow but safe, undetectable, but performance is very provider de
 
 A `DPI` bypasser splits packet to hid destination IP adress.<br>
 It doesn't cost much request speed, very undetectable, but performance varies per software.<br>
+
+## Q. Will there be **web version** given its powered by Electron?
+
+Possibly, but nothing is confirmed.<br>
+As such, there are some technical difficulties due to **Browser**s' inheirt restrictions for security (e.g. prevent spoofing).<br>
+Fact, its possible to avoid most of it, via backend as more, but it will require me to host a server which equals monthly fees.<br>
+Throughout years I developed everyone was just lurking... why would I spend my money then?<br>
 
 # Installation
 

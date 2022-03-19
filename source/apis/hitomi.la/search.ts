@@ -1,10 +1,10 @@
 // modules
 import request from "@/modules/request";
 // modules/hitomi.la
-import { Endian } from "@/modules/hitomi.la/suggest";
-import { Category } from "@/modules/hitomi.la/gallery";
-import { suggestJS } from "@/modules/hitomi.la/suggest";
-import { GalleryVersion } from "@/modules/hitomi.la/version";
+import { Endian } from "@/apis/hitomi.la/suggest";
+import { Category } from "@/apis/hitomi.la/gallery";
+import { suggestJS } from "@/apis/hitomi.la/suggest";
+import { GalleryVersion } from "@/apis/hitomi.la/version";
 
 class Instruction {
 	public readonly type: boolean;
@@ -69,7 +69,7 @@ async function unknown_0(region: Nullable<string>, type: string, value: string) 
 		request.GET(`https://${["ltn.hitomi.la", "n", region, `${type}-${value}`].filter((_) => _).join("/")}.nozomi`, "arraybuffer").then((response) => {
 			switch (response.status.code) {
 				case 200: {
-					const array: Buffer = Buffer.from(response.encode);
+					const array: Buffer = Buffer.from(response.body);
 					const table: DataView = new DataView((array.buffer as ArrayBuffer).skip(array.byteOffset).take(array.byteLength));
 
 					return resolve(new Array(table.byteLength / 4).fill(null).map((_, x) => table.getInt32(x * 4, Endian.BIG)));
@@ -135,11 +135,9 @@ async function unknown_2(digits: [number, number]) {
 			const table = new DataView(response.buffer);
 			const length = table.getInt32(0, Endian.BIG);
 
-			if (length > 10000000 || 10000000 <= 0) {
-				return resolve([]);
-			} else if (response.byteLength !== length * 4 + 4) {
-				return resolve([]);
-			}
+			if (length > 10000000 || 10000000 <= 0) return resolve([]);
+			else if (response.byteLength !== length * 4 + 4) return resolve([]);
+
 			return resolve(new Array(length).fill(null).map((_, x) => table.getInt32((x + 1) * 4, Endian.BIG)));
 		});
 	});

@@ -1,5 +1,5 @@
 // TOP-LEVEL
-import PageView from "@/app/views";
+import PageView from "@/app/pages";
 // common
 import Unit from "@/app/common/unit";
 import Color from "@/app/common/color";
@@ -20,7 +20,7 @@ import Paging from "@/app/widgets/paging";
 // modules
 import discord from "@/modules/discord";
 // states
-import navigator from "@/states/navigator";
+import navigator from "@/manager/navigator";
 
 class FallbackProps extends Props<undefined> {
 	constructor(args: Args<FallbackProps>) {

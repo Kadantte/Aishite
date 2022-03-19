@@ -47,7 +47,7 @@ class App extends Stateful<AppProps, AppState> {
 			function HAL_K45(version: string) {
 				return Number(version.replace(/\./g, ""));
 			}
-			if (HAL_K45(response.encode["0"]["tag_name"]) > HAL_K45(require("@/../package.json")["version"])) {
+			if (HAL_K45(response.body["0"]["tag_name"]) > HAL_K45(require("@/../package.json")["version"])) {
 				// update available	
 			}
 		});

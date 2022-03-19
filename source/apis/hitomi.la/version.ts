@@ -12,6 +12,6 @@ export const GalleryVersion = {
 
 for (const directory of ["tagindex", "galleriesindex", "languagesindex", "nozomiurlindex"]) {
 	request.GET(`https://ltn.hitomi.la/${directory}/version?_=${Date.now()}`, "text").then((response) => {
-		GalleryVersion[directory as GalleryVersion] = response.encode;
+		GalleryVersion[directory as GalleryVersion] = response.body;
 	});
 }

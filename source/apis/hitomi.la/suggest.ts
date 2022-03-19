@@ -3,7 +3,7 @@ import { sha256 } from "js-sha256";
 // modules
 import request from "@/modules/request";
 // modules/hitomi.la
-import { GalleryVersion } from "@/modules/hitomi.la/version";
+import { GalleryVersion } from "@/apis/hitomi.la/version";
 
 let serial: number = 0;
 
@@ -142,20 +142,17 @@ function unknown_2(buffer: Uint8Array) {
  * @see get_node_at_adress
 */
 async function unknown_3(type: "global" | "galleries" | "languages" | "nozomiurl", value: number) {
-	return new Promise<SuggestBundle>(async (resolve, reject) => {
-		await until(() => GalleryVersion[type === "global" ? "tagindex" : (type + "index") as GalleryVersion] !== null);
+	// wait...
+	await until(() => GalleryVersion[type === "global" ? "tagindex" : (type + "index") as GalleryVersion] !== null);
 
-		return resolve(unknown_2(await unknown_4(`https://ltn.hitomi.la/${type === "global" ? "tag" : type}index/${type}.${GalleryVersion[type === "global" ? "tagindex" : (type + "index") as GalleryVersion]}.index`, value, value + 463)));
-	});
+	return new Promise<SuggestBundle>(async (resolve, reject) => resolve(unknown_2(await unknown_4(`https://ltn.hitomi.la/${type === "global" ? "tag" : type}index/${type}.${GalleryVersion[type === "global" ? "tagindex" : (type + "index") as GalleryVersion]}.index`, value, value + 463))));
 }
 /**
  * @alias search.js
  * @see get_url_at_range
 */
 async function unknown_4(url: string, offset: number, length: number) {
-	return new Promise<Uint8Array>(async (resolve, reject) => {
-		return resolve(new Uint8Array((await request.GET(url, "arraybuffer", { headers: { "range": "bytes=" + offset + "-" + length } })).encode));
-	});
+	return new Promise<Uint8Array>(async (resolve, reject) => resolve(new Uint8Array((await request.GET(url, "arraybuffer", { headers: { "range": "bytes=" + offset + "-" + length } })).body)));
 }
 /**
  * @alias search.js
@@ -210,9 +207,7 @@ async function unknown_5(type: string, buffer: Uint8Array, bundle: SuggestBundle
 		}
 		const digits = await unknown_3(type as never, bundle.child[index]);
 
-		unknown_5(type, buffer, digits).then((bundle) => {
-			return resolve(bundle);
-		});
+		unknown_5(type, buffer, digits).then((bundle) => resolve(bundle));
 	});
 }
 /**
@@ -226,21 +221,20 @@ async function unknown_6(type: string, digits: [number, number]) {
 		// 0: offset
 		// 1: length
 		//
-		if (digits[1] > 10000 || digits[1] <= 0) {
-			return resolve([]);
-		}
+		if (digits[1] > 10000 || digits[1] <= 0) return resolve([]);
+
 		await until(() => GalleryVersion.tagindex !== null);
 
 		const binary = new SuggestBinary({
 			level: 0,
 			buffer: new DataView((await unknown_4(`https://ltn.hitomi.la/tagindex/${type}.${GalleryVersion.tagindex}.data`, digits[0], digits[0] + digits[1] - 1)).buffer)
 		});
+		
 		const _suggest = binary.buffer.getInt32(binary.level, Endian.BIG);
 		binary.level += 4;
 
-		if (_suggest > 100 || _suggest <= 0) {
-			return [];
-		}
+		if (_suggest > 100 || _suggest <= 0) return resolve([]);
+
 		for (let index = 0; index < _suggest; index++) {
 			response.add(new Suggestion({ field: "", value: "", count: 0 }));
 

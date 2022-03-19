@@ -3,7 +3,7 @@ import template from "@/assets/config.json";
 // modules
 import storage from "@/modules/storage";
 // states
-import { StateHandler } from "@/states";
+import { StateHandler } from "@/manager";
 
 class Settings extends StateHandler<Config> {
 	public get state() {

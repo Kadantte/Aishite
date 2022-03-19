@@ -26,16 +26,15 @@ class RequestOptions {
 }
 
 class RequestResponse<T extends XMLHttpRequestResponseType> {
-	public readonly encode: T extends "arraybuffer" ? ArrayBuffer : T extends "document" ? Document : T extends "json" ? Record<string, any> : T extends "text" ? string : (ArrayBuffer | Document | JSON | string);
+	public readonly body: T extends "arraybuffer" ? ArrayBuffer : T extends "document" ? Document : T extends "json" ? Record<string, any> : T extends "text" ? string : (ArrayBuffer | Document | JSON | string);
 	public readonly status: {
 		code: number;
 		message: string;
 	};
 	public readonly headers: RequestHeaders;
 
-	constructor(args: Args<RequestResponse<T>>) {
-		// @ts-ignore
-		this.encode = args.encode;
+	constructor(args: Args<RequestResponse<T>> & { body: any }) {
+		this.body = args.body;
 		this.status = args.status;
 		this.headers = args.headers;
 	}
@@ -96,7 +95,7 @@ class Request {
 					}
 					default: {
 						return resolve(new RequestResponse({
-							encode: http.xhr.response,
+							body: http.xhr.response,
 							status: {
 								code: http.xhr.status,
 								message: http.xhr.statusText
