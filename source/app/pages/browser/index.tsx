@@ -75,7 +75,7 @@ class Browser extends PageView<BrowserProps, BrowserState> {
 						if (this.visible()) this.discord(true);
 					});
 				}
-				this.discord(!this.state.gallery.isEmpty());
+				this.discord();
 			}
 		});
 		return new BrowserState({ init: false, index: this.props.index, query: this.props.query, length: 0, gallery: [], suggests: [], highlight: "" });
@@ -123,9 +123,12 @@ class Browser extends PageView<BrowserProps, BrowserState> {
 												// reset gallery
 												this.setState({ ...this.state, index: 0, query: "language:all", length: 0, gallery: [], suggests: [] }, () => {
 													// update gallery
-													this.gallery(this.state.query, this.state.index);
-													// rename
-													navigator.rename(this.state.query);
+													this.gallery(this.state.query, this.state.index, () => {
+														// update discord
+														this.discord();
+														// rename
+														navigator.rename(this.state.query);
+													});
 												});
 											}}
 											onIndex={(index) => {
@@ -144,9 +147,12 @@ class Browser extends PageView<BrowserProps, BrowserState> {
 												// reset gallery
 												this.setState({ ...this.state, index: 0, query: text.length ? text : "language:all", length: 0, gallery: [], suggests: [] }, () => {
 													// update gallery
-													this.gallery(this.state.query, this.state.index);
-													// rename
-													navigator.rename(this.state.query);
+													this.gallery(this.state.query, this.state.index, () => {
+														// update discord
+														this.discord();
+														// rename
+														navigator.rename(this.state.query);
+													});
 												});
 											}}
 											onChange={(text) => {
@@ -216,7 +222,7 @@ class Browser extends PageView<BrowserProps, BrowserState> {
 								// update gallery
 								this.gallery(this.state.query, this.state.index, () => {
 									// update discord
-									this.discord(!this.state.gallery.isEmpty());
+									this.discord();
 								});
 							});
 							// approve
@@ -288,7 +294,7 @@ class Browser extends PageView<BrowserProps, BrowserState> {
 			this.gallery(this.state.query, this.state.index, () => callback?.());
 		});
 	}
-	protected discord(state: boolean) {
+	protected discord(state: boolean = !this.state.gallery.isEmpty()) {
 		switch (state) {
 			case true: {
 				discord.update({
