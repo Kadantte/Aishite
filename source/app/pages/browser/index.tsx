@@ -214,7 +214,10 @@ class Browser extends PageView<BrowserProps, BrowserState> {
 							// reset gallery
 							this.setState({ ...this.state, index: index, gallery: [] }, () => {
 								// update gallery
-								this.gallery(this.state.query, this.state.index);
+								this.gallery(this.state.query, this.state.index, () => {
+									// update discord
+									this.discord(!this.state.gallery.isEmpty());
+								});
 							});
 							// approve
 							return true;
