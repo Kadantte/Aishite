@@ -178,11 +178,11 @@ export abstract class StyleSheet<P extends Casacade> extends React.PureComponent
 	/** Consider using `this.build` instead. */
 	@final()
 	public render() {
-		return [this.props.children].flat().map((children, x) => {
+		return [this.props.children].flat().map((children, index) => {
 			if (children === undefined) {
 				return children;
 			}
-			return React.cloneElement(children as JSX.Element, { key: x, style: { ...this.preCSS(), ...this.props.style, ...this.postCSS() }, ...this.props.modify });
+			return React.cloneElement(children as JSX.Element, { key: index, style: { ...this.preCSS(), ...this.props.style, ...this.postCSS() }, ...this.props.modify });
 		});
 	}
 }

@@ -193,9 +193,9 @@ class Browser extends Page<BrowserProps, BrowserState> {
 												times: "auto-fit",
 												minimum: Unit(1920 / (5 + 1))
 											}}>
-											{this.state.gallery.map((gallery, x) => {
+											{this.state.gallery.map((gallery, index) => {
 												return (
-													<Gallery key={x} gallery={gallery}
+													<Gallery key={index} gallery={gallery}
 														onTagClick={(tag) => {
 															// cache
 															const query = this.query();

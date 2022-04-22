@@ -147,14 +147,14 @@ class Dropdown extends Stateful<DropdownProps, DropdownState> {
 					<Priority level={69}>
 						<Position top={Unit(100, "%")}>
 							<Container id={"options"} width={Unit(100, "%")} size={{ maximum: { height: Unit(40 * 5) } }} visible={this.state.focused && !this.props.options.isEmpty()} override={{ clipPath: "inset(0px -5px -5px -5px)" }} decoration={{ shadow: [[Color.DARK_100, 0, 0, 5, 0]], corner: { all: Unit(4.5), TL: Unit(0), TR: Unit(0) }, background: { color: Color.DARK_400 } }}>
-								{this.props.options.map((option, x) => {
+								{this.props.options.map((option, index) => {
 									return (
-										<Container id={x.toString()} key={x} height={Unit(40)} decoration={{ background: { color: this.state.index === x ? Color.DARK_500 : undefined } }}
+										<Container id={index.toString()} key={index} height={Unit(40)} decoration={{ background: { color: this.state.index === index ? Color.DARK_500 : undefined } }}
 											onMouseDown={() => {
 												this.setState({ ...this.state, index: NaN }, () => this.props.onSelect?.(option.first));
 											}}
 											onMouseEnter={(I) => {
-												this.setState({ ...this.state, index: x }, () => this.props.onIndex?.(x));
+												this.setState({ ...this.state, index: index }, () => this.props.onIndex?.(index));
 											}}
 											onMouseLeave={(I) => {
 												// this.setState({ ...this.state, index: NaN });

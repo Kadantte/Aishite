@@ -103,9 +103,9 @@ class Fallback extends Page<FallbackProps, FallbackState> {
 										{ value: "https://discord.gg/Gp7tWCe", style: "italic" }
 									]
 								}
-							].map(({ title, children, description }, x) => {
+							].map(({ title, children, description }, index) => {
 								return (
-									<Transform key={x} translate={[Unit((x - this.state.index) * 100, "%"), Unit(0, "%")]}>
+									<Transform key={index} translate={[Unit((index - this.state.index) * 100, "%"), Unit(0, "%")]}>
 										<Center x={true} y={true}>
 											<section>
 												<Offset type={"margin"} all={Unit(9.5)}>

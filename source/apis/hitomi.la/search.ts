@@ -273,7 +273,7 @@ async function unknown_0(directory: Nullable<string>, tag: Tag) {
 			const { buffer, byteOffset, byteLength } = Buffer.from(response.body);
 			const binary = new DataView((buffer as ArrayBuffer).skip(byteOffset).take(byteLength));
 
-			return Array(binary.byteLength / 4).fill(null).map((_, x) => binary.getInt32(x * 4, Endian.BIG));
+			return Array(binary.byteLength / 4).fill(null).map((_, index) => binary.getInt32(index * 4, Endian.BIG));
 		}
 	}
 	return [];
@@ -325,7 +325,7 @@ async function unknown_2(digits: Pair<number, number>) {
 	if (length > 10000000 || 10000000 <= 0) throw Error();
 	if (response.byteLength !== length * 4 + 4) throw Error();
 
-	return Array(length).fill(null).map((_, x) => table.getInt32((x + 1) * 4, Endian.BIG));
+	return Array(length).fill(null).map((_, index) => table.getInt32((index + 1) * 4, Endian.BIG));
 }
 
 export const searchJS = {

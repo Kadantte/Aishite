@@ -46,19 +46,19 @@ class Navigator extends Stateful<NavigatorProps, NavigatorState> {
 	protected build() {
 		return (
 			<Row id={"navigator"}>
-				{navigator.state.pages.map((page, x) => {
+				{navigator.state.pages.map((page, index) => {
 					return (
-						<Spacer key={x}>
-							<Container size={{ minimum: { width: Unit(29.5) }, maximum: { width: Unit(250) } }} decoration={{ border: { top: [2.5, "solid", navigator.state.index === x ? Color.SPOTLIGHT : "transparent"], bottom: [2.5] }, background: { color: navigator.state.index === x ? Color.DARK_200 : Color.DARK_000 } }}
+						<Spacer key={index}>
+							<Container size={{ minimum: { width: Unit(29.5) }, maximum: { width: Unit(250) } }} decoration={{ border: { top: [2.5, "solid", navigator.state.index === index ? Color.SPOTLIGHT : "transparent"], bottom: [2.5] }, background: { color: navigator.state.index === index ? Color.DARK_200 : Color.DARK_000 } }}
 								onMouseDown={(I) => {
-									if (navigator.state.index !== x) {
+									if (navigator.state.index !== index) {
 										I.style(null, () => {
-											navigator.jump(x);
+											navigator.jump(index);
 										});
 									}
 								}}
 								onMouseEnter={(I) => {
-									if (navigator.state.index !== x) {
+									if (navigator.state.index !== index) {
 										I.style({ border: { top: [2.5, "solid", Color.DARK_200] }, background: { color: Color.DARK_100 } });
 									}
 								}}
@@ -71,7 +71,7 @@ class Navigator extends Stateful<NavigatorProps, NavigatorState> {
 								<Position all={Unit(7.5)} left={"auto"} right={Unit(5)}>
 									<Button width={Unit(19.5)} height={Unit(19.5)} decoration={{ corner: { all: Unit(2.5) } }}
 										onMouseDown={(I) => {
-											navigator.close(x);
+											navigator.close(index);
 										}}
 										onMouseEnter={(I) => {
 											I.style({ background: { color: Color.SPOTLIGHT } });

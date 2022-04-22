@@ -134,21 +134,21 @@ class Gallery extends Stateful<GalleryProps, GalleryState> {
 															{ key: "Group:", value: this.props.gallery.group },
 															{ key: "Tags:", value: this.props.gallery.tags },
 															{ key: "Date:", value: this.props.gallery.date }
-														].map((fragment, x) => {
+														].map((info, index) => {
 															return (
-																<Offset key={x} type={"margin"} all={Unit(3.5)}>
+																<Offset key={index} type={"margin"} all={Unit(3.5)}>
 																	<section>
 																		<Inline type={"flex"}>
 																			{/* KEY */}
-																			<Text>{[{ value: fragment.key }]}</Text>
+																			<Text>{[{ value: info.key }]}</Text>
 																			{/* VALUE */}
 																			<Offset type={"margin"} all={Unit(2.5)}>
-																				{[fragment.value ?? "N/A"].flat().map((tag, y) => {
+																				{[info.value ?? "N/A"].flat().map((chip, _index) => {
 																					return (
-																						<Offset key={y} type={"padding"} all={Unit(3.0)} left={Unit(6.5)} right={Unit(6.5)}>
+																						<Offset key={_index} type={"padding"} all={Unit(3.0)} left={Unit(6.5)} right={Unit(6.5)}>
 																							<Button size={{ maximum: { width: Unit(69, "%") } }} decoration={{ border: { all: [0.75, "solid", Color.DARK_200] }, corner: { all: Unit(4.5) }, background: { color: Color.DARK_400 } }}
 																								onMouseDown={(I) => {
-																									switch (fragment.key) {
+																									switch (info.key) {
 																										// skip
 																										case "Title:":
 																										case "Date:": {
@@ -156,19 +156,19 @@ class Gallery extends Stateful<GalleryProps, GalleryState> {
 																										}
 																										// modify
 																										case "No.": {
-																											this.props.onTagClick?.(`id:${tag.toString()}`);
+																											this.props.onTagClick?.(`id:${chip}`);
 																											break;
 																										}
 																										case "Tags:": {
-																											this.props.onTagClick?.(tag.toString());
+																											this.props.onTagClick?.(chip.toString());
 																											break;
 																										}
 																										case "Language:": {
-																											this.props.onTagClick?.(`language:${Object.keys(languages).filter((tongue) => languages[tongue as keyof typeof languages] === tag)}`);
+																											this.props.onTagClick?.(`language:${Object.keys(languages).filter((tongue) => languages[tongue as keyof typeof languages] === chip)}`);
 																											break;
 																										}
 																										default: {
-																											this.props.onTagClick?.(fragment.key.replace(/^([A-Za-z]+):$/, ($0, $1) => $1.toLowerCase()) + ":" + tag.toString().replace(/\s/g, "_"));
+																											this.props.onTagClick?.(info.key.replace(/^([A-Za-z]+):$/, ($0, $1) => $1.toLowerCase()) + ":" + chip.toString().replace(/\s/g, "_"));
 																											break;
 																										}
 																									}
@@ -179,7 +179,7 @@ class Gallery extends Stateful<GalleryProps, GalleryState> {
 																								onMouseLeave={(I) => {
 																									I.style(null);
 																								}}
-																								children={<Text>{(tag instanceof Tag ? [{ value: tag.namespace, color: Color[tag.namespace.toUpperCase() as keyof typeof Color] }, { value: ":" }, { value: tag.value }] : [{ value: tag.toString() }]).map((item) => ({ ...item, size: Unit(13.5) }))}</Text>}
+																								children={<Text>{(chip instanceof Tag ? [{ value: chip.namespace, color: Color[chip.namespace.toUpperCase() as keyof typeof Color] }, { value: ":" }, { value: chip.value }] : [{ value: chip.toString() }]).map((item) => ({ ...item, size: Unit(13.5) }))}</Text>}
 																							/>
 																						</Offset>
 																					);
@@ -197,9 +197,9 @@ class Gallery extends Stateful<GalleryProps, GalleryState> {
 									</Decoration>
 								</Position>
 							</section>
-						].map((children, x) => {
+						].map((children, index) => {
 							return (
-								<Transform key={x} translate={[Unit((x - this.state.background) * 100, "%"), Unit(0, "%")]} transition={{ duration: 600 }} children={children}/>
+								<Transform key={index} translate={[Unit((index - this.state.background) * 100, "%"), Unit(0, "%")]} transition={{ duration: 600 }} children={children}/>
 							);
 						})}
 					</Opacity>
@@ -283,9 +283,9 @@ class Gallery extends Stateful<GalleryProps, GalleryState> {
 											}}
 										/>
 									</Offset>
-								].map((children, x) => {
+								].map((children, index) => {
 									return (
-										<Transform key={x} translate={[Unit(0, "%"), Unit((x - this.state.foreground) * 100, "%")]}>
+										<Transform key={index} translate={[Unit(0, "%"), Unit((index - this.state.foreground) * 100, "%")]}>
 											<Center x={true} y={true} children={children}/>
 										</Transform>
 									);

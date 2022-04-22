@@ -40,7 +40,7 @@ class Viewport extends Stateful<ViewportProps, ViewportState> {
 		return {};
 	}
 	protected build() {
-		return (<>{navigator.state.pages.map((page, x) => <section key={x} data-scrollable={"frame"} style={{ display: navigator.state.index === x ? "block" : "none", width: Unit(100, "%"), height: Unit(100, "%"), overflow: "auto" }}>{page.widget}</section>)}</>);
+		return (<>{navigator.state.pages.map((page, index) => <section key={index} data-scrollable={"frame"} style={{ display: navigator.state.index === index ? "block" : "none", width: Unit(100, "%"), height: Unit(100, "%"), overflow: "auto" }}>{page.widget}</section>)}</>);
 	}
 }
 

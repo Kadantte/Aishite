@@ -85,20 +85,29 @@ export async function GalleryInfo(id: number): Promise<_Gallery> {
 	function parse(string: Nullable<string>, isQuery: boolean, toList: true): Array<string>;
 	function parse(string: Nullable<string>, isQuery: boolean, toList: false): string;
 	function parse(string: Nullable<string>, isQuery: boolean, toList: boolean) {
-		const dummy = isQuery && string ? (document.querySelector(string) as HTMLElement).innerText : string;
+		// cache
+		const sigma = isQuery && string ? (document.querySelector(string) as HTMLElement).innerText : string;
 
-		return toList ? (dummy?.split(/\s\s+/).filter((element) => element.length !== 0) ?? ["N/A"]) : (dummy?.replace(/\s\s+/g, "") ?? "N/A");
+		if (!sigma) return toList ? ["N/A"] : "N/A";
+
+		if (toList) {
+			// cache
+			const origin = sigma.split(/\s\s+/).filter((element) => !element.isEmpty());
+
+			return origin.isEmpty() ? ["N/A"] : origin;
+		}
+		return sigma.replace(/\s\s+/g, "");
 	}
 
-	function tags(array: Nullable<Array<string>>) {
+	function tags(array: Nullable<Array<string>>): _Gallery["tags"] {
 		if (!array) return [];
 
-		const dummy = Array<Tag>();
+		const sigma = Array();
 
 		for (const value of Object.values(array)) {
-			dummy.add(new Tag({ namespace: value.includes("♂") ? "male" : value.includes("♀") ? "female" : "tag", value: value.replace(/\s?[♂♀]$/, "").replace(/\s/g, "_") }));
+			sigma.add(value === "N/A" ? value : new Tag({ namespace: value.includes("♂") ? "male" : value.includes("♀") ? "female" : "tag", value: value.replace(/\s?[♂♀]$/, "").replace(/\s/g, "_") }));
 		}
-		return dummy;
+		return sigma;
 	}
 
 	for (const element of document.querySelectorAll("td")) {

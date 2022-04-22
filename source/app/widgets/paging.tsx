@@ -75,11 +75,11 @@ class Paging extends Stateful<PagingProps, PagingState> {
 					}
 					return
 				})()}
-				{Array(this.props.overflow.clamp(0, this.props.length)).fill(null).map((_, x) => {
+				{Array(this.props.overflow.clamp(0, this.props.length)).fill(null).map((_, index) => {
 					// cache
-					const index = this.offset(x);
+					const _index = this.offset(index);
 					// UWU?
-					return this.props.builder?.(x.toString(), index, this.state.index === index, () => this.jump(this.offset(x)));
+					return this.props.builder?.(index.toString(), _index, this.state.index === _index, () => this.jump(_index));
 				}) as never}
 				{(() => {
 					if (this.props.lastShortcut) {
