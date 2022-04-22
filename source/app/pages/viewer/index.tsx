@@ -74,7 +74,7 @@ class Viewer extends Page<ViewerProps, ViewerState> {
 				if (this.visible()) this.setState({ ...this.state, width: this.width() });
 			}),
 			new EventManager(window, "wheel", (event) => {
-				if (this.state.ctrl && this.visible()) this.setState({ ...this.state, clamp: this.state.clamp - (event as WheelEvent).deltaY });
+				if (this.state.ctrl && this.visible()) this.setState({ ...this.state, clamp: (this.state.clamp - (event as WheelEvent).deltaY).clamp(500, Infinity) });
 			}),
 			new EventManager(window, "keyup", (event) => {
 				if ((event as KeyboardEvent).key === "Control" && this.visible()) this.state.ctrl = false;
