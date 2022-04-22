@@ -1,20 +1,54 @@
-/* Array */
+// String
+
+Object.defineProperty(String.prototype, "isEmpty", {
+	value: function () {
+		return (this as string).length === 0;
+	}
+});
+
+// Number
+
+Object.defineProperty(Number.prototype, "clamp", {
+	value: function (minimum: number, maximum: number) {
+		return Math.min(Math.max(this as number, minimum), maximum);
+	}
+});
+
+Object.defineProperty(Number.prototype, "truncate", {
+	value: function () {
+		return Math.trunc(this as number);
+	}
+});
+
+Object.defineProperty(Number.prototype, "absolute", {
+	value: function () {
+		return Math.abs(this as number);
+	}
+});
+
+Object.defineProperty(Set.prototype, "isEmpty", {
+	value: function () {
+		return (this as Set<unknown>).size === 0;
+	}
+})
+
+// Array
 
 Object.defineProperty(Array.prototype, "last", {
 	get: function () {
-		return (this as Array<any>)[(this as Array<any>).length - 1];
+		return (this as Array<unknown>)[(this as Array<unknown>).length - 1];
 	}
 });
 
 Object.defineProperty(Array.prototype, "first", {
 	get: function () {
-		return (this as Array<any>)[0];
+		return (this as Array<unknown>)[0];
 	}
 });
 
 Object.defineProperty(Array.prototype, "isEmpty", {
 	value: function () {
-		return (this as Array<any>).length === 0;
+		return (this as Array<unknown>).length === 0;
 	}
 });
 
@@ -37,7 +71,7 @@ Object.defineProperty(Array.prototype, "take", {
 });
 
 Object.defineProperty(Array.prototype, "add", {
-	value: function <T>(...items: T[]) {
+	value: function <T>(...items: Array<T>) {
 		for (const item of items) {
 			this[this.length] = item;
 		}
@@ -46,7 +80,7 @@ Object.defineProperty(Array.prototype, "add", {
 });
 
 Object.defineProperty(Array.prototype, "remove", {
-	value: function <T>(...items: T[]) {
+	value: function <T>(...items: Array<T>) {
 		for (const item of items) {
 			for (let index = 0; index < this.length; index++) {
 				if (this[index] === item) {
@@ -58,7 +92,7 @@ Object.defineProperty(Array.prototype, "remove", {
 	}
 });
 
-/* ArrayBuffer */
+// ArrayBuffer
 
 Object.defineProperty(ArrayBuffer.prototype, "skip", {
 	value: function (count: number) {
@@ -78,50 +112,24 @@ Object.defineProperty(ArrayBuffer.prototype, "take", {
 	}
 });
 
-/* Number */
+// DataView
 
-Object.defineProperty(Number.prototype, "clamp", {
-	value: function (minimum: number, maximum: number) {
-		return Math.min(Math.max(this as number, minimum), maximum);
-	}
+Object.defineProperty(DataView.prototype, "getUint64", {
+	value: function (offset: number, endian: boolean) {
+		const first = this.getUint32(offset, endian);
+		const second = this.getUint32(offset + 4, endian);
+		
+		return endian ? first + 2 ** 32 * second : 2 ** 32 * first + second;
+	}	
 });
 
-Object.defineProperty(Number.prototype, "truncate", {
-	value: function () {
-		return Math.trunc(this as number);
+// Global
+
+Object.defineProperty(window, "print", {
+	value: function (...args: Array<any>) {
+		console.debug(...args);
 	}
-});
-
-Object.defineProperty(Number.prototype, "absolute", {
-	value: function () {
-		return Math.abs(this as number);
-	}
-});
-
-/* RegExp */
-
-Object.defineProperty(RegExp.prototype, "match", {
-	value: function (string: string) {
-		if (this.test(string)) {
-			return new (class RegExpCapture {
-				protected readonly collection: Nullable<Array<string>>;
-	
-				constructor(args: RegExp) {
-					this.collection = args.exec(string);
-				}
-				public group(index: number) {
-					if (this.collection) {
-						return this.collection[index] ?? null;
-					}
-					return null;
-				}
-			})(this);
-		}
-		return null;
-	}
-});
-
-/* Global */
+})
 
 Object.defineProperty(window, "until", {
 	value: function (condition: () => boolean, duration: number = 100) {

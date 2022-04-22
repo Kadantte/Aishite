@@ -1,9 +1,8 @@
-// common
 import Unit from "@/app/common/unit";
 import { Props, Casacade } from "@/app/common/props";
 import { Stateless, StyleSheet } from "@/app/common/framework";
 
-type GridRepeat = number | "auto" | "auto-fit" | "auto-fill";
+type GridRepeat = (number | "auto" | "auto-fit" | "auto-fill");
 
 function minmax(args: { minimum: Unit, maximum?: Unit }) {
 	return "minmax(" + args.minimum + "," + (args.maximum ?? "auto") + ")";

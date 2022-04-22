@@ -1,13 +1,14 @@
-// common
 import Unit from "@/app/common/unit";
 import Color from "@/app/common/color";
 import { Props } from "@/app/common/props";
 import { Stateful } from "@/app/common/framework";
-// layout
+
+import Tag from "@/models/tag";
+
 import Text from "@/app/layout/text";
 import Center from "@/app/layout/center";
 import Container from "@/app/layout/container";
-// layout/casacade
+
 import Stack from "@/app/layout/casacade/stack";
 import Scroll from "@/app/layout/casacade/scroll";
 import Offset from "@/app/layout/casacade/offset";
@@ -16,20 +17,22 @@ import Opacity from "@/app/layout/casacade/opacity";
 import Position from "@/app/layout/casacade/position";
 import Transform from "@/app/layout/casacade/transform";
 import Decoration from "@/app/layout/casacade/decoration";
-// widgets
+
 import Button from "@/app/widgets/button";
-// icons
+
 import Read from "@/app/icons/read";
 import Delete from "@/app/icons/delete";
 import Bookmark from "@/app/icons/bookmark";
 import Download from "@/app/icons/download";
 import Discovery from "@/app/icons/discovery";
-// states
+
 import navigator from "@/manager/navigator";
-// assets
+
 import languages from "@/assets/languages.json";
-// apis
-import { GalleryTag, GalleryBlock } from "@/apis/hitomi.la/gallery";
+
+import { GalleryInfo } from "@/apis/hitomi.la/gallery";
+
+type _Gallery = Await<ReturnType<typeof GalleryInfo>>;
 
 enum Asuka {
 	TITLE = 0,
@@ -43,7 +46,7 @@ enum Ayanami {
 }
 
 class GalleryProps extends Props<undefined> {
-	public readonly gallery: GalleryBlock;
+	public readonly gallery: _Gallery;
 	public readonly onTagClick?: (callback: string) => void;
 
 	constructor(args: Args<GalleryProps>) {
@@ -125,8 +128,8 @@ class Gallery extends Stateful<GalleryProps, GalleryState> {
 															{ key: "Type:", value: this.props.gallery.type },
 															{ key: "Title:", value: this.props.gallery.title },
 															{ key: "Language:", value: this.props.gallery.language },
-															{ key: "Character:", value: this.props.gallery.character },
-															{ key: "Artist:", value: this.props.gallery.artist },
+															{ key: "Characters:", value: this.props.gallery.characters },
+															{ key: "Artists:", value: this.props.gallery.artists },
 															{ key: "Series:", value: this.props.gallery.series },
 															{ key: "Group:", value: this.props.gallery.group },
 															{ key: "Tags:", value: this.props.gallery.tags },
@@ -140,7 +143,7 @@ class Gallery extends Stateful<GalleryProps, GalleryState> {
 																			<Text>{[{ value: fragment.key }]}</Text>
 																			{/* VALUE */}
 																			<Offset type={"margin"} all={Unit(2.5)}>
-																				{(fragment.value instanceof Array ? fragment.value.isEmpty() ? ["N/A"] : fragment.value : [fragment.value ?? "N/A"]).map((tag, y) => {
+																				{[fragment.value ?? "N/A"].flat().map((tag, y) => {
 																					return (
 																						<Offset key={y} type={"padding"} all={Unit(3.0)} left={Unit(6.5)} right={Unit(6.5)}>
 																							<Button size={{ maximum: { width: Unit(69, "%") } }} decoration={{ border: { all: [0.75, "solid", Color.DARK_200] }, corner: { all: Unit(4.5) }, background: { color: Color.DARK_400 } }}
@@ -153,15 +156,15 @@ class Gallery extends Stateful<GalleryProps, GalleryState> {
 																										}
 																										// modify
 																										case "No.": {
-																											this.props.onTagClick?.("id:" + tag.toString());
+																											this.props.onTagClick?.(`id:${tag.toString()}`);
 																											break;
 																										}
 																										case "Tags:": {
-																											this.props.onTagClick?.((tag as GalleryTag).toString());
+																											this.props.onTagClick?.(tag.toString());
 																											break;
 																										}
 																										case "Language:": {
-																											this.props.onTagClick?.("language:" + Object.keys(languages).filter((tongue) => languages[tongue as keyof typeof languages] === tag));
+																											this.props.onTagClick?.(`language:${Object.keys(languages).filter((tongue) => languages[tongue as keyof typeof languages] === tag)}`);
 																											break;
 																										}
 																										default: {
@@ -176,7 +179,7 @@ class Gallery extends Stateful<GalleryProps, GalleryState> {
 																								onMouseLeave={(I) => {
 																									I.style(null);
 																								}}
-																								children={<Text>{(tag instanceof GalleryTag ? [{ value: tag.type, color: Color[tag.type.toUpperCase() as keyof typeof Color] }, { value: ":" + tag.value }] : [{ value: tag.toString() }]).map((item) => ({ ...item, size: Unit(13.5) }))}</Text>}
+																								children={<Text>{(tag instanceof Tag ? [{ value: tag.namespace, color: Color[tag.namespace.toUpperCase() as keyof typeof Color] }, { value: ":" }, { value: tag.value }] : [{ value: tag.toString() }]).map((item) => ({ ...item, size: Unit(13.5) }))}</Text>}
 																							/>
 																						</Offset>
 																					);

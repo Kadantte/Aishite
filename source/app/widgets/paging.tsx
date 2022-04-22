@@ -1,9 +1,8 @@
-// common
 import { FlipFlop } from "@/app/common/props";
 import { Stateful, EventManager } from "@/app/common/framework";
-// layout
+
 import Row from "@/app/layout/row";
-// layout/casacade
+
 import Spacer from "@/app/layout/casacade/spacer";
 
 class PagingProps extends FlipFlop<undefined> {
@@ -15,7 +14,7 @@ class PagingProps extends FlipFlop<undefined> {
 	// events
 	public readonly onPaging?: (index: number) => boolean;
 	// builder
-	public readonly builder?: (key: string, index: "First" | "Last" | number, indexing: boolean, jump: Method) => Child;
+	public readonly builder?: (key: string, index: number | string, indexing: boolean, jump: Method) => Child;
 
 	constructor(args: Args<PagingProps>) {
 		super(args);
@@ -72,21 +71,21 @@ class Paging extends Stateful<PagingProps, PagingState> {
 				<Spacer><section></section></Spacer>
 				{(() => {
 					if (this.props.firstShortcut) {
-						return this.props.builder?.("\\", "First", false, () => this.jump(0));
+						return this.props.builder?.("F", "First", false, () => this.jump(0));
 					}
 					return
-				})() as never}
-				{new Array(this.props.overflow.clamp(0, this.props.length)).fill(null).map((_, x) => {
+				})()}
+				{Array(this.props.overflow.clamp(0, this.props.length)).fill(null).map((_, x) => {
 					// cache
 					const index = this.offset(x);
 					// UWU?
-					return this.props.builder?.(x.toString(), index, index === this.state.index, () => this.jump(this.offset(x)));
+					return this.props.builder?.(x.toString(), index, this.state.index === index, () => this.jump(this.offset(x)));
 				}) as never}
 				{(() => {
 					if (this.props.lastShortcut) {
-						return this.props.builder?.("\/", "Last", false, () => this.jump(Infinity));
+						return this.props.builder?.("L", "Last", false, () => this.jump(Infinity));
 					}
-				})() as never}
+				})()}
 				<Spacer><section></section></Spacer>
 			</Row>
 		);

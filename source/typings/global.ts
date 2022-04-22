@@ -1,4 +1,3 @@
-// api
 import { API_COMMAND, BridgeEvent } from "@/api"
 
 declare global {
@@ -19,40 +18,40 @@ declare global {
 			trigger(event: BridgeEvent, ...args: Array<any>): void;
 		}
 	}
-	/** @see modules/hitomi/suggest.ts */
-	interface DataView {
-		getUint64(offset: number, endian: boolean): number;
-	}
 	/** @see modules/prototypes.ts */
-	interface Array<T> {
-		last?: T;
-		first?: T;
-		/** Wether the array is empty. */
+	interface String {
 		isEmpty(): boolean;
-		
-		skip(count: number): Array<T>;
-		take(count: number): Array<T>;
-
-		add(...args: T[]): Array<T>;
-		remove(...args: T[]): Array<T>;
-	}
-	interface ArrayBuffer {
-		skip(count: number): ArrayBuffer;
-		take(count: number): ArrayBuffer;
 	}
 	interface Number {
 		clamp(minimum: number, maximum: number): number;
 		truncate(): number;
 		absolute(): number;
 	}
-	interface RegExp {
-		match(string: string): Nullable<RegExpCapture>;
+	interface Set<T> {
+		isEmpty(): boolean;
 	}
-	interface RegExpCapture {
-		group(index: number): Nullable<string>;
+	interface Array<T> {
+		last?: T;
+		first?: T;
+
+		isEmpty(): boolean;
+		
+		skip(count: number): Array<T>;
+		take(count: number): Array<T>;
+
+		add(...args: Array<T>): Array<T>;
+		remove(...args: Array<T>): Array<T>;
 	}
+	interface ArrayBuffer {
+		skip(count: number): ArrayBuffer;
+		take(count: number): ArrayBuffer;
+	}
+	interface DataView {
+		getUint64(offset: number, endian: boolean): number;
+	}
+	function print(...args: Array<any>): void;
 	function until(condition: () => boolean, duration?: number): Promise<void>;
-	function inject(before: (...args: any[]) => any, after: (...args: any[]) => any): (...args: any[]) => any;
+	function inject(before: (...args: Array<any>) => any, after: (...args: Array<any>) => any): (...args: Array<any>) => any;
 	function random(minimum: number, maximum: number): number;
 	function calculate(expression: string): string;
 }

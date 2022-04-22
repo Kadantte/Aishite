@@ -1,7 +1,6 @@
-// app
 import "@/prototypes";
 import "@/decorators";
-// api
+
 import { BridgeEvent } from "@/api";
 
 Object.defineProperty(window, "bridge", {
@@ -16,5 +15,5 @@ Object.defineProperty(window, "bridge", {
 });
 
 Object.defineProperty(window, "__dirname", {
-	value: __dirname.split(/app\.asar/).first
+	value: __dirname.split("app.asar").first
 });

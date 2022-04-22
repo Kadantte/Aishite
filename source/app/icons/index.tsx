@@ -1,4 +1,3 @@
-// common
 import Unit from "@/app/common/unit";
 import Size from "@/app/common/size";
 import Color from "@/app/common/color";
@@ -75,7 +74,6 @@ abstract class Icon extends Stateful<IconProps, IconState> {
 			}
 		};
 	}
-	protected abstract build(): JSX.Element | Element;
 	/** Override current style. */
 	public style(color: IconState["color"], callback?: Method) {
 		this.setState({ ...this.state, color: color }, callback);

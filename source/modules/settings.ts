@@ -1,8 +1,7 @@
-// assets
 import template from "@/assets/config.json";
-// modules
+
 import storage from "@/modules/storage";
-// states
+
 import { StateHandler } from "@/manager";
 
 class Settings extends StateHandler<Config> {
@@ -11,12 +10,12 @@ class Settings extends StateHandler<Config> {
 	}
 	public set state(state: Args<Config>) {
 		super.state = new Config({ ...state });
-		// update config.json
-		storage.state["config"].state = super.state;
+		// update
+		storage.change("config", super.state);
 	}
 	protected create() {
-		// update config.json
-		storage.state["config"].state = super.state;
+		// update
+		storage.change("config", super.state);
 	}
 }
 
@@ -43,10 +42,10 @@ class Config {
 
 const singleton = new Settings({
 	state: new Config({
-		version: (storage.state["config"].state as typeof template).version ?? template.version,
-		general: (storage.state["config"].state as typeof template).general ?? template.general,
-		download: (storage.state["config"].state as typeof template).download ?? template.download,
-		navigator: (storage.state["config"].state as typeof template).navigator ?? template.navigator
+		version: (storage.state.get("config")?.state as typeof template).version ?? template.version,
+		general: (storage.state.get("config")?.state as typeof template).general ?? template.general,
+		download: (storage.state.get("config")?.state as typeof template).download ?? template.download,
+		navigator: (storage.state.get("config")?.state as typeof template).navigator ?? template.navigator
 	})
 });
 

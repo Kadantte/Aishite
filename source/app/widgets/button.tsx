@@ -1,6 +1,5 @@
-// common
 import { Stateless } from "@/app/common/framework";
-// layout
+
 import Center from "@/app/layout/center";
 import Container from "@/app/layout/container";
 

@@ -1,4 +1,3 @@
-// common
 import Style from "@/app/common/style";
 
 class Background extends Style {

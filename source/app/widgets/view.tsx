@@ -1,8 +1,7 @@
-// common
 import Unit from "@/app/common/unit";
 import { Props } from "@/app/common/props";
 import { Stateful } from "@/app/common/framework";
-// states
+
 import navigator from "@/manager/navigator";
 
 class ViewportProps extends Props<undefined> {

@@ -1,4 +1,3 @@
-// common
 import Unit from "@/app/common/unit";
 import { Casacade } from "@/app/common/props";
 import { StyleSheet } from "@/app/common/framework";

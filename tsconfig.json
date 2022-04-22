@@ -25,6 +25,7 @@
 		"source/typings/loader.ts",
 		"source/typings/method.ts",
 		"source/typings/nullable.ts",
+		"source/typings/reference.ts",
 		"source/typings/properties.ts",
 		"source/typings/stylesheet.ts"
 	],

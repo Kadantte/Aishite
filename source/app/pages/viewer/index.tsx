@@ -1,19 +1,21 @@
-// TOP-LEVEL
-import PageView from "@/app/pages";
-// common
+import Page from "@/app/pages";
+
 import Unit from "@/app/common/unit";
 import { Props } from "@/app/common/props";
 import { EventManager } from "@/app/common/framework";
-// layout
+
 import Image from "@/app/layout/image";
-// layout/casacade
+
 import Offset from "@/app/layout/casacade/offset";
-// modules
+
 import discord from "@/modules/discord";
-// states
+
 import navigator from "@/manager/navigator";
-// apis
-import { GalleryScript } from "@/apis/hitomi.la/gallery";
+
+import { GalleryInfo } from "@/apis/hitomi.la/gallery";
+
+type _Gallery = Await<ReturnType<typeof GalleryInfo>>;
+type _GalleryFile = Await<ReturnType<_Gallery["getFiles"]>>;
 
 class ViewerProps extends Props<undefined> {
 	public gallery: number;
@@ -28,16 +30,18 @@ class ViewerProps extends Props<undefined> {
 class ViewerState {
 	public init: boolean;
 	public width: number;
-	public gallery?: GalleryScript;
+	public title: string;
+	public files: _GalleryFile;
 
 	constructor(args: Args<ViewerState>) {
 		this.init = args.init;
 		this.width = args.width;
-		this.gallery = args.gallery;
+		this.title = args.title;
+		this.files = args.files;
 	}
 }
 
-class Viewer extends PageView<ViewerProps, ViewerState> {
+class Viewer extends Page<ViewerProps, ViewerState> {
 	protected create() {
 		// TODO: use this.binds instead
 		navigator.handle((state) => {
@@ -56,7 +60,7 @@ class Viewer extends PageView<ViewerProps, ViewerState> {
 				}
 			}
 		});
-		return new ViewerState({ init: false, width: NaN, gallery: undefined });
+		return new ViewerState({ init: false, width: NaN, title: "Loading...", files: [] });
 	}
 	protected events() {
 		return [
@@ -77,21 +81,17 @@ class Viewer extends PageView<ViewerProps, ViewerState> {
 	protected build() {
 		return (
 			<section id={"viewer"} data-scrollable={"frame"}>
-				{(() => {
-					if (this.state.gallery) {
-						return (
-							<Offset type={"margin"} all={"auto"}>
-								{this.state.gallery.files.map((file, x) => <Image key={x} source={file.url} width={Unit(1000)} height={file.height / (file.width / this.state.width.clamp(0, 1000))} size={{ minimum: { width: Unit(500) }, maximum: { width: Unit(100, "%") } }}/>)}
-							</Offset>
-						);
-					}
-				})()}
+				<Offset type={"margin"} all={"auto"}>
+					{this.state.files.map((file, index) => <Image key={index} source={file.url} width={Unit(1000)} height={file.height / (file.width / this.state.width.clamp(0, 1000))} size={{ minimum: { width: Unit(500) }, maximum: { width: Unit(100, "%") } }}/>)}
+				</Offset>
 			</section>
 		);
 	}
 	protected macro_0(callback?: Method) {
-		GalleryScript(this.props.gallery).then((gallery) => {
-			this.setState({ ...this.state, init: true, width: this.node()?.offsetWidth ?? this.state.width, gallery: gallery }, () => callback?.());
+		GalleryInfo(this.props.gallery).then((gallery) => {
+			gallery.getFiles().then((files) => {
+				this.setState({ ...this.state, init: true, width: this.node()?.offsetWidth ?? this.state.width, title: gallery.title, files: files }, () => callback?.());
+			})
 		});
 	}
 	protected discord(state: boolean) {
@@ -100,7 +100,7 @@ class Viewer extends PageView<ViewerProps, ViewerState> {
 			case false: {
 				discord.update({
 					state: `Reading (${this.props.gallery})`,
-					details: this.state.gallery ? this.state.gallery.title : "Loading...",
+					details: this.state.title,
 					partyMax: undefined,
 					partySize: undefined
 				});

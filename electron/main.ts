@@ -1,12 +1,13 @@
-// electron
 import { app, session, Menu, BrowserWindow, ipcMain } from "electron";
-// node.js
+
 import node_fs from "fs";
 import node_path from "path";
-// api
+
 import { API_COMMAND, BridgeEvent } from "@/api";
 
 let window: Nullable<BrowserWindow> = null;
+
+// app.disableHardwareAcceleration();
 
 const instance = app.requestSingleInstanceLock();
 

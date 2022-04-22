@@ -1,9 +1,8 @@
-// common
 import Unit from "@/app/common/unit";
 import { Casacade } from "@/app/common/props";
 import { StyleSheet } from "@/app/common/framework";
 
-type OffsetType = "margin" | "padding";
+type OffsetType = ("margin" | "padding");
 
 class OffsetProps extends Casacade {
 	public readonly type: OffsetType;

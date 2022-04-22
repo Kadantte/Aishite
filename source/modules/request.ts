@@ -1,4 +1,4 @@
-type RequestType = "GET" | "PUT" | "POST" | "DELETE" | "HEAD";
+type RequestType = ("GET" | "PUT" | "POST" | "DELETE" | "HEAD");
 
 type RequestHeaders = Record<string, string>;
 
@@ -43,43 +43,45 @@ class RequestResponse<T extends XMLHttpRequestResponseType> {
 /** @see https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/Using_XMLHttpRequest */
 class Request {
 	public async send(args: RequestOptions) {
-		return new Promise<RequestResponse<any>>((resolve, reject) => {
-			const http = {
-				xhr: new XMLHttpRequest(),
-				headers: <Record<string, string>>{}
-			};
+		return new Promise((resolve, reject) => {
+			const xhr = new XMLHttpRequest();
+			const headers: RequestHeaders = {};
+	
 			// ready
-			http.xhr.open(args.request.method, args.request.url.replace(/\s/g, "%20"), true);
+			xhr.open(args.request.method, args.request.url.replace(/\s/g, "%20"), true);
 			// set data type
-			http.xhr.responseType = args.request.type;
-
-			for (const key of Object.keys(args.partial.headers ?? {})) {
-				http.xhr.setRequestHeader(key, args.partial.headers![key]);
+			xhr.responseType = args.request.type;
+	
+			args.partial.headers ??= {};
+	
+			for (const key of Object.keys(args.partial.headers)) {
+				xhr.setRequestHeader(key, args.partial.headers[key]);
 			}
-			http.xhr.addEventListener("readystatechange", () => {
-				if (http.xhr.readyState === http.xhr.HEADERS_RECEIVED) {
+
+			xhr.addEventListener("readystatechange", () => {
+				if (xhr.readyState === xhr.HEADERS_RECEIVED) {
 					/** @see https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/getAllResponseHeaders */
-					for (const header of http.xhr.getAllResponseHeaders().trim().split(/[\r\n]+/)) {
+					for (const header of xhr.getAllResponseHeaders().trim().split(/[\r\n]+/)) {
 						// 0: key
 						// 1: value
 						const [key, value] = header.split(/:\s/) as [string, string];
-
-						http.headers[key] = value;
+	
+						headers[key] = value;
 					}
 					// redirects
-					if (http.headers["location"] && (args.partial.redirects ?? 10) > (args.private.redirects ?? 0)) {
+					if (headers["location"] && (args.partial.redirects ?? 10) > (args.private.redirects ?? 0)) {
 						return this.send(
 							new RequestOptions({
 								...args,
-								request: { ...args.request, url: http.headers["location"] },
+								request: { ...args.request, url: headers["location"] },
 								private: { ...args.private, redirects: (args.private.redirects ?? 0) + 1 }
 							})
 						);
 					}
 				}
 			});
-			http.xhr.addEventListener("loadend", () => {
-				switch (http.xhr.status) {
+			xhr.addEventListener("loadend", () => {
+				switch (xhr.status) {
 					case 404: {
 						// retry
 						if ((args.partial.retry ?? 0) > (args.private.retry ?? 0)) {
@@ -91,31 +93,29 @@ class Request {
 								})
 							);
 						}
-						// continue
-					}
-					default: {
-						return resolve(new RequestResponse({
-							body: http.xhr.response,
-							status: {
-								code: http.xhr.status,
-								message: http.xhr.statusText
-							},
-							headers: http.headers
-						}));
+						break;
 					}
 				}
+				return resolve(new RequestResponse({
+					body: xhr.response,
+					status: {
+						code: xhr.status,
+						message: xhr.statusText
+					},
+					headers: headers
+				}));
 			});
-			http.xhr.addEventListener("abort", (event) => {
+			xhr.addEventListener("abort", (event) => {
 				return reject(event);
 			});
-			http.xhr.addEventListener("error", (event) => {
+			xhr.addEventListener("error", (event) => {
 				return reject(event);
 			});
-			http.xhr.addEventListener("timeout", (event) => {
+			xhr.addEventListener("timeout", (event) => {
 				return reject(event);
 			});
 			// fire
-			http.xhr.send();
+			xhr.send();
 		});
 	}
 	public GET(url: string, type: "arraybuffer", options?: RequestOptions["partial"]): Promise<RequestResponse<"arraybuffer">>

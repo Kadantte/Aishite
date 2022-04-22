@@ -1,4 +1,3 @@
-// TOP-LEVEL
 import Icon from "@/app/icons";
 
 class Close extends Icon {

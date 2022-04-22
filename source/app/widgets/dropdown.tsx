@@ -1,30 +1,32 @@
-// common
 import Unit from "@/app/common/unit";
 import Color from "@/app/common/color";
 import { FlipFlop } from "@/app/common/props";
 import { Stateful } from "@/app/common/framework";
-// layout
+
+import Pair from "@/models/pair";
+
 import Box from "@/app/layout/box";
 import Row from "@/app/layout/row";
 import Text from "@/app/layout/text";
 import Form from "@/app/layout/form";
 import Center from "@/app/layout/center";
 import Container from "@/app/layout/container";
-// layout/casacade
+
 import Scroll from "@/app/layout/casacade/scroll";
 import Offset from "@/app/layout/casacade/offset";
 import Priority from "@/app/layout/casacade/priority";
 import Position from "@/app/layout/casacade/position";
-// icons
+
 import Close from "@/app/icons/close";
 
 class DropdownProps extends FlipFlop<undefined> {
 	public readonly index?: number;
-	public readonly options: Array<[name: string, addition: string]>;
+	public readonly options: Array<Pair<string, string>>;
 	public readonly value?: string;
 	public readonly fallback?: string;
 	public readonly highlight?: string;
-	public readonly controller?: React.RefObject<HTMLInputElement>;
+	public readonly controller?: Reference<HTMLInputElement>;
+	// events
 	public readonly onReset?: () => void;
 	public readonly onIndex?: (callback: number) => void;
 	public readonly onSelect?: (callback: string) => void;
@@ -93,10 +95,12 @@ class Dropdown extends Stateful<DropdownProps, DropdownState> {
 									this.setState({ ...this.state, focused: true });
 								}}
 								onSubmit={(text) => {
-									if (isNaN(this.state.index) || this.props.options.isEmpty()) {
+									if (isNaN(this.state.index)) {
+										this.props.onSubmit?.(text);
+									} else if (this.props.options.isEmpty()) {
 										this.props.onSubmit?.(text);
 									} else {
-										this.props.onSelect?.(this.props.options[this.state.index][0]);
+										this.props.onSelect?.(this.props.options[this.state.index].first);
 										// reset index
 										this.setState({ ...this.state, index: NaN });
 									}
@@ -147,8 +151,7 @@ class Dropdown extends Stateful<DropdownProps, DropdownState> {
 									return (
 										<Container id={x.toString()} key={x} height={Unit(40)} decoration={{ background: { color: this.state.index === x ? Color.DARK_500 : undefined } }}
 											onMouseDown={() => {
-												// reset index
-												this.setState({ ...this.state, index: NaN }, () => this.props.onSelect?.(option[0]));
+												this.setState({ ...this.state, index: NaN }, () => this.props.onSelect?.(option.first));
 											}}
 											onMouseEnter={(I) => {
 												this.setState({ ...this.state, index: x }, () => this.props.onIndex?.(x));
@@ -159,10 +162,12 @@ class Dropdown extends Stateful<DropdownProps, DropdownState> {
 											<Center x={false} y={true}>
 												<Offset type={"margin"} left={Unit(10)} right={Unit(10)}>
 													{/* @ts-ignore */}
-													<Text>{option[0].split(this.props.highlight!).map((value, index, array) => array.length > index + 1 ? value.length === 0 ? { value: this.props.highlight, color: Color.SPOTLIGHT } : [{ value: value }, { value: this.props.highlight, color: Color.SPOTLIGHT }] : { value: value }).flat().map((text) => ({ ...text, size: Unit(14.0) }))}</Text>
-													{/* description */}
+													<Text>
+														{option.first.split(this.props.highlight!).map((value, index, array) => array.length > index + 1 ? value.isEmpty() ? { value: this.props.highlight, color: Color.SPOTLIGHT } : [{ value: value }, { value: this.props.highlight, color: Color.SPOTLIGHT }] : { value: value }).flat().map((text) => ({ ...text, size: Unit(14.0) }))}
+													</Text>
+													{/* SECOND */}
 													<Position right={Unit(10)}>
-														<Text>{[{ value: option[1], size: Unit(14.0), color: Color.DARK_200 }]}</Text>
+														<Text>{[{ value: option.second, size: Unit(14.0), color: Color.DARK_200 }]}</Text>
 													</Position>
 												</Offset>
 											</Center>

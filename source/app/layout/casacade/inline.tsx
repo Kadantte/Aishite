@@ -1,8 +1,7 @@
-// common
 import { Casacade } from "@/app/common/props";
 import { StyleSheet } from "@/app/common/framework";
 
-type InlineType = "flex" | "block";
+type InlineType = ("flex" | "block");
 
 class InlineProps extends Casacade {
 	public readonly type: InlineType;

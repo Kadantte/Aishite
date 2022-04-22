@@ -1,8 +1,7 @@
-// common
 import Unit from "@/app/common/unit";
 import Style from "@/app/common/style";
 
-type SizeType = "minimum" | "maximum";
+type SizeType = ("minimum" | "maximum");
 
 class Size extends Style {
 	public readonly type?: SizeType;

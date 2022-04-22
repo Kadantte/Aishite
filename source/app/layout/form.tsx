@@ -1,4 +1,3 @@
-// common
 import Unit from "@/app/common/unit";
 import Size from "@/app/common/size";
 import { FlipFlop } from "@/app/common/props";
@@ -7,7 +6,7 @@ import { Stateful, EventManager } from "@/app/common/framework";
 class FormProps extends FlipFlop<undefined> {
 	public readonly value?: string;
 	public readonly fallback?: string;
-	public readonly controller?: React.RefObject<HTMLInputElement>;
+	public readonly controller?: Reference<HTMLInputElement>;
 	// events
 	public readonly onBlur?: () => void;
 	public readonly onFocus?: () => void;

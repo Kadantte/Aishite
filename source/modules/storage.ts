@@ -1,9 +1,8 @@
-// nodejs
-import * as node_fs from "fs";
-import * as node_path from "path";
-// states
+import node_fs from "fs";
+import node_path from "path";
+
 import { MappedStateHandler } from "@/manager";
-// api
+
 import { BridgeEvent } from "@/api";
 
 class StorageState {
@@ -16,7 +15,7 @@ class StorageState {
 	}
 }
 
-class Storage extends MappedStateHandler<Record<string, StorageState>> {
+class Storage extends MappedStateHandler<string, StorageState> {
 	public get state() {
 		return super.state;
 	}
@@ -29,35 +28,45 @@ class Storage extends MappedStateHandler<Record<string, StorageState>> {
 		throw new Error("Bulk define storage may cause unwanted side effects");
 	}
 	protected create() {
-		for (const key of Object.keys(super.state)) {
-			this.register(key, super.state[key].path, super.state[key].state);
+		for (const [key, value] of super.state.entries()) {
+			this.modify(key, this.import(value.path, value.state), (unsafe) => this.export(key));
 		}
 		// every 5 mins
 		setInterval(() => {
-			for (const key of Object.keys(this.state)) {
-				// export file
+			for (const [key, value] of super.state.entries()) {
 				this.export(key);
 			}
 		}, 1000 * 60 * 5);
 		// before close
 		window.bridge.handle(BridgeEvent.CLOSE, () => {
-			for (const key of Object.keys(this.state)) {
-				// export file
+			for (const [key, value] of super.state.entries()) {
 				this.export(key);
 			}
 			window.API.close("storage");
 		});
 	}
-	public register(key: keyof Storage["_state"], path: StorageState["path"], fallback: StorageState["state"]) {
-		this.modify(key, this.import(path, fallback), (unsafe) => {
-			// export file
-			this.export(key);
-		});
+	public change(key: string, value: StorageState["state"]) {
+		if (this.state.has(key)) {
+			this.modify(key, new StorageState({ path: this.state.get(key)!.path, state: value }));
+		} else {
+			throw Error();
+		}
 	}
-	public unregister(key: keyof Storage["_state"]) {
-		node_fs.unlink(this.state[key].path, () => {
-			this.modify(key, null);
-		});
+	public register(key: string, path: StorageState["path"], fallback: StorageState["state"]) {
+		if (this.state.has(key)) {
+			throw Error();
+		} else {
+			this.modify(key, this.import(path, fallback), (unsafe) => this.export(key));
+		}
+	}
+	public unregister(key: string) {
+		if (this.state.has(key)) {
+			this.modify(key, null, () => {
+				node_fs.unlinkSync(this.state.get(key)!.path);
+			});
+		} else {
+			throw Error();
+		}
 	}
 	private import(path: StorageState["path"], fallback: StorageState["state"] = {}) {
 		try {
@@ -66,14 +75,18 @@ class Storage extends MappedStateHandler<Record<string, StorageState>> {
 			return new StorageState({ path: path, state: fallback });
 		}
 	}
-	private export(key: keyof Storage["_state"]) {
-		node_fs.mkdirSync(node_path.dirname(this.state[key].path), { recursive: true });
-		node_fs.writeFileSync(this.state[key].path, JSON.stringify(this.state[key].state));
+	private export(key: string) {
+		if (this.state.has(key)) {
+			node_fs.mkdirSync(node_path.dirname(this.state.get(key)!.path), { recursive: true });
+			node_fs.writeFileSync(this.state.get(key)!.path, JSON.stringify(this.state.get(key)!.state));
+		} else {
+			throw Error();
+		}
 	}
 }
 
 const singleton = new Storage({
-	state: {
+	state: new Map(Object.entries({
 		"config": new StorageState({
 			path: node_path.resolve(__dirname, "..", "config.json"),
 			state: {}
@@ -82,7 +95,7 @@ const singleton = new Storage({
 			path: node_path.resolve(__dirname, "..", "bookmark.json"),
 			state: []
 		})
-	}
+	}))
 });
 
 export default singleton;

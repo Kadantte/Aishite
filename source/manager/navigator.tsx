@@ -1,12 +1,11 @@
-// pages
 import Viewer from "@/app/pages/viewer";
 import Browser from "@/app/pages/browser";
 import Fallback from "@/app/pages/fallback";
-// modules
+
 import settings from "@/modules/settings";
-// states
+
 import { StateHandler } from "@/manager";
-// API
+
 import { BridgeEvent } from "@/api";
 
 class Navigator extends StateHandler<NavigatorState> {

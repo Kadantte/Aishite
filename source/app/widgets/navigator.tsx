@@ -1,22 +1,21 @@
-// common
 import Unit from "@/app/common/unit";
 import Color from "@/app/common/color";
 import { Props } from "@/app/common/props";
 import { Stateful } from "@/app/common/framework";
-// layout
+
 import Row from "@/app/layout/row";
 import Text from "@/app/layout/text";
 import Container from "@/app/layout/container";
-// layout/casacade
+
 import Offset from "@/app/layout/casacade/offset";
 import Spacer from "@/app/layout/casacade/spacer";
 import Position from "@/app/layout/casacade/position";
-// widgets
+
 import Button from "@/app/widgets/button";
-// assets
+
 import Plus from "@/app/icons/plus";
 import Close from "@/app/icons/close";
-// states
+
 import navigator from "@/manager/navigator";
 
 class NavigatorProps extends Props<undefined> {

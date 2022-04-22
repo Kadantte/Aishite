@@ -3,7 +3,8 @@ function final() {
 	return function (target: any, key: string, descriptor: PropertyDescriptor) {
 		descriptor.writable = false;
 		descriptor.configurable = false;
-		console.debug(`The method <${target.constructor.name}> ${key} is now sealed.`);
+		
+		print(`The method <${target.constructor.name}> ${key} is now sealed.`);
 	};
 }
 // property
@@ -24,7 +25,7 @@ function required(target: any, key: string) {
 // method
 function deprecated() {
 	return function (target: any, key: string, descriptor: PropertyDescriptor) {
-		descriptor.value = inject(descriptor.value, () => console.info(`The method <${target.constructor.name}> ${key} is deprecated.`));
+		descriptor.value = inject(descriptor.value, () => print(`The method <${target.constructor.name}> ${key} is deprecated.`));
 	};
 }
 

@@ -1,19 +1,18 @@
-// electron
 import { ipcRenderer } from "electron";
-// framework
-import ReactDOM from "react-dom";
-// components
+
+import ReactDOM from "react-dom/client";
+
 import App from "@/app";
-// modules
+
 import settings from "@/modules/settings";
-// api
+
 import { API_COMMAND, BridgeEvent } from "@/api";
 
-const certification: Array<string> = [];
+const certification = new Set<string>();
 
-function call(command: API_COMMAND, ...args: any[]) {
+function call(command: API_COMMAND, ...args: Array<any>) {
 	return ipcRenderer.invoke("API", command, ...args).then((response) => {
-		console.debug({
+		print({
 			command: command,
 			args: args,
 			response: response	
@@ -21,8 +20,8 @@ function call(command: API_COMMAND, ...args: any[]) {
 		return response;
 	});
 }
-// @ts-ignore
-window.API = {
+
+Object.defineProperty(window, "API", {
 	//
 	// 1. Entry point
 	//
@@ -41,41 +40,43 @@ window.API = {
 	//
 	// calls [API_COMMAND] to truly close [BrowserWindow]
 	//
-	[API_COMMAND.CLOSE](validate: string) {
-		if (!certification.includes(validate)) {
-			certification.add(validate);
-		} else {
-			throw new Error();
-		}
-		for (const validator of settings.state.general.dependency) {
-			if (!certification.includes(validator)) {
-				return window.bridge.trigger(BridgeEvent.CLOSE);
+	value: {
+		[API_COMMAND.CLOSE](validate: string) {
+			if (certification.has(validate)) {
+				throw Error();
+			} else {
+				certification.add(validate);
 			}
+			for (const vertify of settings.state.general.dependency) {
+				if (!certification.has(vertify)) {
+					return window.bridge.trigger(BridgeEvent.CLOSE);
+				}
+			}
+			return call(API_COMMAND.CLOSE);
+		},
+		[API_COMMAND.FOCUS]() {
+			return call(API_COMMAND.FOCUS);
+		},
+		[API_COMMAND.BLUR]() {
+			return call(API_COMMAND.BLUR);
+		},
+		[API_COMMAND.MINIMIZE]() {
+			return call(API_COMMAND.MINIMIZE);
+		},
+		[API_COMMAND.MAXIMIZE]() {
+			return call(API_COMMAND.MAXIMIZE);
+		},
+		[API_COMMAND.UNMAXIMIZE]() {
+			return call(API_COMMAND.UNMAXIMIZE);
+		},
+		[API_COMMAND.FULLSCREEN]() {
+			return call(API_COMMAND.FULLSCREEN);
+		},
+		[API_COMMAND.DEVELOPMENT]() {
+			return call(API_COMMAND.DEVELOPMENT);
 		}
-		return call(API_COMMAND.CLOSE);
-	},
-	[API_COMMAND.FOCUS]() {
-		return call(API_COMMAND.FOCUS);
-	},
-	[API_COMMAND.BLUR]() {
-		return call(API_COMMAND.BLUR);
-	},
-	[API_COMMAND.MINIMIZE]() {
-		return call(API_COMMAND.MINIMIZE);
-	},
-	[API_COMMAND.MAXIMIZE]() {
-		return call(API_COMMAND.MAXIMIZE);
-	},
-	[API_COMMAND.UNMAXIMIZE]() {
-		return call(API_COMMAND.UNMAXIMIZE);
-	},
-	[API_COMMAND.FULLSCREEN]() {
-		return call(API_COMMAND.FULLSCREEN);
-	},
-	[API_COMMAND.DEVELOPMENT]() {
-		return call(API_COMMAND.DEVELOPMENT);
 	}
-}
+});
 ipcRenderer.on(BridgeEvent.CLOSE, (event, args) => {
 	window.API.close("renderer");
 });
@@ -104,4 +105,4 @@ ipcRenderer.on(BridgeEvent.LEAVE_FULL_SCREEN, (event, args) => {
 	window.bridge.trigger(BridgeEvent.LEAVE_FULL_SCREEN, args);
 });
 
-ReactDOM.render(<App></App>, document.getElementById("app"));
+ReactDOM.createRoot(document.getElementById("app")!).render(<App></App>);

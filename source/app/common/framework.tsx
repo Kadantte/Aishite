@@ -1,19 +1,16 @@
-// nodejs
-import { EventEmitter } from "events";
-// framework
+import node_events from "events";
+
 import React from "react";
 import ReactDOM from "react-dom";
-// common
+
 import Size from "@/app/common/size";
 import { Props, Casacade } from "@/app/common/props";
 
-type Widget = JSX.Element | Element;
-
-export class EventManager<T extends (EventEmitter & any) | EventTarget | (Stateful<Props<any>, {}>["handler"])> {
+export class EventManager<T extends (node_events.EventEmitter & any) | EventTarget | (Stateful<Props<any>, {}>["handler"])> {
 	constructor(
 		public readonly self: T,
-		public readonly event: T extends EventEmitter ? string : T extends { addEventListener(type: infer K, listener: (...args: Array<unknown>) => any, options?: unknown): void } ? K : keyof T,
-		public readonly handler: T extends EventEmitter ? Method : T extends EventTarget ? Method : T[keyof T]
+		public readonly event: T extends node_events.EventEmitter ? string : T extends { addEventListener(type: infer K, listener: (...args: Array<unknown>) => any, options?: unknown): void } ? K : keyof T,
+		public readonly handler: T extends node_events.EventEmitter ? Method : T extends EventTarget ? Method : T[keyof T]
 	) {
 		// TODO: none
 	}
@@ -30,7 +27,7 @@ export abstract class Stateful<P extends Props<any>, S> extends React.Component<
 		"SHOULD_UPDATE": (props: P, state: S, context: any) => boolean;
 	};
 	/** Cache listener functions to automatically added / removed upon (mount) state change. */
-	private readonly bindings: Array<EventManager<(EventEmitter & any) | EventTarget | (Stateful<Props<any>, {}>["handler"])>>;
+	private readonly bindings: Array<EventManager<(node_events.EventEmitter & any) | EventTarget | (Stateful<Props<any>, {}>["handler"])>>;
 
 	constructor(public props: P) {
 		super(props);
@@ -83,7 +80,7 @@ export abstract class Stateful<P extends Props<any>, S> extends React.Component<
 	}
 	private attach() {
 		for (const cache of this.bindings) {
-			if (cache.self instanceof EventEmitter) {
+			if (cache.self instanceof node_events.EventEmitter) {
 				cache.self.addListener(cache.event as string, cache.handler);
 			} else if (cache.self instanceof EventTarget) {
 				cache.self.addEventListener(cache.event as string, cache.handler as Method);
@@ -94,7 +91,7 @@ export abstract class Stateful<P extends Props<any>, S> extends React.Component<
 	}
 	private unattach() {
 		for (const cache of this.bindings) {
-			if (cache.self instanceof EventEmitter) {
+			if (cache.self instanceof node_events.EventEmitter) {
 				cache.self.removeListener(cache.event as string, cache.handler);
 			} else if (cache.self instanceof EventTarget) {
 				cache.self.removeEventListener(cache.event as string, cache.handler as Method);
@@ -120,7 +117,7 @@ export abstract class Stateful<P extends Props<any>, S> extends React.Component<
 		return {};
 	}
 	/** This is a wrapper to inheirt `this.props.style` automation. */
-	protected abstract build(): Widget;
+	protected abstract build(): Child;
 	/** Consider using `this.build` instead. */
 	@final()
 	public render() {
@@ -129,7 +126,7 @@ export abstract class Stateful<P extends Props<any>, S> extends React.Component<
 	/** Built-in macro to retrieve self `HTMLElement`. */
 	public node<T extends Element = HTMLElement>() {
 		try {
-			return ReactDOM.findDOMNode(this) as Nullable<T>;
+			return ReactDOM.findDOMNode(this as React.Component<P, S>) as Nullable<T>;
 		} catch {
 			return null;
 		}
@@ -154,7 +151,7 @@ export abstract class Stateless<P extends Props<any>> extends React.PureComponen
 		return {};
 	}
 	/** This is a wrapper to inheirt `this.props.style` automation. */
-	protected abstract build(): Widget;
+	protected abstract build(): Child;
 	/** Consider using `this.build` instead. */
 	@final()
 	public render() {
@@ -163,7 +160,7 @@ export abstract class Stateless<P extends Props<any>> extends React.PureComponen
 	/** Built-in macro to retrieve self `HTMLElement`. */
 	public node<T extends Element = HTMLElement>() {
 		try {
-			return ReactDOM.findDOMNode(this) as Nullable<T>;
+			return ReactDOM.findDOMNode(this as React.PureComponent<P, {}>) as Nullable<T>;
 		} catch {
 			return null;
 		}

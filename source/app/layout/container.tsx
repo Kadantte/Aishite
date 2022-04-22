@@ -1,8 +1,7 @@
-// common
 import { Props } from "@/app/common/props";
 import { Stateful } from "@/app/common/framework";
 import Transition from "@/app/common/transition";
-// layout/casacade
+
 import Draggable from "@/app/layout/casacade/draggable";
 import Decoration from "@/app/layout/casacade/decoration";
 

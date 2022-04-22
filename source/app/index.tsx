@@ -1,26 +1,25 @@
-// common
 import Unit from "@/app/common/unit";
 import Color from "@/app/common/color";
 import { Props } from "@/app/common/props";
 import { Stateful, EventManager } from "@/app/common/framework";
-// layout
+
 import Row from "@/app/layout/row";
 import Column from "@/app/layout/column";
-// layout/casacade
+
 import Spacer from "@/app/layout/casacade/spacer";
 import Draggable from "@/app/layout/casacade/draggable";
-// widgets
+
 import Button from "@/app/widgets/button";
 import Viewport from "@/app/widgets/view";
 import Navigator from "@/app/widgets/navigator";
-// icons
+
 import Close from "@/app/icons/close";
 import Maximize from "@/app/icons/maximize";
 import Minimize from "@/app/icons/minimize";
 import Unmaximize from "@/app/icons/unmaximize";
-// modules
+
 import request from "@/modules/request";
-// api
+
 import { BridgeEvent } from "@/api";
 
 class AppProps extends Props<undefined> {
@@ -44,10 +43,10 @@ class App extends Stateful<AppProps, AppState> {
 		// https://github.com/Any-Material/Aishite/releases/download/{version}/{artifact}
 		request.GET("https://api.github.com/repos/Any-Material/Aishite/releases?per_page=100", "json").then((response) => {
 			// parse version string to number
-			function HAL_K45(version: string) {
+			function version(version: string) {
 				return Number(version.replace(/\./g, ""));
 			}
-			if (HAL_K45(response.body["0"]["tag_name"]) > HAL_K45(require("@/../package.json")["version"])) {
+			if (version(response.body["0"]["tag_name"]) > version(require("@/../package.json")["version"])) {
 				// update available	
 			}
 		});

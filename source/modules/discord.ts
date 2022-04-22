@@ -1,6 +1,6 @@
 // @ts-ignore
 import * as RPC from "discord-rpc";
-// states
+
 import { StateHandler } from "@/manager";
 
 /** @see https://discord.com/developers/docs/rich-presence/how-to */
@@ -85,7 +85,6 @@ class DiscordRPC extends StateHandler<{ activity: RichPresence, token: string; }
 	public update(activity: RichPresence = this.state.activity, override: boolean = false) {
 		// conditional override
 		this.state = { ...this.state, activity: Object.assign(override ? {} : this.state.activity, activity) };
-		console.log(RichPresence(this.state.activity))
 		// @ts-ignore
 		until(() => this.connection).then(() => this.client.request("SET_ACTIVITY", RichPresence(this.state.activity)));
 	}

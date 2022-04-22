@@ -1,34 +1,38 @@
-// react
 import React from "react";
-// TOP-LEVEL
-import PageView from "@/app/pages";
-// common
+
+import Page from "@/app/pages";
+
 import Unit from "@/app/common/unit";
 import Color from "@/app/common/color";
 import { Props } from "@/app/common/props";
 import { EventManager } from "@/app/common/framework";
-// layout
+
+import Pair from "@/models/pair";
+
 import Text from "@/app/layout/text";
 import Column from "@/app/layout/column";
 import { Cell, Grid } from "@/app/layout/grid";
-// layout/casacade
+
 import Offset from "@/app/layout/casacade/offset";
 import Spacer from "@/app/layout/casacade/spacer";
 import Scroll from "@/app/layout/casacade/scroll";
 import Decoration from "@/app/layout/casacade/decoration";
-// widgets
+
 import Button from "@/app/widgets/button";
 import Paging from "@/app/widgets/paging";
 import Gallery from "@/app/pages/browser/gallery";
 import Dropdown from "@/app/widgets/dropdown";
-// modules
+
 import discord from "@/modules/discord";
-// states
+
 import navigator from "@/manager/navigator";
-// apis
+
 import { SearchQuery } from "@/apis/hitomi.la/search";
-import { GalleryBlock } from "@/apis/hitomi.la/gallery";
+import { GalleryInfo } from "@/apis/hitomi.la/gallery";
 import { SuggestTags, SuggestExpire } from "@/apis/hitomi.la/suggest";
+
+type _Gallery = Await<ReturnType<typeof GalleryInfo>>;
+type _Suggests = Await<ReturnType<typeof SuggestTags>>;
 
 class BrowserProps extends Props<undefined> {
 	public index: number;
@@ -45,10 +49,10 @@ class BrowserProps extends Props<undefined> {
 class BrowserState extends BrowserProps {
 	public init: boolean;
 	public length: number;
-	public gallery: Array<GalleryBlock>;
-	public suggests: Await<ReturnType<typeof SuggestTags>>;
+	public gallery: Array<_Gallery>;
+	public suggests: _Suggests;
 	public highlight: string;
-	public controller: React.RefObject<HTMLInputElement>;
+	public controller: Reference<HTMLInputElement>;
 
 	constructor(args: Omit<Args<BrowserState>, "controller">) {
 		super(args);
@@ -62,7 +66,7 @@ class BrowserState extends BrowserProps {
 	}
 }
 
-class Browser extends PageView<BrowserProps, BrowserState> {
+class Browser extends Page<BrowserProps, BrowserState> {
 	protected create() {
 		// TODO: use this.binds instead
 		navigator.handle((state) => {
@@ -116,7 +120,7 @@ class Browser extends PageView<BrowserProps, BrowserState> {
 										["gallery"]
 									]}>
 									<Cell area={"query"} overflow={true}>
-										<Dropdown toggle={!this.state.gallery.isEmpty()} index={0} options={this.state.suggests.map((suggest) => [suggest.field + ":" + suggest.value, suggest.count.toString()])} value={this.state.query === "language:all" ? undefined : this.state.query} fallback={this.state.query.length ? this.state.query : "language:all"} highlight={this.state.highlight} controller={this.state.controller}
+										<Dropdown toggle={!this.state.gallery.isEmpty()} index={0} options={this.state.suggests.map((suggest) => new Pair(suggest.first.toString(), suggest.second.toString()))} value={this.state.query === "language:all" ? undefined : this.state.query} fallback={this.state.query.isEmpty() ? "language:all" : this.state.query} highlight={this.state.highlight} controller={this.state.controller}
 											onReset={() => {
 												// expire
 												SuggestExpire();
@@ -132,8 +136,12 @@ class Browser extends PageView<BrowserProps, BrowserState> {
 												});
 											}}
 											onIndex={(index) => {
-												// update
-												this.query()!.value = this.query()!.value.split(/\s+/).slice(0, -1).concat((this.state.suggests[index].field + ":" + this.state.suggests[index].value).replace(/\s+/g, "_")).join("\u0020");
+												// cache
+												const query = this.query();
+
+												if (query) {
+													query.value = query.value.split(/\s+/).slice(0, -1).concat((this.state.suggests[index].first.toString()).replace(/\s/g, "_")).join("\u0020");
+												}
 											}}
 											onSelect={(text) => {
 												// expire
@@ -145,7 +153,7 @@ class Browser extends PageView<BrowserProps, BrowserState> {
 												// expire
 												SuggestExpire();
 												// reset gallery
-												this.setState({ ...this.state, index: 0, query: text.length ? text : "language:all", length: 0, gallery: [], suggests: [] }, () => {
+												this.setState({ ...this.state, index: 0, query: text.isEmpty() ? "language:all" : text, length: 0, gallery: [], suggests: [] }, () => {
 													// update gallery
 													this.gallery(this.state.query, this.state.index, () => {
 														// update discord
@@ -159,7 +167,7 @@ class Browser extends PageView<BrowserProps, BrowserState> {
 												// expire
 												SuggestExpire();
 												// update highlight
-												this.state.highlight = text.split(/\s+/).last?.split(/:/).last ?? "";
+												this.state.highlight = text.split(/\s+/).last?.split(":").last ?? "";
 												// reset suggestions
 												if (!this.state.suggests.isEmpty()) {
 													this.setState({ ...this.state, suggests: [] });
@@ -270,22 +278,22 @@ class Browser extends PageView<BrowserProps, BrowserState> {
 		// fetch
 		SearchQuery(query).then((response) => {
 			// to avoid bottleneck, make requests then assign them in order
-			const block: Array<GalleryBlock> = [];
-			const array: Array<number> = response.skip(index ? index * 25 : 0).take(25);
+			const block = Array<_Gallery>();
+			const array = Array.from(response).skip(index ? index * 25 : 0).take(25);
 
-			for (let index = 0; index < array.length; index++) {
+			for (let _index = 0; _index < array.length; _index++) {
 				// fetch
-				GalleryBlock(array[index]).then((gallery) => {
+				GalleryInfo(array[_index]).then((gallery) => {
 					// assigned
-					block[index] = gallery;
+					block[_index] = gallery;
 					// check if every request is retrieved
 					if (block.length === array.length) {
 						// update
-						this.setState({ ...this.state, length: Math.ceil(response.length / 25), gallery: block });
+						this.setState({ ...this.state, length: Math.ceil(response.size / 25), gallery: block });
 						// callaback
 						return callback?.();
 					}
-				}).catch((error) => console.debug(error));
+				}).catch((error) => print(error));
 			}
 		});
 	}

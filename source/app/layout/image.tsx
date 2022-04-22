@@ -1,4 +1,3 @@
-// common
 import { Props } from "@/app/common/props";
 import { Stateless } from "@/app/common/framework";
 

@@ -1,4 +1,3 @@
-// common
 import Unit from "@/app/common/unit";
 import Size from "@/app/common/size";
 import Transition from "@/app/common/transition";

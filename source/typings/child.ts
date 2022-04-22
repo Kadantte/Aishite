@@ -1,3 +1,3 @@
-declare type Child = JSX.Element | Element | (Element & string) | undefined;
+declare type Child = (JSX.Element | (Element & string) | undefined);
 
-declare type Children = Array<Child> | Child;
+declare type Children = (Array<Child> | Child);

@@ -1,7 +1,7 @@
-// common
+import React from "react";
+
 import Unit from "@/app/common/unit";
 import Size from "@/app/common/size";
-import React from "react";
 
 export class Props<C extends Children> {
 	public readonly id?: string;

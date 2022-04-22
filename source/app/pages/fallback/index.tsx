@@ -1,25 +1,24 @@
-// TOP-LEVEL
-import PageView from "@/app/pages";
-// common
+import Page from "@/app/pages";
+
 import Unit from "@/app/common/unit";
 import Color from "@/app/common/color";
 import { Props } from "@/app/common/props";
 import { EventManager } from "@/app/common/framework";
-// layout
+
 import Text from "@/app/layout/text";
 import Center from "@/app/layout/center";
 import Column from "@/app/layout/column";
-// layout/casacade
+
 import Stack from "@/app/layout/casacade/stack";
 import Spacer from "@/app/layout/casacade/spacer";
 import Offset from "@/app/layout/casacade/offset";
 import Transform from "@/app/layout/casacade/transform";
-// widgets
+
 import Button from "@/app/widgets/button";
 import Paging from "@/app/widgets/paging";
-// modules
+
 import discord from "@/modules/discord";
-// states
+
 import navigator from "@/manager/navigator";
 
 class FallbackProps extends Props<undefined> {
@@ -36,7 +35,7 @@ class FallbackState {
 	}
 }
 
-class Fallback extends PageView<FallbackProps, FallbackState> {
+class Fallback extends Page<FallbackProps, FallbackState> {
 	protected create() {
 		// TODO: use this.binds instead
 		navigator.handle((state) => {

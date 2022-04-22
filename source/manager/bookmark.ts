@@ -1,40 +1,45 @@
-// modules
 import storage from "@/modules/storage";
-// states
+
 import { MappedStateHandler } from "@/manager";
 
-class Bookmark extends MappedStateHandler<Record<number, boolean>> {
+class Bookmark extends MappedStateHandler<number, boolean> {
 	public get state() {
 		return super.state;
 	}
 	public set state(state: Bookmark["_state"]) {
+		// assign
 		super.state = state;
 		// update
-		storage.state["bookmark"].state = Object.keys(super.state);
+		storage.change("bookmark", Array.from(super.state.keys()));
 	}
 	public add(id: number) {
 		this.modify(id, true, (unsafe) => {
 			// update
-			storage.state["bookmark"].state = Object.keys(super.state);
+			storage.change("bookmark", Array.from(super.state.keys()));
 		});
 	}
 	public remove(id: number) {
 		this.modify(id, null, (unsafe) => {
 			// update
-			storage.state["bookmark"].state = Object.keys(super.state);
+			storage.change("bookmark", Array.from(super.state.keys()));
 		});
 	}
 	public switch(id: number) {
-		if (this.state[id]) {
-			this.remove(id);
-		} else {
-			this.add(id);
+		switch (this.state.has(id)) {
+			case true: {
+				this.remove(id);
+				break;
+			}
+			case false: {
+				this.add(id);
+				break;
+			}
 		}
 	}
 }
 
 const singleton = new Bookmark({
-	state: (storage.state["bookmark"].state as Array<number>).reduce((array, value) => (array[value] = true, array), {} as Bookmark["_state"])
+	state: (storage.state.get("bookmark")?.state as Array<number>).reduce((array, value) => (array.set(value, true), array), new Map())
 });
 
 export default singleton;

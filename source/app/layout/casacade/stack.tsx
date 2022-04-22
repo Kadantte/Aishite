@@ -1,5 +1,5 @@
-// common
 import Unit from "@/app/common/unit";
+import Size from "@/app/common/size";
 import { Casacade } from "@/app/common/props";
 import { StyleSheet } from "@/app/common/framework";
 
@@ -14,7 +14,6 @@ class StackProps extends Casacade {
 }
 
 class Stack extends StyleSheet<StackProps> {
-	// @ts-ignore
 	protected postCSS(): React.CSSProperties {
 		return {
 			position: "absolute"
@@ -22,8 +21,7 @@ class Stack extends StyleSheet<StackProps> {
 	}
 	protected preCSS(): React.CSSProperties {
 		return {
-			width: Unit(100, "%"),
-			height: Unit(100, "%")
+			...new Size({ width: Unit(100, "%"), height: Unit(100, "%") }).toStyle()
 		};
 	}
 }

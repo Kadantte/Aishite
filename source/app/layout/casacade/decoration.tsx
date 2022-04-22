@@ -1,4 +1,3 @@
-// common
 import Shadow from "@/app/common/shadow";
 import Border from "@/app/common/border";
 import Corner from "@/app/common/corner";

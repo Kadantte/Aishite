@@ -1,15 +1,12 @@
 /** @see https://stackoverflow.com/questions/38715001/how-to-make-web-workers-with-typescript-and-webpack */
 import _ from "file-loader?name=[name].js!./worker";
-// modules
-import storage from "@/modules/storage";
-// modules/hitomi.la
-import { GalleryBlock, GalleryScript } from "@/apis/hitomi.la/gallery";
-// states
-import { MappedStateHandler } from "@/manager";
-// api
-import { BridgeEvent } from "@/api";
 
+import { MappedStateHandler } from "@/manager";
+
+import storage from "@/modules/storage";
 import settings from "@/modules/settings";
+
+import { GalleryInfo } from "@/apis/hitomi.la/gallery";
 
 type Cache = {
 	file: string;
@@ -37,7 +34,7 @@ class DownloaderState {
 	}
 }
 
-export class Downloader extends MappedStateHandler<Record<number, DownloaderState>> {
+export class Downloader extends MappedStateHandler<number, DownloaderState> {
 	/** DO NOT MODIFY UNLESS CERTAIN. */
 	protected static readonly workers: Record<number, Worker> = {};
 
@@ -102,7 +99,7 @@ export class Downloader extends MappedStateHandler<Record<number, DownloaderStat
 				GalleryScript(id).then((script) => {
 					// communicate
 					this.comment(id, "START", {
-						files: script.files.map((file, index) => ({ url: file.url, path: this.pathfinder(settings.state.download.file, settings.state.download.folder, block, index, file.url.split(/\./).last ?? "unknown") })),
+						files: script.files.map((file, index) => ({ url: file.url, path: this.pathfinder(settings.state.download.file, settings.state.download.folder, block, index, file.url.split(".").last ?? "unknown") })),
 						concurrent: settings.state.download.concurrent
 					});
 				});
@@ -172,7 +169,7 @@ export class Downloader extends MappedStateHandler<Record<number, DownloaderStat
 }
 
 const singleton = new Downloader({
-	state: {}
+	state: new Map()
 });
 
 export default singleton;

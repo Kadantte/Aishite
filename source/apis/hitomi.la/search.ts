@@ -1,146 +1,331 @@
-// modules
 import request from "@/modules/request";
-// modules/hitomi.la
-import { Endian } from "@/apis/hitomi.la/suggest";
-import { Category } from "@/apis/hitomi.la/gallery";
+
+import Tag from "@/models/tag";
+import Pair from "@/models/pair";
+import { Endian } from "@/models/endian";
+
 import { suggestJS } from "@/apis/hitomi.la/suggest";
-import { GalleryVersion } from "@/apis/hitomi.la/version";
 
-class Instruction {
-	public readonly type: boolean;
-	public readonly value: Array<number>;
+import { Directory, mirror } from "@/apis/hitomi.la/private/version";
 
-	constructor(args: Args<Instruction>) {
-		this.type = args.type;
-		this.value = args.value;
+enum Prefix {
+	OR,
+	ADD,
+	REMOVE
+}
+
+class Syntax {
+	private readonly pattern = Array<boolean>();
+	private readonly brackets = Array<Prefix>();
+
+	public integrity() {
+		this.one();
+		this.two();
+		this.three();
+	}
+	public open(prefix: Prefix) {
+		this.pattern.add(true);
+		this.brackets.add(prefix);
+	}
+	public close(prefix: Prefix) {
+		if (this.brackets.isEmpty()) throw Error();
+		if (this.brackets.last !== prefix) throw Error();
+
+		this.pattern.add(false);
+		this.brackets.pop();
+	}
+	private one() {
+		switch (this.pattern.length % 2) {
+			case 0: {
+				break;
+			}
+			default: {
+				throw Error();
+			}
+		}
+	}
+	private two() {
+		for (let index = 0; index < this.pattern.length; index++) {
+			switch (index % 2) {
+				case 0: {
+					if (!this.pattern[index] && this.pattern[index + 1]) throw Error();
+					break;
+				}
+			}
+		}
+	}
+	private three() {
+		if (this.pattern.filter((element) => element).length !== this.pattern.filter((element) => !element).length) throw Error();
 	}
 }
-/**
- * @alias result.js
- * @see do_search
-*/
-export async function SearchQuery(query: string) {
-	return new Promise<Array<number>>((resolve, reject) => {
-		// result
-		let sigma: Array<number> = [];
-		// tokens
-		const token: Array<Instruction> = [];
-		// keywords
-		const keyword: Array<string> = query.toLowerCase().trim().split(/\s+/);
 
-		for (let index = 0; index < keyword.length; index++) {
-			// save instruction
-			unknown_1(keyword[index].replace(/^-/, "")).then((response) => {
-				//
-				// true: positive
-				// false: negative
-				//
-				token[index] = new Instruction({ type: !/^-/.test(keyword[index]), value: response });
+export async function SearchQuery(query: string, fallback: boolean = true): Promise<Set<number>> {
+	// avoid bottleneck
+	const cache = new Map<string, Nullable<Set<number>>>();
+	const syntax = new Syntax();
 
-				if (Object.keys(token).length === keyword.length) {
-					for (const segment of token) {
-						// initial
-						if (sigma.isEmpty() && segment.type) {
-							sigma = segment.value;
-							continue;
-						}
-						// for optimization
-						const range = new Set(segment.value);
-						// include or exclude
-						sigma = sigma.filter((id) => range.has(id) === segment.type);
+	let memory: Nullable<string> = null;
+
+	try {
+		for (const char of (query + "\u0020").split("")) {
+			switch (char) {
+				case "(": {
+					syntax.open(Prefix.OR);
+					break;
+				}
+				case "{": {
+					syntax.open(Prefix.ADD);
+					break;
+				}
+				case "[": {
+					syntax.open(Prefix.REMOVE);
+					break;
+				}
+				case ")": {
+					syntax.close(Prefix.OR);
+					break;
+				}
+				case "}": {
+					syntax.close(Prefix.ADD);
+					break;
+				}
+				case "]": {
+					syntax.close(Prefix.REMOVE);
+					break;
+				}
+				case "&":
+				case "+":
+				case "-": {
+					break;
+				}
+				case "\u0020": {
+					// cache
+					const string = memory ?? "";
+
+					if (string.isEmpty()) break;
+
+					if (!cache.has(string)) {
+						// assign key
+						cache.set(string, null);
+
+						unknown_1(string).then((response) => {
+							// assign value
+							cache.set(string, new Set(response));
+						});
 					}
-					// fallback
-					if (sigma.isEmpty()) {
-						// language:all
-						return unknown_0(null, "index", "all").then((response) => resolve(response));
-					}
-					return resolve(sigma);
-				}
-			});
-		}
-	});
-}
-/**
- * @alias search.js
- * @see get_galleryids_from_nozomi
-*/
-async function unknown_0(region: Nullable<string>, type: string, value: string) {
-	return new Promise<Array<number>>((resolve, reject) => {
-		request.GET(`https://${["ltn.hitomi.la", "n", region, `${type}-${value}`].filter((_) => _).join("/")}.nozomi`, "arraybuffer").then((response) => {
-			switch (response.status.code) {
-				case 200: {
-					const array: Buffer = Buffer.from(response.body);
-					const table: DataView = new DataView((array.buffer as ArrayBuffer).skip(array.byteOffset).take(array.byteLength));
-
-					return resolve(new Array(table.byteLength / 4).fill(null).map((_, x) => table.getInt32(x * 4, Endian.BIG)));
-				}
-			}
-			return resolve([]);
-		});
-	});
-}
-/**
- * @alias search.js
- * @see get_galleryids_for_query
-*/
-async function unknown_1(query: string) {
-	return new Promise<Array<number>>(async (resolve, reject) => {
-		if (/:/.test(query)) {
-			//
-			// 0: key
-			// 0: value
-			//
-			const fragment = query.replace(/_/g, "\u0020").split(/:/) as [string, string];
-
-			switch (fragment[0]) {
-				case Category.ID: {
-					return resolve([Number(fragment[1])]);
-				}
-				case Category.MALE:
-				case Category.FEMALE: {
-					return resolve(unknown_0("tag", fragment.join(":"), "all"));
-				}
-				case Category.LANGUAGE: {
-					return resolve(unknown_0(null, "index", fragment[1]));
+					memory = null;
+					break;
 				}
 				default: {
-					return resolve(unknown_0(fragment[0], fragment[1], "all"));
+					if (memory) {
+						memory += char
+					} else {
+						memory = char;
+					}
+					break;
 				}
 			}
 		}
-		const bundle = await suggestJS.get_node_at_adress("galleries", 0);
-		if (bundle === null) return resolve([]);
-		const digits = await suggestJS.B_search("galleries", suggestJS.hash_term(query.replace(/_/g, "\u0020")), bundle);
-		if (digits === null) return resolve([]);
+		// validate
+		syntax.integrity();
+	} catch {
+		return fallback ? new Set(await unknown_0(null, new Tag({ namespace: "index", value: "all" }))) : new Set();
+	}
+	// wait for cache
+	await until(() => Array.from(cache.values()).every((element) => element));
 
-		return resolve(await unknown_2(digits));
-	});
-}
-/**
- * @alias search.js
- * @see get_galleryids_from_data
-*/
-async function unknown_2(digits: [number, number]) {
-	return new Promise<Array<number>>(async (resolve, reject) => {
-		//
-		// 0: offset
-		// 1: length
-		//
-		if (digits[1] > 100000000 || digits[1] <= 0) {
-			return resolve([]);
+	function recursive(prefix: Prefix, string: string): Set<number> {
+		// tracker
+		let open = 0;
+		let close = 0;
+
+		let buffer: Nullable<string> = null;
+
+		let header: Nullable<Prefix> = null;
+		let closure: Nullable<Prefix> = null;
+
+		const collection = new Set<number>();
+
+		function write(value: string) {
+			if (buffer) {
+				buffer += value;
+			} else {
+				buffer = value;
+			}
 		}
-		await until(() => GalleryVersion.galleriesindex !== null);
 
-		suggestJS.get_url_at_range(`https://ltn.hitomi.la/galleriesindex/galleries.${GalleryVersion.galleriesindex}.data`, digits[0], digits[0] + digits[1] - 1).then((response) => {
-			const table = new DataView(response.buffer);
-			const length = table.getInt32(0, Endian.BIG);
+		function adjust(start: boolean, write: boolean) {
+			const string = buffer?.replace(start ? /^[&+-]/ : /[&+-]$/, "") ?? "";
 
-			if (length > 10000000 || 10000000 <= 0) return resolve([]);
-			else if (response.byteLength !== length * 4 + 4) return resolve([]);
+			if (write) {
+				buffer = string;
+			}
+			return string;
+		}
 
-			return resolve(new Array(length).fill(null).map((_, x) => table.getInt32((x + 1) * 4, Endian.BIG)));
-		});
-	});
+		function calculate(prefix: Prefix, _collection: Set<number>) {
+			switch (prefix === Prefix.OR && collection.isEmpty() ? Prefix.ADD : prefix) {
+				case Prefix.OR: {
+					for (const element of collection.values()) {
+						if (!_collection.has(element)) collection.delete(element);
+					}
+					break;
+				}
+				case Prefix.ADD: {
+					for (const element of _collection.values()) {
+						collection.add(element);
+					}
+					break;
+				}
+				case Prefix.REMOVE: {
+					for (const element of _collection.values()) {
+						collection.delete(element);
+					}
+					break;
+				}
+			}
+		}
+
+		for (const char of string.split("")) {
+			switch (char) {
+				case "(":
+				case "{":
+				case "[": {
+					open++;
+					// skip first bracket
+					// (open > 1)
+					if (closure == null) {
+						// update
+						closure = char === "(" ? Prefix.OR : char === "{" ? Prefix.ADD : Prefix.REMOVE;
+						// adjust
+						adjust(false, true);
+						break;
+					}
+					write(char);
+					break;
+				}
+				case ")":
+				case "}":
+				case "]": {
+					close++;
+					// skip final bracket
+					if (open > close) {
+						write(char);
+						break;
+					}
+					// brackets close
+					if (open == close) {
+						// compute
+						calculate(header ?? prefix, recursive(closure ?? Prefix.OR, buffer + "\u0020"));
+						// reset
+						open = 0;
+						close = 0;
+						// buffer
+						buffer = null;
+					}
+					break;
+				}
+				case "&":
+				case "+":
+				case "-": {
+					if (open == 0 && close == 0) header ??= char === "&" ? Prefix.OR : char === "+" ? Prefix.ADD : Prefix.REMOVE;
+					write(char);
+					break;
+				}
+				case "\u0020": {
+					const string = adjust(true, false);
+
+					if (string.isEmpty()) break;
+
+					if (open == 0 && close == 0) {
+						// sometimes its false...
+						if (cache.has(string)) {
+							calculate(header ?? closure ?? prefix, cache.get(string)!);
+						}
+						// reset
+						header = null;
+						buffer = null;
+						break;
+					}
+					write(char);
+					break;
+				}
+				default: {
+					write(char);
+					break;
+				}
+			}
+		}
+		return collection;
+	}
+	// cache
+	const collection = recursive(Prefix.OR, query + "\u0020");
+	
+	return fallback && collection.isEmpty() ? new Set(await unknown_0(null, new Tag({ namespace: "index", value: "all" }))) : collection;
+}
+
+async function unknown_0(directory: Nullable<string>, tag: Tag) {
+	const response = await request.GET(`https://${["ltn.hitomi.la", "n", directory, `${tag.namespace}-${tag.value}`].filter((element) => element).join("/")}.nozomi`, "arraybuffer");
+
+	switch (response.status.code) {
+		case 200:
+		case 206: {
+			const { buffer, byteOffset, byteLength } = Buffer.from(response.body);
+			const binary = new DataView((buffer as ArrayBuffer).skip(byteOffset).take(byteLength));
+
+			return Array(binary.byteLength / 4).fill(null).map((_, x) => binary.getInt32(x * 4, Endian.BIG));
+		}
+	}
+	return [];
+}
+
+async function unknown_1(query: string) {
+	if (query.includes(":")) {
+		//
+		// 0: key
+		// 0: value
+		//
+		const fragment = query.replace(/_/g, "\u0020").split(":") as [string, string];
+
+		switch (fragment[0]) {
+			case "id": {
+				return [Number(fragment[1])];
+			}
+			case "male":
+			case "female": {
+				return unknown_0("tag", new Tag({ namespace: fragment.join(":"), value: "all" }));
+			}
+			case "language": {
+				return unknown_0(null, new Tag({ namespace: "index", value: fragment[1] }));
+			}
+			default: {
+				return unknown_0(fragment[0], new Tag({ namespace: fragment[1], value: "all" }));
+			}
+		}
+	}
+	// fallback
+	try {
+		const bundle = await suggestJS.get_node_at_adress("galleries", 0);
+		const digits = await suggestJS.B_search("galleries", suggestJS.hash_term(query.replace(/_/g, "\u0020")), bundle);
+		return unknown_2(digits);
+	} catch {
+		return [];
+	}
+}
+
+async function unknown_2(digits: Pair<number, number>) {
+	// check before request
+	if (digits.second <= 0 || digits.second > 100000000) throw Error();
+
+	const response = await suggestJS.get_url_at_range(`https://ltn.hitomi.la/galleriesindex/galleries.${await mirror(Directory.GALLERIES)}.data`, digits.first, digits.first + digits.second - 1);
+	
+	const table = new DataView(response.buffer);
+	const length = table.getInt32(0, Endian.BIG);
+
+	if (length > 10000000 || 10000000 <= 0) throw Error();
+	if (response.byteLength !== length * 4 + 4) throw Error();
+
+	return Array(length).fill(null).map((_, x) => table.getInt32((x + 1) * 4, Endian.BIG));
 }
 
 export const searchJS = {

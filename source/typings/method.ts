@@ -1,1 +1,1 @@
-declare type Method<T = void> = (...args: any[]) => T;
+declare type Method<T = void> = (...args: Array<any>) => T;
