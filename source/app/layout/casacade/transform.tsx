@@ -33,15 +33,21 @@ class Transform extends StyleSheet<TransformProps> {
 }
 
 function scale(x?: number, y?: number) {
-	return `scale(${x ?? 1.0},${y ?? 1.0})`;
+	if (x && y) {
+		return `scale(${x ?? 1.0},${y ?? 1.0})`;
+	}
 }
 
 function rotate(angle?: number) {
-	return `rotate(${angle ?? 0}deg)`;
+	if (angle) {
+		return `rotate(${angle ?? 0}deg)`;
+	}
 }
 
 function translate(x?: Unit, y?: Unit) {
-	return `translate(${x ?? 0.0},${y ?? x ?? 0.0})`;
+	if (x && y) {
+		return `translate(${x ?? 0.0},${y ?? x ?? 0.0})`;
+	}
 }
 
 export default Transform;

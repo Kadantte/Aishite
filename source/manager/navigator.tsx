@@ -155,7 +155,7 @@ function build(type: string, args: any) {
 			return (<Browser ref={(ref) => inspect(cache, ref)} key={cache} data-key={cache} index={args.index ?? 0} query={args.query ?? "language:all"}/>);
 		}
 		case "VIEWER": {
-			return (<Viewer ref={(ref) => inspect(cache, ref)} key={cache} data-key={cache} gallery={args.gallery ?? 6974}/>);
+			return (<Viewer ref={(ref) => inspect(cache, ref)} key={cache} data-key={cache} clamp={args.clamp ?? 1000} gallery={args.gallery ?? 6974}/>);
 		}
 		default: {
 			return (<section key={cache}>UNKNOWN</section>);
