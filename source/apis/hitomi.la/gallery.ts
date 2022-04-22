@@ -88,15 +88,9 @@ export async function GalleryInfo(id: number): Promise<_Gallery> {
 		// cache
 		const sigma = isQuery && string ? (document.querySelector(string) as HTMLElement).innerText : string;
 
-		if (!sigma) return toList ? ["N/A"] : "N/A";
+		if (!sigma) return toList ? [] : "N/A";
 
-		if (toList) {
-			// cache
-			const origin = sigma.split(/\s\s+/).filter((element) => !element.isEmpty());
-
-			return origin.isEmpty() ? ["N/A"] : origin;
-		}
-		return sigma.replace(/\s\s+/g, "");
+		return toList ? sigma.split(/\s\s+/).filter((element) => !element.isEmpty()) : sigma.replace(/\s\s+/g, "");
 	}
 
 	function tags(array: Nullable<Array<string>>): _Gallery["tags"] {
@@ -105,7 +99,7 @@ export async function GalleryInfo(id: number): Promise<_Gallery> {
 		const sigma = Array();
 
 		for (const value of Object.values(array)) {
-			sigma.add(value === "N/A" ? value : new Tag({ namespace: value.includes("♂") ? "male" : value.includes("♀") ? "female" : "tag", value: value.replace(/\s?[♂♀]$/, "").replace(/\s/g, "_") }));
+			sigma.add(new Tag({ namespace: value.includes("♂") ? "male" : value.includes("♀") ? "female" : "tag", value: value.replace(/\s?[♂♀]$/, "").replace(/\s/g, "_") }));
 		}
 		return sigma;
 	}

@@ -143,35 +143,42 @@ class Gallery extends Stateful<GalleryProps, GalleryState> {
 																			<Text>{[{ value: info.key }]}</Text>
 																			{/* VALUE */}
 																			<Offset type={"margin"} all={Unit(2.5)}>
-																				{[info.value ?? "N/A"].flat().map((chip, _index) => {
+																				{[info.value instanceof Array && info.value.isEmpty() ? ["N/A"] : info.value ?? "N/A"].flat().map((chip, _index) => {
 																					return (
 																						<Offset key={_index} type={"padding"} all={Unit(3.0)} left={Unit(6.5)} right={Unit(6.5)}>
 																							<Button size={{ maximum: { width: Unit(69, "%") } }} decoration={{ border: { all: [0.75, "solid", Color.DARK_200] }, corner: { all: Unit(4.5) }, background: { color: Color.DARK_400 } }}
 																								onMouseDown={(I) => {
-																									switch (info.key) {
-																										// skip
-																										case "Title:":
-																										case "Date:": {
-																											break;
-																										}
-																										// modify
-																										case "No.": {
-																											this.props.onTagClick?.(`id:${chip}`);
-																											break;
-																										}
-																										case "Tags:": {
-																											this.props.onTagClick?.(chip.toString());
-																											break;
-																										}
-																										case "Language:": {
-																											this.props.onTagClick?.(`language:${Object.keys(languages).filter((tongue) => languages[tongue as keyof typeof languages] === chip)}`);
-																											break;
-																										}
-																										default: {
-																											this.props.onTagClick?.(info.key.replace(/^([A-Za-z]+):$/, ($0, $1) => $1.toLowerCase()) + ":" + chip.toString().replace(/\s/g, "_"));
-																											break;
+																									if (chip !== "N/A") {
+																										switch (info.key) {
+																											// skip
+																											case "Title:":
+																											case "Date:": {
+																												break;
+																											}
+																											// modify
+																											case "No.": {
+																												this.props.onTagClick?.(`id:${chip}`);
+																												break;
+																											}
+																											case "Type:": {
+																												this.props.onTagClick?.(`type:${chip === "artist\u0020CG" ? "artistcg" : chip}`);
+																												break;
+																											}
+																											case "Language:": {
+																												this.props.onTagClick?.(`language:${Object.keys(languages).filter((tongue) => languages[tongue as keyof typeof languages] === chip)}`);
+																												break;
+																											}
+																											case "Tags:": {
+																												this.props.onTagClick?.(chip.toString());
+																												break;
+																											}
+																											default: {
+																												this.props.onTagClick?.(info.key.replace(/^([A-Za-z]+):$/, ($0, $1) => $1.toLowerCase()) + ":" + chip.toString().replace(/\s/g, "_"));
+																												break;
+																											}
 																										}
 																									}
+
 																								}}
 																								onMouseEnter={(I) => {
 																									I.style({ background: { color: Color.DARK_500 } });

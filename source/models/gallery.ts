@@ -9,7 +9,7 @@ export abstract class Gallery {
 	public readonly artists: Array<string>;
 	public readonly language: string;
 	public readonly thumbnail: Array<string>;
-	public readonly tags: Array<Tag | "N/A">;
+	public readonly tags: Array<Tag>;
 	public readonly date: string;
 
 	protected cache?: Array<GalleryFile>;
