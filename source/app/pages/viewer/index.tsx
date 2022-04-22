@@ -74,7 +74,7 @@ class Viewer extends Page<ViewerProps, ViewerState> {
 				if (this.visible()) this.setState({ ...this.state, width: this.width() });
 			}),
 			new EventManager(window, "wheel", (event) => {
-				if (this.state.ctrl && this.visible()) this.setState({ ...this.state, clamp: (this.state.clamp - (event as WheelEvent).deltaY).clamp(500, Infinity) });
+				if (this.state.ctrl && this.visible()) this.setState({ ...this.state, clamp: (this.state.clamp - (event as WheelEvent).deltaY).clamp(550, Infinity) });
 			}),
 			new EventManager(window, "keyup", (event) => {
 				if ((event as KeyboardEvent).key === "Control" && this.visible()) this.state.ctrl = false;
@@ -97,7 +97,7 @@ class Viewer extends Page<ViewerProps, ViewerState> {
 		return (
 			<section id={"viewer"} data-scrollable={"frame"}>
 				<Offset type={"margin"} all={"auto"}>
-					{this.state.files.map((file, index) => <Image key={index} source={file.url} width={Unit(this.state.clamp)} height={file.height / (file.width / this.state.width.clamp(0, this.state.clamp))} size={{ minimum: { width: Unit(500) }, maximum: { width: Unit(100, "%") } }}/>)}
+					{this.state.files.map((file, index) => <Image key={index} source={file.url} width={Unit(this.state.clamp)} height={file.height / (file.width / this.state.width.clamp(0, this.state.clamp))} size={{ minimum: { width: Unit(550) }, maximum: { width: Unit(100, "%") } }}/>)}
 				</Offset>
 			</section>
 		);
