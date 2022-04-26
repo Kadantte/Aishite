@@ -14,18 +14,6 @@ Object.defineProperty(Number.prototype, "clamp", {
 	}
 });
 
-Object.defineProperty(Number.prototype, "truncate", {
-	value: function () {
-		return Math.trunc(this as number);
-	}
-});
-
-Object.defineProperty(Number.prototype, "absolute", {
-	value: function () {
-		return Math.abs(this as number);
-	}
-});
-
 Object.defineProperty(Set.prototype, "isEmpty", {
 	value: function () {
 		return (this as Set<unknown>).size === 0;

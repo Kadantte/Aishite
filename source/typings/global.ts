@@ -31,8 +31,6 @@ declare global {
 	}
 	interface Number {
 		clamp(minimum: number, maximum: number): number;
-		truncate(): number;
-		absolute(): number;
 	}
 	interface Set<T> {
 		isEmpty(): boolean;
