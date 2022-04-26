@@ -4,8 +4,8 @@
 	"version": "2.1.0",
 	"description": "Thine shine I'll be...",
 	"scripts": {
-		"serve": "node webpack/serve.js",
-		"build": "node webpack/build.js",
+		"serve": "set NODE_ENV=development && node webpack/serve.js",
+		"build": "set NODE_ENV=production && node webpack/build.js",
 		"setup": "npm install & node node_modules/electron/install.js"
 	},
 	"repository": {

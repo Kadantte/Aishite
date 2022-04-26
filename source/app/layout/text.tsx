@@ -63,7 +63,6 @@ class Text extends Stateless<TextProps> {
 		};
 	}
 	protected preCSS(): React.CSSProperties {
-		print(this.props.children)
 		return {
 			color: this.props.children.last?.color,
 			overflow: "hidden",

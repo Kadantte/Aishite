@@ -19,6 +19,8 @@ if (!app.isPackaged) {
 	node_fs.watch(node_path.resolve(__dirname, "renderer.js")).on("change", () => window?.reload());
 }
 
+const FHD = !app.isPackaged;
+
 app.on("ready", () => {
 	// cannot require until app is ready
 	const { screen } = require("electron");
@@ -42,12 +44,21 @@ app.on("ready", () => {
 		icon: "source/assets/aishite.ico",
 		show: false,
 		frame: false,
-		width: resolution.width(),
-		height: resolution.height(),
-		minWidth: resolution.width(),
-		maxWidth: undefined,
-		minHeight: resolution.height(),
-		maxHeight: undefined,
+		...(FHD ? {
+			width: resolution.width(1920),
+			height: resolution.height(1080),
+			minWidth: resolution.width(1920),
+			maxWidth: 1920,
+			minHeight: resolution.height(1080),
+			maxHeight: 1080 - (/* TASKBAR */ 45)
+		} : {
+			width: resolution.width(),
+			height: resolution.height(),
+			minWidth: resolution.width(),
+			maxWidth: undefined,
+			minHeight: resolution.height(),
+			maxHeight: undefined
+		}),
 		webPreferences: {
 			// webpack or ASAR
 			preload: node_path.resolve(__dirname, "preload.js"),

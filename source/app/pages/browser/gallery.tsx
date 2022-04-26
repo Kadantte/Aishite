@@ -113,8 +113,11 @@ class Gallery extends Stateful<GalleryProps, GalleryState> {
 											{ key: "tags", value: this.props.gallery.tags },
 											{ key: "date", value: this.props.gallery.date }
 										].map((section, index) => {
+											// cache
+											const offset = typeof this.props.height === "string" ? Number(this.props.height.replace(/\D/g, "")) : this.props.height;
+											
 											return (
-												<Element padding={{ all: 3.75, left: 0, right: 14.5 }}>
+												<Element key={index} padding={{ all: ((((offset ?? 0) - 170) / 6) - 35) / 2, left: 0, right: 14.5 }}>
 													{/* KEY */}
 													<Inline flex={true}>
 														<Text children={[{ text: section.key == "id" ? "No." : section.key.replace(/^([\D])([\D]+)$/, ($0, $1, $2) => `${$1.toUpperCase()}${$2.toLowerCase()}:`) }]}/>

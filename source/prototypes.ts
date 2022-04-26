@@ -126,9 +126,7 @@ Object.defineProperty(DataView.prototype, "getUint64", {
 // Global
 
 Object.defineProperty(window, "print", {
-	value: function (...args: Array<unknown>) {
-		console.debug(...args);
-	}
+	value: console.debug
 })
 
 Object.defineProperty(window, "until", {

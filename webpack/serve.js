@@ -1,4 +1,5 @@
 const webpack = require("webpack");
+
 const { main, preload, renderer } = require("./webpack.config");
 
 var reload = 0;
@@ -21,41 +22,22 @@ const compiler = {
 const boilerplate = {
 	mode: "development",
 	watch: true,
-	plugins: [
-		new webpack.DefinePlugin({
-			"process.env": {
-				"NODE_ENV": JSON.stringify("development")
-			}
-		})
-	],
 	devtool: "eval-cheap-module-source-map"
 };
 
 compiler["main"].instance = webpack({
 	...main,
-	...boilerplate,
-	plugins: [
-		...main.plugins,
-		...boilerplate.plugins
-	]
+	...boilerplate
 }, () => { });
 
 compiler["preload"].instance = webpack({
 	...preload,
-	...boilerplate,
-	plugins: [
-		...preload.plugins,
-		...boilerplate.plugins
-	]
+	...boilerplate
 }, () => { });
 
 compiler["renderer"].instance = webpack({
 	...renderer,
-	...boilerplate,
-	plugins: [
-		...renderer.plugins,
-		...boilerplate.plugins
-	]
+	...boilerplate
 }, () => { });
 
 compiler["main"].instance.hooks.done.tap("done", () => build("main"));

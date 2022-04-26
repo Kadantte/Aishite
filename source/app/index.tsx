@@ -89,7 +89,7 @@ class App extends Stateful<AppProps, AppState> {
 		return (
 			<Column id={"root"}>
 				{/* TITLEBAR */}
-				<Row id="titlebar" height={40} visible={!this.state.fullscreen} draggable={true}>
+				<Row id="titlebar" color={Color.DARK_000} height={40} visible={!this.state.fullscreen} draggable={true}>
 					<Spacer>
 						<Controller width={Unit(100, "%")}></Controller>
 					</Spacer>

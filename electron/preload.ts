@@ -123,8 +123,11 @@ ipcRenderer.on(BridgeEvent.LEAVE_FULL_SCREEN, (event, args) => bridge.trigger(Br
 // Responsive
 
 Object.defineProperty(window, "responsive", {
-	value: {
+	value: process.env.NODE_ENV === "development" ? {
+		width: Math.round((1920 - 30) * 0.3 + 30),
+		height: Math.round((1080 - 230) * 0.5 + 170)
+	} : {
 		width: Math.round((screen.width - 30) * 0.3 + 30),
-		height: Math.round((screen.height - 45 - 185) * 0.5 + (185 - 15))
+		height: Math.round((screen.height - 230) * 0.5 + 170)
 	}
 });

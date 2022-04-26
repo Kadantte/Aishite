@@ -34,15 +34,21 @@ class Transform extends StyleSheet<TransformProps> {
 }
 
 function scale(x?: number, y?: number) {
-	return `scale(${[x ?? 1.0, y ?? 1.0].join(comma)})`;
+	if ((x ?? y) !== undefined) {
+		return `scale(${[x ?? 1.0, y ?? 1.0].join(comma)})`;
+	}
 }
 
 function rotate(angle?: number) {
-	return `rotate(${angle ?? 0.0}deg)`;
+	if (angle !== undefined) {
+		return `rotate(${angle}deg)`;
+	}
 }
 
 function translate(x?: number, y?: number) {
-	return `translate(${[`${x ?? 0.0}%`, `${y ?? x ?? 0.0}%`].join(comma)})`;
+	if ((x ?? y) !== undefined) {
+		return `translate(${[`${x ?? 0.0}%`, `${y ?? x ?? 0.0}%`].join(comma)})`;
+	}
 }
 
 export default Transform;

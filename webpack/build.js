@@ -2,6 +2,7 @@ const node_fs = require("fs");
 const webpack = require("webpack");
 const package = require("../package");
 const builder = require("electron-builder");
+
 const { main, preload, renderer } = require("./webpack.config");
 
 const compiler = {
@@ -21,41 +22,22 @@ const compiler = {
 const boilerplate = {
 	mode: "development",
 	watch: false,
-	plugins: [
-		new webpack.DefinePlugin({
-			"process.env": {
-				"NODE_ENV": JSON.stringify("production")
-			}
-		})
-	],
 	devtool: "inline-nosources-cheap-module-source-map"
 };
 
 compiler["main"].instance = webpack({
 	...main,
-	...boilerplate,
-	plugins: [
-		...main.plugins,
-		...boilerplate.plugins
-	]
+	...boilerplate
 }, () => { });
 
 compiler["preload"].instance = webpack({
 	...preload,
-	...boilerplate,
-	plugins: [
-		...preload.plugins,
-		...boilerplate.plugins
-	]
+	...boilerplate
 }, () => { });
 
 compiler["renderer"].instance = webpack({
 	...renderer,
-	...boilerplate,
-	plugins: [
-		...renderer.plugins,
-		...boilerplate.plugins
-	]
+	...boilerplate
 }, () => { });
 
 compiler["main"].instance.hooks.done.tap("done", () => build("main"));
