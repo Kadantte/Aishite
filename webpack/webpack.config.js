@@ -32,7 +32,7 @@ const boilerplate = {
 					},
 					compress: {
 						ecma: 2020,
-						unsafe: true,
+						unsafe: false,
 						drop_console: true
 					}
 				},

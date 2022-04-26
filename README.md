@@ -34,9 +34,10 @@ It doesn't cost much request speed, very undetectable, but performance varies pe
 
 Possibly, but nothing is confirmed.<br>
 As such, there are some technical difficulties due to **Browser**s' inheirt restrictions.<br>
-Though, its possible to avoid most of it, via backend as more,<br>
-but it will require me to host a server which equals monthly fees.<br>
-Throughout years I developed everyone was just lurking... why would I spend my money then?<br>
+Though, its possible to avoid most of it, via backend as more.<br>
+But it will require me to host a server which equals monthly fees.<br>
+Throughout years I developed everyone was just lurking...<br>
+why would I spend my money then?<br>
 
 # Installation
 

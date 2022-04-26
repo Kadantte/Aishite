@@ -270,10 +270,9 @@ async function unknown_0(directory: Nullable<string>, tag: Tag) {
 	switch (response.status.code) {
 		case 200:
 		case 206: {
-			const { buffer, byteOffset, byteLength } = Buffer.from(response.body);
-			const binary = new DataView((buffer as ArrayBuffer).skip(byteOffset).take(byteLength));
+			const binary = new DataView(response.body);
 
-			return Array(binary.byteLength / 4).fill(null).map((_, index) => binary.getInt32(index * 4, Endian.BIG));
+			return Array(~~(binary.byteLength / 4)).fill(null).map((_, index) => binary.getInt32(index * 4, Endian.BIG));
 		}
 	}
 	return [];
