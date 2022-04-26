@@ -106,7 +106,7 @@ class Dropdown extends Stateful<DropdownProps, DropdownState> {
 									case "ArrowUp":
 									case "ArrowDown": {
 										if (!this.props.items.isEmpty()) {
-											this.setState((state) => ({ index: isNaN(state.index) ? 0 : (state.index + (text === "ArrowUp" ? 1 : -1)).clamp(0, this.props.items.length - 1) }), () => {
+											this.setState((state) => ({ index: isNaN(state.index) ? 0 : (state.index + (text === "ArrowUp" ? -1 : 1)).clamp(0, this.props.items.length - 1) }), () => {
 												// auto-scroll
 												this.node()?.querySelector("[id=\"items\"]")?.scrollTo({ top: this.state.index * 40 });
 												// event
