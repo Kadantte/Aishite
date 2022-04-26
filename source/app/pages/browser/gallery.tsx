@@ -42,6 +42,8 @@ enum Ayanami {
 	INFORMATION = 2
 }
 
+const cache = new Map<number, number>();
+
 class GalleryProps extends Props<undefined> {
 	public readonly gallery: _Gallery;
 	// events
@@ -115,9 +117,19 @@ class Gallery extends Stateful<GalleryProps, GalleryState> {
 										].map((section, index) => {
 											// cache
 											const offset = typeof this.props.height === "string" ? Number(this.props.height.replace(/\D/g, "")) : this.props.height;
-											
+
+											if (offset && !cache.has(offset)) {
+												// default value
+												let count = 6;
+
+												while ((offset - 170) / count >= 60) {
+													count++;
+												}
+												// assign
+												cache.set(offset, (((offset - 170) / count) - 35) / 2);
+											}
 											return (
-												<Element key={index} padding={{ all: ((((offset ?? 0) - 170) / 6) - 35) / 2, left: 0, right: 14.5 }}>
+												<Element key={index} padding={{ all: offset ? cache.get(offset) : 7.5, left: 0, right: 14.5 }}>
 													{/* KEY */}
 													<Inline flex={true}>
 														<Text children={[{ text: section.key == "id" ? "No." : section.key.replace(/^([\D])([\D]+)$/, ($0, $1, $2) => `${$1.toUpperCase()}${$2.toLowerCase()}:`) }]}/>
