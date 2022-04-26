@@ -106,7 +106,7 @@ const singleton = new DiscordRPC({
 			largeImageText: "Made by Sombian#7940",
 			// small image
 			smallImageKey: "discord",
-			smallImageText: "discord.gg/Gp7tWCe",
+			smallImageText: "discord.gg/u8srtpnwvg ",
 			// buttons
 			primaryButton: {
 				label: "Get Aishite for FREE!",

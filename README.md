@@ -1,7 +1,9 @@
 # About
 
-[comment]: [![Discord](https://discordapp.com/api/guilds/611859053714341888/widget.png?style=shield)](https://discord.gg/Gp7tWCe)
+
+[![Discord](https://discordapp.com/api/guilds/954812774956036097/widget.png?style=shield)](https://discord.gg/u8srtpnwvg)
 [![Downloads](https://img.shields.io/github/downloads/Any-Material/Aishite/total.svg)](https://github.com/Any-Material/Aishite/releases)
+
 
 `Aishite` is a fully secure, and light-weight desktop application for [hitomi.la](https://hitomi.la),<br>
 capable of browse, search, view, and download galleries,<br>
@@ -31,8 +33,9 @@ It doesn't cost much request speed, very undetectable, but performance varies pe
 ## Q. Will there be **web version** given its powered by Electron?
 
 Possibly, but nothing is confirmed.<br>
-As such, there are some technical difficulties due to **Browser**s' inheirt restrictions for security (e.g. prevent spoofing).<br>
-Fact, its possible to avoid most of it, via backend as more, but it will require me to host a server which equals monthly fees.<br>
+As such, there are some technical difficulties due to **Browser**s' inheirt restrictions.<br>
+Though, its possible to avoid most of it, via backend as more,<br>
+but it will require me to host a server which equals monthly fees.<br>
 Throughout years I developed everyone was just lurking... why would I spend my money then?<br>
 
 # Installation

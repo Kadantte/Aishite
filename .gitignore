@@ -1,12 +1,12 @@
 # node.js
-/node_modules
-/package-lock.json
+node_modules/
+package-lock.json
 # app
-/debugs
-/bundles
-/downloads
-/config.json
-/bookmark.json
+debugs/
+bundles/
+downloads/
+config.json
+bookmark.json
 # electron
-/build
-/releases
+build/
+releases/
