@@ -18,7 +18,7 @@ class ImageProps extends Props<undefined> {
 	}
 }
 
-class Image extends Stateless<ImageProps> {
+class Image extends Stateless<Omit<ImageProps, ("color" | "image")>> {
 	protected postCSS(): React.CSSProperties {
 		return {};
 	}

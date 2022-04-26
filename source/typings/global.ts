@@ -1,24 +1,31 @@
 import { API_COMMAND, BridgeEvent } from "@/api"
 
 declare global {
-	/** @see electron/main.ts */
-	interface Window {
-		readonly API: {
-			[API_COMMAND.CLOSE](validate: string): Promise<void>;
-			[API_COMMAND.FOCUS](): Promise<void>;
-			[API_COMMAND.BLUR](): Promise<void>;
-			[API_COMMAND.MINIMIZE](): Promise<void>;
-			[API_COMMAND.MAXIMIZE](): Promise<void>;
-			[API_COMMAND.UNMAXIMIZE](): Promise<void>;
-			[API_COMMAND.FULLSCREEN](): Promise<void>;
-			[API_COMMAND.DEVELOPMENT](): Promise<void>;
-		}
-		readonly bridge: EventTarget & {
-			handle(event: BridgeEvent, callback: Method): void;
-			trigger(event: BridgeEvent, ...args: Array<any>): void;
-		}
+	// preload.ts
+	const space: "\u0020";
+	const comma: "\u002C";
+	
+	const bridge: EventTarget & {
+		trigger(event: BridgeEvent, ...args: Array<unknown>): void;
+		
+		handle(event: BridgeEvent, handle: (event: Event & { detail: unknown }) => void): void;
+		unhandle(event: BridgeEvent, handle: (event: Event & { detail: unknown }) => void): void;
 	}
-	/** @see modules/prototypes.ts */
+	const protocol: {
+		[API_COMMAND.CLOSE](validate: string): Promise<void>;
+		[API_COMMAND.BLUR](): Promise<void>;
+		[API_COMMAND.FOCUS](): Promise<void>;
+		[API_COMMAND.MINIMIZE](): Promise<void>;
+		[API_COMMAND.MAXIMIZE](): Promise<void>;
+		[API_COMMAND.UNMAXIMIZE](): Promise<void>;
+		[API_COMMAND.FULLSCREEN](): Promise<void>;
+		[API_COMMAND.DEVELOPMENT](): Promise<void>;
+	}
+	const responsive: {
+		width: number;
+		height: number;
+	}
+	// prototypes.ts
 	interface String {
 		isEmpty(): boolean;
 	}
@@ -49,11 +56,11 @@ declare global {
 	interface DataView {
 		getUint64(offset: number, endian: boolean): number;
 	}
-	function print(...args: Array<any>): void;
+	function print(...args: Array<unknown>): void;
 	function until(condition: () => boolean, duration?: number): Promise<void>;
-	function inject(before: (...args: Array<any>) => any, after: (...args: Array<any>) => any): (...args: Array<any>) => any;
+	function inject(before: Function, after: Function): () => unknown;
 	function random(minimum: number, maximum: number): number;
-	function calculate(expression: string): string;
+	function nullsafe(target: Record<string, unknown>): Record<string, unknown>;
 }
 
 export default {}

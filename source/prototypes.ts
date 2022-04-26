@@ -126,7 +126,7 @@ Object.defineProperty(DataView.prototype, "getUint64", {
 // Global
 
 Object.defineProperty(window, "print", {
-	value: function (...args: Array<any>) {
+	value: function (...args: Array<unknown>) {
 		console.debug(...args);
 	}
 })
@@ -147,7 +147,7 @@ Object.defineProperty(window, "until", {
 });
 
 Object.defineProperty(window, "inject", {
-	value: function (before: Method, after: Method) {
+	value: function (before: Function, after: Function) {
 		return function () {
 			// @ts-ignore
 			after.apply(this, arguments);
@@ -163,8 +163,16 @@ Object.defineProperty(window, "random", {
 	}
 });
 
-Object.defineProperty(window, "calculate", {
-	value: function (expression: string) {
-		return "calc(" + expression + ")";
+var times = 0;
+
+Object.defineProperty(window, "nullsafe", {
+	value: function (target: Record<string, unknown>) {
+		times++;
+		for (const [key, value] of Object.entries(target)) {
+			if (value === undefined) {
+				delete target[key];
+			}
+		}
+		return target;
 	}
-});
+})

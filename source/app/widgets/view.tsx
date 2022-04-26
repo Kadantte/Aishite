@@ -1,10 +1,10 @@
 import Unit from "@/app/common/unit";
-import { Props } from "@/app/common/props";
+import { Clear } from "@/app/common/props";
 import { Stateful } from "@/app/common/framework";
 
 import navigator from "@/manager/navigator";
 
-class ViewportProps extends Props<undefined> {
+class ViewportProps extends Clear<undefined> {
 	constructor(args: Args<ViewportProps>) {
 		super(args);
 	}

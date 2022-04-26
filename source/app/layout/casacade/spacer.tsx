@@ -16,8 +16,9 @@ class Spacer extends StyleSheet<SpacerProps> {
 		return {
 			width: undefined,
 			height: undefined,
-			flexGrow: this.props.grow ?? 1.0,
-			alignSelf: "stretch"
+			alignSelf: "stretch",
+			// ratio
+			flexGrow: this.props.grow ?? 1.0
 		};
 	}
 	protected preCSS(): React.CSSProperties {

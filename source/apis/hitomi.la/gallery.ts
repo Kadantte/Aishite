@@ -6,8 +6,6 @@ import { Gallery, GalleryFile } from "@/models/gallery";
 let gg_js: Nullable<string> = null;
 let common_js: Nullable<string> = null;
 
-const cache = new Map<number, _Gallery>();
-
 request.GET("https://ltn.hitomi.la/gg.js", "text").then((response) => {
 	gg_js = "var\u0020gg;" + response.body.split("\n").filter((section) => !/if\s\([\D\d]+\)\s{\sreturn\s[\d]+;\s}/.test(section)).join("\n");
 });
@@ -69,16 +67,14 @@ class _GalleryFile extends GalleryFile {
 	}
 }
 
-export async function GalleryInfo(id: number): Promise<_Gallery> {
-	if (cache.has(id)) return cache.get(id)!;
-
+async function get(id: number): Promise<_Gallery> {
 	const response = await request.GET(`https://ltn.hitomi.la/galleryblock/${id}.html`, "text");
 
 	await until(() => !!gg_js && !!common_js);
 
 	let index = 0;
 
-	const metadata = new Map<string, any>();
+	const metadata = new Map<string, unknown>();
 
 	const document = new DOMParser().parseFromString(eval(gg_js! + common_js! + "rewrite_tn_paths(response.body)"), "text/html");
 
@@ -93,45 +89,45 @@ export async function GalleryInfo(id: number): Promise<_Gallery> {
 		return toList ? sigma.split(/\s\s+/).filter((element) => !element.isEmpty()) : sigma.replace(/\s\s+/g, "");
 	}
 
-	function tags(array: Nullable<Array<string>>): _Gallery["tags"] {
-		if (!array) return [];
-
-		const sigma = Array();
-
-		for (const value of Object.values(array)) {
-			sigma.add(new Tag({ namespace: value.includes("♂") ? "male" : value.includes("♀") ? "female" : "tag", value: value.replace(/\s?[♂♀]$/, "").replace(/\s/g, "_") }));
-		}
-		return sigma;
-	}
-
 	for (const element of document.querySelectorAll("td")) {
-		switch (index % 2) {
-			case 0: {
-				metadata.set(element.innerText.toLowerCase(), null);
-				break;
-			}
-			default: {
-				// @ts-ignore
-				metadata.set(Array.from(metadata.keys()).last, parse(element.innerText, false, Array.from(metadata.keys()).last === "tags"));
-				break;
+		if (index % 2 === 0) {
+			// assign key
+			metadata.set(element.innerText.toLowerCase(), null);
+		} else {
+			// cache
+			const key = Array.from(metadata.keys()).last!;
+
+			if (key === "tags") {
+				const tags = Array<Tag>();
+
+				for (const value of Object.values(parse(element.innerText, false, true))) {
+					tags.add(new Tag({ namespace: value.includes("♂") ? "male" : value.includes("♀") ? "female" : "tag", value: value.replace(/\s?[♂♀]$/, "").replace(/\s/g, "_") }));
+				}
+				metadata.set(key, tags);
+			} else {
+				metadata.set(key, parse(element.innerText, false, false));
 			}
 		}
 		index++;
 	}
-	// update
-	cache.set(id, new _Gallery({
-		id: id,
-		type: metadata.get("type"),
-		title: parse(".lillie a", true, false),
-		group: metadata.get("group"),
-		series: metadata.get("series"),
-		artists: parse(".artist-list", true, true),
-		language: metadata.get("language"),
-		thumbnail: Object.values(document.querySelectorAll("picture > img, picture > source")).map((element) => element.getAttribute("data-srcset")?.split("\u0020").filter((text) => /^\/\//.test(text)) ?? [element.getAttribute("data-src")]).flat().map((url) => `https:${url}`),
-		characters: metadata.get("character"),
-		tags: tags(metadata.get("tags")),
-		date: parse(".date", true, false)
-	}));
 	
-	return cache.get(id)!;
+	return new _Gallery({
+		id: id,
+		type: metadata.get("type") as string,
+		title: parse(".lillie a", true, false),
+		group: metadata.get("group") as string,
+		series: metadata.get("series") as string,
+		artist: parse(".artist-list", true, true),
+		language: metadata.get("language") as string,
+		thumbnail: Object.values(document.querySelectorAll("picture > img, picture > source")).map((element) => element.getAttribute("data-srcset")?.split("\u0020").filter((text) => /^\/\//.test(text)) ?? [element.getAttribute("data-src")]).flat().map((url) => `https:${url}`),
+		characters: metadata.get("character") as Array<string>,
+		tags: metadata.get("tags") as Array<Tag>,
+		date: parse(".date", true, false)
+	});
 }
+
+const gallery = {
+	get: get
+}
+
+export default gallery;

@@ -4,7 +4,7 @@ import Tag from "@/models/tag";
 import Pair from "@/models/pair";
 import { Endian } from "@/models/endian";
 
-import { suggestJS } from "@/apis/hitomi.la/suggest";
+import { module as suggest } from "@/apis/hitomi.la/suggest";
 
 import { Directory, mirror } from "@/apis/hitomi.la/private/version";
 
@@ -59,7 +59,7 @@ class Syntax {
 	}
 }
 
-export async function SearchQuery(query: string, fallback: boolean = true): Promise<Set<number>> {
+async function query(query: string, fallback: boolean = true): Promise<Set<number>> {
 	// avoid bottleneck
 	const cache = new Map<string, Nullable<Set<number>>>();
 	const syntax = new Syntax();
@@ -67,7 +67,7 @@ export async function SearchQuery(query: string, fallback: boolean = true): Prom
 	let memory: Nullable<string> = null;
 
 	try {
-		for (const char of (query + "\u0020").split("")) {
+		for (const char of (query + space).split("")) {
 			switch (char) {
 				case "(": {
 					syntax.open(Prefix.OR);
@@ -216,7 +216,7 @@ export async function SearchQuery(query: string, fallback: boolean = true): Prom
 					// brackets close
 					if (open == close) {
 						// compute
-						calculate(header ?? prefix, recursive(closure ?? Prefix.OR, buffer + "\u0020"));
+						calculate(header ?? prefix, recursive(closure ?? Prefix.OR, buffer + space));
 						// reset
 						open = 0;
 						close = 0;
@@ -259,7 +259,7 @@ export async function SearchQuery(query: string, fallback: boolean = true): Prom
 		return collection;
 	}
 	// cache
-	const collection = recursive(Prefix.OR, query + "\u0020");
+	const collection = recursive(Prefix.OR, query + space);
 	
 	return fallback && collection.isEmpty() ? new Set(await unknown_0(null, new Tag({ namespace: "index", value: "all" }))) : collection;
 }
@@ -305,8 +305,8 @@ async function unknown_1(query: string) {
 	}
 	// fallback
 	try {
-		const bundle = await suggestJS.get_node_at_adress("galleries", 0);
-		const digits = await suggestJS.B_search("galleries", suggestJS.hash_term(query.replace(/_/g, "\u0020")), bundle);
+		const bundle = await suggest.unknown_3("galleries", 0);
+		const digits = await suggest.unknown_5("galleries", suggest.unknown_1(query.replace(/_/g, space)), bundle);
 		return unknown_2(digits);
 	} catch {
 		return [];
@@ -317,7 +317,7 @@ async function unknown_2(digits: Pair<number, number>) {
 	// check before request
 	if (digits.second <= 0 || digits.second > 100000000) throw Error();
 
-	const response = await suggestJS.get_url_at_range(`https://ltn.hitomi.la/galleriesindex/galleries.${await mirror(Directory.GALLERIES)}.data`, digits.first, digits.first + digits.second - 1);
+	const response = await suggest.unknown_4(`https://ltn.hitomi.la/galleriesindex/galleries.${await mirror(Directory.GALLERIES)}.data`, digits.first, digits.first + digits.second - 1);
 	
 	const table = new DataView(response.buffer);
 	const length = table.getInt32(0, Endian.BIG);
@@ -328,8 +328,19 @@ async function unknown_2(digits: Pair<number, number>) {
 	return Array(length).fill(null).map((_, index) => table.getInt32((index + 1) * 4, Endian.BIG));
 }
 
-export const searchJS = {
-	get_galleryids_from_nozomi: unknown_0,
-	get_galleryids_from_query: unknown_1,
-	get_galleryids_from_data: unknown_2
+class JavaScriptModule {
+	/** @alias get_galleryids_from_nozomi */
+	public unknown_0(...args: Parameters<typeof unknown_0>) { return unknown_0(...args); }
+	/** @alias get_galleryids_from_query */
+	public unknown_1(...args: Parameters<typeof unknown_1>) { return unknown_1(...args); }
+	/** @alias get_galleryids_from_data */
+	public unknown_2(...args: Parameters<typeof unknown_2>) { return unknown_2(...args); }
+}
+
+export const module = new JavaScriptModule();
+
+const search = {
+	query: query
 };
+
+export default search;

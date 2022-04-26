@@ -3,11 +3,7 @@ import { Stateful } from "@/app/common/framework";
 
 import navigator from "@/manager/navigator";
 
-abstract class Page<P extends Props<any>, S> extends Stateful<P, S> {
-	protected abstract create(): S;
-	protected abstract postCSS(): React.CSSProperties;
-	protected abstract preCSS(): React.CSSProperties;
-	protected abstract build(): JSX.Element;
+abstract class Page<P extends Props<never>, S> extends Stateful<P, S> {
 	/**
 	 * Return `this.node()` wrapper.
 	 */

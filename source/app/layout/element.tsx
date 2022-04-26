@@ -1,13 +1,13 @@
 import { Props } from "@/app/common/props";
 import { Stateless } from "@/app/common/framework";
 
-class BoxProps extends Props<Children> {
-	constructor(args: Args<BoxProps>) {
+class ElementProps extends Props<Children> {
+	constructor(args: Args<ElementProps>) {
 		super(args);
 	}
 }
 
-class Box extends Stateless<BoxProps> {
+class Element extends Stateless<ElementProps> {
 	protected postCSS(): React.CSSProperties {
 		return {};
 	}
@@ -17,7 +17,6 @@ class Box extends Stateless<BoxProps> {
 	protected build() {
 		return <section id={this.props.id}>{this.props.children}</section>;
 	}
-
 }
 
-export default Box;
+export default Element;

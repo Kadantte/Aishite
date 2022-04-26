@@ -1,30 +1,32 @@
 import { FlipFlop } from "@/app/common/props";
-import { Stateful, EventManager } from "@/app/common/framework";
+import { Stateful, LifeCycle } from "@/app/common/framework";
+
+import Pair from "@/models/pair";
 
 import Row from "@/app/layout/row";
 
-import Spacer from "@/app/layout/casacade/spacer";
+import { Alignment } from "@/app/common/geometry";
 
 class PagingProps extends FlipFlop<undefined> {
 	public readonly index: number;
 	public readonly length: number;
 	public readonly overflow: number;
-	public readonly firstShortcut: boolean;
-	public readonly lastShortcut: boolean;
+	public readonly shortcut?: Pair<boolean, boolean>;
 	// events
 	public readonly onPaging?: (index: number) => boolean;
 	// builder
-	public readonly builder?: (key: string, index: number | string, indexing: boolean, jump: Method) => Child;
+	public readonly builder: (key: string | number, indexing: boolean, handle: () => void) => Child;
 
-	constructor(args: Args<PagingProps>) {
+	constructor(args: Args<PagingProps> & { builder: (key: string | number, indexing: boolean, handle: () => void) => Child; }) {
 		super(args);
 
 		this.index = args.index;
 		this.length = args.length;
 		this.overflow = args.overflow;
-		this.firstShortcut = args.firstShortcut;
-		this.lastShortcut = args.lastShortcut;
+		this.shortcut = args.shortcut;
+		// events
 		this.onPaging = args.onPaging;
+		// builder
 		this.builder = args.builder;
 	}
 }
@@ -39,6 +41,9 @@ class PagingState {
 
 class Paging extends Stateful<PagingProps, PagingState> {
 	protected create() {
+		// permanent
+		this.handle = this.handle.bind(this);
+
 		return new PagingState({ index: this.props.index });
 	}
 	protected postCSS(): React.CSSProperties {
@@ -47,61 +52,58 @@ class Paging extends Stateful<PagingProps, PagingState> {
 	protected preCSS(): React.CSSProperties {
 		return {};
 	}
-	protected events() {
-		return [
-			new EventManager(window, "keydown", (event: React.KeyboardEvent) => {
-				if (this.props.toggle && !document.querySelector("input:focus")) {
-					switch (event.key) {
-						case "ArrowLeft": {
-							this.jump(this.state.index - 1);
-							break;
-						}
-						case "ArrowRight": {
-							this.jump(this.state.index + 1);
-							break;
-						}
-					}
-				}
-			})
-		];
+	protected events(): LifeCycle<PagingProps, PagingState> {
+		return {
+			DID_MOUNT: () => {
+				window.addEventListener("keydown", this.handle);
+			},
+			WILL_UNMOUNT: () => {
+				window.removeEventListener("keydown", this.handle);
+			}
+		};
 	}
 	protected build() {
 		return (
-			<Row id={"paging"}>
-				<Spacer><section></section></Spacer>
-				{(() => {
-					if (this.props.firstShortcut) {
-						return this.props.builder?.("F", "First", false, () => this.jump(0));
-					}
-					return
-				})()}
-				{Array(this.props.overflow.clamp(0, this.props.length)).fill(null).map((_, index) => {
-					// cache
-					const _index = this.offset(index);
-					// UWU?
-					return this.props.builder?.(index.toString(), _index, this.state.index === _index, () => this.jump(_index));
-				}) as never}
-				{(() => {
-					if (this.props.lastShortcut) {
-						return this.props.builder?.("L", "Last", false, () => this.jump(Infinity));
-					}
-				})()}
-				<Spacer><section></section></Spacer>
+			<Row id={"paging"} alignment={Alignment.CENTER}>
+				{this.props.shortcut?.first ? this.props.builder("First", false, () => this.jump(0)) : undefined}
+				<>
+					{Array(this.props.overflow.clamp(0, this.props.length)).fill(null).map((_, index) => {
+						// cache
+						const _index = this.offset(index);
+
+						return this.props.builder?.(_index, this.state.index === _index, () => this.jump(_index));
+					})}
+				</>
+				{this.props.shortcut?.first ? this.props.builder("Last", false, () => this.jump(Infinity)) : undefined}
 			</Row>
 		);
 	}
-	public jump(index: number) {
+	protected jump(index: number) {
 		// clamp & cache
 		index = index.clamp(0, this.props.length - 1);
 
-		if (this.props.toggle && this.props.length && (this.props.onPaging?.(index) ?? true)) {
-			this.setState({ ...this.state, index: index });
-		}
-	}
-	public offset(value: number) {
-		const a = (this.props.overflow / 2).truncate(); const b = (this.props.length > this.props.overflow); const c = (this.state.index > a && b) ? (this.state.index - a).absolute() : 0; const d = (this.props.overflow + c);
+		if (!(this.props.toggle && this.props.length && (this.props.onPaging?.(index) ?? true))) return;
 
+		this.setState((state) => ({ index: index }));
+	}
+	protected offset(value: number) {
+		const a = ~~(this.props.overflow / 2); const b = (this.props.length > this.props.overflow); const c = (this.state.index > a && b) ? (this.state.index - a).absolute() : 0; const d = (this.props.overflow + c);
+	
 		return value + c + ((d > this.props.length && b) ? (this.props.length - d) : 0);
+	}
+	protected handle(event: KeyboardEvent) {
+		if (this.props.toggle && !document.querySelector("input:focus")) {
+			switch (event.key) {
+				case "ArrowLeft": {
+					this.jump(this.state.index - 1);
+					break;
+				}
+				case "ArrowRight": {
+					this.jump(this.state.index + 1);
+					break;
+				}
+			}
+		}
 	}
 }
 

@@ -4,7 +4,7 @@ import * as RPC from "discord-rpc";
 import { StateHandler } from "@/manager";
 
 /** @see https://discord.com/developers/docs/rich-presence/how-to */
-type RichPresence = {
+interface RichPresence {
 	readonly state?: string;
 	readonly details: string;
 	readonly startTimestamp?: number;

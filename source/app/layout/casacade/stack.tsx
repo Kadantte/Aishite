@@ -1,7 +1,8 @@
 import Unit from "@/app/common/unit";
-import Size from "@/app/common/size";
 import { Casacade } from "@/app/common/props";
 import { StyleSheet } from "@/app/common/framework";
+
+import Size from "@/app/common/style/size";
 
 class StackProps extends Casacade {
 	public readonly grow?: number;
@@ -21,7 +22,7 @@ class Stack extends StyleSheet<StackProps> {
 	}
 	protected preCSS(): React.CSSProperties {
 		return {
-			...new Size({ width: Unit(100, "%"), height: Unit(100, "%") }).toStyle()
+			...Size({ width: Unit(100, "%"), height: Unit(100, "%") })
 		};
 	}
 }

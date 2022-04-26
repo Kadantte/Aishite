@@ -1,4 +1,4 @@
-import { app, session, Menu, BrowserWindow, ipcMain } from "electron";
+import { app, session, Menu, ipcMain, BrowserWindow } from "electron";
 
 import node_fs from "fs";
 import node_path from "path";
@@ -7,49 +7,47 @@ import { API_COMMAND, BridgeEvent } from "@/api";
 
 let window: Nullable<BrowserWindow> = null;
 
-// app.disableHardwareAcceleration();
+Menu.setApplicationMenu(Menu.buildFromTemplate([{ role: "togglefullscreen" }]));
 
 const instance = app.requestSingleInstanceLock();
 
-if (instance) {
-	app.on("second-instance", (event, argv) => {
-		window?.webContents.send(BridgeEvent.OPEN_URL, argv);
-	});
-} else {
-	app.quit();
-}
+if (!instance) app.quit();
 
-// remove default shortcuts
-Menu.setApplicationMenu(null);
-
-if (app.isPackaged) {
-	// URL scheme
-	app.setAsDefaultProtocolClient("hitomi.la");
-} else {
-	// auto-reload
+if (!app.isPackaged) {
+	// hot-reload
 	node_fs.watch(node_path.resolve(__dirname, "preload.js")).on("change", () => window?.reload());
 	node_fs.watch(node_path.resolve(__dirname, "renderer.js")).on("change", () => window?.reload());
-
-	if (process.platform === "win32") {
-		// URL scheme
-		app.setAsDefaultProtocolClient("hitomi.la", process.argv[0], [node_path.resolve(process.argv[1])]);
-	}
 }
 
 app.on("ready", () => {
-	// clear cache
-	session.defaultSession.clearCache();
-	// bypass origin policy
+	// cannot require until app is ready
+	const { screen } = require("electron");
+	
 	session.defaultSession.webRequest.onBeforeSendHeaders({ urls: ["*://*.hitomi.la/*"] }, (details, callback) => callback({ requestHeaders: Object.assign({ Referer: "https://hitomi.la" }, details.requestHeaders) }));
+
+	const resolution = {
+		width(pixels: number = screen.getPrimaryDisplay().workArea.width) {
+			const offset = 15 + 15;
+
+			return Math.round((pixels - offset) / 5 * 1.5 + (offset));
+		},
+		height(pixels: number = screen.getPrimaryDisplay().workArea.height + (/* TASKBAR */ 45)) {
+			const offset = 40 + 15 + 40 + 15 + 15 + 15 + 45;
+
+			return Math.round((pixels - (/* TASKBAR */ 45) - offset) / 2 + (offset - 15));
+		}
+	};
 	// create window
 	window = new BrowserWindow({
 		icon: "source/assets/aishite.ico",
 		show: false,
 		frame: false,
-		width: 550,
-		height: 600,
-		minWidth: 550,
-		minHeight: 600,
+		width: resolution.width(),
+		height: resolution.height(),
+		minWidth: resolution.width(),
+		maxWidth: undefined,
+		minHeight: resolution.height(),
+		maxHeight: undefined,
 		webPreferences: {
 			// webpack or ASAR
 			preload: node_path.resolve(__dirname, "preload.js"),
@@ -61,7 +59,6 @@ app.on("ready", () => {
 			experimentalFeatures: true,
 			// allow webworker interacts with nodejs
 			nodeIntegrationInWorker: true
-
 		},
 		backgroundColor: "#00000000"
 	});
@@ -71,9 +68,6 @@ app.on("ready", () => {
 	window.on("unresponsive", () => {
 		window?.reload();
 	});
-	// webpack or ASAR
-	window.loadFile(node_path.resolve(__dirname, "index.html"));
-	// bridge
 	window.on(BridgeEvent.CLOSE, (event) => {
 		// prevent
 		event.preventDefault();
@@ -101,7 +95,7 @@ app.on("ready", () => {
 	window.on(BridgeEvent.LEAVE_FULL_SCREEN, () => {
 		window?.webContents.send(BridgeEvent.LEAVE_FULL_SCREEN);
 	});
-	ipcMain.handle("API", (event, command: API_COMMAND) => {
+	ipcMain.handle("protocol", (event, command: API_COMMAND) => {
 		setTimeout(() => {
 			switch (command) {
 				case API_COMMAND.CLOSE: {
@@ -131,4 +125,6 @@ app.on("ready", () => {
 			}
 		}, /** @see https://github.com/electron/electron/issues/24759 */ 150);
 	});
+	// webpack or ASAR
+	window.loadFile(node_path.resolve(__dirname, "index.html"));
 });

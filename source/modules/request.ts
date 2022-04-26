@@ -1,12 +1,12 @@
-type RequestType = ("GET" | "PUT" | "POST" | "DELETE" | "HEAD");
-
-type RequestHeaders = Record<string, string>;
+interface RequestHeaders {
+	[key: string]: string;
+}
 
 class RequestOptions {
 	public readonly request: {
 		url: string;
 		type: XMLHttpRequestResponseType;
-		method: RequestType;
+		method: ("GET" | "PUT" | "POST" | "DELETE" | "HEAD");
 	};
 	public readonly partial: {
 		retry?: number;
@@ -26,7 +26,7 @@ class RequestOptions {
 }
 
 class RequestResponse<T extends XMLHttpRequestResponseType> {
-	public readonly body: T extends "arraybuffer" ? ArrayBuffer : T extends "document" ? Document : T extends "json" ? Record<string, any> : T extends "text" ? string : (ArrayBuffer | Document | JSON | string);
+	public readonly body: T extends "arraybuffer" ? ArrayBuffer : T extends "document" ? Document : T extends "json" ? Record<string, never> : T extends "text" ? string : (ArrayBuffer | Document | JSON | string);
 	public readonly status: {
 		code: number;
 		message: string;

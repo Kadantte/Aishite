@@ -6,7 +6,7 @@ export abstract class Gallery {
 	public readonly title: string;
 	public readonly group?: string;
 	public readonly series?: string;
-	public readonly artists: Array<string>;
+	public readonly artist: Array<string>;
 	public readonly language: string;
 	public readonly thumbnail: Array<string>;
 	public readonly tags: Array<Tag>;
@@ -20,7 +20,7 @@ export abstract class Gallery {
 		this.title = args.title;
 		this.group = args.group;
 		this.series = args.series;
-		this.artists = args.artists;
+		this.artist = args.artist;
 		this.language = args.language;
 		this.thumbnail = args.thumbnail;
 		this.tags = args.tags;

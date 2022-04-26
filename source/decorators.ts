@@ -12,7 +12,7 @@ function required(target: any, key: string) {
 	function getter() {
 		return target[key];
 	}
-	function setter(value: any) {
+	function setter(value: unknown) {
 		target[key] = value;
 	}
 	Object.defineProperty(target, key, {

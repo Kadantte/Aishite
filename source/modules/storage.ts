@@ -7,7 +7,7 @@ import { BridgeEvent } from "@/api";
 
 class StorageState {
 	public readonly path: string;
-	public state: any;
+	public state: unknown;
 
 	constructor(args: Args<StorageState>) {
 		this.path = args.path;
@@ -38,11 +38,11 @@ class Storage extends MappedStateHandler<string, StorageState> {
 			}
 		}, 1000 * 60 * 5);
 		// before close
-		window.bridge.handle(BridgeEvent.CLOSE, () => {
+		bridge.handle(BridgeEvent.CLOSE, () => {
 			for (const [key, value] of super.state.entries()) {
 				this.export(key);
 			}
-			window.API.close("storage");
+			protocol.close("storage");
 		});
 	}
 	public change(key: string, value: StorageState["state"]) {

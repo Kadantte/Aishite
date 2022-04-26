@@ -1,15 +1,22 @@
 import Unit from "@/app/common/unit";
-import Size from "@/app/common/size";
 import Color from "@/app/common/color";
-import Transition from "@/app/common/transition";
-import { Props } from "@/app/common/props";
+import { Clear } from "@/app/common/props";
 import { Stateful } from "@/app/common/framework";
 
-class IconProps extends Props<undefined> {
-	public readonly color?: Nullable<string>;
+import Size from "@/app/common/style/size";
+import Margin from "@/app/common/style/margin";
+import Padding from "@/app/common/style/padding";
+import Transition from "@/app/common/style/transition";
+
+class IconProps extends Clear<undefined> {
+	public readonly color?: Nullable<React.CSSProperties["fill"]>;
+	public readonly width?: Unit
+	public readonly height?: Unit;
+	public readonly margin?: Margin;
+	public readonly padding?: Padding;
 	/** Whether to also trigger event from elements underneath. */
 	public readonly phantom?: boolean;
-	public readonly transition?: ConstructorParameters<typeof Transition>[0];
+	public readonly transition?: Transition;
 	// events
 	public readonly onMouseUp?: (callback: Icon) => void;
 	public readonly onMouseDown?: (callback: Icon) => void;
@@ -20,8 +27,13 @@ class IconProps extends Props<undefined> {
 		super(args);
 
 		this.color = args.color;
+		this.width = args.width;
+		this.height = args.height;
+		this.margin = args.margin;
+		this.padding = args.padding;
 		this.phantom = args.phantom;
 		this.transition = args.transition;
+		// events
 		this.onMouseUp = args.onMouseUp;
 		this.onMouseDown = args.onMouseDown;
 		this.onMouseEnter = args.onMouseEnter;
@@ -44,15 +56,19 @@ abstract class Icon extends Stateful<IconProps, IconState> {
 	protected postCSS(): React.CSSProperties {
 		return {
 			fill: this.state.color ?? this.props.color ?? Color.TEXT_000,
-			...new Transition({ ...this.props.transition, property: ["fill"] }).toStyle()
+			background: "transparent",
+			backgroundColor: "transparent"
 		};
 	}
 	protected preCSS(): React.CSSProperties {
 		return {
-			...new Size({ width: Unit(12.5), height: Unit(12.5) }).toStyle()
+			...Size({ width: this.props.width ?? 12.5, height: this.props.height ?? 12.5 }),
+			...Margin(this.props.margin ?? {}),
+			...Padding(this.props.padding ?? {}),
+			...Transition({ ...this.props.transition, property: ["fill"] })
 		};
 	}
-	protected modify() {
+	protected override() {
 		return {
 			id: this.props.id,
 			// events
@@ -74,9 +90,8 @@ abstract class Icon extends Stateful<IconProps, IconState> {
 			}
 		};
 	}
-	/** Override current style. */
-	public style(color: IconState["color"], callback?: Method) {
-		this.setState({ ...this.state, color: color }, callback);
+	public style(color: IconState["color"], callback?: () => void) {
+		this.setState((state) => ({ color: color }), () => callback?.());
 	}
 }
 

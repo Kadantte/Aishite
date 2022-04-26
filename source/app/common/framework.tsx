@@ -1,119 +1,59 @@
-import node_events from "events";
-
 import React from "react";
 import ReactDOM from "react-dom";
 
-import Size from "@/app/common/size";
-import { Props, Casacade } from "@/app/common/props";
+import { Clear, Props, Casacade } from "@/app/common/props";
 
-export class EventManager<T extends (node_events.EventEmitter & any) | EventTarget | (Stateful<Props<any>, {}>["handler"])> {
-	constructor(
-		public readonly self: T,
-		public readonly event: T extends node_events.EventEmitter ? string : T extends { addEventListener(type: infer K, listener: (...args: Array<unknown>) => any, options?: unknown): void } ? K : keyof T,
-		public readonly handler: T extends node_events.EventEmitter ? Method : T extends EventTarget ? Method : T[keyof T]
-	) {
-		// TODO: none
-	}
+import Size from "@/app/common/style/size";
+import Border from "@/app/common/style/border";
+import Corner from "@/app/common/style/corner";
+import Shadow from "@/app/common/style/shadow";
+import Margin from "@/app/common/style/margin";
+import Padding from "@/app/common/style/padding";
+import Position from "@/app/common/style/position";
+
+export interface LifeCycle<P extends Props<any>, S> {
+	DID_MOUNT?: () => void;
+	DID_UPDATE?: () => void
+	WILL_UNMOUNT?: () => void
+	SHOULD_UPDATE?: (props: P, state: S, context: unknown) => boolean;
 }
 
-export abstract class Stateful<P extends Props<any>, S> extends React.Component<P, S> {
+export abstract class Stateful<P extends Clear<any>, S> extends React.Component<P, S> {
 	/** DO NOT MODIFY THIS DIRECTLY. */
 	public state: S;
-	/** Storage of `React.Component` events. */
-	public readonly handler: {
-		"DID_MOUNT": Method,
-		"WILL_UPDATE": Method,
-		"WILL_UNMOUNT": Method,
-		"SHOULD_UPDATE": (props: P, state: S, context: any) => boolean;
-	};
-	/** Cache listener functions to automatically added / removed upon (mount) state change. */
-	private readonly bindings: Array<EventManager<(node_events.EventEmitter & any) | EventTarget | (Stateful<Props<any>, {}>["handler"])>>;
 
 	constructor(public props: P) {
 		super(props);
 
 		this.state = this.create();
-
-		this.handler = {
-			"DID_MOUNT": () => { },
-			"WILL_UPDATE": () => { },
-			"WILL_UNMOUNT": () => { },
-			"SHOULD_UPDATE": () => { return true; }
-		};
-		this.bindings = this.events();
+	}
+	protected events(): LifeCycle<P, S> {
+		return {};
 	}
 	/** @deprecated */
 	public componentDidMount() {
-		// attach bindings
-		this.attach();
-		// lifecycle
-		this.handler["DID_MOUNT"]();
+		this.events().DID_MOUNT?.();
 	}
 	/** @deprecated */
 	public componentDidUpdate() {
-		// lifecycle
-		this.handler["WILL_UPDATE"]();
+		this.events().DID_UPDATE?.();
 	}
 	/** @deprecated */
 	public componentWillUnmount() {
-		// remove bindings
-		this.unattach();
-		// lifecycle
-		this.handler["WILL_UNMOUNT"]();
+		this.events().WILL_UNMOUNT?.();
 	}
 	/** @deprecated */
-	public shouldComponentUpdate(props: P, state: S, context: any) {
-		// lifecycle
-		return this.handler["SHOULD_UPDATE"](props, state, context) ?? true;
+	public shouldComponentUpdate(props: P, state: S, context: unknown) {
+		return this.events().SHOULD_UPDATE?.(props, state, context) ?? true;
 	}
 	/** Called upon constructor is created */
 	protected abstract create(): S;
-	/**
-	 * Upon an `Element` gets destroyed, all its `EventListener` are removed as well.
-	 * But some may attached to different `EventTarget` such as `Window`.
-	 * When the `EventListener` stays, it causes performance issue.
-	 * 
-	 * Binding `EventListener` through this very method will automatically add / remove `EventListener.`
-	 */
-	protected events(): Stateful<P, S>["bindings"] {
-		return [];
-	}
-	private attach() {
-		for (const cache of this.bindings) {
-			if (cache.self instanceof node_events.EventEmitter) {
-				cache.self.addListener(cache.event as string, cache.handler);
-			} else if (cache.self instanceof EventTarget) {
-				cache.self.addEventListener(cache.event as string, cache.handler as Method);
-			} else if (cache.self === this.handler) {
-				this.handler[cache.event as keyof Stateful<P, S>["handler"]] = cache.handler as any;
-			}
-		}
-	}
-	private unattach() {
-		for (const cache of this.bindings) {
-			if (cache.self instanceof node_events.EventEmitter) {
-				cache.self.removeListener(cache.event as string, cache.handler);
-			} else if (cache.self instanceof EventTarget) {
-				cache.self.removeEventListener(cache.event as string, cache.handler as Method);
-			} else if (cache.self === this.handler) {
-				this.handler[cache.event as keyof Stateful<P, S>["handler"]] = (() => { }) as any;
-			}
-		}
-	}
 	/** Return value will be applied after `this.props.style`. */
 	protected abstract postCSS(): React.CSSProperties;
 	/** Return value will be applied before `this.props.style`. */
 	protected abstract preCSS(): React.CSSProperties;
-	/** Automatically define width & height. */
-	protected constraint(): React.CSSProperties {
-		return {
-			...new Size({ type: undefined, width: this.props.width, height: this.props.height }).toStyle(),
-			...(this.props.size?.minimum ? new Size({ ...this.props.size.minimum, type: "minimum" }).toStyle() : {}),
-			...(this.props.size?.maximum ? new Size({ ...this.props.size.maximum, type: "maximum" }).toStyle() : {})
-		};
-	}
 	/** **UNSAFE**: Directly pass `HTMLElement` attributes to children. */
-	protected modify(): Casacade["modify"] {
+	protected override(): Casacade["override"] {
 		return {};
 	}
 	/** This is a wrapper to inheirt `this.props.style` automation. */
@@ -121,7 +61,23 @@ export abstract class Stateful<P extends Props<any>, S> extends React.Component<
 	/** Consider using `this.build` instead. */
 	@final()
 	public render() {
-		return <Mirror style={{ ...this.preCSS(), ...this.props.style, ...this.constraint(), ...this.postCSS(), ...this.props.override, ...(this.props.visible === true || this.props.visible === undefined ? {} : { display: "none" }) }} modify={this.modify()}>{this.build()}</Mirror>;
+		return (
+			<Mirror style={{
+				...this.preCSS(),
+				...this.props.style,
+				...position(this.props),
+				...constraint(this.props),
+				...decoration(this.props),
+				...offset(this.props),
+				...this.postCSS(),
+				...behaviour(this.props),
+				...this.props.override
+				}}
+				children={this.build()}
+				// @ts-ignore
+				override={{ "data-scrollable": this.props["data-scrollable"], ...this.override() }}
+			/>
+		);
 	}
 	/** Built-in macro to retrieve self `HTMLElement`. */
 	public node<T extends Element = HTMLElement>() {
@@ -133,21 +89,13 @@ export abstract class Stateful<P extends Props<any>, S> extends React.Component<
 	}
 }
 
-export abstract class Stateless<P extends Props<any>> extends React.PureComponent<P, {}> {
+export abstract class Stateless<P extends Clear<any>> extends React.PureComponent<P, {}> {
 	/** Return value will be applied after `this.props.style`. */
 	protected abstract postCSS(): React.CSSProperties;
 	/** Return value will be applied before `this.props.style`. */
 	protected abstract preCSS(): React.CSSProperties;
-	/** Automatically define width & height. */
-	protected constraint(): React.CSSProperties {
-		return {
-			...new Size({ type: undefined, width: this.props.width, height: this.props.height }).toStyle(),
-			...(this.props.size?.minimum ? new Size({ ...this.props.size.minimum, type: "minimum" }).toStyle() : {}),
-			...(this.props.size?.maximum ? new Size({ ...this.props.size.maximum, type: "maximum" }).toStyle() : {})
-		};
-	}
 	/** **UNSAFE**: Directly pass `HTMLElement` attributes to children. */
-	protected modify(): Casacade["modify"] {
+	protected override(): Casacade["override"] {
 		return {};
 	}
 	/** This is a wrapper to inheirt `this.props.style` automation. */
@@ -155,7 +103,23 @@ export abstract class Stateless<P extends Props<any>> extends React.PureComponen
 	/** Consider using `this.build` instead. */
 	@final()
 	public render() {
-		return <Mirror style={{ ...this.preCSS(), ...this.props.style, ...this.constraint(), ...this.postCSS(), ...this.props.override, ...(this.props.visible === true || this.props.visible === undefined ? {} : { display: "none" }) }} modify={this.modify()} children={this.build()}/>;
+		return (
+			<Mirror style={{
+				...this.preCSS(),
+				...this.props.style,
+				...position(this.props),
+				...constraint(this.props),
+				...decoration(this.props),
+				...offset(this.props),
+				...this.postCSS(),
+				...behaviour(this.props),
+				...this.props.override
+				}}
+				children={this.build()}
+				// @ts-ignore
+				override={{ "data-scrollable": this.props["data-scrollable"], ...this.override() }}
+			/>
+		);
 	}
 	/** Built-in macro to retrieve self `HTMLElement`. */
 	public node<T extends Element = HTMLElement>() {
@@ -175,19 +139,20 @@ export abstract class StyleSheet<P extends Casacade> extends React.PureComponent
 	protected abstract postCSS(): React.CSSProperties;
 	/** Return value will be applied before `this.props.style`. */
 	protected abstract preCSS(): React.CSSProperties;
+	/** **UNSAFE**: Directly pass `HTMLElement` attributes to children. */
+	protected override(): Casacade["override"] {
+		return {};
+	}
 	/** Consider using `this.build` instead. */
 	@final()
 	public render() {
 		return [this.props.children].flat().map((children, index) => {
-			if (children === undefined) {
-				return children;
-			}
-			return React.cloneElement(children as JSX.Element, { key: index, style: { ...this.preCSS(), ...this.props.style, ...this.postCSS() }, ...this.props.modify });
+			if (children === undefined) return children;
+			return React.cloneElement(children as JSX.Element, { key: index, style: { ...this.preCSS(), ...this.props.style, ...this.postCSS() }, ...this.override(), ...this.props.override });
 		});
 	}
 }
 
-/** Inheirt CSS */
 const Mirror = React.memo(class Exotic extends StyleSheet<Casacade> {
 	protected postCSS(): React.CSSProperties {
 		return {}
@@ -196,3 +161,45 @@ const Mirror = React.memo(class Exotic extends StyleSheet<Casacade> {
 		return {};
 	}
 });
+
+function position(props: Props<any>): React.CSSProperties {
+	return nullsafe({
+		...Position({ all: props.all, top: props.top, left: props.left, right: props.right, bottom: props.bottom })
+	});
+}
+
+function constraint(props: Props<any>): React.CSSProperties {
+	return nullsafe({
+		...Size({ width: props.width, height: props.height, type: undefined }),
+		...Size({ ...props.minimum, type: "minimum" }),
+		...Size({ ...props.maximum, type: "maximum" })
+	});
+}
+
+function decoration(props: Props<any>): React.CSSProperties {
+	return nullsafe({
+		// handfully
+		backgroundColor: props.color,
+		backgroundImage: props.image,
+		// automatic
+		...Border(props.border ?? {}),
+		...Corner(props.corner ?? {}),
+		...Shadow(props.shadow ?? []),
+		// handfully...
+		opacity: props?.opacity ? (props.opacity.clamp(0, 100) / 100) : undefined
+	});
+}
+
+function offset(props: Props<any>): React.CSSProperties {
+	return nullsafe({
+		...Margin(props.margin ?? {}),
+		...Padding(props.padding ?? {})
+	});
+}
+
+function behaviour(props: Props<any>): React.CSSProperties {
+	return nullsafe({
+		display: props.visible === false ? "none" : undefined,
+		WebkitAppRegion: props.draggable === true ? "drag" : props.draggable === false ? "no-drag" : undefined
+	});
+}

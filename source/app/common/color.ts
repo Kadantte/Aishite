@@ -15,10 +15,8 @@ enum Color {
 	//
 	// THEME
 	//
-	TAG = "white",
-	MALE = "cyan",
-	FEMALE = "pink",
-	SPOTLIGHT = "#E55555"
+	RGBA_000 = "#F5BE3C",
+	RGBA_100 = "#E55555"
 }
 
 export default Color;

@@ -1,11 +1,7 @@
 type Unit = (number | string | "inherit" | "initial" | "unset" | "auto");
 
-function Unit(value: number, type: Nullable<string> = "px"): typeof type extends null ? number : string {
-	if (type === null) {
-		// @ts-ignore
-		return value;
-	}
-	return value + type;
+function Unit(value: number | string, type: string = "px") {
+	return typeof value === "string" ? value : value + type;
 }
 
 export default Unit;

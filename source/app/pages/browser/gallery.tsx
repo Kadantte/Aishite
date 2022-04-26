@@ -7,16 +7,13 @@ import Tag from "@/models/tag";
 
 import Text from "@/app/layout/text";
 import Center from "@/app/layout/center";
+import Element from "@/app/layout/element";
 import Container from "@/app/layout/container";
 
 import Stack from "@/app/layout/casacade/stack";
 import Scroll from "@/app/layout/casacade/scroll";
-import Offset from "@/app/layout/casacade/offset";
 import Inline from "@/app/layout/casacade/inline";
-import Opacity from "@/app/layout/casacade/opacity";
-import Position from "@/app/layout/casacade/position";
 import Transform from "@/app/layout/casacade/transform";
-import Decoration from "@/app/layout/casacade/decoration";
 
 import Button from "@/app/widgets/button";
 
@@ -30,9 +27,9 @@ import navigator from "@/manager/navigator";
 
 import languages from "@/assets/languages.json";
 
-import { GalleryInfo } from "@/apis/hitomi.la/gallery";
+import gallery from "@/apis/hitomi.la/gallery";
 
-type _Gallery = Await<ReturnType<typeof GalleryInfo>>;
+type _Gallery = Await<ReturnType<typeof gallery["get"]>>;
 
 enum Asuka {
 	TITLE = 0,
@@ -47,13 +44,15 @@ enum Ayanami {
 
 class GalleryProps extends Props<undefined> {
 	public readonly gallery: _Gallery;
-	public readonly onTagClick?: (callback: string) => void;
+	// events
+	public readonly onClick?: (callback: string) => void;
 
 	constructor(args: Args<GalleryProps>) {
 		super(args);
 
 		this.gallery = args.gallery;
-		this.onTagClick = args.onTagClick;
+		// events
+		this.onClick = args.onClick;
 	}
 }
 
@@ -79,229 +78,175 @@ class Gallery extends Stateful<GalleryProps, GalleryState> {
 	}
 	protected build() {
 		return (
-			<Container id={"gallery"} decoration={{ shadow: [[Color.DARK_100, 0, 0, 5, 0]], corner: { all: Unit(4.5) }, background: { color: Color.DARK_400 } }}
+			<Container id={"gallery"} color={Color.DARK_400} border={{ all: { width: 7.5, style: "solid", color: Color.DARK_300 } }} corner={{ all: 4.5 }} shadow={[{ x: 0, y: 0, blur: 5, spread: 0, color: Color.DARK_100 }]}
 				onMouseEnter={(I) => {
-					I.style({ corner: { all: Unit(14.5) } }, () => {
+					I.style({ corner: { all: 14.5 } }, () => {
 						if (this.state.background !== Ayanami.INFORMATION) {
-							this.setState({ ...this.state, background: Ayanami.THUMBNAIL_1 });
+							this.setState((state) => ({ background: Ayanami.THUMBNAIL_1 }));
 						}
 					});
 				}}
 				onMouseLeave={(I) => {
 					I.style(null, () => {
 						if (this.state.background !== Ayanami.INFORMATION) {
-							this.setState({ ...this.state, background: Ayanami.THUMBNAIL_0 });
+							this.setState((state) => ({ background: Ayanami.THUMBNAIL_0 }));
 						}
 					});
 				}}>
 				<Stack>
-					{/* BACKGROUND */}
-					<Opacity value={69}>
-						{[
-							//
-							// INDEX: 0
-							// WIDGET: THUMBNAIL_0
-							//
-							<Decoration background={{ image: this.props.gallery.thumbnail.skip(0).take(3).map((url) => `url(${url})`).join(",") }}>
-								<section></section>
-							</Decoration>,
-							//
-							// INDEX: 1
-							// WIDGET: THUMBNAIL_1
-							//
-							<Decoration background={{ image: this.props.gallery.thumbnail.skip(3).take(3).map((url) => `url(${url})`).join(",") }}>
-								<section></section>
-							</Decoration>,
-							//
-							// INDEX: 2
-							// WIDGET: INFORMATION
-							//
-							<section>
-								<Position all={Unit(25)} bottom={Unit(100)}>
-									<Decoration shadow={[[Color.DARK_100, 0, 0, 5, 0]]} corner={{ all: Unit(4.5) }} background={{ color: Color.DARK_300 }}>
-										<section>
-											<Position all={Unit(15)}>
-												<Scroll x={"hidden"} y={"auto"}>
-													<section data-scrollable={"elegant"}>
-														{[
-															{ key: "No.", value: this.props.gallery.id },
-															{ key: "Type:", value: this.props.gallery.type },
-															{ key: "Title:", value: this.props.gallery.title },
-															{ key: "Language:", value: this.props.gallery.language },
-															{ key: "Characters:", value: this.props.gallery.characters },
-															{ key: "Artists:", value: this.props.gallery.artists },
-															{ key: "Series:", value: this.props.gallery.series },
-															{ key: "Group:", value: this.props.gallery.group },
-															{ key: "Tags:", value: this.props.gallery.tags },
-															{ key: "Date:", value: this.props.gallery.date }
-														].map((info, index) => {
+					{[
+						<Element id="thumbnail_1" image={this.props.gallery.thumbnail.skip(0).take(3).map((url) => `url(${url})`).join(comma)} opacity={69}></Element>,
+						<Element id="thumbnail_2" image={this.props.gallery.thumbnail.skip(3).take(3).map((url) => `url(${url})`).join(comma)} opacity={69}></Element>,
+						<section id="information">
+							<Element color={Color.DARK_300} all={25} bottom={100} corner={{ all: 4.5 }} shadow={[{ x: 0, y: 0, blur: 5, spread: 0, color: Color.DARK_100 }]}>
+								<Scroll x="hidden" y="auto" scrollbar="elegant">
+									<Element all={15}>
+										{[
+											{ key: "id", value: this.props.gallery.id },
+											{ key: "type", value: this.props.gallery.type },
+											{ key: "title", value: this.props.gallery.title },
+											{ key: "language", value: this.props.gallery.language },
+											{ key: "characters", value: this.props.gallery.characters },
+											{ key: "artist", value: this.props.gallery.artist },
+											{ key: "series", value: this.props.gallery.series },
+											{ key: "group", value: this.props.gallery.group },
+											{ key: "tags", value: this.props.gallery.tags },
+											{ key: "date", value: this.props.gallery.date }
+										].map((section, index) => {
+											return (
+												<Element padding={{ all: 3.75, left: 0, right: 14.5 }}>
+													{/* KEY */}
+													<Inline flex={true}>
+														<Text children={[{ text: section.key == "id" ? "No." : section.key.replace(/^([\D])([\D]+)$/, ($0, $1, $2) => `${$1.toUpperCase()}${$2.toLowerCase()}:`) }]}/>
+													</Inline>
+													{/* VALUE */}
+													<Inline flex={true}>
+														{[section.value instanceof Array && section.value.isEmpty() ? ["N/A"] : section.value ?? "N/A"].flat().map((chip, _index) => {
 															return (
-																<Offset key={index} type={"margin"} all={Unit(3.5)}>
-																	<section>
-																		<Inline type={"flex"}>
-																			{/* KEY */}
-																			<Text>{[{ value: info.key }]}</Text>
-																			{/* VALUE */}
-																			<Offset type={"margin"} all={Unit(2.5)}>
-																				{[info.value instanceof Array && info.value.isEmpty() ? ["N/A"] : info.value ?? "N/A"].flat().map((chip, _index) => {
-																					return (
-																						<Offset key={_index} type={"padding"} all={Unit(3.0)} left={Unit(6.5)} right={Unit(6.5)}>
-																							<Button size={{ maximum: { width: Unit(69, "%") } }} decoration={{ border: { all: [0.75, "solid", Color.DARK_200] }, corner: { all: Unit(4.5) }, background: { color: Color.DARK_400 } }}
-																								onMouseDown={(I) => {
-																									if (chip !== "N/A") {
-																										switch (info.key) {
-																											// skip
-																											case "Title:":
-																											case "Date:": {
-																												break;
-																											}
-																											// modify
-																											case "No.": {
-																												this.props.onTagClick?.(`id:${chip}`);
-																												break;
-																											}
-																											case "Type:": {
-																												this.props.onTagClick?.(`type:${chip === "artist\u0020CG" ? "artistcg" : chip}`);
-																												break;
-																											}
-																											case "Language:": {
-																												this.props.onTagClick?.(`language:${Object.keys(languages).filter((tongue) => languages[tongue as keyof typeof languages] === chip)}`);
-																												break;
-																											}
-																											case "Tags:": {
-																												this.props.onTagClick?.(chip.toString());
-																												break;
-																											}
-																											default: {
-																												this.props.onTagClick?.(info.key.replace(/^([A-Za-z]+):$/, ($0, $1) => $1.toLowerCase()) + ":" + chip.toString().replace(/\s/g, "_"));
-																												break;
-																											}
-																										}
-																									}
+																<Button key={_index} color={Color.DARK_400} maximum={{ width: Unit(69, "%") }} border={{ all: { width: 0.75, style: "solid", color: Color.DARK_200 } }} corner={{ all: 3.0 }} margin={{ all: 4.0 }} padding={{ all: 3.0, left: 5.5, right: 5.5 }}
+																	onMouseDown={(I) => {
+																		// skip
+																		if (chip === "N/A" || section.key === "title" || section.key === "date") return;
 
-																								}}
-																								onMouseEnter={(I) => {
-																									I.style({ background: { color: Color.DARK_500 } });
-																								}}
-																								onMouseLeave={(I) => {
-																									I.style(null);
-																								}}
-																								children={<Text>{(chip instanceof Tag ? [{ value: chip.namespace, color: Color[chip.namespace.toUpperCase() as keyof typeof Color] }, { value: ":" }, { value: chip.value }] : [{ value: chip.toString() }]).map((item) => ({ ...item, size: Unit(13.5) }))}</Text>}
-																							/>
-																						</Offset>
-																					);
-																				})}
-																			</Offset>
-																		</Inline>
-																	</section>
-																</Offset>
+																		switch (section.key) {
+																			case "language": {
+																				this.props.onClick?.(`language:${Object.keys(languages).filter((tongue) => languages[tongue as keyof typeof languages] === chip)}`);
+																				break;
+																			}
+																			case "tags": {
+																				this.props.onClick?.(chip.toString());
+																				break;
+																			}
+																			default: {
+																				this.props.onClick?.(`${section.key}:${chip === "artist\u0020CG" ? "artistcg" : chip.toString().replace(/\s/g, "_")}`);
+																				break;
+																			}
+																		}
+																	}}
+																	onMouseEnter={(I) => {
+																		I.style({ color: Color.DARK_500 });
+																	}}
+																	onMouseLeave={(I) => {
+																		I.style(null);
+																	}}
+																	children={<Text length={Unit(100, "%")}>{(chip instanceof Tag ? [{ text: chip.namespace, color: chip.namespace === "male" ? "cyan" : chip.namespace === "female" ? "pink" : "white" }, { text: ":" }, { text: chip.value }] : [{ text: chip.toString() }]).map((item) => ({ ...item, size: 13.5 }))}</Text>}
+																/>
 															);
 														})}
-													</section>
-												</Scroll>
-											</Position>
-										</section>
-									</Decoration>
-								</Position>
-							</section>
+													</Inline>
+												</Element>
+											);
+										})}
+									</Element>
+								</Scroll>
+							</Element>
+						</section>
+					].map((children, index) => {
+						return (
+							<Transform key={index} translate={[(index - this.state.background) * 100, 0]} transition={{ duration: 600 }} children={children}/>
+						);
+					})}
+				</Stack>
+				<Container color={Color.DARK_300} width={"auto"} height={50} left={25} right={25} bottom={25} corner={{ all: 4.5 }} shadow={[{ x: 0, y: 0, blur: 5, spread: 0, color: Color.DARK_100 }]}
+					onMouseEnter={(I) => {
+						this.setState((state) => ({ foreground: Asuka.TOOLS }));
+					}}
+					onMouseLeave={(I) => {
+						this.setState((state) => ({ foreground: Asuka.TITLE }));
+					}}>
+					<Stack>
+						{[
+							<Text length={Unit(90, "%")} children={[{ text: this.props.gallery.title }]}/>,
+							<>
+								<Read color={Color.DARK_500} width={Unit(25)} height={Unit(25)} margin={{ left: 10, right: 10 }}
+									onMouseDown={(I) => {
+										navigator.open(this.props.gallery.title, "VIEWER", { gallery: this.props.gallery.id });
+									}}
+									onMouseEnter={(I) => {
+										I.style(Color.TEXT_000);
+									}}
+									onMouseLeave={(I) => {
+										I.style(null);
+									}}
+								/>
+								<Delete color={Color.DARK_400} width={Unit(25)} height={Unit(25)} margin={{ left: 10, right: 10 }}
+									onMouseEnter={(I) => {
+										// I.style(Color.TEXT_000);
+									}}
+									onMouseLeave={(I) => {
+										// I.style(null);
+									}}
+								/>
+								<Download color={Color.DARK_400} width={Unit(25)} height={Unit(25)} margin={{ left: 10, right: 10 }}
+									onMouseEnter={(I) => {
+										// I.style(Color.TEXT_000);
+									}}
+									onMouseLeave={(I) => {
+										// I.style(null);
+									}}
+								/>
+								<Bookmark color={Color.DARK_400} width={Unit(25)} height={Unit(25)} margin={{ left: 10, right: 10 }}
+									onMouseEnter={(I) => {
+										// I.style(Color.TEXT_000);
+									}}
+									onMouseLeave={(I) => {
+										// I.style(null);
+									}}
+								/>
+								<Discovery color={Color.DARK_500} width={Unit(25)} height={Unit(25)} margin={{ left: 10, right: 10 }}
+									onMouseDown={(I) => {
+										if (this.state.background !== Ayanami.INFORMATION) {
+											I.style(Color.RGBA_000, () => {
+												this.setState((state) => ({ background: Ayanami.INFORMATION }));
+											});
+										} else {
+											I.style(Color.TEXT_000, () => {
+												this.setState((state) => ({ background: Ayanami.THUMBNAIL_1 }));
+											});
+										}
+									}}
+									onMouseEnter={(I) => {
+										if (this.state.background !== Ayanami.INFORMATION) {
+											I.style(Color.TEXT_000);
+										}
+									}}
+									onMouseLeave={(I) => {
+										if (this.state.background !== Ayanami.INFORMATION) {
+											I.style(null);
+										}
+									}}
+								/>
+							</>
 						].map((children, index) => {
 							return (
-								<Transform key={index} translate={[Unit((index - this.state.background) * 100, "%"), Unit(0, "%")]} transition={{ duration: 600 }} children={children}/>
+								<Transform key={index} translate={[0, (index - this.state.foreground) * 100]}>
+									<Center x={true} y={true} children={children}/>
+								</Transform>
 							);
 						})}
-					</Opacity>
-					{/* FOREGROUND */}
-					<Position left={Unit(25)} right={Unit(25)} bottom={Unit(25)}>
-						<Container id={"foreground"} width={"auto"} height={Unit(50)} decoration={{ shadow: [[Color.DARK_100, 0, 0, 5, 0]], corner: { all: Unit(4.5) }, background: { color: Color.DARK_300 } }}
-							onMouseEnter={(I) => {
-								this.setState({ ...this.state, foreground: Asuka.TOOLS });
-							}}
-							onMouseLeave={(I) => {
-								this.setState({ ...this.state, foreground: Asuka.TITLE });
-							}}>
-							<Stack>
-								{[
-									//
-									// INDEX: 0
-									// WIDGET: TITLE
-									//
-									<Text size={{ maximum: { width: Unit(90, "%") } }}>{[{ value: this.props.gallery.title, weight: "bold" }]}</Text>,
-									//
-									// INDEX: 1
-									// WIDGET: TOOLS
-									//
-									<Offset type={"margin"} left={Unit(10)} right={Unit(10)}>
-										<Read width={Unit(25)} height={Unit(25)} color={Color.DARK_500}
-											onMouseDown={(I) => {
-												navigator.open(this.props.gallery.title, "VIEWER", { gallery: this.props.gallery.id });
-											}}
-											onMouseEnter={(I) => {
-												I.style(Color.TEXT_000);
-											}}
-											onMouseLeave={(I) => {
-												I.style(null);
-											}}
-										/>
-										<Delete width={Unit(25)} height={Unit(25)} color={Color.DARK_400}
-											onMouseEnter={(I) => {
-												// I.style(Color.TEXT_000);
-											}}
-											onMouseLeave={(I) => {
-												// I.style(null);
-											}}
-										/>
-										<Download width={Unit(25)} height={Unit(25)} color={Color.DARK_400}
-											onMouseEnter={(I) => {
-												// I.style(Color.TEXT_000);
-											}}
-											onMouseLeave={(I) => {
-												// I.style(null);
-											}}
-										/>
-										<Bookmark width={Unit(25)} height={Unit(25)} color={Color.DARK_400}
-											onMouseEnter={(I) => {
-												// I.style(Color.TEXT_000);
-											}}
-											onMouseLeave={(I) => {
-												// I.style(null);
-											}}
-										/>
-										<Discovery width={Unit(25)} height={Unit(25)} color={Color.DARK_500}
-											onMouseDown={(I) => {
-												if (this.state.background !== Ayanami.INFORMATION) {
-													I.style(Color.SPOTLIGHT, () => {
-														this.setState({ ...this.state, background: Ayanami.INFORMATION });
-													});
-												} else {
-													I.style(Color.TEXT_000, () => {
-														this.setState({ ...this.state, background: Ayanami.THUMBNAIL_1 });
-													});
-												}
-											}}
-											onMouseEnter={(I) => {
-												if (this.state.background !== Ayanami.INFORMATION) {
-													I.style(Color.TEXT_000);
-												}
-											}}
-											onMouseLeave={(I) => {
-												if (this.state.background !== Ayanami.INFORMATION) {
-													I.style(null);
-												}
-											}}
-										/>
-									</Offset>
-								].map((children, index) => {
-									return (
-										<Transform key={index} translate={[Unit(0, "%"), Unit((index - this.state.foreground) * 100, "%")]}>
-											<Center x={true} y={true} children={children}/>
-										</Transform>
-									);
-								})}
-							</Stack>
-						</Container>
-					</Position>
-				</Stack>
-			</Container>
+					</Stack>
+				</Container>
+			</Container >
 		);
 	}
 }

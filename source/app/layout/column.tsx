@@ -1,8 +1,9 @@
 import Unit from "@/app/common/unit";
-import Size from "@/app/common/size";
 import { Props } from "@/app/common/props";
 import { Stateless } from "@/app/common/framework";
-import { Vertical, Alignment } from "@/app/common/flex";
+import { Vertical, Alignment } from "@/app/common/geometry";
+
+import Size from "@/app/common/style/size";
 
 class ColumnProps extends Props<Children> {
 	public readonly wrap?: boolean;
@@ -32,7 +33,7 @@ class Column extends Stateless<ColumnProps> {
 	}
 	protected preCSS(): React.CSSProperties {
 		return {
-			...new Size({ width: Unit(100, "%"), height: Unit(100, "%") }).toStyle()
+			...Size({ width: Unit(100, "%"), height: Unit(100, "%") })
 		};
 	}
 	protected build() {

@@ -1,77 +1,58 @@
 import Unit from "@/app/common/unit";
-import { Props, Casacade } from "@/app/common/props";
+import { Clear, Casacade } from "@/app/common/props";
 import { Stateless, StyleSheet } from "@/app/common/framework";
 
-type GridRepeat = (number | "auto" | "auto-fit" | "auto-fill");
+class CellProps extends Casacade {
+	public readonly overflow?: boolean;
+	// override
+	declare public readonly id: string;
 
-function minmax(args: { minimum: Unit, maximum?: Unit }) {
-	return "minmax(" + args.minimum + "," + (args.maximum ?? "auto") + ")";
-}
+	constructor(args: Args<CellProps>) {
+		super(args);
 
-function values(args: { values: Array<Unit> }) {
-	return args.values.join("\u0020");
-}
-
-function attribute(args: ({ times: GridRepeat } & (Parameters<typeof minmax>[0] | Parameters<typeof values>[0])) | Array<Unit>): string {
-	if (args instanceof Array) {
-		return values({ values: args });
-	} else if (typeof args.times === "number" || args.times === "auto-fit" || args.times === "auto-fill") {
-		return "repeat(" + args.times + "," + attribute({ ...args, times: "auto" }) + ")";
+		this.overflow = args.overflow;
 	}
-	return args.hasOwnProperty("values") ? values(args as Parameters<typeof values>[0]) : minmax(args as Parameters<typeof minmax>[0]);
 }
 
-function property(args: Parameters<typeof attribute>[0], type: "rows" | "columns") {
-	if (args instanceof Array || args.times !== "auto") {
-		return "gridTemplate" + type.replace(/^([A-Za-z])([A-Za-z]+)$/, ($0, $1, $2) => $1.toUpperCase() + $2);
+class Cell extends StyleSheet<CellProps> {
+	protected postCSS(): React.CSSProperties {
+		return {
+			gridArea: this.props.id,
+			overflow: this.props.overflow ? "visible" : undefined
+		};
 	}
-	return "gridAuto" + type.replace(/^([A-Za-z])([A-Za-z]+)$/, ($0, $1, $2) => $1.toUpperCase() + $2);
+	protected preCSS(): React.CSSProperties {
+		return {};
+	}
 }
-/**
- * e.g.
- * ```
- * <Grid.Layout
- * 	row={[
- *		// values
- * 	]}
- * 	column={[
- *		// values
- * 	]}
- * 	areas={[
- * 	["A", "C", "C"],
- * 	["A", "B", "B"],
- * 	["A", "B", "B"]
- * 	]}>
- * 	<Cell id={"A"}/>
- * 	<Cell id={"B"}/>
- * 	<Cell id={"C"}/>
- * </Grid.Layout>
- * ```
- */
-class GridProps extends Props<Children> {
-	public readonly gap?: Unit;
-	public readonly rows: Parameters<typeof attribute>[0];
-	public readonly columns: Parameters<typeof attribute>[0];
-	public readonly template?: Array<Array<String>>;
 
-	constructor(args: Args<GridProps>) {
+class LayoutProps extends Clear<Children> {
+	public readonly gap?: {
+		inner?: Unit;
+		outer?: Unit;
+	};
+	public readonly flow?: React.CSSProperties["gridAutoFlow"];
+	public readonly count: number;
+	public readonly minimum: Unit;
+
+	constructor(args: Args<LayoutProps>) {
 		super(args);
 
 		this.gap = args.gap;
-		this.rows = args.rows;
-		this.columns = args.columns;
-		this.template = args.template;
+		this.flow = args.flow;
+		this.count = args.count;
+		this.minimum = args.minimum;
 	}
 }
-
-class Grid extends Stateless<GridProps> {
+/** @see https://css-tricks.com/an-auto-filling-css-grid-with-max-columns/ */
+class Layout extends Stateless<LayoutProps> {
 	protected postCSS(): React.CSSProperties {
 		return {
 			display: "grid",
-			gridGap: this.props.gap,
-			[property(this.props.rows, "rows")]: attribute(this.props.rows),
-			[property(this.props.columns, "columns")]: attribute(this.props.columns),
-			gridTemplateAreas: this.props.template?.map((area) => "\"" + area.join("\u0020") + "\"").join("\u0020")
+			gap: this.props.gap?.inner,
+			margin: this.props.gap?.outer,
+			gridAutoFlow: this.props?.flow,
+			gridTemplateColumns: ["repeat(auto-fit", `minmax(max(${Unit(this.props.minimum)}`, `(100% - (${Unit(this.props.gap?.inner ?? 0)} * ${this.props.count - 1})) / ${this.props.count})`, "1fr))"].join(comma)
 		};
 	}
 	protected preCSS(): React.CSSProperties {
@@ -82,31 +63,49 @@ class Grid extends Stateless<GridProps> {
 	}
 }
 
-class CellProps extends Casacade {
-	public readonly area: string;
-	public readonly overflow?: boolean;
+class RegionProps extends Clear<Children> {
+	public readonly gap?: {
+		inner?: Unit;
+		outer?: Unit;
+	};
+	public readonly rows: Array<Unit>;
+	public readonly columns: Array<Unit>;
+	public readonly template: Array<Array<String>>;
 
-	constructor(args: Args<CellProps>) {
+	constructor(args: Args<RegionProps>) {
 		super(args);
 
-		this.area = args.area;
-		this.overflow = args.overflow;
+		this.gap = args.gap;
+		this.rows = args.rows;
+		this.columns = args.columns;
+		this.template = args.template;
 	}
 }
 
-class Cell extends StyleSheet<CellProps> {
+class Region extends Stateless<RegionProps> {
 	protected postCSS(): React.CSSProperties {
 		return {
-			gridArea: this.props.area,
-			overflow: this.props.overflow ? "visible" : undefined
+			display: "grid",
+			gap: this.props.gap?.inner,
+			margin: this.props.gap?.outer,
+			gridTemplateRows: this.props.rows.map((value) => Unit(value)).join(space),
+			gridTemplateColumns: this.props.columns.map((value) => Unit(value)).join(space),
+			gridTemplateAreas: this.props.template.map((sphere) => "\"" + sphere.join(space) + "\"").join(space)
+
 		};
 	}
 	protected preCSS(): React.CSSProperties {
 		return {};
 	}
+	protected build() {
+		return (<section id={this.props.id}>{this.props.children}</section>);
+	}
 }
 
-export {
-	Grid,
-	Cell
-}
+const Grid = {
+	Cell: Cell,
+	Layout: Layout,
+	Region: Region
+};
+
+export default Grid;

@@ -32,11 +32,11 @@ class Bundle {
 	}
 }
 
-export function SuggestTags(query: string) {
-	return unknown_0(query.replace(/_/g, "\u0020"));
+async function tags(query: string) {
+	return unknown_0(query.replace(/_/g, space));
 }
 
-export function SuggestExpire() {
+async function outdate() {
 	timestamp++;
 }
 
@@ -198,12 +198,28 @@ async function unknown_6(type: string, digits: Pair<number, number>) {
 	return sigma;
 }
 
-export const suggestJS = {
-	get_suggestions_for_query: unknown_0,
-	hash_term: unknown_1,
-	decode_node: unknown_2,
-	get_node_at_adress: unknown_3,
-	get_url_at_range: unknown_4,
-	B_search: unknown_5,
-	get_suggestions_from_data: unknown_6
+class JavaScriptModule {
+	/** @alias get_suggestions_for_query */
+	public unknown_0(...args: Parameters<typeof unknown_0>) { return unknown_0(...args); }
+	/** @alias hash_term */
+	public unknown_1(...args: Parameters<typeof unknown_1>) { return unknown_1(...args); }
+	/** @alias decode_node */
+	public unknown_2(...args: Parameters<typeof unknown_2>) { return unknown_2(...args); }
+	/** @alias get_node_at_adress */
+	public unknown_3(...args: Parameters<typeof unknown_3>) { return unknown_3(...args); }
+	/** @alias get_url_at_range */
+	public unknown_4(...args: Parameters<typeof unknown_4>) { return unknown_4(...args); }
+	/** @alias B_search */
+	public unknown_5(...args: Parameters<typeof unknown_5>) { return unknown_5(...args); }
+	/** @alias get_suggestions_from_data */
+	public unknown_6(...args: Parameters<typeof unknown_6>) { return unknown_6(...args); }
+}
+
+export const module = new JavaScriptModule();
+
+const suggest = {
+	tags: tags,
+	outdate: outdate
 };
+
+export default suggest;

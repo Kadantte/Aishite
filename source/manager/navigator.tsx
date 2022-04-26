@@ -6,30 +6,10 @@ import settings from "@/modules/settings";
 
 import { StateHandler } from "@/manager";
 
-import { BridgeEvent } from "@/api";
-
 class Navigator extends StateHandler<NavigatorState> {
 	/** DO NOT MODIFY UNLESS CERTAIN. */
 	public static readonly controller: Record<string, Nullable<React.Component<any, any>>> = {};
-
-	protected create() {
-		// scheme
-		window.bridge.handle(BridgeEvent.OPEN_URL, (args) => {
-			// cache
-			const URL = (args[0] as Array<string>).filter((arg) => arg.substring(0, 12) === "hitomi.la://")?.first?.replace(/\/$/, "");
-			// might be null..?
-			if (URL) {
-				// cache
-				const paramters = new URLSearchParams(URL);
-				// open sasamie
-				this.open(paramters.get("name") ?? "New Tab", paramters.get("type") ?? "FALLBACK", JSON.parse(paramters.get("args") ?? "{}"));
-			}
-		});
-		window.addEventListener("keydown", (event) => {
-			// CTRL + W
-			if (!event.altKey && event.ctrlKey && !event.shiftKey && event.key === "w") this.close();
-		});
-	}
+	
 	public get state() {
 		return super.state;
 	}
@@ -66,7 +46,7 @@ class Navigator extends StateHandler<NavigatorState> {
 			case 1: {
 				this.state = new NavigatorState({
 					index: 0,
-					pages: [{ title: "New Tab", widget: build("FALLBACK", {}) }]
+					pages: [{ title: "NEW TAB", widget: build("BROWSER", {}) }]
 				});
 				break;
 			}
@@ -147,15 +127,15 @@ function build(type: string, args: any) {
 	// must be unique
 	const cache = GUID();
 
-	switch (type.toUpperCase()) {
+	switch (type) {
 		case "FALLBACK": {
-			return (<Fallback ref={(ref) => inspect(cache, ref)} key={cache} data-key={cache}/>);
+			// return (<Fallback ref={(ref) => inspect(cache, ref)} key={cache} data-key={cache}/>);
 		}
 		case "BROWSER": {
 			return (<Browser ref={(ref) => inspect(cache, ref)} key={cache} data-key={cache} index={args.index ?? 0} query={args.query ?? "language:all"}/>);
 		}
 		case "VIEWER": {
-			return (<Viewer ref={(ref) => inspect(cache, ref)} key={cache} data-key={cache} clamp={args.clamp ?? 1000} gallery={args.gallery ?? 6974}/>);
+			return (<Viewer ref={(ref) => inspect(cache, ref)} key={cache} data-key={cache} factor={args.factor ?? responsive.width} gallery={args.gallery ?? 6974}/>);
 		}
 		default: {
 			return (<section key={cache}>UNKNOWN</section>);

@@ -28,7 +28,7 @@ class Config {
 		pages: Array<{
 			type: string;
 			name: string;
-			args: any;
+			args: unknown;
 		}>;
 	};
 

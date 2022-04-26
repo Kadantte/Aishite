@@ -8,7 +8,7 @@ import settings from "@/modules/settings";
 
 import { GalleryInfo } from "@/apis/hitomi.la/gallery";
 
-type Cache = {
+interface Cache {
 	file: string;
 	folder: string;
 	caches: Array<number>;
