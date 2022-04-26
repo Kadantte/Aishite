@@ -115,7 +115,7 @@ class Browser extends Page<BrowserProps, BrowserState> {
 											const element = this.state.controller.current;
 
 											if (element) {
-												element.value = element.value.split(/\s+/).slice(0, -1).add(this.state.suggests[index].first.toString()).join(space);
+												element.value = element.value.replace(/^\s/, "").replace(/\s$/, "").replace(/\s\s+/, space).split(/\s+/).slice(0, -1).add(this.state.suggests[index].first.toString()).join(space);
 											}
 										}}
 										onSelect={(text) => {
