@@ -67,23 +67,23 @@ class Container extends Stateful<ContainerProps, ContainerState> {
 		return (
 			<section id={this.props.id}
 				onMouseUp={(event) => {
-					if (!this.props.phantom) event.stopPropagation();
+					if (this.props.phantom) event.stopPropagation();
 					this.props.onMouseUp?.(this.style);
 				}}
 				onMouseDown={(event) => {
-					if (!this.props.phantom) event.stopPropagation();
+					if (this.props.phantom) event.stopPropagation();
 					this.props.onMouseDown?.(this.style);
 				}}
 				onMouseEnter={(event) => {
-					if (!this.props.phantom) event.stopPropagation();
+					if (this.props.phantom) event.stopPropagation();
 					this.props.onMouseEnter?.(this.style);
 				}}
 				onMouseLeave={(event) => {
-					if (!this.props.phantom) event.stopPropagation();
+					if (this.props.phantom) event.stopPropagation();
 					this.props.onMouseLeave?.(this.style);
 				}}
 				onMouseOver={(event) => {
-					if (!this.props.phantom) event.stopPropagation();
+					if (this.props.phantom) event.stopPropagation();
 					this.props.onMouseMove?.(this.style);
 				}}
 			>{this.props.children}</section>

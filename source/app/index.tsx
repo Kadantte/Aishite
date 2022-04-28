@@ -262,7 +262,7 @@ class Controller extends Stateful<ControllerProps, ControllerState> {
 					{navigator.state.pages.map((page, index) => {
 						return (
 							<Spacer key={index}>
-								<Container id="handle" color={this.state.index === index ? Color.DARK_200 : Color.DARK_000} minimum={{ width: 29.5 }} maximum={{ width: 250 }} border={{ top: { width: 2.5, style: "solid", color: this.state.index === index ? Color.RGBA_000 : "transparent" }, bottom: { width: 2.5 } }} phantom={true} draggable={false}
+								<Container id="handle" color={this.state.index === index ? Color.DARK_200 : Color.DARK_000} minimum={{ width: 29.5 }} maximum={{ width: 250 }} border={{ top: { width: 2.5, style: "solid", color: this.state.index === index ? Color.RGBA_000 : "transparent" }, bottom: { width: 2.5 } }} draggable={false}
 									onMouseDown={(style) => {
 										if (navigator.state.index !== index) {
 											style(null, () => navigator.jump(index));
@@ -279,7 +279,7 @@ class Controller extends Stateful<ControllerProps, ControllerState> {
 									{/* TITLE */}
 									<Text all={7.5} left={10} right={29.5} children={[{ text: page.title, color: this.state.index === index ? undefined : Color.DARK_500 }]}/>
 									{/* CLOSE */}
-									<Button all={7.5} left="auto" right={5.0} width={19.5} height={19.5} corner={{ all: 2.5 }} phantom={true}
+									<Button all={7.5} left="auto" right={5.0} width={19.5} height={19.5} corner={{ all: 2.5 }}
 										onMouseDown={(style) => {
 											navigator.close(index);
 										}}
