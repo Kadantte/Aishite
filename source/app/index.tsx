@@ -217,8 +217,8 @@ class Controller extends Stateful<ControllerProps, ControllerState> {
 						if (event.clientX < left - margin) return;
 						if (event.clientX > left + width + margin) return;
 						// y-axis check
-						if (event.clientY < top - margin) return;
-						if (event.clientY > bottom + margin) return;
+						// if (event.clientY < top - margin) return;
+						// if (event.clientY > bottom + margin) return;
 
 						const destination = Math.floor((left / width) + 0.5);
 
