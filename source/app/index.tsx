@@ -209,24 +209,20 @@ class Controller extends Stateful<ControllerProps, ControllerState> {
 				document.addEventListener("mousemove", (event) => {
 					if (this.state.dragging) {
 						// cache
-						const { width, height } = this.state.dragging.getBoundingClientRect();
+						const { top, left, right, bottom, width, height } = this.state.dragging.getBoundingClientRect();
 
 						const margin = 35;
 
-						const moveX = Number(this.state.dragging.style.left.match(/-?\d+/g)) + event.movementX;
-
-						const posX = (this.state.index * width) + moveX;
-
 						// x-axis check
-						if (event.clientX < posX - margin) return;
-						if (event.clientX > posX + width + margin) return;
+						if (event.clientX < left - margin) return;
+						if (event.clientX > left + width + margin) return;
 						// y-axis check
-						if (event.clientY < 0 - margin) return;
+						if (event.clientY < top - margin) return;
 						if (event.clientY > height + margin) return;
 
-						const destination = Math.floor((posX / width) + 0.5);
+						const destination = Math.floor((left / width) + 0.5);
 
-						if (destination >= 0 && destination < navigator.state.pages.length && this.state.destination !== destination) {
+						if (this.state.destination !== destination && destination >= 0 && destination < navigator.state.pages.length) {
 							// move left
 							if (event.movementX < 0) {
 								if (this.state.index < this.state.destination && this.state.destination > destination) {
@@ -247,7 +243,7 @@ class Controller extends Stateful<ControllerProps, ControllerState> {
 							this.state.destination = destination;
 						}
 						// update
-						this.state.dragging.style.left = Unit(moveX.clamp(width * this.state.index * -1, width * (navigator.state.pages.length - this.state.index - 1)));
+						this.state.dragging.style.left = Unit((Number(this.state.dragging.style.left.match(/-?\d+/g)) + event.movementX).clamp(width * this.state.index * -1, width * (navigator.state.pages.length - this.state.index - 1)));
 					}
 				});
 			}
