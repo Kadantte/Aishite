@@ -211,14 +211,14 @@ class Controller extends Stateful<ControllerProps, ControllerState> {
 						// cache
 						const { top, left, right, bottom, width, height } = this.state.dragging.getBoundingClientRect();
 
-						const margin = 35;
+						const margin = 55;
 
 						// x-axis check
 						if (event.clientX < left - margin) return;
 						if (event.clientX > left + width + margin) return;
 						// y-axis check
 						if (event.clientY < top - margin) return;
-						if (event.clientY > height + margin) return;
+						if (event.clientY > bottom + margin) return;
 
 						const destination = Math.floor((left / width) + 0.5);
 
