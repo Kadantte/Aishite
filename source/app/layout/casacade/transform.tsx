@@ -47,7 +47,7 @@ function rotate(angle?: number) {
 
 function translate(x?: number, y?: number) {
 	if ((x ?? y) !== undefined) {
-		return `translate(${[`${x ?? 0.0}%`, `${y ?? x ?? 0.0}%`].join(comma)})`;
+		return `translate(${[Unit(x ?? 0.0, "%"), Unit(y ?? x ?? 0.0, "%")].join(comma)})`;
 	}
 }
 

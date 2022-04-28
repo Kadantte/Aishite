@@ -272,7 +272,7 @@ async function unknown_0(directory: Nullable<string>, tag: Tag) {
 		case 206: {
 			const binary = new DataView(response.body);
 
-			return Array(~~(binary.byteLength / 4)).fill(null).map((_, index) => binary.getInt32(index * 4, Endian.BIG));
+			return Array(Math.floor(binary.byteLength / 4)).fill(null).map((_, index) => binary.getInt32(index * 4, Endian.BIG));
 		}
 	}
 	return [];

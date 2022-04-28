@@ -18,10 +18,11 @@ class IconProps extends Clear<undefined> {
 	public readonly phantom?: boolean;
 	public readonly transition?: Transition;
 	// events
-	public readonly onMouseUp?: (callback: Icon) => void;
-	public readonly onMouseDown?: (callback: Icon) => void;
-	public readonly onMouseEnter?: (callback: Icon) => void;
-	public readonly onMouseLeave?: (callback: Icon) => void;
+	public readonly onMouseUp?: (callback: Icon["style"]) => void;
+	public readonly onMouseDown?: (callback: Icon["style"]) => void;
+	public readonly onMouseEnter?: (callback: Icon["style"]) => void;
+	public readonly onMouseLeave?: (callback: Icon["style"]) => void;
+	public readonly onMouseMove?: (callback: Icon["style"]) => void;
 
 	constructor(args: Args<IconProps>) {
 		super(args);
@@ -38,6 +39,7 @@ class IconProps extends Clear<undefined> {
 		this.onMouseDown = args.onMouseDown;
 		this.onMouseEnter = args.onMouseEnter;
 		this.onMouseLeave = args.onMouseLeave;
+		this.onMouseMove = args.onMouseMove;
 	}
 }
 
@@ -51,6 +53,8 @@ class IconState {
 
 abstract class Icon extends Stateful<IconProps, IconState> {
 	protected create() {
+		this.style = this.style.bind(this);
+		
 		return new IconState({ color: null });
 	}
 	protected postCSS(): React.CSSProperties {
@@ -74,19 +78,23 @@ abstract class Icon extends Stateful<IconProps, IconState> {
 			// events
 			onMouseUp: (event: MouseEvent) => {
 				if (this.props.phantom) event.stopPropagation();
-				this.props.onMouseUp?.(this);
+				this.props.onMouseUp?.(this.style);
 			},
 			onMouseDown: (event: MouseEvent) => {
 				if (this.props.phantom) event.stopPropagation();
-				this.props.onMouseDown?.(this);
+				this.props.onMouseDown?.(this.style);
 			},
 			onMouseEnter: (event: MouseEvent) => {
 				if (this.props.phantom) event.stopPropagation();
-				this.props.onMouseEnter?.(this);
+				this.props.onMouseEnter?.(this.style);
 			},
 			onMouseLeave: (event: MouseEvent) => {
 				if (this.props.phantom) event.stopPropagation();
-				this.props.onMouseLeave?.(this);
+				this.props.onMouseLeave?.(this.style);
+			},
+			onMouseMove: (event: MouseEvent) => {
+				if (this.props.phantom) event.stopPropagation();
+				this.props.onMouseMove?.(this.style);
 			}
 		};
 	}

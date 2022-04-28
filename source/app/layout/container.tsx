@@ -11,10 +11,11 @@ class ContainerProps extends Props<Children> {
 	public readonly phantom?: boolean;
 	public readonly transition?: Transition;
 	// events
-	public readonly onMouseUp?: (callback: Container) => void;
-	public readonly onMouseDown?: (callback: Container) => void;
-	public readonly onMouseEnter?: (callback: Container) => void;
-	public readonly onMouseLeave?: (callback: Container) => void;
+	public readonly onMouseUp?: (callback: Container["style"]) => void;
+	public readonly onMouseDown?: (callback: Container["style"]) => void;
+	public readonly onMouseEnter?: (callback: Container["style"]) => void;
+	public readonly onMouseLeave?: (callback: Container["style"]) => void;
+	public readonly onMouseMove?: (callback: Container["style"]) => void;
 
 	constructor(args: Args<ContainerProps>) {
 		super(args);
@@ -26,6 +27,7 @@ class ContainerProps extends Props<Children> {
 		this.onMouseDown = args.onMouseDown;
 		this.onMouseEnter = args.onMouseEnter;
 		this.onMouseLeave = args.onMouseLeave;
+		this.onMouseMove = args.onMouseMove;
 	}
 }
 
@@ -39,6 +41,8 @@ class ContainerState {
 
 class Container extends Stateful<ContainerProps, ContainerState> {
 	protected create() {
+		this.style = this.style.bind(this);
+		
 		return new ContainerState({ decoration: null });
 	}
 	protected postCSS(): React.CSSProperties {
@@ -64,19 +68,23 @@ class Container extends Stateful<ContainerProps, ContainerState> {
 			<section id={this.props.id}
 				onMouseUp={(event) => {
 					if (!this.props.phantom) event.stopPropagation();
-					this.props.onMouseUp?.(this);
+					this.props.onMouseUp?.(this.style);
 				}}
 				onMouseDown={(event) => {
 					if (!this.props.phantom) event.stopPropagation();
-					this.props.onMouseDown?.(this);
+					this.props.onMouseDown?.(this.style);
 				}}
 				onMouseEnter={(event) => {
 					if (!this.props.phantom) event.stopPropagation();
-					this.props.onMouseEnter?.(this);
+					this.props.onMouseEnter?.(this.style);
 				}}
 				onMouseLeave={(event) => {
 					if (!this.props.phantom) event.stopPropagation();
-					this.props.onMouseLeave?.(this);
+					this.props.onMouseLeave?.(this.style);
+				}}
+				onMouseOver={(event) => {
+					if (!this.props.phantom) event.stopPropagation();
+					this.props.onMouseMove?.(this.style);
 				}}
 			>{this.props.children}</section>
 		);

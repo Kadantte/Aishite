@@ -7,7 +7,7 @@ import { API_COMMAND, BridgeEvent } from "@/api";
 
 let window: Nullable<BrowserWindow> = null;
 
-Menu.setApplicationMenu(Menu.buildFromTemplate([{ role: "togglefullscreen" }]));
+//Menu.setApplicationMenu(Menu.buildFromTemplate([{ role: "togglefullscreen" }]));
 
 const instance = app.requestSingleInstanceLock();
 
@@ -19,8 +19,6 @@ if (!app.isPackaged) {
 	node_fs.watch(node_path.resolve(__dirname, "renderer.js")).on("change", () => window?.reload());
 }
 
-const FHD = !app.isPackaged;
-
 app.on("ready", () => {
 	// cannot require until app is ready
 	const { screen } = require("electron");
@@ -29,14 +27,10 @@ app.on("ready", () => {
 
 	const resolution = {
 		width(pixels: number = screen.getPrimaryDisplay().workArea.width) {
-			const offset = 15 + 15;
-
-			return Math.round((pixels - offset) / 5 * 1.5 + (offset));
+			return Math.round((pixels - 30) / 5 * 1.5 + 30);
 		},
 		height(pixels: number = screen.getPrimaryDisplay().workArea.height + (/* TASKBAR */ 45)) {
-			const offset = 40 + 15 + 40 + 15 + 15 + 15 + 45;
-
-			return Math.round((pixels - (/* TASKBAR */ 45) - offset) / 2 + (offset - 15));
+			return Math.round((pixels - (/* TASKBAR */ 45) - 185) / 2 + 170);
 		}
 	};
 	// create window
@@ -44,7 +38,7 @@ app.on("ready", () => {
 		icon: "source/assets/aishite.ico",
 		show: false,
 		frame: false,
-		...(FHD ? {
+		...(process.env.NODE_ENV === "development" ? {
 			width: resolution.width(1920),
 			height: resolution.height(1080),
 			minWidth: resolution.width(1920),

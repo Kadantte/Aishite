@@ -180,14 +180,14 @@ class Browser extends Page<BrowserProps, BrowserState> {
 					builder={(key, indexing, handle) => {
 						return (
 							<Button key={key} minimum={{ width: 50 }} margin={{ top: 7.5, bottom: 7.5 }} padding={{ left: 7.5, right: 7.5 }} corner={{ all: 4.5 }}
-								onMouseDown={(I) => {
-									I.style(null, () => handle());
+								onMouseDown={(style) => {
+									style(null, () => handle());
 								}}
-								onMouseEnter={(I) => {
-									I.style({ color: Color.DARK_200 });
+								onMouseEnter={(style) => {
+									style({ color: Color.DARK_200 });
 								}}
-								onMouseLeave={(I) => {
-									I.style(null);
+								onMouseLeave={(style) => {
+									style(null);
 								}}
 								children={<Text>{[{ text: typeof key === "string" ? key : (key + 1).toString(), color: !this.state.gallery.isEmpty() && this.state.length ? indexing ? Color.RGBA_000 : Color.TEXT_000 : Color.DARK_500 }]}</Text>}
 							/>

@@ -74,8 +74,11 @@ class Navigator extends StateHandler<NavigatorState> {
 		});
 	}
 	/** Reorder array of `page`. */
-	public reorder(index_0: number, index_1: number) {
-		throw new Error("Unimplemented");
+	public reorder(destination: number) {
+		this.state = new NavigatorState({
+			index: destination,
+			pages: this.state.pages.map((page, index) => index === this.state.index ? this.state.pages[destination] : index === destination ? this.state.pages[this.state.index] : page)
+		});
 	}
 }
 

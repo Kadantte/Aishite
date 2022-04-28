@@ -78,10 +78,10 @@ class Dropdown extends Stateful<DropdownProps, DropdownState> {
 			<Element id="dropdown" override={{ overflow: "visible" }}>
 				{/* FORM */}
 				<Container color={this.state.hover || this.state.focus ? Color.DARK_400 : Color.DARK_300} height={40} corner={{ all: 4.5, BL: this.state.focus && !this.props.items.isEmpty() ? 0 : undefined, BR: this.state.focus && !this.props.items.isEmpty() ? 0 : undefined }} shadow={[{ x: 0, y: 0, blur: 5, spread: 0, color: Color.DARK_100 }]}
-					onMouseEnter={(I) => {
+					onMouseEnter={(style) => {
 						this.setState((state) => ({ hover: true }));
 					}}
-					onMouseLeave={(I) => {
+					onMouseLeave={(style) => {
 						this.setState((state) => ({ hover: false }));
 					}}>
 					<Row>
@@ -120,14 +120,14 @@ class Dropdown extends Stateful<DropdownProps, DropdownState> {
 						/>
 						<Center x={true} y={true} width={50}>
 							<Close color={Color.DARK_500}
-								onMouseDown={(I) => {
+								onMouseDown={(style) => {
 									this.props.onReset?.();
 								}}
-								onMouseEnter={(I) => {
-									I.style(Color.TEXT_000);
+								onMouseEnter={(style) => {
+									style(Color.TEXT_000);
 								}}
-								onMouseLeave={(I) => {
-									I.style(null);
+								onMouseLeave={(style) => {
+									style(null);
 								}}
 							/>
 						</Center>
@@ -139,10 +139,10 @@ class Dropdown extends Stateful<DropdownProps, DropdownState> {
 						{this.props.items.map((item, index) => {
 							return (
 								<Button key={index} color={this.state.index === index ? Color.DARK_500 : undefined} height={40}
-									onMouseDown={() => {
+									onMouseDown={(style) => {
 										this.setState((state) => ({ index: NaN }), () => this.props.onSelect?.(item.first));
 									}}
-									onMouseEnter={(I) => {
+									onMouseEnter={(style) => {
 										this.setState((state) => ({ index: index }), () => this.props.onIndex?.(index));
 									}}>
 									<Text left={15} children={item.first.split(this.props.highlight!).map((text, index, array) => array.length > index + 1 ? text.isEmpty() ? { text: this.props.highlight, color: Color.RGBA_000 } : [{ text: text }, { text: this.props.highlight, color: Color.RGBA_000 }] : { text: text }).flat().map((text) => ({ ...text, size: 13.5 })) as never}></Text>

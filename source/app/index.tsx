@@ -97,42 +97,42 @@ class App extends Stateful<AppProps, AppState> {
 						{/* GAP */}
 					</Element>
 					<Button id="minimize" width={Unit(50)} draggable={false}
-						onMouseDown={(I) => {
+						onMouseDown={(style) => {
 							protocol.minimize();
 						}}
-						onMouseEnter={(I) => {
-							I.style({ color: Color.DARK_100 });
+						onMouseEnter={(style) => {
+							style({ color: Color.DARK_100 });
 						}}
-						onMouseLeave={(I) => {
-							I.style(null);
+						onMouseLeave={(style) => {
+							style(null);
 						}}
 						children={<Minimize/>}
 					/>
 					<Button id="maximize" width={Unit(50)} draggable={false}
-						onMouseDown={(I) => {
+						onMouseDown={(style) => {
 							if (this.state.maximize) {
 								protocol.unmaximize();
 							} else {
 								protocol.maximize();
 							}
 						}}
-						onMouseEnter={(I) => {
-							I.style({ color: Color.DARK_100 });
+						onMouseEnter={(style) => {
+							style({ color: Color.DARK_100 });
 						}}
-						onMouseLeave={(I) => {
-							I.style(null);
+						onMouseLeave={(style) => {
+							style(null);
 						}}
 						children={this.state.maximize ? <Unmaximize/> : <Maximize/>}
 					/>
 					<Button id="close" width={Unit(50)} draggable={false}
-						onMouseDown={(I) => {
+						onMouseDown={(style) => {
 							protocol.close("titlebar");
 						}}
-						onMouseEnter={(I) => {
-							I.style({ color: Color.RGBA_100 });
+						onMouseEnter={(style) => {
+							style({ color: Color.RGBA_100 });
 						}}
-						onMouseLeave={(I) => {
-							I.style(null);
+						onMouseLeave={(style) => {
+							style(null);
 						}}
 						children={<Close/>}
 					/>
@@ -154,21 +154,101 @@ class ControllerProps extends Props<undefined> {
 
 class ControllerState {
 	public index: number;
+	public dragging: Nullable<HTMLElement>;
+	public destination: number;
 
 	constructor(args: Args<ControllerState>) {
 		this.index = args.index;
+		this.dragging = args.dragging;
+		this.destination = args.destination;
 	}
 }
 
 class Controller extends Stateful<ControllerProps, ControllerState> {
 	protected create() {
-		return new ControllerState({ index: navigator.state.index });
+		return new ControllerState({ index: navigator.state.index, dragging: null, destination: NaN });
 	}
 	protected events(): LifeCycle<ControllerProps, ControllerState> {
 		return {
 			DID_MOUNT: () => {
 				navigator.handle((event) => {
-					this.setState((state) => ({ index: event.detail.after.index }));
+					// reset
+					this.setState((state) => ({ index: event.detail.after.index, dragging: null, destination: NaN }));
+				});
+
+				const element = this.node()!;
+
+				document.addEventListener("mouseup", (event) => {
+					if (this.state.dragging) {
+						// undo
+						for (let index = 0; index < navigator.state.pages.length; index++) {
+							// cache
+							const children = element.children.item(index) as HTMLElement;
+
+							children.style.left = "unset";
+							children.style.zIndex = "unset";
+							children.style.transform = "unset";
+						}
+						// update
+						navigator.reorder(this.state.destination);
+					}
+				});
+				document.addEventListener("mousedown", (event) => {
+					if ((event.target as HTMLElement).id === "handle") {
+						// cache
+						const children = event.target as HTMLElement;
+
+						children.style.left = "unset";
+						children.style.zIndex = "6974";
+						children.style.transform = "unset";
+
+						this.state.dragging = children;
+						this.state.destination = this.state.index;
+					}
+				});
+				document.addEventListener("mousemove", (event) => {
+					if (this.state.dragging) {
+						// cache
+						const { width, height } = this.state.dragging.getBoundingClientRect();
+
+						const margin = 35;
+
+						const moveX = Number(this.state.dragging.style.left.match(/-?\d+/g)) + event.movementX;
+
+						const posX = (this.state.index * width) + moveX;
+
+						// x-axis check
+						if (event.clientX < posX - margin) return;
+						if (event.clientX > posX + width + margin) return;
+						// y-axis check
+						if (event.clientY < 0 - margin) return;
+						if (event.clientY > height + margin) return;
+
+						const destination = Math.floor((posX / width) + 0.5);
+
+						if (destination >= 0 && destination < navigator.state.pages.length && this.state.destination !== destination) {
+							// move left
+							if (event.movementX < 0) {
+								if (this.state.index < this.state.destination && this.state.destination > destination) {
+									(element.children.item(destination + 1) as HTMLElement).style.transform = "unset";
+								} else {
+									(element.children.item(destination) as HTMLElement).style.transform = "translate(100%)";
+								}
+							}
+							// move right
+							if (event.movementX > 0) {
+								if (this.state.index > this.state.destination && this.state.destination < destination) {
+									(element.children.item(destination - 1) as HTMLElement).style.transform = "unset";
+								} else {
+									(element.children.item(destination) as HTMLElement).style.transform = "translateX(-100%)";
+								}
+							}
+							// update
+							this.state.destination = destination;
+						}
+						// update
+						this.state.dragging.style.left = Unit(moveX.clamp(width * this.state.index * -1, width * (navigator.state.pages.length - this.state.index - 1)));
+					}
 				});
 			}
 		};
@@ -181,39 +261,37 @@ class Controller extends Stateful<ControllerProps, ControllerState> {
 	}
 	protected build() {
 		return (
-			<Row id={"navigator"}>
+			<Row id={"controller"}>
 				<>
 					{navigator.state.pages.map((page, index) => {
 						return (
 							<Spacer key={index}>
-								<Container color={this.state.index === index ? Color.DARK_200 : Color.DARK_000} minimum={{ width: 29.5 }} maximum={{ width: 250 }} border={{ top: { width: 2.5, style: "solid", color: this.state.index === index ? Color.RGBA_000 : "transparent" }, bottom: { width: 2.5 } }} draggable={false}
-									onMouseDown={(I) => {
+								<Container id="handle" color={this.state.index === index ? Color.DARK_200 : Color.DARK_000} minimum={{ width: 29.5 }} maximum={{ width: 250 }} border={{ top: { width: 2.5, style: "solid", color: this.state.index === index ? Color.RGBA_000 : "transparent" }, bottom: { width: 2.5 } }} phantom={true} draggable={false}
+									onMouseDown={(style) => {
 										if (navigator.state.index !== index) {
-											I.style(null, () => {
-												navigator.jump(index);
-											});
+											style(null, () => navigator.jump(index));
 										}
 									}}
-									onMouseEnter={(I) => {
+									onMouseEnter={(style) => {
 										if (navigator.state.index !== index) {
-											I.style({ color: Color.DARK_100, border: { top: { width: 2.5, style: "solid", color: Color.DARK_200 } } });
+											style({ color: Color.DARK_100, border: { top: { width: 2.5, style: "solid", color: Color.DARK_200 } } });
 										}
 									}}
-									onMouseLeave={(I) => {
-										I.style(null);
+									onMouseLeave={(style) => {
+										style(null);
 									}}>
 									{/* TITLE */}
 									<Text all={7.5} left={10} right={29.5} children={[{ text: page.title, color: this.state.index === index ? undefined : Color.DARK_500 }]}/>
 									{/* CLOSE */}
-									<Button all={7.5} left="auto" right={5.0} width={19.5} height={19.5} corner={{ all: 2.5 }}
-										onMouseDown={(I) => {
+									<Button all={7.5} left="auto" right={5.0} width={19.5} height={19.5} corner={{ all: 2.5 }} phantom={true}
+										onMouseDown={(style) => {
 											navigator.close(index);
 										}}
-										onMouseEnter={(I) => {
-											I.style({ color: Color.RGBA_100 });
+										onMouseEnter={(style) => {
+											style({ color: Color.RGBA_100 });
 										}}
-										onMouseLeave={(I) => {
-											I.style(null);
+										onMouseLeave={(style) => {
+											style(null);
 										}}
 										children={<Close color={this.state.index === index ? undefined : Color.DARK_500}/>}
 									/>
@@ -223,14 +301,14 @@ class Controller extends Stateful<ControllerProps, ControllerState> {
 					})}
 				</>
 				<Button id="open" color={Color.DARK_200} width={26.5} height={26.5} margin={{ all: 20 - 13.25 }} corner={{ all: 2.5 }} draggable={false}
-					onMouseDown={(I) => {
+					onMouseDown={(style) => {
 						navigator.open("NEW TAB", "BROWSER", {});
 					}}
-					onMouseEnter={(I) => {
-						I.style({ color: Color.DARK_400 });
+					onMouseEnter={(style) => {
+						style({ color: Color.DARK_400 });
 					}}
-					onMouseLeave={(I) => {
-						I.style(null);
+					onMouseLeave={(style) => {
+						style(null);
 					}}
 					children={<Plus/>}
 				/>

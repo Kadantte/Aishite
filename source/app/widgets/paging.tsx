@@ -87,7 +87,7 @@ class Paging extends Stateful<PagingProps, PagingState> {
 		this.setState((state) => ({ index: index }));
 	}
 	protected offset(value: number) {
-		const a = ~~(this.props.overflow / 2); const b = (this.props.length > this.props.overflow); const c = (this.state.index > a && b) ? Math.abs(this.state.index - a) : 0; const d = (this.props.overflow + c);
+		const a = Math.floor(this.props.overflow / 2); const b = (this.props.length > this.props.overflow); const c = (this.state.index > a && b) ? Math.abs(this.state.index - a) : 0; const d = (this.props.overflow + c);
 	
 		return value + c + ((d > this.props.length && b) ? (this.props.length - d) : 0);
 	}

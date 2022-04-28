@@ -67,7 +67,8 @@ class Text extends Stateless<TextProps> {
 			color: this.props.children.last?.color,
 			overflow: "hidden",
 			whiteSpace: "nowrap",
-			textOverflow: "ellipsis"
+			textOverflow: "ellipsis",
+			pointerEvents: "none"
 		};
 	}
 	protected build() {

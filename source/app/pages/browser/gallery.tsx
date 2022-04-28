@@ -81,15 +81,15 @@ class Gallery extends Stateful<GalleryProps, GalleryState> {
 	protected build() {
 		return (
 			<Container id={"gallery"} color={Color.DARK_400} border={{ all: { width: 7.5, style: "solid", color: Color.DARK_300 } }} corner={{ all: 4.5 }} shadow={[{ x: 0, y: 0, blur: 5, spread: 0, color: Color.DARK_100 }]}
-				onMouseEnter={(I) => {
-					I.style({ corner: { all: 14.5 } }, () => {
+				onMouseEnter={(style) => {
+					style({ corner: { all: 14.5 } }, () => {
 						if (this.state.background !== Ayanami.INFORMATION) {
 							this.setState((state) => ({ background: Ayanami.THUMBNAIL_1 }));
 						}
 					});
 				}}
-				onMouseLeave={(I) => {
-					I.style(null, () => {
+				onMouseLeave={(style) => {
+					style(null, () => {
 						if (this.state.background !== Ayanami.INFORMATION) {
 							this.setState((state) => ({ background: Ayanami.THUMBNAIL_0 }));
 						}
@@ -139,7 +139,7 @@ class Gallery extends Stateful<GalleryProps, GalleryState> {
 														{[section.value instanceof Array && section.value.isEmpty() ? ["N/A"] : section.value ?? "N/A"].flat().map((chip, _index) => {
 															return (
 																<Button key={_index} color={Color.DARK_400} maximum={{ width: Unit(69, "%") }} border={{ all: { width: 0.75, style: "solid", color: Color.DARK_200 } }} corner={{ all: 3.0 }} margin={{ all: 4.0 }} padding={{ all: 3.0, left: 5.5, right: 5.5 }}
-																	onMouseDown={(I) => {
+																	onMouseDown={(style) => {
 																		// skip
 																		if (chip === "N/A" || section.key === "title" || section.key === "date") return;
 
@@ -158,11 +158,11 @@ class Gallery extends Stateful<GalleryProps, GalleryState> {
 																			}
 																		}
 																	}}
-																	onMouseEnter={(I) => {
-																		I.style({ color: Color.DARK_500 });
+																	onMouseEnter={(style) => {
+																		style({ color: Color.DARK_500 });
 																	}}
-																	onMouseLeave={(I) => {
-																		I.style(null);
+																	onMouseLeave={(style) => {
+																		style(null);
 																	}}
 																	children={<Text length={Unit(100, "%")}>{(chip instanceof Tag ? [{ text: chip.namespace, color: chip.namespace === "male" ? "cyan" : chip.namespace === "female" ? "pink" : "white" }, { text: ":" }, { text: chip.value }] : [{ text: chip.toString() }]).map((item) => ({ ...item, size: 13.5 }))}</Text>}
 																/>
@@ -183,10 +183,10 @@ class Gallery extends Stateful<GalleryProps, GalleryState> {
 					})}
 				</Stack>
 				<Container color={Color.DARK_300} width={"auto"} height={50} left={25} right={25} bottom={25} corner={{ all: 4.5 }} shadow={[{ x: 0, y: 0, blur: 5, spread: 0, color: Color.DARK_100 }]}
-					onMouseEnter={(I) => {
+					onMouseEnter={(style) => {
 						this.setState((state) => ({ foreground: Asuka.TOOLS }));
 					}}
-					onMouseLeave={(I) => {
+					onMouseLeave={(style) => {
 						this.setState((state) => ({ foreground: Asuka.TITLE }));
 					}}>
 					<Stack>
@@ -194,60 +194,56 @@ class Gallery extends Stateful<GalleryProps, GalleryState> {
 							<Text length={Unit(90, "%")} children={[{ text: this.props.gallery.title }]}/>,
 							<>
 								<Read color={Color.DARK_500} width={Unit(25)} height={Unit(25)} margin={{ left: 10, right: 10 }}
-									onMouseDown={(I) => {
+									onMouseDown={(style) => {
 										navigator.open(this.props.gallery.title, "VIEWER", { gallery: this.props.gallery.id });
 									}}
-									onMouseEnter={(I) => {
-										I.style(Color.TEXT_000);
+									onMouseEnter={(style) => {
+										style(Color.TEXT_000);
 									}}
-									onMouseLeave={(I) => {
-										I.style(null);
+									onMouseLeave={(style) => {
+										style(null);
 									}}
 								/>
 								<Delete color={Color.DARK_400} width={Unit(25)} height={Unit(25)} margin={{ left: 10, right: 10 }}
-									onMouseEnter={(I) => {
-										// I.style(Color.TEXT_000);
+									onMouseEnter={(style) => {
+										// style(Color.TEXT_000);
 									}}
-									onMouseLeave={(I) => {
-										// I.style(null);
+									onMouseLeave={(style) => {
+										// style(null);
 									}}
 								/>
 								<Download color={Color.DARK_400} width={Unit(25)} height={Unit(25)} margin={{ left: 10, right: 10 }}
-									onMouseEnter={(I) => {
-										// I.style(Color.TEXT_000);
+									onMouseEnter={(style) => {
+										// style(Color.TEXT_000);
 									}}
-									onMouseLeave={(I) => {
-										// I.style(null);
+									onMouseLeave={(style) => {
+										// style(null);
 									}}
 								/>
 								<Bookmark color={Color.DARK_400} width={Unit(25)} height={Unit(25)} margin={{ left: 10, right: 10 }}
-									onMouseEnter={(I) => {
-										// I.style(Color.TEXT_000);
+									onMouseEnter={(style) => {
+										// style(Color.TEXT_000);
 									}}
-									onMouseLeave={(I) => {
-										// I.style(null);
+									onMouseLeave={(style) => {
+										// style(null);
 									}}
 								/>
 								<Discovery color={Color.DARK_500} width={Unit(25)} height={Unit(25)} margin={{ left: 10, right: 10 }}
-									onMouseDown={(I) => {
+									onMouseDown={(style) => {
 										if (this.state.background !== Ayanami.INFORMATION) {
-											I.style(Color.RGBA_000, () => {
-												this.setState((state) => ({ background: Ayanami.INFORMATION }));
-											});
+											style(Color.RGBA_000, () => this.setState((state) => ({ background: Ayanami.INFORMATION })));
 										} else {
-											I.style(Color.TEXT_000, () => {
-												this.setState((state) => ({ background: Ayanami.THUMBNAIL_1 }));
-											});
+											style(Color.TEXT_000, () => this.setState((state) => ({ background: Ayanami.THUMBNAIL_1 })));
 										}
 									}}
-									onMouseEnter={(I) => {
+									onMouseEnter={(style) => {
 										if (this.state.background !== Ayanami.INFORMATION) {
-											I.style(Color.TEXT_000);
+											style(Color.TEXT_000);
 										}
 									}}
-									onMouseLeave={(I) => {
+									onMouseLeave={(style) => {
 										if (this.state.background !== Ayanami.INFORMATION) {
-											I.style(null);
+											style(null);
 										}
 									}}
 								/>

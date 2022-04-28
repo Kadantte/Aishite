@@ -1,6 +1,6 @@
 import Unit from "@/app/common/unit";
 import { Clear } from "@/app/common/props";
-import { Stateful } from "@/app/common/framework";
+import { Stateful, LifeCycle } from "@/app/common/framework";
 
 import navigator from "@/manager/navigator";
 
@@ -11,7 +11,11 @@ class ViewportProps extends Clear<undefined> {
 }
 
 class ViewportState {
-	constructor(args: Args<ViewportState>) {}
+	public key: Nullable<React.Key>;
+
+	constructor(args: Args<ViewportState>) {
+		this.key = args.key;
+	}
 }
 
 /**
@@ -22,16 +26,26 @@ class ViewportState {
  */
 class Viewport extends Stateful<ViewportProps, ViewportState> {
 	protected create() {
-		// TODO: use this.binds instead
-		navigator.handle((state) => {
-			// render
-			this.forceUpdate();
-			// reset scroll position
-			setTimeout(() => {
-				document.querySelector("#background > section[style*=\"display: block\"] *[data-scrollable]")?.scrollTo({ top: 0, behavior: "smooth" });
-			});
-		});
-		return new ViewportState({});
+		return new ViewportState({ key: navigator.state.pages[navigator.state.index].widget.key });
+	}
+	protected events(): LifeCycle<ViewportProps, ViewportState> {
+		return {
+			DID_MOUNT: () => {
+				navigator.handle((event) => {
+					// cache
+					const key = event.detail.after.pages[event.detail.after.index].widget.key;
+
+					// reorder
+					if (this.state.key === key && event.detail.before.pages.length === event.detail.after.pages.length) return;
+					
+					// render
+					this.setState((state) => ({ key: event.detail.after.pages[event.detail.after.index].widget.key }), () => {
+						// reset scroll position
+						document.querySelector("#background > section[style*=\"display: block\"] *[data-scrollable]")?.scrollTo({ top: 0, behavior: "smooth" });
+					});
+				});
+			}
+		};
 	}
 	protected postCSS(): React.CSSProperties {
 		return {};
@@ -40,7 +54,7 @@ class Viewport extends Stateful<ViewportProps, ViewportState> {
 		return {};
 	}
 	protected build() {
-		return (<>{navigator.state.pages.map((page, index) => <section key={index} data-scrollable={"frame"} style={{ display: navigator.state.index === index ? "block" : "none", width: Unit(100, "%"), height: Unit(100, "%"), overflow: "auto" }}>{page.widget}</section>)}</>);
+		return (<>{navigator.state.pages.map((page, index) => <section key={index} data-scrollable={"frame"} style={{ display: (this.state.key ? this.state.key === page.widget.key : navigator.state.index === index) ? "block" : "none", width: Unit(100, "%"), height: Unit(100, "%"), overflow: "auto" }}>{page.widget}</section>)}</>);
 	}
 }
 

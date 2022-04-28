@@ -6,13 +6,14 @@ const transparent = "data:image/gif;base64,R0lGODlhAQABAAAAACwAAAAAAQABAAA=";
 class ImageProps extends Props<undefined> {
 	public readonly source: string;
 	// events
-	public readonly onError?: (callback: Image) => void;
-	public readonly onLoaded?: (callback: Image) => void;
+	public readonly onError?: () => void;
+	public readonly onLoaded?: () => void;
 
 	constructor(args: Args<ImageProps>) {
 		super(args);
 
 		this.source = args.source;
+		// events
 		this.onError = args.onError;
 		this.onLoaded = args.onLoaded;
 	}
@@ -48,10 +49,13 @@ class Image extends Stateless<Omit<ImageProps, ("color" | "image")>> {
 							break;
 						}
 					}
+					this.props.onLoaded?.();
 				}}
 				onError={(event) => {
 					// @ts-ignore
 					event.target.src = transparent;
+
+					this.props.onError?.();
 				}}
 			/>
 		);
