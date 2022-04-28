@@ -228,7 +228,7 @@ class Controller extends Stateful<ControllerProps, ControllerState> {
 								if (this.state.index < this.state.destination && this.state.destination > destination) {
 									(element.children.item(destination + 1) as HTMLElement).style.transform = "unset";
 								} else {
-									(element.children.item(destination) as HTMLElement).style.transform = "translate(100%)";
+									(element.children.item(destination) as HTMLElement).style.transform = "translateX(100%)";
 								}
 							}
 							// move right
