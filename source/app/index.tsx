@@ -178,7 +178,7 @@ class Controller extends Stateful<ControllerProps, ControllerState> {
 
 				const element = this.node()!;
 
-				document.addEventListener("mouseup", (event) => {
+				window.addEventListener("mouseup", (event) => {
 					if (this.state.dragging) {
 						// undo
 						for (let index = 0; index < navigator.state.pages.length; index++) {
@@ -193,7 +193,7 @@ class Controller extends Stateful<ControllerProps, ControllerState> {
 						navigator.reorder(this.state.destination);
 					}
 				});
-				document.addEventListener("mousedown", (event) => {
+				window.addEventListener("mousedown", (event) => {
 					if ((event.target as HTMLElement).id === "handle") {
 						// cache
 						const children = event.target as HTMLElement;
@@ -206,7 +206,7 @@ class Controller extends Stateful<ControllerProps, ControllerState> {
 						this.state.destination = this.state.index;
 					}
 				});
-				document.addEventListener("mousemove", (event) => {
+				window.addEventListener("mousemove", (event) => {
 					if (this.state.dragging) {
 						// cache
 						const { top, left, right, bottom, width, height } = this.state.dragging.getBoundingClientRect();
