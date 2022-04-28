@@ -7,7 +7,7 @@ import { API_COMMAND, BridgeEvent } from "@/api";
 
 let window: Nullable<BrowserWindow> = null;
 
-//Menu.setApplicationMenu(Menu.buildFromTemplate([{ role: "togglefullscreen" }]));
+Menu.setApplicationMenu(Menu.buildFromTemplate([{ role: "togglefullscreen" }]));
 
 const instance = app.requestSingleInstanceLock();
 
