@@ -42,7 +42,7 @@ enum Ayanami {
 	INFORMATION = 2
 }
 
-const cache = new Map<number, number>();
+let offset = 0;
 
 class GalleryProps extends Props<undefined> {
 	public readonly gallery: _Gallery;
@@ -116,20 +116,20 @@ class Gallery extends Stateful<GalleryProps, GalleryState> {
 											{ key: "date", value: this.props.gallery.date }
 										].map((section, index) => {
 											// cache
-											const offset = typeof this.props.height === "string" ? Number(this.props.height.replace(/\D/g, "")) : this.props.height;
+											const height = typeof this.props.height === "string" ? Number(this.props.height.match(/-?\d+/g)) : this.props.height;
 
-											if (offset && !cache.has(offset)) {
+											if (height && offset === 0) {
 												// default value
 												let count = 6;
 
-												while ((offset - 170) / count >= 60) {
+												while ((height - 170) / count >= 60) {
 													count++;
 												}
 												// assign
-												cache.set(offset, (((offset - 170) / count) - 35) / 2);
+												offset = (((height - 170) / count) - 37) / 2;
 											}
 											return (
-												<Element key={index} padding={{ all: offset ? cache.get(offset) : 7.5, left: 0, right: 14.5 }}>
+												<Element key={index} padding={{ all: offset ? offset : 7.5, left: 0, right: 14.5 }}>
 													{/* KEY */}
 													<Inline flex={true}>
 														<Text children={[{ text: section.key == "id" ? "No." : section.key.replace(/^([\D])([\D]+)$/, ($0, $1, $2) => `${$1.toUpperCase()}${$2.toLowerCase()}:`) }]}/>
@@ -191,7 +191,7 @@ class Gallery extends Stateful<GalleryProps, GalleryState> {
 					}}>
 					<Stack>
 						{[
-							<Text length={Unit(90, "%")} children={[{ text: this.props.gallery.title }]}/>,
+							<Text length={Unit(90, "%")} children={[{ text: this.props.gallery.title, weight: "bold" }]}/>,
 							<>
 								<Read color={Color.DARK_500} width={Unit(25)} height={Unit(25)} margin={{ left: 10, right: 10 }}
 									onMouseDown={(style) => {

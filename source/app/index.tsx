@@ -146,6 +146,44 @@ class App extends Stateful<AppProps, AppState> {
 	}
 }
 
+class Handle {
+	public index: number;
+	public offset: number;
+	public readonly element: HTMLElement;
+	public readonly minimum: number;
+	public readonly maximum: number;
+
+	constructor(args: {
+		index: number;
+		offset: number;
+		element: HTMLElement;
+	}) {
+		this.index = args.index;
+		this.offset = args.offset;
+		this.element = args.element;
+		this.minimum = this.width * (args.index * -1);
+		this.maximum = this.width * (navigator.state.pages.length - args.index - 1);
+	}
+	public get top() {
+		return this.element.getBoundingClientRect().top;
+	}
+	public get left() {
+		return this.element.getBoundingClientRect().left;
+	}
+	public get right() {
+		return this.element.getBoundingClientRect().right;
+	}
+	public get bottom() {
+		return this.element.getBoundingClientRect().bottom;
+	}
+	public get width() {
+		return this.element.getBoundingClientRect().width;
+	}
+	public get height() {
+		return this.element.getBoundingClientRect().height;
+	}
+}
+
 class ControllerProps extends Props<undefined> {
 	constructor(args: Args<ControllerProps>) {
 		super(args);
@@ -154,78 +192,75 @@ class ControllerProps extends Props<undefined> {
 
 class ControllerState {
 	public index: number;
-	public dragging: Nullable<HTMLElement>;
-	public destination: number;
+	public handle: Nullable<Handle>;
 
 	constructor(args: Args<ControllerState>) {
 		this.index = args.index;
-		this.dragging = args.dragging;
-		this.destination = args.destination;
+		this.handle = args.handle;
 	}
 }
 
 class Controller extends Stateful<ControllerProps, ControllerState> {
 	protected create() {
-		return new ControllerState({ index: navigator.state.index, dragging: null, destination: NaN });
+		return new ControllerState({ index: navigator.state.index, handle: null });
 	}
 	protected events(): LifeCycle<ControllerProps, ControllerState> {
 		return {
 			DID_MOUNT: () => {
 				navigator.handle((event) => {
 					// reset
-					this.setState((state) => ({ index: event.detail.after.index, dragging: null, destination: NaN }));
+					this.setState((state) => ({ index: event.detail.after.index, handle: null }));
 				});
+				// cache
+				const element = this.node();
 
-				const element = this.node()!;
+				if (!element) throw Error();
 
 				window.addEventListener("mouseup", (event) => {
-					if (this.state.dragging) {
+					if (this.state.handle) {
 						// undo
 						for (let index = 0; index < navigator.state.pages.length; index++) {
 							// cache
 							const children = element.children.item(index) as HTMLElement;
-
+							// style
 							children.style.left = "unset";
 							children.style.zIndex = "unset";
 							children.style.transform = "unset";
 						}
 						// update
-						navigator.reorder(this.state.destination);
+						navigator.reorder(this.state.handle.index);
 					}
 				});
 				window.addEventListener("mousedown", (event) => {
 					if ((event.target as HTMLElement).id === "handle") {
 						// cache
 						const children = event.target as HTMLElement;
-
+						// style
 						children.style.left = "unset";
 						children.style.zIndex = "6974";
 						children.style.transform = "unset";
 
-						this.state.dragging = children;
-						this.state.destination = this.state.index;
+						this.state.handle = new Handle({ index: this.state.index, offset: 0, element: children });
 					}
 				});
 				window.addEventListener("mousemove", (event) => {
-					if (this.state.dragging) {
-						// cache
-						const { top, left, right, bottom, width, height } = this.state.dragging.getBoundingClientRect();
-
+					if (this.state.handle) {
+						// extra space
 						const margin = 55;
 
 						// x-axis check
-						if (event.clientX < left - margin) return;
-						if (event.clientX > left + width + margin) return;
+						if (event.clientX < this.state.handle.left - margin) return;
+						if (event.clientX > this.state.handle.right + margin) return;
 						// y-axis check
-						// if (event.clientY < top - margin) return;
-						// if (event.clientY > bottom + margin) return;
+						// if (event.clientY < this.state.handle.top - margin) return;
+						// if (event.clientY > this.state.handle.bottom + margin) return;
 
-						const destination = Math.floor((left / width) + 0.5);
+						const destination = Math.floor((this.state.handle.left / this.state.handle.width) + 0.5);
 
-						if (this.state.destination !== destination && destination >= 0 && destination < navigator.state.pages.length) {
+						if (this.state.handle.index !== destination && destination >= 0 && destination < navigator.state.pages.length) {
 							// move left
 							if (event.movementX < 0) {
-								if (this.state.index < this.state.destination && this.state.destination > destination) {
+								if (this.state.index < this.state.handle.index && this.state.handle.index > destination) {
 									(element.children.item(destination + 1) as HTMLElement).style.transform = "unset";
 								} else {
 									(element.children.item(destination) as HTMLElement).style.transform = "translateX(100%)";
@@ -233,17 +268,19 @@ class Controller extends Stateful<ControllerProps, ControllerState> {
 							}
 							// move right
 							if (event.movementX > 0) {
-								if (this.state.index > this.state.destination && this.state.destination < destination) {
+								if (this.state.index > this.state.handle.index && this.state.handle.index < destination) {
 									(element.children.item(destination - 1) as HTMLElement).style.transform = "unset";
 								} else {
 									(element.children.item(destination) as HTMLElement).style.transform = "translateX(-100%)";
 								}
 							}
 							// update
-							this.state.destination = destination;
+							this.state.handle.index = destination;
 						}
 						// update
-						this.state.dragging.style.left = Unit((Number(this.state.dragging.style.left.match(/-?\d+/g)) + event.movementX).clamp(width * this.state.index * -1, width * (navigator.state.pages.length - this.state.index - 1)));
+						this.state.handle.offset = (this.state.handle.offset + event.movementX).clamp(this.state.handle.minimum, this.state.handle.maximum);
+						// style
+						this.state.handle.element.style.left = Unit(this.state.handle.offset);
 					}
 				});
 			}
@@ -277,7 +314,7 @@ class Controller extends Stateful<ControllerProps, ControllerState> {
 										style(null);
 									}}>
 									{/* TITLE */}
-									<Text all={7.5} left={10} right={29.5} children={[{ text: page.title, color: this.state.index === index ? undefined : Color.DARK_500 }]}/>
+									<Text all={7.5} left={10} right={29.5} children={[{ text: page.title, color: this.state.index === index ? undefined : Color.DARK_500, weight: "bold" }]}/>
 									{/* CLOSE */}
 									<Button all={7.5} left="auto" right={5.0} width={19.5} height={19.5} corner={{ all: 2.5 }}
 										onMouseDown={(style) => {

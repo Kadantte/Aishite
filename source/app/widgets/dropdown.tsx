@@ -95,8 +95,10 @@ class Dropdown extends Stateful<DropdownProps, DropdownState> {
 							onSubmit={(text) => {
 								if (isNaN(this.state.index)) return this.props.onSubmit?.(text);
 								if (this.props.items.isEmpty()) return this.props.onSubmit?.(text);
-
-								this.setState((state) => ({ index: NaN }), () => this.props.onSelect?.(this.props.items[this.state.index].first));
+								// trigger
+								this.props.onSelect?.(this.props.items[this.state.index].first);
+								// update
+								this.setState((state) => ({ index: NaN }));
 							}}
 							onChange={(text) => {
 								this.props.onChange?.(text);
