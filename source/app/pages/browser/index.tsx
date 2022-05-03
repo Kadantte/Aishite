@@ -106,7 +106,7 @@ class Browser extends Page<BrowserProps, BrowserState> {
 											// expire
 											suggest.outdate();
 
-											navigator.rename(this.state.query);
+											navigator.rename("language:all");
 
 											this.display("language:all", 0);
 										}}
@@ -125,12 +125,14 @@ class Browser extends Page<BrowserProps, BrowserState> {
 											this.setState((state) => ({ suggests: [] }));
 										}}
 										onSubmit={(text) => {
+											// cache
+											const query = text.isEmpty() ? "language:all" : text;
 											// expire
 											suggest.outdate();
 
-											navigator.rename(this.state.query);
+											navigator.rename(query);
 
-											this.display(text.isEmpty() ? "language:all" : text, 0);
+											this.display(query, 0);
 										}}
 										onChange={(text) => {
 											// expire

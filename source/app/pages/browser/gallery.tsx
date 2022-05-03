@@ -70,6 +70,17 @@ class GalleryState {
 
 class Gallery extends Stateful<GalleryProps, GalleryState> {
 	protected create() {
+		// cache
+		const height = typeof this.props.height === "string" ? Number(this.props.height.match(/-?\d+/g)) : this.props.height;
+
+		if (height && offset === 0) {
+			// max-height
+			while ((height - 170) / offset >= 60) {
+				offset++;
+			}
+			// update
+			offset = (((height - 170) / offset) - 35) / 2;
+		}
 		return new GalleryState({ foreground: Asuka.TITLE, background: Ayanami.THUMBNAIL_0 });
 	}
 	protected postCSS(): React.CSSProperties {
@@ -115,19 +126,6 @@ class Gallery extends Stateful<GalleryProps, GalleryState> {
 											{ key: "tags", value: this.props.gallery.tags },
 											{ key: "date", value: this.props.gallery.date }
 										].map((section, index) => {
-											// cache
-											const height = typeof this.props.height === "string" ? Number(this.props.height.match(/-?\d+/g)) : this.props.height;
-
-											if (height && offset === 0) {
-												// default value
-												let count = 6;
-
-												while ((height - 170) / count >= 60) {
-													count++;
-												}
-												// assign
-												offset = (((height - 170) / count) - 37) / 2;
-											}
 											return (
 												<Element key={index} padding={{ all: offset ? offset : 7.5, left: 0, right: 14.5 }}>
 													{/* KEY */}
@@ -138,7 +136,7 @@ class Gallery extends Stateful<GalleryProps, GalleryState> {
 													<Inline flex={true}>
 														{[section.value instanceof Array && section.value.isEmpty() ? ["N/A"] : section.value ?? "N/A"].flat().map((chip, _index) => {
 															return (
-																<Button key={_index} color={Color.DARK_400} maximum={{ width: Unit(69, "%") }} border={{ all: { width: 0.75, style: "solid", color: Color.DARK_200 } }} corner={{ all: 3.0 }} margin={{ all: 4.0 }} padding={{ all: 3.0, left: 5.5, right: 5.5 }}
+																<Button key={_index} color={Color.DARK_400} maximum={{ width: Unit(69, "%") }} border={{ all: { width: 0.75, style: "solid", color: Color.DARK_200 } }} corner={{ all: 3.0 }} margin={{ all: 3.0 }} padding={{ all: 3.0, left: 5.5, right: 5.5 }}
 																	onMouseDown={(style) => {
 																		// skip
 																		if (chip === "N/A" || section.key === "title" || section.key === "date") return;
@@ -153,7 +151,7 @@ class Gallery extends Stateful<GalleryProps, GalleryState> {
 																				break;
 																			}
 																			default: {
-																				this.props.onClick?.(`${section.key}:${chip === "artist\u0020CG" ? "artistcg" : chip.toString().replace(/\s/g, "_")}`);
+																				this.props.onClick?.(`${section.key}:${/^(artist|game)\sCG$/.test(chip as string) ? /^(artist|game)\sCG$/.exec(chip as string)?.first + "cg" : chip.toString().replace(/\s/g, "_")}`);
 																				break;
 																			}
 																		}

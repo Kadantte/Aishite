@@ -11,7 +11,7 @@ request.GET("https://ltn.hitomi.la/gg.js", "text").then((response) => {
 });
 
 request.GET("https://ltn.hitomi.la/common.js", "text").then((response) => {
-	common_js = response.body.split("\nfunction\u0020").filter((section) => /^(subdomain_from_url|url_from_url|full_path_from_hash|real_full_path_from_hash|url_from_hash|url_from_url_from_hash|rewrite_tn_paths)/.test(section)).map((section) => `function\u0020${section}`).join("");
+	common_js = response.body.split("\nfunction\u0020").filter((section) => /^(subdomain_from_url|url_from_url|full_path_from_hash|real_full_path_from_hash|url_from_hash|url_from_url_from_hash|rewrite_tn_paths)/.test(section)).map((section) => "function" + space + section).join("");
 });
 
 class _Gallery extends Gallery {
@@ -67,67 +67,88 @@ class _GalleryFile extends GalleryFile {
 	}
 }
 
-async function get(id: number): Promise<_Gallery> {
+async function block(id: number) {
+	// cache
 	const response = await request.GET(`https://ltn.hitomi.la/galleryblock/${id}.html`, "text");
 
 	await until(() => !!gg_js && !!common_js);
 
+	let key = "N/A";
 	let index = 0;
 
-	const metadata = new Map<string, unknown>();
+	const element = new DOMParser().parseFromString(eval(gg_js! + common_js! + "rewrite_tn_paths(response.body)").replace(/\s\s+/g, "").replace(/\n/g, ""), "text/html");
 
-	const document = new DOMParser().parseFromString(eval(gg_js! + common_js! + "rewrite_tn_paths(response.body)"), "text/html");
+	const metadata = new Map<string, unknown>(Object.entries({
+		title: element.querySelector(".lillie a")?.textContent,
+		artist: element.querySelector(".artist-list")?.textContent,
+		date: element.querySelector(".date")?.textContent
+	}));
+	
+	for (const children of element.querySelectorAll("td")) {
+		switch (index % 2) {
+			case 0: {
+				// cache
+				key = children.textContent?.toLowerCase()!;
+				// assign key
+				metadata.set(key, "N/A");
+				break;
+			}
+			default: {
+				if (key === "tags") {
+					// cache
+					const value = Array<unknown>();
 
-	function parse(string: Nullable<string>, isQuery: boolean, toList: true): Array<string>;
-	function parse(string: Nullable<string>, isQuery: boolean, toList: false): string;
-	function parse(string: Nullable<string>, isQuery: boolean, toList: boolean) {
-		// cache
-		const sigma = isQuery && string ? (document.querySelector(string) as HTMLElement).innerText : string;
+					for (const node of children.querySelectorAll("a")) {
+						// cache
+						const text = node.textContent!;
 
-		if (!sigma) return toList ? [] : "N/A";
-
-		return toList ? sigma.split(/\s\s+/).filter((element) => !element.isEmpty()) : sigma.replace(/\s\s+/g, "");
-	}
-
-	for (const element of document.querySelectorAll("td")) {
-		if (index % 2 === 0) {
-			// assign key
-			metadata.set(element.innerText.toLowerCase(), null);
-		} else {
-			// cache
-			const key = Array.from(metadata.keys()).last!;
-
-			if (key === "tags") {
-				const tags = Array<Tag>();
-
-				for (const value of Object.values(parse(element.innerText, false, true))) {
-					tags.add(new Tag({ namespace: value.includes("♂") ? "male" : value.includes("♀") ? "female" : "tag", value: value.replace(/\s?[♂♀]$/, "").replace(/\s/g, "_") }));
+						value.add(new Tag({ namespace: text.includes("♂") ? "male" : text.includes("♀") ? "female" : "tag", value: text.replace(/[♂♀]/, "").replace(/\s$/, "").replace(/\s/g, "_") }));
+					}
+					// assign value
+					metadata.set(key, value);
+				} else {
+					// assign value
+					metadata.set(key, children.textContent);
 				}
-				metadata.set(key, tags);
-			} else {
-				metadata.set(key, parse(element.innerText, false, false));
+				break;
 			}
 		}
 		index++;
 	}
-	
+	// cache
+	const image = Array<string>();
+
+	for (const children of element.querySelectorAll("img")) {
+		image.add("https:" + children.getAttribute("data-src"));
+	}
+
+	for (const children of element.querySelectorAll("source")) {
+		for (const source of children.getAttribute("data-srcset")!.split(space)) {
+			if (source.includes("//")) {
+				image.add("https:" + source);
+			}
+		}
+	}
+	// update
+	metadata.set("thumbnail", image);
+
 	return new _Gallery({
 		id: id,
-		type: metadata.get("type") as string,
-		title: parse(".lillie a", true, false),
-		group: metadata.get("group") as string,
-		series: metadata.get("series") as string,
-		artist: parse(".artist-list", true, true),
-		language: metadata.get("language") as string,
-		thumbnail: Object.values(document.querySelectorAll("picture > img, picture > source")).map((element) => element.getAttribute("data-srcset")?.split("\u0020").filter((text) => /^\/\//.test(text)) ?? [element.getAttribute("data-src")]).flat().map((url) => `https:${url}`),
-		characters: metadata.get("character") as Array<string>,
-		tags: metadata.get("tags") as Array<Tag>,
-		date: parse(".date", true, false)
-	});
+		type: metadata.get("type"),
+		title: metadata.get("title"),
+		group: metadata.get("group"),
+		series: metadata.get("series"),
+		artist: metadata.get("artist"),
+		language: metadata.get("language"),
+		thumbnail: metadata.get("thumbnail"),
+		characters:metadata.get("characters"),
+		tags: metadata.get("tags"),
+		date: metadata.get("date")
+	} as _Gallery);
 }
 
 const gallery = {
-	get: get
+	get: block
 }
 
 export default gallery;
