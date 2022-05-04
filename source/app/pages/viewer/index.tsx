@@ -60,6 +60,8 @@ class Viewer extends Page<ViewerProps, ViewerState> {
 				// @ts-ignore
 				this.handle_0(null);
 
+				print(this.props.factor)
+
 				navigator.handle(this.handle_0);
 
 				window.addEventListener("resize", this.handle_1);

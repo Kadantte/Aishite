@@ -19,7 +19,7 @@ class Navigator extends StateHandler<NavigatorState> {
 		setTimeout(() => {
 			settings.state = {
 				...settings.state,
-				navigator: {
+				history: {
 					index: state.index,
 					pages: state.pages.map((page) => transform(page.title, page.widget))
 				}
@@ -126,7 +126,7 @@ function args(UUID: string) {
 	return null;
 }
 
-function build(type: string, args: any) {
+function build(type: string, args: Record<string, any>) {
 	// must be unique
 	const cache = GUID();
 
@@ -135,10 +135,10 @@ function build(type: string, args: any) {
 			// return (<Fallback ref={(ref) => inspect(cache, ref)} key={cache} data-key={cache}/>);
 		}
 		case "BROWSER": {
-			return (<Browser ref={(ref) => inspect(cache, ref)} key={cache} data-key={cache} index={args.index ?? 0} query={args.query ?? "language:all"}/>);
+			return (<Browser ref={(ref) => inspect(cache, ref)} key={cache} data-key={cache} index={args.index ?? settings.state.override["browser"].index ?? 0} query={args.query ?? settings.state.override["browser"].query ?? "language:all"}/>);
 		}
 		case "VIEWER": {
-			return (<Viewer ref={(ref) => inspect(cache, ref)} key={cache} data-key={cache} factor={args.factor ?? responsive.width} gallery={args.gallery ?? 6974}/>);
+			return (<Viewer ref={(ref) => inspect(cache, ref)} key={cache} data-key={cache} factor={args.factor ?? settings.state.override["viewer"].factor ?? responsive.width} gallery={args.gallery ?? settings.state.override["viewer"].gallery ?? 6974}/>);
 		}
 		default: {
 			return (<section key={cache}>UNKNOWN</section>);
@@ -156,7 +156,7 @@ function inspect(UUID: string, ref: Nullable<React.Component<any, any>>) {
 			// update config.json
 			settings.state = {
 				...settings.state,
-				navigator: {
+				history: {
 					index: singleton.state.index,
 					pages: singleton.state.pages.map((page) => transform(page.title, page.widget))
 				}
@@ -185,8 +185,8 @@ function transform(title: string, widget: JSX.Element) {
 
 const singleton = new Navigator({
 	state: new NavigatorState({
-		index: settings.state.navigator.index,
-		pages: settings.state.navigator.pages.map((page) => ({ title: page.name, widget: build(page.type, page.args) }))
+		index: settings.state.history.index,
+		pages: settings.state.history.pages.map((page) => ({ title: page.name, widget: build(page.type, page.args) }))
 	})
 });
 

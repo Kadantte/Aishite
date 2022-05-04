@@ -5,7 +5,7 @@ package-lock.json
 debugs/
 bundles/
 downloads/
-config.json
+settings.json
 bookmark.json
 # electron
 build/

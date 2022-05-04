@@ -22,7 +22,7 @@ import Unmaximize from "@/app/icons/unmaximize";
 
 import navigator from "@/manager/navigator";
 
-import { BridgeEvent } from "@/api";
+import { Window } from "@/apis/electron/bridge";
 
 class AppProps extends Clear<undefined> {
 	constructor(args: Args<AppProps>) {
@@ -57,10 +57,10 @@ class App extends Stateful<AppProps, AppState> {
 	protected events(): LifeCycle<AppProps, AppState> {
 		return {
 			DID_MOUNT: () => {
-				bridge.handle(BridgeEvent.MAXIMIZE, () => this.setState((state) => ({ maximize: true })));
-				bridge.handle(BridgeEvent.UNMAXIMIZE, () => this.setState((state) => ({ maximize: false })));
-				bridge.handle(BridgeEvent.ENTER_FULL_SCREEN, () => this.setState((state) => ({ fullscreen: true })));
-				bridge.handle(BridgeEvent.LEAVE_FULL_SCREEN, () => this.setState((state) => ({ fullscreen: false })));
+				bridge.handle(Window.MAXIMIZE, () => this.setState((state) => ({ maximize: true })));
+				bridge.handle(Window.UNMAXIMIZE, () => this.setState((state) => ({ maximize: false })));
+				bridge.handle(Window.ENTER_FULL_SCREEN, () => this.setState((state) => ({ fullscreen: true })));
+				bridge.handle(Window.LEAVE_FULL_SCREEN, () => this.setState((state) => ({ fullscreen: false })));
 
 				window.addEventListener("keydown", (event) => {
 					switch (event.key) {

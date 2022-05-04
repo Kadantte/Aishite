@@ -1,4 +1,5 @@
-import { API_COMMAND, BridgeEvent } from "@/api"
+import { Window } from "@/apis/electron/bridge";
+import { Command } from "@/apis/electron/command";
 
 declare global {
 	// preload.ts
@@ -6,20 +7,20 @@ declare global {
 	const comma: "\u002C";
 	
 	const bridge: EventTarget & {
-		trigger(event: BridgeEvent, ...args: Array<unknown>): void;
-		
-		handle(event: BridgeEvent, handle: (event: Event & { detail: unknown }) => void): void;
-		unhandle(event: BridgeEvent, handle: (event: Event & { detail: unknown }) => void): void;
+		trigger(event: Window, ...args: Array<unknown>): void;
+
+		handle(event: Window, handle: (event: Event & { detail: unknown }) => void): void;
+		unhandle(event: Window, handle: (event: Event & { detail: unknown }) => void): void;
 	}
 	const protocol: {
-		[API_COMMAND.CLOSE](validate: string): Promise<void>;
-		[API_COMMAND.BLUR](): Promise<void>;
-		[API_COMMAND.FOCUS](): Promise<void>;
-		[API_COMMAND.MINIMIZE](): Promise<void>;
-		[API_COMMAND.MAXIMIZE](): Promise<void>;
-		[API_COMMAND.UNMAXIMIZE](): Promise<void>;
-		[API_COMMAND.FULLSCREEN](): Promise<void>;
-		[API_COMMAND.DEVELOPMENT](): Promise<void>;
+		[Command.CLOSE](validate: string): Promise<void>;
+		[Command.BLUR](): Promise<void>;
+		[Command.FOCUS](): Promise<void>;
+		[Command.MINIMIZE](): Promise<void>;
+		[Command.MAXIMIZE](): Promise<void>;
+		[Command.UNMAXIMIZE](): Promise<void>;
+		[Command.FULLSCREEN](): Promise<void>;
+		[Command.DEVELOPMENT](): Promise<void>;
 	}
 	const responsive: {
 		width: number;

@@ -1,51 +1,52 @@
-import template from "@/assets/config.json";
+import template from "@/assets/settings.json";
 
 import storage from "@/modules/storage";
 
 import { StateHandler } from "@/manager";
 
-class Settings extends StateHandler<Config> {
+class Settings extends StateHandler<Configuration> {
 	public get state() {
 		return super.state;
 	}
-	public set state(state: Args<Config>) {
-		super.state = new Config({ ...state });
+	public set state(state: Args<Configuration>) {
+		super.state = new Configuration({ ...state });
 		// update
-		storage.change("config", super.state);
+		storage.change("settings", super.state);
 	}
 	protected create() {
 		// update
-		storage.change("config", super.state);
+		storage.change("settings", super.state);
 	}
 }
 
-class Config {
-	public readonly version: typeof template["version"];
-	public readonly general: typeof template["general"];
-	public readonly download: typeof template["download"];
-	public readonly navigator: {
+class Configuration {
+	public readonly app: typeof template["app"];
+	public readonly history: {
 		index: number;
 		pages: Array<{
 			type: string;
 			name: string;
-			args: unknown;
+			args: Record<string, any>;
 		}>;
 	};
+	public readonly override: {
+		fallback: Record<string, any>;
+		browser: Record<string, any>;
+		viewer: Record<string, any>;
+	};
 
-	constructor(args: Args<Config>) {
-		this.version = args.version;
-		this.general = args.general;
-		this.download = args.download;
-		this.navigator = args.navigator;
+	constructor(args: Args<Configuration>) {
+		this.app = args.app;
+		this.history = args.history;
+		this.override = args.override;
 	}
 }
 
 const singleton = new Settings({
-	state: new Config({
-		version: (storage.state.get("config")?.state as typeof template).version ?? template.version,
-		general: (storage.state.get("config")?.state as typeof template).general ?? template.general,
-		download: (storage.state.get("config")?.state as typeof template).download ?? template.download,
-		navigator: (storage.state.get("config")?.state as typeof template).navigator ?? template.navigator
+	state: new Configuration({
+		app: (storage.state.get("settings")?.state as typeof template).app ?? template.app,
+		history: (storage.state.get("settings")?.state as typeof template).history ?? template.history,
+		override: (storage.state.get("settings")?.state as typeof template).override ?? template.override
 	})
 });
 

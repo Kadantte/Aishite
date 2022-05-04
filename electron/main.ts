@@ -3,7 +3,28 @@ import { app, session, Menu, ipcMain, BrowserWindow } from "electron";
 import node_fs from "fs";
 import node_path from "path";
 
-import { API_COMMAND, BridgeEvent } from "@/api";
+enum Window {
+	BLUR = "blur",
+	FOCUS = "focus",
+	CLOSE = "close",
+	OPEN_URL = "open-url",
+	MINIMIZE = "minimize",
+	MAXIMIZE = "maximize",
+	UNMAXIMIZE = "unmaximize",
+	ENTER_FULL_SCREEN = "enter-full-screen",
+	LEAVE_FULL_SCREEN = "leave-full-screen"
+}
+
+enum Command {
+	BLUR = "blur",
+	FOCUS = "focus",
+	CLOSE = "close",
+	MINIMIZE = "minimize",
+	MAXIMIZE = "maximize",
+	UNMAXIMIZE = "unmaximize",
+	FULLSCREEN = "fullscreen",
+	DEVELOPMENT = "development"
+}
 
 let window: Nullable<BrowserWindow> = null;
 
@@ -38,21 +59,10 @@ app.on("ready", () => {
 		icon: "source/assets/aishite.ico",
 		show: false,
 		frame: false,
-		...(process.env.NODE_ENV === "development" ? {
-			width: resolution.width(1920),
-			height: resolution.height(1080),
-			minWidth: resolution.width(1920),
-			maxWidth: 1920,
-			minHeight: resolution.height(1080),
-			maxHeight: 1080 - (/* TASKBAR */ 45)
-		} : {
-			width: resolution.width(),
-			height: resolution.height(),
-			minWidth: resolution.width(),
-			maxWidth: undefined,
-			minHeight: resolution.height(),
-			maxHeight: undefined
-		}),
+		width: resolution.width(),
+		height: resolution.height(),
+		minWidth: resolution.width(),
+		minHeight: resolution.height(),
 		webPreferences: {
 			// webpack or ASAR
 			preload: node_path.resolve(__dirname, "preload.js"),
@@ -73,58 +83,58 @@ app.on("ready", () => {
 	window.on("unresponsive", () => {
 		window?.reload();
 	});
-	window.on(BridgeEvent.CLOSE, (event) => {
+	window.on(Window.CLOSE, (event) => {
 		// prevent
 		event.preventDefault();
 		// send event anyways
-		window?.webContents.send(BridgeEvent.CLOSE);
+		window?.webContents.send(Window.CLOSE);
 	});
-	window.on(BridgeEvent.FOCUS, () => {
-		window?.webContents.send(BridgeEvent.FOCUS);
+	window.on(Window.FOCUS, () => {
+		window?.webContents.send(Window.FOCUS);
 	});
-	window.on(BridgeEvent.BLUR, () => {
-		window?.webContents.send(BridgeEvent.BLUR);
+	window.on(Window.BLUR, () => {
+		window?.webContents.send(Window.BLUR);
 	});
-	window.on(BridgeEvent.MINIMIZE, () => {
-		window?.webContents.send(BridgeEvent.MINIMIZE);
+	window.on(Window.MINIMIZE, () => {
+		window?.webContents.send(Window.MINIMIZE);
 	});
-	window.on(BridgeEvent.MAXIMIZE, () => {
-		window?.webContents.send(BridgeEvent.MAXIMIZE);
+	window.on(Window.MAXIMIZE, () => {
+		window?.webContents.send(Window.MAXIMIZE);
 	});
-	window.on(BridgeEvent.UNMAXIMIZE, () => {
-		window?.webContents.send(BridgeEvent.UNMAXIMIZE);
+	window.on(Window.UNMAXIMIZE, () => {
+		window?.webContents.send(Window.UNMAXIMIZE);
 	});
-	window.on(BridgeEvent.ENTER_FULL_SCREEN, () => {
-		window?.webContents.send(BridgeEvent.ENTER_FULL_SCREEN);
+	window.on(Window.ENTER_FULL_SCREEN, () => {
+		window?.webContents.send(Window.ENTER_FULL_SCREEN);
 	});
-	window.on(BridgeEvent.LEAVE_FULL_SCREEN, () => {
-		window?.webContents.send(BridgeEvent.LEAVE_FULL_SCREEN);
+	window.on(Window.LEAVE_FULL_SCREEN, () => {
+		window?.webContents.send(Window.LEAVE_FULL_SCREEN);
 	});
-	ipcMain.handle("protocol", (event, command: API_COMMAND) => {
+	ipcMain.handle("protocol", (event, command: Command) => {
 		setTimeout(() => {
 			switch (command) {
-				case API_COMMAND.CLOSE: {
+				case Command.CLOSE: {
 					return window?.destroy();
 				}
-				case API_COMMAND.FOCUS: {
+				case Command.FOCUS: {
 					return window?.focus();
 				}
-				case API_COMMAND.BLUR: {
+				case Command.BLUR: {
 					return window?.blur();
 				}
-				case API_COMMAND.MINIMIZE: {
+				case Command.MINIMIZE: {
 					return window?.minimize();
 				}
-				case API_COMMAND.MAXIMIZE: {
+				case Command.MAXIMIZE: {
 					return window?.maximize();
 				}
-				case API_COMMAND.UNMAXIMIZE: {
+				case Command.UNMAXIMIZE: {
 					return window?.unmaximize();
 				}
-				case API_COMMAND.FULLSCREEN: {
+				case Command.FULLSCREEN: {
 					return window?.setFullScreen(!window.isFullScreen());
 				}
-				case API_COMMAND.DEVELOPMENT: {
+				case Command.DEVELOPMENT: {
 					return window?.webContents.toggleDevTools();
 				}
 			}

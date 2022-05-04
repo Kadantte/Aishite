@@ -3,7 +3,7 @@ import node_path from "path";
 
 import { MappedStateHandler } from "@/manager";
 
-import { BridgeEvent } from "@/api";
+import { Window } from "@/apis/electron/bridge";
 
 class StorageState {
 	public readonly path: string;
@@ -38,7 +38,7 @@ class Storage extends MappedStateHandler<string, StorageState> {
 			}
 		}, 1000 * 60 * 5);
 		// before close
-		bridge.handle(BridgeEvent.CLOSE, () => {
+		bridge.handle(Window.CLOSE, () => {
 			for (const [key, value] of super.state.entries()) {
 				this.export(key);
 			}
@@ -87,8 +87,8 @@ class Storage extends MappedStateHandler<string, StorageState> {
 
 const singleton = new Storage({
 	state: new Map(Object.entries({
-		"config": new StorageState({
-			path: node_path.resolve(__dirname, "..", "config.json"),
+		"settings": new StorageState({
+			path: node_path.resolve(__dirname, "..", "settings.json"),
 			state: {}
 		}),
 		"bookmark": new StorageState({
