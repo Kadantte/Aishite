@@ -14,6 +14,7 @@ class Navigator extends StateHandler<NavigatorState> {
 		return super.state;
 	}
 	public set state(state: Navigator["_state"]) {
+		// assign
 		super.state = state;
 		// update config.json
 		setTimeout(() => {

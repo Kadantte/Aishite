@@ -7,7 +7,7 @@ import Shadow from "@/app/common/style/shadow";
 import Transition from "@/app/common/style/transition";
 
 class ContainerProps extends Props<Children> {
-	/** Whether to also trigger event from elements underneath. */
+	/** Whether to prevent event triggers from elements underneath. */
 	public readonly phantom?: boolean;
 	public readonly transition?: Transition;
 	// events

@@ -79,7 +79,7 @@ class Text extends Stateless<TextProps> {
 			<section id={this.props.id}>
 				{this.props.children.map((builder, index) => {
 					// linebreak
-					if (builder.text === "\n") return (<br></br>);
+					if (builder.text === "\n") return (<br key={index}/>);
 
 					return (
 						<section key={index} style={{ display: "initial", color: builder.color, fontSize: builder.size, fontStyle: builder.style, fontFamily: builder.family, fontWeight: builder.weight, ...transition }}>{builder.text}</section>

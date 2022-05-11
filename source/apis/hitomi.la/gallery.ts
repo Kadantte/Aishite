@@ -17,8 +17,6 @@ request.GET("https://ltn.hitomi.la/common.js", "text").then((response) => {
 class _Gallery extends Gallery {
 	public readonly characters: Array<string>;
 
-	declare protected cache?: Array<_GalleryFile>;
-
 	constructor(args: Args<_Gallery>) {
 		super(args);
 
@@ -28,8 +26,7 @@ class _Gallery extends Gallery {
 		return `https://hitomi.la/galleries/${this.id}.html`;
 	}
 	public async getFiles(): Promise<Array<_GalleryFile>> {
-		if (this.cache) return this.cache;
-
+		// cache
 		const response = await request.GET(`https://ltn.hitomi.la/galleries/${this.id}.js`, "text");
 
 		const metadata = JSON.parse(response.body.replace(/^var\sgalleryinfo\s=\s/, ""));
@@ -39,16 +36,16 @@ class _Gallery extends Gallery {
 		await until(() => !!gg_js && !!common_js);
 
 		for (let index = 0; index < metadata["files"].length; index++) {
+			// cache
+			const file = metadata["files"][index];
+
 			cache.add(new _GalleryFile({
-				url: eval(gg_js! + common_js! + "url_from_url_from_hash(this.id, metadata[\"files\"][index], \"webp\", undefined, \"a\")"),
-				name: metadata["files"][index]["name"],
-				width: metadata["files"][index]["width"],
-				height: metadata["files"][index]["height"]
+				url: eval(gg_js! + common_js! + "url_from_url_from_hash(this.id, file, \"webp\", undefined, \"a\")"),
+				name: file["name"],
+				width: file["width"],
+				height: file["height"]
 			}));
 		}
-		// update
-		this.cache = cache;
-
 		return cache;
 	}
 }
@@ -137,14 +134,14 @@ async function block(id: number) {
 		type: metadata.get("type"),
 		title: metadata.get("title"),
 		group: metadata.get("group"),
-		series: metadata.get("series"),
-		artist: metadata.get("artist"),
+		parody: metadata.get("series"),
+		artists: metadata.get("artist"),
 		language: metadata.get("language"),
 		thumbnail: metadata.get("thumbnail"),
-		characters:metadata.get("characters"),
+		characters: metadata.get("characters"),
 		tags: metadata.get("tags"),
 		date: metadata.get("date")
-	} as _Gallery);
+	} as Args<_Gallery>);
 }
 
 const gallery = {

@@ -5,22 +5,20 @@ export abstract class Gallery {
 	public readonly type: string;
 	public readonly title: string;
 	public readonly group?: string;
-	public readonly series?: string;
-	public readonly artist: Array<string>;
+	public readonly parody?: string;
+	public readonly artists: Array<string>;
 	public readonly language: string;
 	public readonly thumbnail: Array<string>;
 	public readonly tags: Array<Tag>;
 	public readonly date: string;
-
-	protected cache?: Array<GalleryFile>;
 
 	constructor(args: Args<Gallery>) {
 		this.id = args.id;
 		this.type = args.type;
 		this.title = args.title;
 		this.group = args.group;
-		this.series = args.series;
-		this.artist = args.artist;
+		this.parody = args.parody;
+		this.artists = args.artists;
 		this.language = args.language;
 		this.thumbnail = args.thumbnail;
 		this.tags = args.tags;

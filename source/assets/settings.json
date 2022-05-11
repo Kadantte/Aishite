@@ -1,0 +1,25 @@
+{
+	"app": {
+		"requires": [
+			"storage"
+		]
+	},
+	"history": {
+		"index": 0,
+		"pages": [
+			{
+				"type": "BROWSER",
+				"name": "language:all",
+				"args": {
+					"index": 0,
+					"query": "language:all"
+				}
+			}
+		]
+	},
+	"override": {
+		"fallback": {},
+		"browser": {},
+		"viewer": {}
+	}
+}

@@ -14,7 +14,7 @@ class IconProps extends Clear<undefined> {
 	public readonly height?: Unit;
 	public readonly margin?: Margin;
 	public readonly padding?: Padding;
-	/** Whether to also trigger event from elements underneath. */
+	/** Whether to prevent event triggers from elements underneath. */
 	public readonly phantom?: boolean;
 	public readonly transition?: Transition;
 	// events

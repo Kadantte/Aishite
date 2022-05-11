@@ -148,7 +148,7 @@ class Dropdown extends Stateful<DropdownProps, DropdownState> {
 										this.setState((state) => ({ index: index }), () => this.props.onIndex?.(index));
 									}}>
 									<Text left={15} children={item.first.split(this.props.highlight!).map((text, index, array) => array.length > index + 1 ? text.isEmpty() ? { text: this.props.highlight, color: Color.RGBA_000 } : [{ text: text }, { text: this.props.highlight, color: Color.RGBA_000 }] : { text: text }).flat().map((text) => ({ ...text, size: 13.5 })) as never}></Text>
-									<Text right={15} children={[{ text: item.second, size: 14.5, color: Color.DARK_500 }]}></Text>
+									<Text right={15} children={[{ text: item.second, size: 14.5, color: Color.DARK_000 }]}></Text>
 								</Button>
 							);
 						})}

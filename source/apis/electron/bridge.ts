@@ -53,5 +53,3 @@ ipcRenderer.on(Window.ENTER_FULL_SCREEN, (event, args) => {
 ipcRenderer.on(Window.LEAVE_FULL_SCREEN, (event, args) => {
 	bridge.trigger(Window.LEAVE_FULL_SCREEN, args);
 });
-
-export default bridge;

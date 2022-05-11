@@ -62,20 +62,21 @@ export abstract class Stateful<P extends Clear<any>, S> extends React.Component<
 	@final()
 	public render() {
 		return (
-			<Mirror style={{
-				...this.preCSS(),
-				...this.props.style,
-				...position(this.props),
-				...constraint(this.props),
-				...decoration(this.props),
-				...offset(this.props),
-				...this.postCSS(),
-				...behaviour(this.props),
-				...this.props.override
+			<Mirror
+				{...this.props}
+				style={{
+					...this.preCSS(),
+					...this.props.style,
+					...position(this.props),
+					...constraint(this.props),
+					...decoration(this.props),
+					...offset(this.props),
+					...this.postCSS(),
+					...behaviour(this.props),
+					...this.props.override
 				}}
 				children={this.build()}
-				// @ts-ignore
-				override={{ "data-scrollable": this.props["data-scrollable"], ...this.override() }}
+				override={this.override()}
 			/>
 		);
 	}
@@ -104,20 +105,21 @@ export abstract class Stateless<P extends Clear<any>> extends React.PureComponen
 	@final()
 	public render() {
 		return (
-			<Mirror style={{
-				...this.preCSS(),
-				...this.props.style,
-				...position(this.props),
-				...constraint(this.props),
-				...decoration(this.props),
-				...offset(this.props),
-				...this.postCSS(),
-				...behaviour(this.props),
-				...this.props.override
+			<Mirror
+				{...this.props}
+				style={{
+					...this.preCSS(),
+					...this.props.style,
+					...position(this.props),
+					...constraint(this.props),
+					...decoration(this.props),
+					...offset(this.props),
+					...this.postCSS(),
+					...behaviour(this.props),
+					...this.props.override
 				}}
 				children={this.build()}
-				// @ts-ignore
-				override={{ "data-scrollable": this.props["data-scrollable"], ...this.override() }}
+				override={this.override()}
 			/>
 		);
 	}
@@ -143,17 +145,30 @@ export abstract class StyleSheet<P extends Casacade> extends React.PureComponent
 	protected override(): Casacade["override"] {
 		return {};
 	}
-	/** Consider using `this.build` instead. */
 	@final()
 	public render() {
 		return [this.props.children].flat().map((children, index) => {
-			if (children === undefined) return children;
-			return React.cloneElement(children as JSX.Element, { key: index, style: { ...this.preCSS(), ...this.props.style, ...this.postCSS() }, ...this.override(), ...this.props.override });
+			switch (children) {
+				case undefined: {
+					return undefined;
+				}
+				default: {
+					// cache
+					const unique: Record<string, any> = {};
+					
+					for (const [key, value] of Object.entries(this.props ?? {})) {
+						if (/^data-([a-z]+)$/.test(key)) {
+							unique[key] = value;
+						}
+					}
+					return React.cloneElement((children), { ...unique, key: index, style: { ...this.preCSS(), ...this.props.style, ...this.postCSS() }, ...this.override(), ...this.props.override });
+				}
+			}
 		});
 	}
 }
 
-const Mirror = React.memo(class Exotic extends StyleSheet<Casacade> {
+const Mirror = React.memo(class Mirror extends StyleSheet<Casacade> {
 	protected postCSS(): React.CSSProperties {
 		return {}
 	}

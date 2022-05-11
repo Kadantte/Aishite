@@ -14,6 +14,7 @@ import Grid from "@/app/layout/grid";
 
 import Scroll from "@/app/layout/casacade/scroll";
 import Spacer from "@/app/layout/casacade/spacer";
+import ContextMenu from "@/app/layout/casacade/contextmenu";
 
 import Button from "@/app/widgets/button";
 import Paging from "@/app/widgets/paging";
@@ -115,7 +116,7 @@ class Browser extends Page<BrowserProps, BrowserState> {
 											const element = this.state.controller.current;
 
 											if (element) {
-												element.value = element.value.replace(/^\s/, "").replace(/\s$/, "").replace(/\s\s+/, space).split(/\s+/).slice(0, -1).add(this.state.suggests[index].first.toString()).join(space);
+												element.value = element.value.split(/\s+/).slice(0, -1).add(this.state.suggests[index].first.toString()).join(space).replace(/\s+/g, space).replace(/^\s+/, "").replace(/\s+$/, "");
 											}
 										}}
 										onSelect={(text) => {
@@ -141,7 +142,7 @@ class Browser extends Page<BrowserProps, BrowserState> {
 											if (!this.state.suggests.isEmpty()) this.setState((state) => ({ suggests: [] }));
 
 											this.state.highlight = text.split(/\s+/).last?.split(":").last ?? "";
-	
+
 											suggest.tags(this.state.highlight).then((suggestion) => {
 												if (!suggestion.isEmpty()) this.setState((state) => ({ suggests: suggestion }));
 											});
@@ -152,16 +153,51 @@ class Browser extends Page<BrowserProps, BrowserState> {
 									<Grid.Layout gap={{ inner: 15 }} count={5} minimum={(responsive.width - 30) / 1.5 - 30}>
 										{this.state.gallery.map((_gallery, index) => {
 											return (
-												<Gallery key={index} gallery={_gallery} height={(responsive.height - (185 - 15))}
-													onClick={(tag) => {
-														// cache
-														const element = this.state.controller.current;
-
-														if (element) {
-															element.value = element.value.includes(tag) ? element.value.replace(tag, "") : element.value + space + tag;
+												<ContextMenu key={index} items={[
+													{
+														role: "Copy URL",
+														toggle: true,
+														method: () => {
+															// text/plain
+															window.navigator.clipboard.writeText(_gallery.getURL());
 														}
-													}}
-												/>
+													},
+													"seperator",
+													{
+														role: "Download",
+														toggle: false,
+														method: () => {
+															throw Error("Unimplemented");
+														}
+													},
+													{
+														role: "Bookmark",
+														toggle: false,
+														method: () => {
+															throw Error("Unimplemented");
+														}
+													},
+													"seperator",
+													{
+														role: "Open in Viewer",
+														toggle: true,
+														method: () => {
+															navigator.open(_gallery.title, "VIEWER", { gallery: _gallery.id });
+														}
+													}]}>
+													<section id="wrapper">
+														<Gallery gallery={_gallery} height={(responsive.height - (185 - 15))}
+															onClick={(tag) => {
+																// cache
+																const element = this.state.controller.current;
+
+																if (element) {
+																	element.value = (element.value.includes(tag) ? element.value.replace(tag, "") : element.value + space + tag).replace(/\s+/g, space).replace(/^\s+/, "").replace(/\s+$/, "");
+																}
+															}}
+														/>
+													</section>
+												</ContextMenu>
 											);
 										})}
 									</Grid.Layout>

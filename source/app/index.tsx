@@ -5,6 +5,7 @@ import { Stateful, LifeCycle } from "@/app/common/framework";
 
 import Row from "@/app/layout/row";
 import Text from "@/app/layout/text";
+import Center from "@/app/layout/center";
 import Column from "@/app/layout/column";
 import Element from "@/app/layout/element";
 import Container from "@/app/layout/container";
@@ -21,6 +22,7 @@ import Minimize from "@/app/icons/minimize";
 import Unmaximize from "@/app/icons/unmaximize";
 
 import navigator from "@/manager/navigator";
+import contextmenu from "@/manager/contextmenu";
 
 import { Window } from "@/apis/electron/bridge";
 
@@ -33,10 +35,12 @@ class AppProps extends Clear<undefined> {
 class AppState {
 	public maximize: boolean;
 	public fullscreen: boolean;
+	public contextmenu: boolean;
 
 	constructor(args: Args<AppState>) {
 		this.maximize = args.maximize;
 		this.fullscreen = args.fullscreen;
+		this.contextmenu = args.contextmenu;
 	}
 }
 
@@ -52,7 +56,19 @@ class App extends Stateful<AppProps, AppState> {
 		// 		// update available	
 		// 	}
 		// });
-		return new AppState({ maximize: false, fullscreen: false });
+		window.addEventListener("keydown", (event) => {
+			switch (event.key) {
+				case "w": {
+					if (!event.altKey && event.ctrlKey && !event.shiftKey) navigator.close();
+					break;
+				}
+				case "F12": {
+					protocol.development();
+					break;
+				}
+			}
+		});
+		return new AppState({ maximize: false, fullscreen: false, contextmenu: false });
 	}
 	protected events(): LifeCycle<AppProps, AppState> {
 		return {
@@ -62,19 +78,14 @@ class App extends Stateful<AppProps, AppState> {
 				bridge.handle(Window.ENTER_FULL_SCREEN, () => this.setState((state) => ({ fullscreen: true })));
 				bridge.handle(Window.LEAVE_FULL_SCREEN, () => this.setState((state) => ({ fullscreen: false })));
 
-				window.addEventListener("keydown", (event) => {
-					switch (event.key) {
-						case "w": {
-							if (!event.altKey && event.ctrlKey && !event.shiftKey) {
-								navigator.close();
-							}
-							break;
-						}
-						case "F12": {
-							protocol.development();
-							break;
-						}
-					}
+				contextmenu.handle((state) => {
+					this.setState((state) => ({ contextmenu: true }));
+				});
+				window.addEventListener("wheel", (event) => {
+					if (this.state.contextmenu) this.setState((state) => ({ contextmenu: false }));
+				});
+				window.addEventListener("mousedown", (event) => {
+					if (this.state.contextmenu) this.setState((state) => ({ contextmenu: false }));
 				});
 			}
 		};
@@ -138,9 +149,35 @@ class App extends Stateful<AppProps, AppState> {
 					/>
 				</Row>
 				{/* CONTENT */}
-				<section style={{ width: Unit(100, "%"), height: Unit(100, "%"), background: Color.DARK_200 }}>
+				<section id="content" style={{ width: Unit(100, "%"), height: Unit(100, "%"), background: Color.DARK_200 }}>
 					<Viewport></Viewport>
 				</section>
+				{/* CONTEXTMENU */}
+				<Element id="contextmenu" color={Color.DARK_300} top={contextmenu.state.y} left={contextmenu.state.x}  padding={{ top: 5, bottom: 5 }} corner={{ all: 4.5 }} border={{ all: { width: 1.0, style: "solid", color: Color.DARK_500 } }} shadow={[{ x: 0, y: 0, blur: 2.5, spread: 0, color: Color.DARK_100 }]} visible={this.state.contextmenu}>
+					{contextmenu.state.items.map((element, index) => {
+						// seperator
+						if (element === "seperator") return (<section key={index} style={{ width: "auto", height: 1.0, marginTop: 5, marginBottom: 5, background: Color.DARK_500 }}/>);
+
+						return (
+							<Container key={index} height={35} padding={{ left: 10, right: 25 }} phantom={true}
+								onMouseDown={(style) => {
+									if (!element.toggle) return;
+									// update
+									this.setState((state) => ({ contextmenu: false }), () => element.method());
+								}}
+								onMouseEnter={(style) => {
+									style({ color: Color.DARK_400 });
+								}}
+								onMouseLeave={(style) => {
+									style(null);
+								}}>
+								<Center x={false} y={true}>
+									<Text children={[{ text: element.role, color: element.toggle ? Color.TEXT_000 : Color.DARK_500 }]}/>
+								</Center>
+							</Container>
+						);
+					})}
+				</Element>
 			</Column>
 		);
 	}

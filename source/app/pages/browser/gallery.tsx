@@ -42,7 +42,7 @@ enum Ayanami {
 	INFORMATION = 2
 }
 
-let offset = 0;
+const offset = new Map<number, number>();
 
 class GalleryProps extends Props<undefined> {
 	public readonly gallery: _Gallery;
@@ -70,17 +70,6 @@ class GalleryState {
 
 class Gallery extends Stateful<GalleryProps, GalleryState> {
 	protected create() {
-		// cache
-		const height = typeof this.props.height === "string" ? Number(this.props.height.match(/-?\d+/g)) : this.props.height;
-
-		if (height && offset === 0) {
-			// max-height
-			while ((height - 170) / offset >= 60) {
-				offset++;
-			}
-			// update
-			offset = (((height - 170) / offset) - 35) / 2;
-		}
 		return new GalleryState({ foreground: Asuka.TITLE, background: Ayanami.THUMBNAIL_0 });
 	}
 	protected postCSS(): React.CSSProperties {
@@ -120,14 +109,27 @@ class Gallery extends Stateful<GalleryProps, GalleryState> {
 											{ key: "title", value: this.props.gallery.title },
 											{ key: "language", value: this.props.gallery.language },
 											{ key: "characters", value: this.props.gallery.characters },
-											{ key: "artist", value: this.props.gallery.artist },
-											{ key: "series", value: this.props.gallery.series },
+											{ key: "artists", value: this.props.gallery.artists },
+											{ key: "parody", value: this.props.gallery.parody },
 											{ key: "group", value: this.props.gallery.group },
 											{ key: "tags", value: this.props.gallery.tags },
 											{ key: "date", value: this.props.gallery.date }
 										].map((section, index) => {
+											// cache
+											const height = typeof this.props.height === "string" ? Number(this.props.height.match(/-?\d+/g)) : this.props.height ?? this.node()!.getBoundingClientRect().height;
+
+											if (!offset.has(height)) {
+												// cache
+												let _offset = 0;
+												// max-height
+												while ((height - 170) / _offset >= 60) {
+													_offset++;
+												}
+												// update
+												offset.set(height, (((height - 170) / _offset) - 35) / 2);
+											}
 											return (
-												<Element key={index} padding={{ all: offset ? offset : 7.5, left: 0, right: 14.5 }}>
+												<Element key={index} padding={{ all: offset.get(height), left: 0, right: 14.5 }}>
 													{/* KEY */}
 													<Inline flex={true}>
 														<Text children={[{ text: section.key == "id" ? "No." : section.key.replace(/^([\D])([\D]+)$/, ($0, $1, $2) => `${$1.toUpperCase()}${$2.toLowerCase()}:`) }]}/>
@@ -135,34 +137,57 @@ class Gallery extends Stateful<GalleryProps, GalleryState> {
 													{/* VALUE */}
 													<Inline flex={true}>
 														{[section.value instanceof Array && section.value.isEmpty() ? ["N/A"] : section.value ?? "N/A"].flat().map((chip, _index) => {
+															// cache
+															const toggle = chip !== "N/A" && section.key !== "title" && section.key !== "date";
+
 															return (
 																<Button key={_index} color={Color.DARK_400} maximum={{ width: Unit(69, "%") }} border={{ all: { width: 0.75, style: "solid", color: Color.DARK_200 } }} corner={{ all: 3.0 }} margin={{ all: 3.0 }} padding={{ all: 3.0, left: 5.5, right: 5.5 }}
 																	onMouseDown={(style) => {
 																		// skip
-																		if (chip === "N/A" || section.key === "title" || section.key === "date") return;
+																		if (!toggle) return;
+
+																		let callback: Nullable<string> = null;
 
 																		switch (section.key) {
+																			case "type": {
+																				callback = `type:${chip.toString().replace(/\s/g, "")}`;
+																				break;
+																			}
 																			case "language": {
-																				this.props.onClick?.(`language:${Object.keys(languages).filter((tongue) => languages[tongue as keyof typeof languages] === chip)}`);
+																				callback = `language:${Object.keys(languages).filter((tongue) => languages[tongue as keyof typeof languages] === chip)}`;
+																				break;
+																			}
+																			case "artists": {
+																				callback = `artist:${chip.toString()}`;
+																				break;
+																			}
+																			case "parody": {
+																				callback = `series:${chip.toString()}`;
 																				break;
 																			}
 																			case "tags": {
-																				this.props.onClick?.(chip.toString());
+																				callback = chip.toString();
 																				break;
 																			}
 																			default: {
-																				this.props.onClick?.(`${section.key}:${/^(artist|game)\sCG$/.test(chip as string) ? /^(artist|game)\sCG$/.exec(chip as string)?.first + "cg" : chip.toString().replace(/\s/g, "_")}`);
+																				callback = `${section.key}:${chip.toString()}`;
 																				break;
 																			}
 																		}
+																		// trigger
+																		this.props.onClick?.(callback.toLowerCase().replace(/\s/g, "_"));
 																	}}
 																	onMouseEnter={(style) => {
+																		if (!toggle) return;
+
 																		style({ color: Color.DARK_500 });
 																	}}
 																	onMouseLeave={(style) => {
+																		if (!toggle) return;
+
 																		style(null);
 																	}}
-																	children={<Text length={Unit(100, "%")}>{(chip instanceof Tag ? [{ text: chip.namespace, color: chip.namespace === "male" ? "cyan" : chip.namespace === "female" ? "pink" : "white" }, { text: ":" }, { text: chip.value }] : [{ text: chip.toString() }]).map((item) => ({ ...item, size: 13.5 }))}</Text>}
+																	children={<Text length={Unit(100, "%")}>{(chip instanceof Tag ? [{ text: chip.namespace, color: chip.namespace === "male" ? "cyan" : chip.namespace === "female" ? "pink" : "white" }, { text: ":" }, { text: chip.value }] : [{ text: chip.toString(), color: toggle ? Color.TEXT_000 : Color.DARK_500 }]).map((item) => ({ ...item, size: 13.5 }))}</Text>}
 																/>
 															);
 														})}
@@ -176,7 +201,7 @@ class Gallery extends Stateful<GalleryProps, GalleryState> {
 						</section>
 					].map((children, index) => {
 						return (
-							<Transform key={index} translate={[(index - this.state.background) * 100, 0]} transition={{ duration: 600 }} children={children}/>
+							<Transform key={index} translate={[(index - this.state.background) * 100, 0]} transition={{ duration: 750 }} children={children}/>
 						);
 					})}
 				</Stack>
