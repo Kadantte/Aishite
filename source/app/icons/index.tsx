@@ -95,6 +95,10 @@ abstract class Icon extends Stateful<IconProps, IconState> {
 			onMouseMove: (event: MouseEvent) => {
 				if (this.props.phantom) event.stopPropagation();
 				this.props.onMouseMove?.(this.style);
+			},
+			onContextMenu: (event: MouseEvent) => {
+				if (this.props.onMouseUp) event.stopPropagation();
+				if (this.props.onMouseDown) event.stopPropagation();
 			}
 		};
 	}

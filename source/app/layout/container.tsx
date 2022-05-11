@@ -42,7 +42,7 @@ class ContainerState {
 class Container extends Stateful<ContainerProps, ContainerState> {
 	protected create() {
 		this.style = this.style.bind(this);
-		
+
 		return new ContainerState({ decoration: null });
 	}
 	protected postCSS(): React.CSSProperties {
@@ -85,6 +85,10 @@ class Container extends Stateful<ContainerProps, ContainerState> {
 				onMouseOver={(event) => {
 					if (this.props.phantom) event.stopPropagation();
 					this.props.onMouseMove?.(this.style);
+				}}
+				onContextMenu={(event) => {
+					if (this.props.onMouseUp) event.stopPropagation();
+					if (this.props.onMouseDown) event.stopPropagation();
 				}}
 			>{this.props.children}</section>
 		);
