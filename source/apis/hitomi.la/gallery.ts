@@ -77,7 +77,7 @@ async function block(id: number) {
 
 	const metadata = new Map<string, unknown>(Object.entries({
 		title: element.querySelector(".lillie a")?.textContent,
-		artist: element.querySelector(".artist-list")?.textContent,
+		artist: element.querySelector(".artist-list")?.textContent?.split(space),
 		date: element.querySelector(".date")?.textContent
 	}));
 	
