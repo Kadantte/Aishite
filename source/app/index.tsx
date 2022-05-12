@@ -26,22 +26,14 @@ import contextmenu from "@/manager/contextmenu";
 
 import { Window } from "@/apis/electron/bridge";
 
-class AppProps extends Clear<undefined> {
-	constructor(args: Args<AppProps>) {
-		super(args);
-	}
+interface AppProps extends Clear<undefined> {
+	// TODO: none
 }
 
-class AppState {
-	public maximize: boolean;
-	public fullscreen: boolean;
-	public contextmenu: boolean;
-
-	constructor(args: Args<AppState>) {
-		this.maximize = args.maximize;
-		this.fullscreen = args.fullscreen;
-		this.contextmenu = args.contextmenu;
-	}
+interface AppState {
+	maximize: boolean;
+	fullscreen: boolean;
+	contextmenu: boolean;
 }
 
 class App extends Stateful<AppProps, AppState> {
@@ -68,7 +60,7 @@ class App extends Stateful<AppProps, AppState> {
 				}
 			}
 		});
-		return new AppState({ maximize: false, fullscreen: false, contextmenu: false });
+		return ({ maximize: false, fullscreen: false, contextmenu: false });
 	}
 	protected events(): LifeCycle<AppProps, AppState> {
 		return {
@@ -221,25 +213,18 @@ class Handle {
 	}
 }
 
-class ControllerProps extends Props<undefined> {
-	constructor(args: Args<ControllerProps>) {
-		super(args);
-	}
+interface ControllerProps extends Props<undefined> {
+	// TODO: none
 }
 
-class ControllerState {
-	public index: number;
-	public handle: Nullable<Handle>;
-
-	constructor(args: Args<ControllerState>) {
-		this.index = args.index;
-		this.handle = args.handle;
-	}
+interface ControllerState {
+	index: number;
+	handle: Nullable<Handle>;
 }
 
 class Controller extends Stateful<ControllerProps, ControllerState> {
 	protected create() {
-		return new ControllerState({ index: navigator.state.index, handle: null });
+		return ({ index: navigator.state.index, handle: null });
 	}
 	protected events(): LifeCycle<ControllerProps, ControllerState> {
 		return {

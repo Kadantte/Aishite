@@ -4,16 +4,9 @@ import { Stateless } from "@/app/common/framework";
 
 import Size from "@/app/common/style/size";
 
-class CenterProps extends Props<Children> {
-	public readonly x: boolean;
-	public readonly y: boolean;
-
-	constructor(args: Args<CenterProps>) {
-		super(args);
-
-		this.x = args.x;
-		this.y = args.y;
-	}
+interface CenterProps extends Props<Children> {
+	readonly x: boolean;
+	readonly y: boolean;
 }
 
 class Center extends Stateless<CenterProps> {

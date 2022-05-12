@@ -4,14 +4,8 @@ import { StyleSheet } from "@/app/common/framework";
 
 import Size from "@/app/common/style/size";
 
-class StackProps extends Casacade {
-	public readonly grow?: number;
-
-	constructor(args: Args<StackProps>) {
-		super(args);
-
-		this.grow = args.grow;
-	}
+interface StackProps extends Casacade {
+	readonly grow?: number;
 }
 
 class Stack extends StyleSheet<StackProps> {

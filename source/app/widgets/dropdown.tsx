@@ -17,55 +17,31 @@ import Scroll from "@/app/layout/casacade/scroll";
 import Close from "@/app/icons/close";
 import Button from "./button";
 
-class DropdownProps extends FlipFlop<undefined> {
-	public readonly index?: number;
-	public readonly value?: string;
-	public readonly items: Array<Pair<string, string>>;
-	public readonly fallback?: string;
-	public readonly highlight?: string;
-	public readonly controller?: Reference<HTMLInputElement>;
+interface DropdownProps extends FlipFlop<undefined> {
+	readonly index?: number;
+	readonly value?: string;
+	readonly items: Array<Pair<string, string>>;
+	readonly fallback?: string;
+	readonly highlight?: string;
+	readonly controller?: Reference<HTMLInputElement>;
 	// events
-	public readonly onReset?: () => void;
-	public readonly onIndex?: (callback: number) => void;
-	public readonly onSelect?: (callback: string) => void;
-	public readonly onSubmit?: (callback: string) => void;
-	public readonly onChange?: (callback: string) => void;
-	public readonly onTyping?: (callback: string) => boolean;
-
-	constructor(args: Args<DropdownProps>) {
-		super(args);
-
-		this.index = args.index;
-		this.value = args.value;
-		this.items = args.items;
-		this.fallback = args.fallback;
-		this.highlight = args.highlight;
-		this.controller = args.controller;
-		// events
-		this.onReset = args.onReset;
-		this.onIndex = args.onIndex;
-		this.onSelect = args.onSelect;
-		this.onSubmit = args.onSubmit;
-		this.onChange = args.onChange;
-		this.onTyping = args.onTyping;
-	}
+	readonly onReset?: () => void;
+	readonly onIndex?: (callback: number) => void;
+	readonly onSelect?: (callback: string) => void;
+	readonly onSubmit?: (callback: string) => void;
+	readonly onChange?: (callback: string) => void;
+	readonly onTyping?: (callback: string) => boolean;
 }
 
-class DropdownState {
-	public index: number;
-	public hover: boolean;
-	public focus: boolean;
-
-	constructor(args: Args<DropdownState>) {
-		this.index = args.index;
-		this.hover = args.hover;
-		this.focus = args.focus;
-	}
+interface DropdownState {
+	index: number;
+	hover: boolean;
+	focus: boolean;
 }
 
 class Dropdown extends Stateful<DropdownProps, DropdownState> {
 	protected create() {
-		return new DropdownState({ index: this.props.index ?? NaN, hover: false, focus: false });
+		return ({ index: this.props.index ?? NaN, hover: false, focus: false });
 	}
 	protected postCSS(): React.CSSProperties {
 		return {};

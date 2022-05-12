@@ -15,32 +15,17 @@ import gallery from "@/apis/hitomi.la/gallery";
 type _Gallery = Await<ReturnType<typeof gallery["get"]>>;
 type _GalleryFile = Await<ReturnType<_Gallery["getFiles"]>>;
 
-class ViewerProps extends Clear<undefined> {
-	public factor: number;
-	public gallery: number;
-
-	constructor(args: Args<ViewerProps>) {
-		super(args);
-
-		this.factor = args.factor;
-		this.gallery = args.gallery;
-	}
+interface ViewerProps extends Clear<undefined> {
+	readonly factor: number;
+	readonly gallery: number;
 }
 
-class ViewerState {
-	public init: boolean;
-	public ctrl: boolean;
-	public title: string;
-	public files: _GalleryFile;
-	public factor: number;
-
-	constructor(args: Args<ViewerState>) {
-		this.init = args.init;
-		this.ctrl = args.ctrl;
-		this.title = args.title;
-		this.files = args.files;
-		this.factor = args.factor;
-	}
+interface ViewerState {
+	init: boolean;
+	ctrl: boolean;
+	title: string;
+	files: _GalleryFile;
+	factor: number;
 }
 
 class Viewer extends Page<ViewerProps, ViewerState> {
@@ -52,7 +37,7 @@ class Viewer extends Page<ViewerProps, ViewerState> {
 		this.handle_3 = this.handle_3.bind(this);
 		this.handle_4 = this.handle_4.bind(this);
 
-		return new ViewerState({ init: false, ctrl: false, title: "Loading...", files: [], factor: this.props.factor });
+		return ({ init: false, ctrl: false, title: "Loading...", files: [], factor: this.props.factor });
 	}
 	protected events(): LifeCycle<ViewerProps, ViewerState> {
 		return {

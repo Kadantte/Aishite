@@ -7,36 +7,19 @@ import Row from "@/app/layout/row";
 
 import { Alignment } from "@/app/common/geometry";
 
-class PagingProps extends FlipFlop<undefined> {
-	public readonly index: number;
-	public readonly length: number;
-	public readonly overflow: number;
-	public readonly shortcut?: Pair<boolean, boolean>;
-	// events
-	public readonly onPaging?: (index: number) => boolean;
+interface PagingProps extends FlipFlop<undefined> {
+	readonly index: number;
+	readonly length: number;
+	readonly overflow: number;
+	readonly shortcut?: Pair<boolean, boolean>;
 	// builder
-	public readonly builder: (key: string | number, indexing: boolean, handle: () => void) => Child;
-
-	constructor(args: Args<PagingProps> & { builder: (key: string | number, indexing: boolean, handle: () => void) => Child; }) {
-		super(args);
-
-		this.index = args.index;
-		this.length = args.length;
-		this.overflow = args.overflow;
-		this.shortcut = args.shortcut;
-		// events
-		this.onPaging = args.onPaging;
-		// builder
-		this.builder = args.builder;
-	}
+	readonly builder: (key: string | number, indexing: boolean, handle: () => void) => Child;
+	// events
+	readonly onPaging?: (index: number) => boolean;
 }
 
-class PagingState {
-	public index: number;
-
-	constructor(args: Args<PagingState>) {
-		this.index = args.index;
-	}
+interface PagingState {
+	index: number;
 }
 
 class Paging extends Stateful<PagingProps, PagingState> {
@@ -44,7 +27,7 @@ class Paging extends Stateful<PagingProps, PagingState> {
 		// permanent
 		this.handle = this.handle.bind(this);
 
-		return new PagingState({ index: this.props.index });
+		return ({ index: this.props.index });
 	}
 	protected postCSS(): React.CSSProperties {
 		return {};

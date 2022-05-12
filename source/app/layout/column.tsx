@@ -5,20 +5,11 @@ import { Vertical, Alignment } from "@/app/common/geometry";
 
 import Size from "@/app/common/style/size";
 
-class ColumnProps extends Props<Children> {
-	public readonly wrap?: boolean;
-	public readonly basis?: Unit;
-	public readonly direction?: Vertical;
-	public readonly alignment?: Alignment;
-
-	constructor(args: Args<ColumnProps>) {
-		super(args);
-
-		this.wrap = args.wrap;
-		this.basis = args.basis;
-		this.direction = args.direction;
-		this.alignment = args.alignment;
-	}
+interface ColumnProps extends Props<Children> {
+	readonly wrap?: boolean;
+	readonly basis?: Unit;
+	readonly direction?: Vertical;
+	readonly alignment?: Alignment;
 }
 
 class Column extends Stateless<ColumnProps> {

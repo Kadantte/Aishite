@@ -3,17 +3,10 @@ import { StyleSheet } from "@/app/common/framework";
 
 import contextmenu from "@/manager/contextmenu";
 
-class ContextMenuProps extends Casacade {
-	public readonly items: typeof contextmenu["state"]["items"];
+interface ContextMenuProps extends Casacade {
+	readonly items: typeof contextmenu["state"]["items"];
 	/** Whether to prevent event triggers from elements underneath. */
-	public readonly phantom?: boolean;
-
-	constructor(args: Args<ContextMenuProps>) {
-		super(args);
-
-		this.items = args.items;
-		this.phantom = args.phantom;
-	}
+	readonly phantom?: boolean;
 }
 
 class ContextMenu extends StyleSheet<ContextMenuProps> {

@@ -8,54 +8,32 @@ import Margin from "@/app/common/style/margin";
 import Padding from "@/app/common/style/padding";
 import Transition from "@/app/common/style/transition";
 
-class IconProps extends Clear<undefined> {
-	public readonly color?: Nullable<React.CSSProperties["fill"]>;
-	public readonly width?: Unit
-	public readonly height?: Unit;
-	public readonly margin?: Margin;
-	public readonly padding?: Padding;
+interface IconProps extends Clear<undefined> {
+	readonly color?: Nullable<React.CSSProperties["fill"]>;
+	readonly width?: Unit
+	readonly height?: Unit;
+	readonly margin?: Margin;
+	readonly padding?: Padding;
 	/** Whether to prevent event triggers from elements underneath. */
-	public readonly phantom?: boolean;
-	public readonly transition?: Transition;
+	readonly phantom?: boolean;
+	readonly transition?: Transition;
 	// events
-	public readonly onMouseUp?: (callback: Icon["style"]) => void;
-	public readonly onMouseDown?: (callback: Icon["style"]) => void;
-	public readonly onMouseEnter?: (callback: Icon["style"]) => void;
-	public readonly onMouseLeave?: (callback: Icon["style"]) => void;
-	public readonly onMouseMove?: (callback: Icon["style"]) => void;
-
-	constructor(args: Args<IconProps>) {
-		super(args);
-
-		this.color = args.color;
-		this.width = args.width;
-		this.height = args.height;
-		this.margin = args.margin;
-		this.padding = args.padding;
-		this.phantom = args.phantom;
-		this.transition = args.transition;
-		// events
-		this.onMouseUp = args.onMouseUp;
-		this.onMouseDown = args.onMouseDown;
-		this.onMouseEnter = args.onMouseEnter;
-		this.onMouseLeave = args.onMouseLeave;
-		this.onMouseMove = args.onMouseMove;
-	}
+	readonly onMouseUp?: (callback: Icon["style"]) => void;
+	readonly onMouseDown?: (callback: Icon["style"]) => void;
+	readonly onMouseEnter?: (callback: Icon["style"]) => void;
+	readonly onMouseLeave?: (callback: Icon["style"]) => void;
+	readonly onMouseMove?: (callback: Icon["style"]) => void;
 }
 
-class IconState {
-	public color: IconProps["color"];
-
-	constructor(args: Args<IconState>) {
-		this.color = args.color;
-	}
+interface IconState {
+	color: IconProps["color"];
 }
 
 abstract class Icon extends Stateful<IconProps, IconState> {
 	protected create() {
 		this.style = this.style.bind(this);
 		
-		return new IconState({ color: null });
+		return ({ color: null });
 	}
 	protected postCSS(): React.CSSProperties {
 		return {

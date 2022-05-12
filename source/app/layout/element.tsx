@@ -1,10 +1,8 @@
 import { Props } from "@/app/common/props";
 import { Stateless } from "@/app/common/framework";
 
-class ElementProps extends Props<Children> {
-	constructor(args: Args<ElementProps>) {
-		super(args);
-	}
+interface ElementProps extends Props<Children> {
+	// TODO: none
 }
 
 class Element extends Stateless<ElementProps> {

@@ -6,44 +6,26 @@ import Size from "@/app/common/style/size";
 
 import ContextMenu from "@/app/layout/casacade/contextmenu";
 
-class FormProps extends FlipFlop<undefined> {
-	public readonly value?: string;
-	public readonly fallback?: string;
-	public readonly controller?: Reference<HTMLInputElement>;
+interface FormProps extends FlipFlop<undefined> {
+	readonly value?: string;
+	readonly fallback?: string;
+	readonly controller?: Reference<HTMLInputElement>;
 	// events
-	public readonly onBlur?: () => void;
-	public readonly onFocus?: () => void;
-	public readonly onSubmit?: (callback: string) => void;
-	public readonly onChange?: (callback: string) => void;
-	public readonly onTyping?: (callback: string) => boolean;
-
-	constructor(args: Args<FormProps>) {
-		super(args);
-
-		this.value = args.value;
-		this.fallback = args.fallback;
-		this.controller = args.controller;
-		this.onBlur = args.onBlur;
-		this.onFocus = args.onFocus;
-		this.onSubmit = args.onSubmit;
-		this.onChange = args.onChange;
-		this.onTyping = args.onTyping;
-	}
+	readonly onBlur?: () => void;
+	readonly onFocus?: () => void;
+	readonly onSubmit?: (callback: string) => void;
+	readonly onChange?: (callback: string) => void;
+	readonly onTyping?: (callback: string) => boolean;
 }
 
-class FormState {
-	public focus: boolean;
-	public highlight: boolean;
-
-	constructor(args: Args<FormState>) {
-		this.focus = args.focus;
-		this.highlight = args.highlight;
-	}
+interface FormState {
+	focus: boolean;
+	highlight: boolean;
 }
 
 class Form extends Stateful<FormProps, FormState> {
 	protected create() {
-		return new FormState({ focus: false, highlight: false });
+		return ({ focus: false, highlight: false });
 	}
 	protected events(): LifeCycle<FormProps, FormState> {
 		return {

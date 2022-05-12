@@ -1,14 +1,8 @@
 import { Casacade } from "@/app/common/props";
 import { StyleSheet } from "@/app/common/framework";
 
-class SpacerProps extends Casacade {
-	public readonly grow?: number;
-
-	constructor(args: Args<SpacerProps>) {
-		super(args);
-
-		this.grow = args.grow;
-	}
+interface SpacerProps extends Casacade {
+	readonly grow?: number;
 }
 
 class Spacer extends StyleSheet<SpacerProps> {

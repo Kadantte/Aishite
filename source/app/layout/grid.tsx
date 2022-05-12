@@ -2,16 +2,9 @@ import Unit from "@/app/common/unit";
 import { Clear, Casacade } from "@/app/common/props";
 import { Stateless, StyleSheet } from "@/app/common/framework";
 
-class CellProps extends Casacade {
-	public readonly overflow?: boolean;
-	// override
-	declare public readonly id: string;
-
-	constructor(args: Args<CellProps>) {
-		super(args);
-
-		this.overflow = args.overflow;
-	}
+interface CellProps extends Casacade {
+	readonly id: string;
+	readonly overflow?: boolean;
 }
 
 class Cell extends StyleSheet<CellProps> {
@@ -26,23 +19,14 @@ class Cell extends StyleSheet<CellProps> {
 	}
 }
 
-class LayoutProps extends Clear<Children> {
-	public readonly gap?: {
+interface LayoutProps extends Clear<Children> {
+	readonly gap?: {
 		inner?: Unit;
 		outer?: Unit;
 	};
-	public readonly flow?: React.CSSProperties["gridAutoFlow"];
-	public readonly count: number;
-	public readonly minimum: Unit;
-
-	constructor(args: Args<LayoutProps>) {
-		super(args);
-
-		this.gap = args.gap;
-		this.flow = args.flow;
-		this.count = args.count;
-		this.minimum = args.minimum;
-	}
+	readonly flow?: React.CSSProperties["gridAutoFlow"];
+	readonly count: number;
+	readonly minimum: Unit;
 }
 /** @see https://css-tricks.com/an-auto-filling-css-grid-with-max-columns/ */
 class Layout extends Stateless<LayoutProps> {
@@ -63,23 +47,14 @@ class Layout extends Stateless<LayoutProps> {
 	}
 }
 
-class RegionProps extends Clear<Children> {
-	public readonly gap?: {
+interface RegionProps extends Clear<Children> {
+	readonly gap?: {
 		inner?: Unit;
 		outer?: Unit;
 	};
-	public readonly rows: Array<Unit>;
-	public readonly columns: Array<Unit>;
-	public readonly template: Array<Array<String>>;
-
-	constructor(args: Args<RegionProps>) {
-		super(args);
-
-		this.gap = args.gap;
-		this.rows = args.rows;
-		this.columns = args.columns;
-		this.template = args.template;
-	}
+	readonly rows: Array<Unit>;
+	readonly columns: Array<Unit>;
+	readonly template: Array<Array<String>>;
 }
 
 class Region extends Stateless<RegionProps> {

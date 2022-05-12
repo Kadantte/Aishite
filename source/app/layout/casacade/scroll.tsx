@@ -3,18 +3,10 @@ import { StyleSheet } from "@/app/common/framework";
 
 type Type = ("frame" | "elegant");
 
-class ScrollProps extends Casacade {
-	public readonly x: React.CSSProperties["overflowX"];
-	public readonly y: React.CSSProperties["overflowY"];
-	public readonly scrollbar?: Type;
-
-	constructor(args: Args<ScrollProps>) {
-		super(args);
-
-		this.x = args.x;
-		this.y = args.y;
-		this.scrollbar = args.scrollbar;
-	}
+interface ScrollProps extends Casacade {
+	readonly x: React.CSSProperties["overflowX"];
+	readonly y: React.CSSProperties["overflowY"];
+	readonly scrollbar?: Type;
 }
 
 class Scroll extends StyleSheet<ScrollProps> {

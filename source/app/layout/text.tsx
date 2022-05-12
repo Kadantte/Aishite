@@ -16,41 +16,24 @@ interface StringBuffer {
 	readonly weight?: React.CSSProperties["fontWeight"];
 }
 
-class TextProps {
+interface TextProps {
 	// inherit
-	public readonly id?: string;
-	public readonly style?: React.CSSProperties;
-	public readonly override?: React.CSSProperties;
+	readonly id?: string;
+	readonly style?: React.CSSProperties;
+	readonly override?: React.CSSProperties;
 	// position
-	public readonly all?: Unit;
-	public readonly top?: Unit;
-	public readonly left?: Unit;
-	public readonly right?: Unit;
-	public readonly bottom?: Unit;
-	public readonly margin?: Margin;
-	public readonly padding?: Padding;
-	@required
-	public readonly children: Array<StringBuffer>;
+	readonly all?: Unit;
+	readonly top?: Unit;
+	readonly left?: Unit;
+	readonly right?: Unit;
+	readonly bottom?: Unit;
+	readonly margin?: Margin;
+	readonly padding?: Padding;
 	// custom
-	public readonly length?: Unit;
-	public readonly transition?: Transition;
-
-	constructor(args: Args<TextProps>) {
-		// inherit
-		this.id = args.id;
-		this.style = args.style;
-		this.override = args.override;
-		this.children = args.children;
-		// position
-		this.all = args.all;
-		this.top = args.top;
-		this.left = args.left;
-		this.right = args.right;
-		this.bottom = args.bottom;
-		// custom
-		this.length = args.length;
-		this.transition = args.transition;
-	}
+	readonly length?: Unit;
+	readonly transition?: Transition;
+	// override
+	readonly children: Array<StringBuffer>;
 }
 
 class Text extends Stateless<TextProps> {

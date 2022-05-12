@@ -44,33 +44,20 @@ enum Ayanami {
 
 const offset = new Map<number, number>();
 
-class GalleryProps extends Props<undefined> {
-	public readonly gallery: _Gallery;
+interface GalleryProps extends Props<undefined> {
+	readonly gallery: _Gallery;
 	// events
-	public readonly onClick?: (callback: string) => void;
-
-	constructor(args: Args<GalleryProps>) {
-		super(args);
-
-		this.gallery = args.gallery;
-		// events
-		this.onClick = args.onClick;
-	}
+	readonly onClick?: (callback: string) => void;
 }
 
-class GalleryState {
-	public foreground: Asuka;
-	public background: Ayanami;
-
-	constructor(args: Args<GalleryState>) {
-		this.foreground = args.foreground;
-		this.background = args.background;
-	}
+interface GalleryState {
+	foreground: Asuka;
+	background: Ayanami;
 }
 
 class Gallery extends Stateful<GalleryProps, GalleryState> {
 	protected create() {
-		return new GalleryState({ foreground: Asuka.TITLE, background: Ayanami.THUMBNAIL_0 });
+		return ({ foreground: Asuka.TITLE, background: Ayanami.THUMBNAIL_0 });
 	}
 	protected postCSS(): React.CSSProperties {
 		return {};

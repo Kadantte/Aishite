@@ -1,14 +1,8 @@
 import { Casacade } from "@/app/common/props";
 import { StyleSheet } from "@/app/common/framework";
 
-class InlineProps extends Casacade {
-	public readonly flex: boolean;
-
-	constructor(args: Args<InlineProps>) {
-		super(args);
-
-		this.flex = args.flex;
-	}
+interface InlineProps extends Casacade {
+	readonly flex: boolean;
 }
 class Inline extends StyleSheet<InlineProps> {
 	protected postCSS(): React.CSSProperties {

@@ -5,20 +5,11 @@ import { Horizontal, Alignment } from "@/app/common/geometry";
 
 import Size from "@/app/common/style/size";
 
-class RowProps extends Props<Children> {
-	public readonly wrap?: boolean;
-	public readonly basis?: Unit;
-	public readonly direction?: Horizontal;
-	public readonly alignment?: Alignment;
-
-	constructor(args: Args<RowProps>) {
-		super(args);
-
-		this.wrap = args.wrap;
-		this.basis = args.basis;
-		this.direction = args.direction;
-		this.alignment = args.alignment;
-	}
+interface RowProps extends Props<Children> {
+	readonly wrap?: boolean;
+	readonly basis?: Unit;
+	readonly direction?: Horizontal;
+	readonly alignment?: Alignment;
 }
 
 class Row extends Stateless<RowProps> {

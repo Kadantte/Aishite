@@ -4,20 +4,11 @@ import { StyleSheet } from "@/app/common/framework";
 
 import Transition from "@/app/common/style/transition";
 
-class TransformProps extends Casacade {
-	public readonly scale?: Parameters<typeof scale>;
-	public readonly rotate?: Parameters<typeof rotate>;
-	public readonly translate?: Parameters<typeof translate>;
-	public readonly transition?: Transition;
-
-	constructor(args: Args<TransformProps>) {
-		super(args);
-
-		this.scale = args.scale;
-		this.rotate = args.rotate;
-		this.translate = args.translate;
-		this.transition = args.transition;
-	}
+interface TransformProps extends Casacade {
+	readonly scale?: Parameters<typeof scale>;
+	readonly rotate?: Parameters<typeof rotate>;
+	readonly translate?: Parameters<typeof translate>;
+	readonly transition?: Transition;
 }
 
 class Transform extends StyleSheet<TransformProps> {

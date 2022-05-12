@@ -34,38 +34,18 @@ import Column from "@/app/layout/column";
 type _Gallery = Await<ReturnType<typeof gallery["get"]>>;
 type _Suggests = Await<ReturnType<typeof suggest["tags"]>>;
 
-class BrowserProps extends Clear<undefined> {
-	public query: string;
-	public index: number;
-
-	constructor(args: Args<BrowserProps>) {
-		super(args);
-
-		this.query = args.query;
-		this.index = args.index;
-	}
+interface BrowserProps extends Clear<undefined> {
+	readonly query: string;
+	readonly index: number;
 }
 
-class BrowserState extends BrowserProps {
-	public init: boolean;
-	public gallery: Array<_Gallery>;
-	public suggests: _Suggests;
-	public highlight: string;
-	public length: number;
-
-	public controller: Reference<HTMLInputElement>;
-
-	constructor(args: Omit<Args<BrowserState>, "controller">) {
-		super(args);
-
-		this.init = args.init;
-		this.gallery = args.gallery;
-		this.suggests = args.suggests;
-		this.highlight = args.highlight;
-		this.length = args.length;
-
-		this.controller = React.createRef();
-	}
+interface BrowserState extends BrowserProps {
+	init: boolean;
+	length: number;
+	gallery: Array<_Gallery>;
+	suggests: _Suggests;
+	highlight: string;
+	controller: Reference<HTMLInputElement>;
 }
 
 class Browser extends Page<BrowserProps, BrowserState> {
@@ -73,7 +53,7 @@ class Browser extends Page<BrowserProps, BrowserState> {
 		// permanent
 		this.handle = this.handle.bind(this);
 
-		return new BrowserState({ init: false, query: this.props.query, index: this.props.index, gallery: [], suggests: [], highlight: "", length: 0 });
+		return ({ init: false, length: 0, query: this.props.query, index: this.props.index, gallery: [], suggests: [], highlight: "", controller: React.createRef<HTMLInputElement>() });
 	}
 	protected events(): LifeCycle<BrowserProps, BrowserState> {
 		return {

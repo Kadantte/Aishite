@@ -4,20 +4,11 @@ import { Stateless } from "@/app/common/framework";
 // @see https://stackoverflow.com/questions/9126105/blank-image-encoded-as-data-uri
 const transparent = "data:image/gif;base64,R0lGODlhAQABAAAAACwAAAAAAQABAAA=";
 
-class ImageProps extends Props<undefined> {
-	public readonly source: string;
+interface ImageProps extends Props<undefined> {
+	readonly source: string;
 	// events
-	public readonly onError?: () => void;
-	public readonly onLoaded?: () => void;
-
-	constructor(args: Args<ImageProps>) {
-		super(args);
-
-		this.source = args.source;
-		// events
-		this.onError = args.onError;
-		this.onLoaded = args.onLoaded;
-	}
+	readonly onError?: () => void;
+	readonly onLoaded?: () => void;
 }
 
 class Image extends Stateless<Omit<ImageProps, ("color" | "image")>> {

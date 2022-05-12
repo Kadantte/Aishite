@@ -6,44 +6,27 @@ import Corner from "@/app/common/style/corner";
 import Shadow from "@/app/common/style/shadow";
 import Transition from "@/app/common/style/transition";
 
-class ContainerProps extends Props<Children> {
+interface ContainerProps extends Props<Children> {
 	/** Whether to prevent event triggers from elements underneath. */
-	public readonly phantom?: boolean;
-	public readonly transition?: Transition;
+	readonly phantom?: boolean;
+	readonly transition?: Transition;
 	// events
-	public readonly onMouseUp?: (callback: Container["style"]) => void;
-	public readonly onMouseDown?: (callback: Container["style"]) => void;
-	public readonly onMouseEnter?: (callback: Container["style"]) => void;
-	public readonly onMouseLeave?: (callback: Container["style"]) => void;
-	public readonly onMouseMove?: (callback: Container["style"]) => void;
-
-	constructor(args: Args<ContainerProps>) {
-		super(args);
-
-		this.phantom = args.phantom;
-		this.transition = args.transition;
-		// events
-		this.onMouseUp = args.onMouseUp;
-		this.onMouseDown = args.onMouseDown;
-		this.onMouseEnter = args.onMouseEnter;
-		this.onMouseLeave = args.onMouseLeave;
-		this.onMouseMove = args.onMouseMove;
-	}
+	readonly onMouseUp?: (callback: Container["style"]) => void;
+	readonly onMouseDown?: (callback: Container["style"]) => void;
+	readonly onMouseEnter?: (callback: Container["style"]) => void;
+	readonly onMouseLeave?: (callback: Container["style"]) => void;
+	readonly onMouseMove?: (callback: Container["style"]) => void;
 }
 
-class ContainerState {
-	public decoration: Nullable<Pick<ContainerProps, ("color" | "image" | "border" | "corner" | "shadow" | "opacity")>>;
-
-	constructor(args: Args<ContainerState>) {
-		this.decoration = args.decoration;
-	}
+interface ContainerState {
+	decoration: Nullable<Pick<ContainerProps, ("color" | "image" | "border" | "corner" | "shadow" | "opacity")>>;
 }
 
 class Container extends Stateful<ContainerProps, ContainerState> {
 	protected create() {
 		this.style = this.style.bind(this);
 
-		return new ContainerState({ decoration: null });
+		return ({ decoration: null });
 	}
 	protected postCSS(): React.CSSProperties {
 		return nullsafe({

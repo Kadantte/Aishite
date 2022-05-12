@@ -4,18 +4,12 @@ import { Stateful, LifeCycle } from "@/app/common/framework";
 
 import navigator from "@/manager/navigator";
 
-class ViewportProps extends Clear<undefined> {
-	constructor(args: Args<ViewportProps>) {
-		super(args);
-	}
+interface ViewportProps extends Clear<undefined> {
+	// TODO: none
 }
 
-class ViewportState {
-	public key: Nullable<React.Key>;
-
-	constructor(args: Args<ViewportState>) {
-		this.key = args.key;
-	}
+interface ViewportState {
+	key: Nullable<React.Key>;
 }
 
 /**
@@ -26,7 +20,7 @@ class ViewportState {
  */
 class Viewport extends Stateful<ViewportProps, ViewportState> {
 	protected create() {
-		return new ViewportState({ key: navigator.state.pages[navigator.state.index].widget.key });
+		return ({ key: navigator.state.pages[navigator.state.index].widget.key });
 	}
 	protected events(): LifeCycle<ViewportProps, ViewportState> {
 		return {
