@@ -21,7 +21,7 @@ import Maximize from "@/app/icons/maximize";
 import Minimize from "@/app/icons/minimize";
 import Unmaximize from "@/app/icons/unmaximize";
 
-import navigator from "@/manager/navigator";
+import history from "@/manager/history";
 import contextmenu from "@/manager/contextmenu";
 
 import { Window } from "@/apis/electron/bridge";
@@ -51,7 +51,7 @@ class App extends Stateful<AppProps, AppState> {
 		window.addEventListener("keydown", (event) => {
 			switch (event.key) {
 				case "w": {
-					if (!event.altKey && event.ctrlKey && !event.shiftKey) navigator.close();
+					if (!event.altKey && event.ctrlKey && !event.shiftKey) history.close();
 					break;
 				}
 				case "F12": {
@@ -191,7 +191,7 @@ class Handle {
 		this.offset = args.offset;
 		this.element = args.element;
 		this.minimum = this.width * (args.index * -1);
-		this.maximum = this.width * (navigator.state.pages.length - args.index - 1);
+		this.maximum = this.width * (history.state.pages.length - args.index - 1);
 	}
 	public get top() {
 		return this.element.getBoundingClientRect().top;
@@ -224,12 +224,12 @@ interface ControllerState {
 
 class Controller extends Stateful<ControllerProps, ControllerState> {
 	protected create() {
-		return ({ index: navigator.state.index, handle: null });
+		return ({ index: history.state.index, handle: null });
 	}
 	protected events(): LifeCycle<ControllerProps, ControllerState> {
 		return {
 			DID_MOUNT: () => {
-				navigator.handle((event) => {
+				history.handle((event) => {
 					// reset
 					this.setState((state) => ({ index: event.detail.after.index, handle: null }));
 				});
@@ -241,7 +241,7 @@ class Controller extends Stateful<ControllerProps, ControllerState> {
 				window.addEventListener("mouseup", (event) => {
 					if (this.state.handle) {
 						// undo
-						for (let index = 0; index < navigator.state.pages.length; index++) {
+						for (let index = 0; index < history.state.pages.length; index++) {
 							// cache
 							const children = element.children.item(index) as HTMLElement;
 							// style
@@ -249,8 +249,13 @@ class Controller extends Stateful<ControllerProps, ControllerState> {
 							children.style.zIndex = "unset";
 							children.style.transform = "unset";
 						}
-						// update
-						navigator.reorder(this.state.handle.index);
+						if (history.state.index !== this.state.handle.index) {
+							// update
+							history.reorder(this.state.handle.index);
+						} else {
+							// reset
+							this.setState((state) => ({ handle: null }));
+						}
 					}
 				});
 				window.addEventListener("mousedown", (event) => {
@@ -279,7 +284,7 @@ class Controller extends Stateful<ControllerProps, ControllerState> {
 
 						const destination = Math.floor((this.state.handle.left / this.state.handle.width) + 0.5);
 
-						if (this.state.handle.index !== destination && destination >= 0 && destination < navigator.state.pages.length) {
+						if (this.state.handle.index !== destination && destination >= 0 && destination < history.state.pages.length) {
 							// move left
 							if (event.movementX < 0) {
 								if (this.state.index < this.state.handle.index && this.state.handle.index > destination) {
@@ -318,17 +323,17 @@ class Controller extends Stateful<ControllerProps, ControllerState> {
 		return (
 			<Row id={"controller"}>
 				<>
-					{navigator.state.pages.map((page, index) => {
+					{history.state.pages.map((page, index) => {
 						return (
 							<Spacer key={index}>
 								<Container id="handle" color={this.state.index === index ? Color.DARK_200 : Color.DARK_000} minimum={{ width: 29.5 }} maximum={{ width: 250 }} border={{ top: { width: 2.5, style: "solid", color: this.state.index === index ? Color.RGBA_000 : "transparent" }, bottom: { width: 2.5 } }} draggable={false}
 									onMouseDown={(style) => {
-										if (navigator.state.index !== index) {
-											style(null, () => navigator.jump(index));
+										if (history.state.index !== index) {
+											style(null, () => history.jump(index));
 										}
 									}}
 									onMouseEnter={(style) => {
-										if (navigator.state.index !== index) {
+										if (history.state.index !== index) {
 											style({ color: Color.DARK_100, border: { top: { width: 2.5, style: "solid", color: Color.DARK_200 } } });
 										}
 									}}
@@ -340,7 +345,7 @@ class Controller extends Stateful<ControllerProps, ControllerState> {
 									{/* CLOSE */}
 									<Button all={7.5} left="auto" right={5.0} width={19.5} height={19.5} corner={{ all: 2.5 }}
 										onMouseDown={(style) => {
-											navigator.close(index);
+											history.close(index);
 										}}
 										onMouseEnter={(style) => {
 											style({ color: Color.RGBA_100 });
@@ -357,7 +362,7 @@ class Controller extends Stateful<ControllerProps, ControllerState> {
 				</>
 				<Button id="open" color={Color.DARK_200} width={26.5} height={26.5} margin={{ all: 20 - 13.25 }} corner={{ all: 2.5 }} draggable={false}
 					onMouseDown={(style) => {
-						navigator.open("NEW TAB", "BROWSER", {});
+						history.open("NEW TAB", "BROWSER", {});
 					}}
 					onMouseEnter={(style) => {
 						style({ color: Color.DARK_400 });

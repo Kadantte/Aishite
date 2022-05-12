@@ -23,7 +23,7 @@ import Bookmark from "@/app/icons/bookmark";
 import Download from "@/app/icons/download";
 import Discovery from "@/app/icons/discovery";
 
-import navigator from "@/manager/navigator";
+import history from "@/manager/history";
 
 import languages from "@/assets/languages.json";
 
@@ -205,7 +205,7 @@ class Gallery extends Stateful<GalleryProps, GalleryState> {
 							<>
 								<Read color={Color.DARK_500} width={Unit(25)} height={Unit(25)} margin={{ left: 10, right: 10 }}
 									onMouseDown={(style) => {
-										navigator.open(this.props.gallery.title, "VIEWER", { gallery: this.props.gallery.id });
+										history.open(this.props.gallery.title, "VIEWER", { gallery: this.props.gallery.id });
 									}}
 									onMouseEnter={(style) => {
 										style(Color.TEXT_000);

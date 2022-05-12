@@ -8,7 +8,7 @@ import Image from "@/app/layout/image";
 
 import discord from "@/modules/discord";
 
-import navigator from "@/manager/navigator";
+import history from "@/manager/history";
 
 import gallery from "@/apis/hitomi.la/gallery";
 
@@ -45,7 +45,7 @@ class Viewer extends Page<ViewerProps, ViewerState> {
 				// @ts-ignore
 				this.handle_0(null);
 
-				navigator.handle(this.handle_0);
+				history.handle(this.handle_0);
 
 				window.addEventListener("resize", this.handle_1);
 				// for zoom
@@ -54,7 +54,7 @@ class Viewer extends Page<ViewerProps, ViewerState> {
 				window.addEventListener("keydown", this.handle_4);
 			},
 			WILL_UNMOUNT: () => {
-				navigator.unhandle(this.handle_0);
+				history.unhandle(this.handle_0);
 
 				window.removeEventListener("resize", this.handle_1);
 				// for zoom
@@ -81,7 +81,7 @@ class Viewer extends Page<ViewerProps, ViewerState> {
 			</section>
 		);
 	}
-	protected handle_0(event: Parameters<Parameters<typeof navigator["handle"]>[0]>[0]) {
+	protected handle_0(event: Parameters<Parameters<typeof history["handle"]>[0]>[0]) {
 		if (!this.visible()) return;
 
 		if (this.state.init) {

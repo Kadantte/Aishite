@@ -24,7 +24,7 @@ import Gallery from "@/app/pages/browser/gallery";
 
 import discord from "@/modules/discord";
 
-import navigator from "@/manager/navigator";
+import history from "@/manager/history";
 
 import search from "@/apis/hitomi.la/search";
 import suggest from "@/apis/hitomi.la/suggest";
@@ -61,10 +61,10 @@ class Browser extends Page<BrowserProps, BrowserState> {
 				// @ts-ignore
 				this.handle(null);
 
-				navigator.handle(this.handle);
+				history.handle(this.handle);
 			},
 			WILL_UNMOUNT: () => {
-				navigator.unhandle(this.handle);
+				history.unhandle(this.handle);
 			}
 		};
 	}
@@ -87,7 +87,7 @@ class Browser extends Page<BrowserProps, BrowserState> {
 											// expire
 											suggest.outdate();
 
-											navigator.rename("language:all");
+											history.rename("language:all");
 
 											this.display("language:all", 0);
 										}}
@@ -111,7 +111,7 @@ class Browser extends Page<BrowserProps, BrowserState> {
 											// expire
 											suggest.outdate();
 
-											navigator.rename(query);
+											history.rename(query);
 
 											this.display(query, 0);
 										}}
@@ -139,7 +139,7 @@ class Browser extends Page<BrowserProps, BrowserState> {
 														toggle: true,
 														method: () => {
 															// text/plain
-															window.navigator.clipboard.writeText(_gallery.getURL());
+															navigator.clipboard.writeText(_gallery.getURL());
 														}
 													},
 													"seperator",
@@ -162,7 +162,7 @@ class Browser extends Page<BrowserProps, BrowserState> {
 														role: "Open in Viewer",
 														toggle: true,
 														method: () => {
-															navigator.open(_gallery.title, "VIEWER", { gallery: _gallery.id });
+															history.open(_gallery.title, "VIEWER", { gallery: _gallery.id });
 														}
 													}]}>
 													<section id="wrapper">
@@ -215,7 +215,7 @@ class Browser extends Page<BrowserProps, BrowserState> {
 			</Column>
 		);
 	}
-	protected handle(event: Parameters<Parameters<typeof navigator["handle"]>[0]>[0]) {
+	protected handle(event: Parameters<Parameters<typeof history["handle"]>[0]>[0]) {
 		if (!this.visible()) return;
 
 		if (this.state.init) {

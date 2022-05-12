@@ -1,7 +1,7 @@
 import { Props } from "@/app/common/props";
 import { Stateful } from "@/app/common/framework";
 
-import navigator from "@/manager/navigator";
+import history from "@/manager/history";
 
 abstract class Page<P extends Props<never>, S> extends Stateful<P, S> {
 	/**
@@ -17,7 +17,7 @@ abstract class Page<P extends Props<never>, S> extends Stateful<P, S> {
 		// @ts-ignore
 		if (this.props["data-key"]) {
 			// @ts-ignore
-			return navigator.state.pages[navigator.state.index].widget.props["data-key"] === this.props["data-key"];
+			return history.state.pages[history.state.index].element.props["data-key"] === this.props["data-key"];
 		}
 		return this.wrapper() !== null;
 	}

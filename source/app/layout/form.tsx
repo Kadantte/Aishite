@@ -55,7 +55,7 @@ class Form extends Stateful<FormProps, FormState> {
 						// @ts-ignore
 						this.node<HTMLInputElement>()!.value = null;
 						// text/plain
-						window.navigator.clipboard.writeText(window.getSelection()!.toString());
+						navigator.clipboard.writeText(window.getSelection()!.toString());
 					}
 				},
 				{
@@ -63,7 +63,7 @@ class Form extends Stateful<FormProps, FormState> {
 					toggle: this.state.highlight,
 					method: async () => {
 						// text/plain
-						window.navigator.clipboard.writeText(window.getSelection()!.toString());
+						navigator.clipboard.writeText(window.getSelection()!.toString());
 					}
 				},
 				{
@@ -73,7 +73,7 @@ class Form extends Stateful<FormProps, FormState> {
 						// cache
 						const element = this.node<HTMLInputElement>()!;
 						// reset
-						element.value = element.value.substring(0, element.selectionStart!) + await window.navigator.clipboard.readText() + element.value.substring(element.selectionEnd!, element.value.length);
+						element.value = element.value.substring(0, element.selectionStart!) + await navigator.clipboard.readText() + element.value.substring(element.selectionEnd!, element.value.length);
 					}
 				},
 				{
