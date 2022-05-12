@@ -73,8 +73,6 @@ class History extends StateHandler<HistoryState> {
 				// cache
 				const _page = index === this.state.index ? this.state.pages[destination] : index === destination ? this.state.pages[this.state.index] : page;
 
-				print(args(_page.element.props["data-key"]));
-
 				return builder(_page.title, classname(_page.element), args(_page.element.props["data-key"]) ?? _page.element.props, _page.element.props["data-key"]);
 			})
 		});

@@ -1,7 +1,7 @@
 import Unit from "@/app/common/unit";
 import Color from "@/app/common/color";
 import { Props } from "@/app/common/props";
-import { Stateful } from "@/app/common/framework";
+import { Stateful, LifeCycle } from "@/app/common/framework";
 
 import Tag from "@/models/tag";
 
@@ -51,19 +51,45 @@ interface GalleryProps extends Props<undefined> {
 }
 
 interface GalleryState {
+	offset: number;
 	foreground: Asuka;
 	background: Ayanami;
 }
 
 class Gallery extends Stateful<GalleryProps, GalleryState> {
 	protected create() {
-		return ({ foreground: Asuka.TITLE, background: Ayanami.THUMBNAIL_0 });
+		return ({ offset: NaN, foreground: Asuka.TITLE, background: Ayanami.THUMBNAIL_0 });
 	}
 	protected postCSS(): React.CSSProperties {
 		return {};
 	}
 	protected preCSS(): React.CSSProperties {
 		return {};
+	}
+	protected events(): LifeCycle<GalleryProps, GalleryState> {
+		return {
+			DID_MOUNT: () => {
+				// cache
+				const element = this.node();
+
+				if (!element) throw Error();
+
+				const height = element.getBoundingClientRect().height;
+
+				if (!offset.has(height)) {
+					// cache
+					let count = 0;
+					// max-height
+					while ((height - 170) / count >= 60) {
+						count++;
+					}
+					// update
+					offset.set(height, (((height - 170) / count) - 35) / 2);
+				}
+				// update
+				this.setState((state) => ({ offset: offset.get(height)! }));
+			}
+		};
 	}
 	protected build() {
 		return (
@@ -90,7 +116,7 @@ class Gallery extends Stateful<GalleryProps, GalleryState> {
 							<Element color={Color.DARK_300} all={25} bottom={100} corner={{ all: 4.5 }} shadow={[{ x: 0, y: 0, blur: 5, spread: 0, color: Color.DARK_100 }]}>
 								<Scroll x="hidden" y="auto" scrollbar="elegant">
 									<Element all={15}>
-										{[
+										{isNaN(this.state.offset) ? undefined : [
 											{ key: "id", value: this.props.gallery.id },
 											{ key: "type", value: this.props.gallery.type },
 											{ key: "title", value: this.props.gallery.title },
@@ -102,21 +128,8 @@ class Gallery extends Stateful<GalleryProps, GalleryState> {
 											{ key: "tags", value: this.props.gallery.tags },
 											{ key: "date", value: this.props.gallery.date }
 										].map((section, index) => {
-											// cache
-											const height = typeof this.props.height === "string" ? Number(this.props.height.match(/-?\d+/g)) : this.props.height ?? this.node()!.getBoundingClientRect().height;
-
-											if (!offset.has(height)) {
-												// cache
-												let _offset = 0;
-												// max-height
-												while ((height - 170) / _offset >= 60) {
-													_offset++;
-												}
-												// update
-												offset.set(height, (((height - 170) / _offset) - 35) / 2);
-											}
 											return (
-												<Element key={index} padding={{ all: offset.get(height), left: 0, right: 14.5 }}>
+												<Element key={index} padding={{ all: this.state.offset, left: 0, right: 14.5 }}>
 													{/* KEY */}
 													<Inline flex={true}>
 														<Text children={[{ text: section.key == "id" ? "No." : section.key.replace(/^([\D])([\D]+)$/, ($0, $1, $2) => `${$1.toUpperCase()}${$2.toLowerCase()}:`) }]}/>

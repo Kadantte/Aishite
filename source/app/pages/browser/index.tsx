@@ -11,6 +11,7 @@ import Pair from "@/models/pair";
 
 import Text from "@/app/layout/text";
 import Grid from "@/app/layout/grid";
+import Column from "@/app/layout/column";
 
 import Scroll from "@/app/layout/casacade/scroll";
 import Spacer from "@/app/layout/casacade/spacer";
@@ -29,7 +30,6 @@ import history from "@/manager/history";
 import search from "@/apis/hitomi.la/search";
 import suggest from "@/apis/hitomi.la/suggest";
 import gallery from "@/apis/hitomi.la/gallery";
-import Column from "@/app/layout/column";
 
 type _Gallery = Await<ReturnType<typeof gallery["get"]>>;
 type _Suggests = Await<ReturnType<typeof suggest["tags"]>>;
