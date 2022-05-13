@@ -4,7 +4,7 @@ import Fallback from "@/app/pages/fallback";
 
 import settings from "@/modules/settings";
 
-import { StateHandler } from "@/manager";
+import { StateHandler } from "@/handler";
 
 const cache = new Map<string, Nullable<React.Component>>();
 

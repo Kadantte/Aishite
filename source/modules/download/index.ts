@@ -1,7 +1,7 @@
 /** @see https://stackoverflow.com/questions/38715001/how-to-make-web-workers-with-typescript-and-webpack */
 import _ from "file-loader?name=[name].js!./worker";
 
-import { MappedStateHandler } from "@/manager";
+import { MappedStateHandler } from "@/handler";
 
 import storage from "@/modules/storage";
 import settings from "@/modules/settings";

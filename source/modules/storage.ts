@@ -1,7 +1,7 @@
 import node_fs from "fs";
 import node_path from "path";
 
-import { MappedStateHandler } from "@/manager";
+import { MappedStateHandler } from "@/handler";
 
 import { Window } from "@/apis/electron/bridge";
 

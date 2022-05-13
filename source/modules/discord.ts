@@ -1,7 +1,7 @@
 // @ts-ignore
 import * as RPC from "discord-rpc";
 
-import { StateHandler } from "@/manager";
+import { StateHandler } from "@/handler";
 
 /** @see https://discord.com/developers/docs/rich-presence/how-to */
 interface RichPresence {

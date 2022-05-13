@@ -7,6 +7,6 @@ import App from "@/app";
 
 const element = document.getElementById("app");
 
-if (element) {
-	ReactDOM.createRoot(element).render(<App></App>);
-}
+if (!element) throw Error();
+
+ReactDOM.createRoot(element).render(<App></App>);

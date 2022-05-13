@@ -1,7 +1,7 @@
 import { Casacade } from "@/app/common/props";
 import { StyleSheet } from "@/app/common/framework";
 
-import contextmenu from "@/manager/contextmenu";
+import contextmenu from "@/handler/contextmenu";
 
 interface ContextMenuProps extends Casacade {
 	readonly items: typeof contextmenu["state"]["items"];

@@ -25,7 +25,7 @@ import Gallery from "@/app/pages/browser/gallery";
 
 import discord from "@/modules/discord";
 
-import history from "@/manager/history";
+import history from "@/handler/history";
 
 import search from "@/apis/hitomi.la/search";
 import suggest from "@/apis/hitomi.la/suggest";
@@ -207,7 +207,7 @@ class Browser extends Page<BrowserProps, BrowserState> {
 								onMouseLeave={(style) => {
 									style(null);
 								}}
-								children={<Text>{[{ text: typeof key === "string" ? key : (key + 1).toString(), color: !this.state.gallery.isEmpty() && this.state.length ? indexing ? Color.RGBA_000 : Color.TEXT_000 : Color.DARK_500 }]}</Text>}
+								children={<Text>{[{ text: typeof key === "string" ? key : (key + 1).toString(), color: !this.state.gallery.isEmpty() && this.state.length ? indexing ? Color.RGBA_000 : "inherit" : Color.DARK_500 }]}</Text>}
 							/>
 						);
 					}}

@@ -8,7 +8,7 @@ import Image from "@/app/layout/image";
 
 import discord from "@/modules/discord";
 
-import history from "@/manager/history";
+import history from "@/handler/history";
 
 import gallery from "@/apis/hitomi.la/gallery";
 

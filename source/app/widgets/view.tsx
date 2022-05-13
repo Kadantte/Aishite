@@ -2,7 +2,7 @@ import Unit from "@/app/common/unit";
 import { Clear } from "@/app/common/props";
 import { Stateful, LifeCycle } from "@/app/common/framework";
 
-import history from "@/manager/history";
+import history from "@/handler/history";
 
 interface ViewportProps extends Clear<undefined> {
 	// TODO: none

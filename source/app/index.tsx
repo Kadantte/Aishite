@@ -21,8 +21,8 @@ import Maximize from "@/app/icons/maximize";
 import Minimize from "@/app/icons/minimize";
 import Unmaximize from "@/app/icons/unmaximize";
 
-import history from "@/manager/history";
-import contextmenu from "@/manager/contextmenu";
+import history from "@/handler/history";
+import contextmenu from "@/handler/contextmenu";
 
 import { Window } from "@/apis/electron/bridge";
 
@@ -164,7 +164,7 @@ class App extends Stateful<AppProps, AppState> {
 									style(null);
 								}}>
 								<Center x={false} y={true}>
-									<Text children={[{ text: element.role, color: element.toggle ? Color.TEXT_000 : Color.DARK_500 }]}/>
+									<Text children={[{ text: element.role, color: element.toggle ? "inherit" : Color.DARK_500 }]}/>
 								</Center>
 							</Container>
 						);
@@ -245,9 +245,9 @@ class Controller extends Stateful<ControllerProps, ControllerState> {
 							// cache
 							const children = element.children.item(index) as HTMLElement;
 							// style
-							children.style.left = "unset";
-							children.style.zIndex = "unset";
-							children.style.transform = "unset";
+							children.style.setProperty("left", "unset");
+							children.style.setProperty("z-index", "unset");
+							children.style.setProperty("transform", "unset");
 						}
 						if (history.state.index !== this.state.handle.index) {
 							// update
@@ -263,9 +263,9 @@ class Controller extends Stateful<ControllerProps, ControllerState> {
 						// cache
 						const children = event.target as HTMLElement;
 						// style
-						children.style.left = "unset";
-						children.style.zIndex = "6974";
-						children.style.transform = "unset";
+						children.style.setProperty("left", "unset");
+						children.style.setProperty("z-index", "6974");
+						children.style.setProperty("transform", "unset");
 
 						this.state.handle = new Handle({ index: this.state.index, offset: 0, element: children });
 					}
@@ -288,17 +288,17 @@ class Controller extends Stateful<ControllerProps, ControllerState> {
 							// move left
 							if (event.movementX < 0) {
 								if (this.state.index < this.state.handle.index && this.state.handle.index > destination) {
-									(element.children.item(destination + 1) as HTMLElement).style.transform = "unset";
+									(element.children.item(destination + 1) as HTMLElement).style.setProperty("transform", "unset");
 								} else {
-									(element.children.item(destination) as HTMLElement).style.transform = "translateX(100%)";
+									(element.children.item(destination) as HTMLElement).style.setProperty("transform", "translateX(100%)");
 								}
 							}
 							// move right
 							if (event.movementX > 0) {
 								if (this.state.index > this.state.handle.index && this.state.handle.index < destination) {
-									(element.children.item(destination - 1) as HTMLElement).style.transform = "unset";
+									(element.children.item(destination - 1) as HTMLElement).style.setProperty("transform", "unset");
 								} else {
-									(element.children.item(destination) as HTMLElement).style.transform = "translateX(-100%)";
+									(element.children.item(destination) as HTMLElement).style.setProperty("transform", "translateX(-100%)");
 								}
 							}
 							// update

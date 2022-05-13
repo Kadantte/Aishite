@@ -1,6 +1,6 @@
 import storage from "@/modules/storage";
 
-import { MappedStateHandler } from "@/manager";
+import { MappedStateHandler } from "@/handler";
 
 class Bookmark extends MappedStateHandler<number, boolean> {
 	public get state() {

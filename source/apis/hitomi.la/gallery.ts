@@ -75,11 +75,7 @@ async function block(id: number) {
 
 	const element = new DOMParser().parseFromString(eval(gg_js! + common_js! + "rewrite_tn_paths(response.body)").replace(/\s\s+/g, "").replace(/\n/g, ""), "text/html");
 
-	const metadata = new Map<string, unknown>(Object.entries({
-		title: element.querySelector(".lillie a")?.textContent,
-		artist: element.querySelector(".artist-list")?.textContent?.split(space),
-		date: element.querySelector(".date")?.textContent
-	}));
+	const metadata = new Map<string, unknown>(Object.entries({ title: element.querySelector(".lillie a")?.textContent, date: element.querySelector(".date")?.textContent }));
 	
 	for (const children of element.querySelectorAll("td")) {
 		switch (index % 2) {
@@ -113,6 +109,16 @@ async function block(id: number) {
 		index++;
 	}
 	// cache
+	const artists = Array<string>();
+
+	for (const children of element.querySelectorAll(".artist-list a")) {
+		// assign value
+		artists.add(children.textContent ?? "N/A");
+	}
+	// update
+	metadata.set("artists", artists);
+	
+	// cache
 	const image = Array<string>();
 
 	for (const children of element.querySelectorAll("img")) {
@@ -135,7 +141,7 @@ async function block(id: number) {
 		title: metadata.get("title"),
 		group: metadata.get("group"),
 		parody: metadata.get("series"),
-		artists: metadata.get("artist"),
+		artists: metadata.get("artists"),
 		language: metadata.get("language"),
 		thumbnail: metadata.get("thumbnail"),
 		characters: metadata.get("characters"),

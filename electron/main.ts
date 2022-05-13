@@ -43,7 +43,8 @@ if (!app.isPackaged) {
 app.on("ready", () => {
 	// cannot require until app is ready
 	const { screen } = require("electron");
-	
+
+	// bypass cross-origin policy
 	session.defaultSession.webRequest.onBeforeSendHeaders({ urls: ["*://*.hitomi.la/*"] }, (details, callback) => callback({ requestHeaders: Object.assign({ Referer: "https://hitomi.la" }, details.requestHeaders) }));
 
 	const resolution = {

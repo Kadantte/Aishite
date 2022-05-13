@@ -1,4 +1,4 @@
-import { StateHandler } from "@/manager";
+import { StateHandler } from "@/handler";
 
 class ContextMenu extends StateHandler<ContextMenuState> {
 	public get state() {

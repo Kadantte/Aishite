@@ -53,7 +53,7 @@ class Dropdown extends Stateful<DropdownProps, DropdownState> {
 		return (
 			<Element id="dropdown" override={{ overflow: "visible" }}>
 				{/* FORM */}
-				<Container color={this.state.hover || this.state.focus ? Color.DARK_400 : Color.DARK_300} height={40} corner={{ all: 4.5, BL: this.state.focus && !this.props.items.isEmpty() ? 0 : undefined, BR: this.state.focus && !this.props.items.isEmpty() ? 0 : undefined }} shadow={[{ x: 0, y: 0, blur: 5, spread: 0, color: Color.DARK_100 }]}
+				<Container color={!this.state.hover && !this.state.focus ? Color.DARK_300 : Color.DARK_400} height={40} corner={{ all: 4.5, BL: this.state.focus && !this.props.items.isEmpty() ? 0 : undefined, BR: this.state.focus && !this.props.items.isEmpty() ? 0 : undefined }} shadow={[{ x: 0, y: 0, blur: 5, spread: 0, color: Color.DARK_100 }]}
 					onMouseEnter={(style) => {
 						this.setState((state) => ({ hover: true }));
 					}}
@@ -113,18 +113,18 @@ class Dropdown extends Stateful<DropdownProps, DropdownState> {
 				</Container>
 				{/* MENU */}
 				<Scroll x="hidden" y="scroll">
-					<Container id="items" color={Color.DARK_400} top={Unit(100, "%")} width={Unit(100, "%")} maximum={{ height: 40 * 5 }} override={{ clipPath: "inset(0px -5px -5px -5px)" }} corner={{ all: 4.5, TL: 0, TR: 0 }} shadow={[{ x: 0, y: 0, blur: 5, spread: 0, color: Color.DARK_100 }]} visible={this.state.focus && !this.props.items.isEmpty()}>
+					<Container id="items" color={Color.DARK_400} top={Unit(100, "%")} width={Unit(100, "%")} maximum={{ height: 40 * 5 }} corner={{ all: 4.5, TL: 0, TR: 0 }} shadow={[{ x: 0, y: 0, blur: 5, spread: 0, color: Color.DARK_100 }]} visible={this.state.focus && !this.props.items.isEmpty()} override={{ clipPath: "inset(0px -5px -5px -5px)" }}>
 						{this.props.items.map((item, index) => {
 							return (
-								<Button key={index} color={this.state.index === index ? Color.DARK_500 : undefined} height={40}
+								<Button key={index} color={this.state.index === index ? Color.DARK_500 : "inherit"} height={40}
 									onMouseDown={(style) => {
 										this.setState((state) => ({ index: NaN }), () => this.props.onSelect?.(item.first));
 									}}
 									onMouseEnter={(style) => {
 										this.setState((state) => ({ index: index }), () => this.props.onIndex?.(index));
 									}}>
-									<Text left={15} children={item.first.split(this.props.highlight!).map((text, index, array) => array.length > index + 1 ? text.isEmpty() ? { text: this.props.highlight, color: Color.RGBA_000 } : [{ text: text }, { text: this.props.highlight, color: Color.RGBA_000 }] : { text: text }).flat().map((text) => ({ ...text, size: 13.5 })) as never}></Text>
-									<Text right={15} children={[{ text: item.second, size: 14.5, color: Color.DARK_000 }]}></Text>
+									<Text left={15} children={item.first.split(this.props.highlight!).map((text, index, array) => array.length > index + 1 ? text.isEmpty() ? { text: this.props.highlight, color: Color.RGBA_000 } : [{ text: text }, { text: this.props.highlight, color: Color.RGBA_000 }] : { text: text }).flat().map((text) => ({ ...text, size: 13.5 })) as Text["props"]["children"]}/>
+									<Text right={15} children={[{ text: item.second, size: 14.5, color: Color.DARK_000 }]}/>
 								</Button>
 							);
 						})}

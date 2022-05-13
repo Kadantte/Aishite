@@ -23,7 +23,7 @@ import Bookmark from "@/app/icons/bookmark";
 import Download from "@/app/icons/download";
 import Discovery from "@/app/icons/discovery";
 
-import history from "@/manager/history";
+import history from "@/handler/history";
 
 import languages from "@/assets/languages.json";
 
@@ -80,11 +80,11 @@ class Gallery extends Stateful<GalleryProps, GalleryState> {
 					// cache
 					let count = 0;
 					// max-height
-					while ((height - 170) / count >= 60) {
+					while ((height - 155) / count >= 60) {
 						count++;
 					}
 					// update
-					offset.set(height, (((height - 170) / count) - 35) / 2);
+					offset.set(height, (((height - 155) / count) - 35) / 2);
 				}
 				// update
 				this.setState((state) => ({ offset: offset.get(height)! }));
@@ -93,7 +93,7 @@ class Gallery extends Stateful<GalleryProps, GalleryState> {
 	}
 	protected build() {
 		return (
-			<Container id={"gallery"} color={Color.DARK_400} border={{ all: { width: 7.5, style: "solid", color: Color.DARK_300 } }} corner={{ all: 4.5 }} shadow={[{ x: 0, y: 0, blur: 5, spread: 0, color: Color.DARK_100 }]}
+			<Container id={"gallery"} color={Color.DARK_400} corner={{ all: 4.5 }} shadow={[{ x: 0, y: 0, blur: 5, spread: 0, color: Color.DARK_100 }]}
 				onMouseEnter={(style) => {
 					style({ corner: { all: 14.5 } }, () => {
 						if (this.state.background !== Ayanami.INFORMATION) {
@@ -187,7 +187,7 @@ class Gallery extends Stateful<GalleryProps, GalleryState> {
 
 																		style(null);
 																	}}
-																	children={<Text length={Unit(100, "%")}>{(chip instanceof Tag ? [{ text: chip.namespace, color: chip.namespace === "male" ? "cyan" : chip.namespace === "female" ? "pink" : "white" }, { text: ":" }, { text: chip.value }] : [{ text: chip.toString(), color: toggle ? Color.TEXT_000 : Color.DARK_500 }]).map((item) => ({ ...item, size: 13.5 }))}</Text>}
+																	children={<Text length={Unit(100, "%")}>{(chip instanceof Tag ? [{ text: chip.namespace, color: chip.namespace === "male" ? "cyan" : chip.namespace === "female" ? "pink" : "white" }, { text: ":" }, { text: chip.value }] : [{ text: chip.toString(), color: toggle ? "inherit" : Color.DARK_500 }]).map((item) => ({ ...item, size: 13.5 }))}</Text>}
 																/>
 															);
 														})}

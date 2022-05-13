@@ -19,7 +19,10 @@ function Shadow(style: Array<Shadow>): React.CSSProperties {
 }
 
 function compiler(style: Shadow) {
-	return [style.inset ? "inset" : undefined, Unit(style.x ?? 0), Unit(style.y ?? 0), Unit(style.blur ?? 0), Unit(style.spread ?? 0), style.color].join(space);
+	// cache
+	const shadow = [Unit(style.x ?? 0), Unit(style.y ?? 0), Unit(style.blur ?? 0), Unit(style.spread ?? 0), style.color];
+
+	return (style.inset ? ["inset", ...shadow] : shadow).join(space);
 }
 
 export default Shadow;
