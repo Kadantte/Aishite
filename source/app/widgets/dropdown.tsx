@@ -3,7 +3,7 @@ import Color from "@/app/common/color";
 import { FlipFlop } from "@/app/common/props";
 import { Stateful } from "@/app/common/framework";
 
-import Pair from "@/models/pair";
+import { Pair } from "@/models/pair";
 
 import Row from "@/app/layout/row";
 import Text from "@/app/layout/text";
@@ -15,7 +15,8 @@ import Container from "@/app/layout/container";
 import Scroll from "@/app/layout/casacade/scroll";
 
 import Close from "@/app/icons/close";
-import Button from "./button";
+
+import Button from "@/app/widgets/button";
 
 interface DropdownProps extends FlipFlop<undefined> {
 	readonly index?: number;

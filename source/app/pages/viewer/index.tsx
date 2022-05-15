@@ -1,6 +1,7 @@
 import Page from "@/app/pages";
 
 import Unit from "@/app/common/unit";
+import Layout from "@/app/common/layout";
 import { Clear } from "@/app/common/props";
 import { LifeCycle } from "@/app/common/framework";
 
@@ -8,7 +9,7 @@ import Image from "@/app/layout/image";
 
 import discord from "@/modules/discord";
 
-import history from "@/handler/history";
+import history from "@/handles/history";
 
 import gallery from "@/apis/hitomi.la/gallery";
 
@@ -75,7 +76,7 @@ class Viewer extends Page<ViewerProps, ViewerState> {
 			<section id={"viewer"} data-scrollable={"frame"}>
 				{this.state.files.map((file, index) => {
 					return (
-						<Image key={index} source={file.url} width={this.state.factor} height={file.height / (file.width / window.outerWidth.clamp(0, this.state.factor))} minimum={{ width: responsive.width }} maximum={{ width: Unit(100, "%") }} margin={{ all: "auto" }}></Image>
+						<Image key={index} source={file.url} width={this.state.factor} height={file.height / (file.width / window.outerWidth.clamp(0, this.state.factor))} minimum={{ width: Layout.width }} maximum={{ width: Unit(100, "%") }} margin={{ all: "auto" }}></Image>
 					);
 				})}
 			</section>
@@ -100,7 +101,7 @@ class Viewer extends Page<ViewerProps, ViewerState> {
 		if (!this.visible()) return;
 		if (!this.state.ctrl) return;
 		
-		this.setState((state) => ({ factor: (state.factor - event.deltaY).clamp(responsive.width, window.outerWidth) }));
+		this.setState((state) => ({ factor: (state.factor - event.deltaY).clamp(Layout.width, window.outerWidth) }));
 	}
 	protected handle_3(event: KeyboardEvent) {
 		if (!this.visible()) return;

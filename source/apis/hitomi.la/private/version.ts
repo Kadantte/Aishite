@@ -1,5 +1,4 @@
-// modules
-import request from "@/modules/request";
+import client from "@/modules/node.js/request";
 
 export enum Directory {
 	TAG = "tag",
@@ -13,7 +12,7 @@ let init = false;
 const cache = new Map<string, string>();
 
 for (const directory of Object.values(Directory)) {
-	request.GET(`https://ltn.hitomi.la/${directory}index/version?_=${Date.now()}`, "text").then((response) => {
+	client.GET(`https://ltn.hitomi.la/${directory}index/version?_=${Date.now()}`, "text").then((response) => {
 		// assign
 		cache.set(directory, response.body);
 

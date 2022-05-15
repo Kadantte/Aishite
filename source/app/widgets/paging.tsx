@@ -1,7 +1,7 @@
 import { FlipFlop } from "@/app/common/props";
 import { Stateful, LifeCycle } from "@/app/common/framework";
 
-import Pair from "@/models/pair";
+import { Pair } from "@/models/pair";
 
 import Row from "@/app/layout/row";
 

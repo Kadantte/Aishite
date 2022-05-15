@@ -29,7 +29,7 @@ class Container extends Stateful<ContainerProps, ContainerState> {
 		return ({ decoration: null });
 	}
 	protected postCSS(): React.CSSProperties {
-		return nullsafe({
+		return {
 			// handfully
 			backgroundColor: this.state.decoration?.color,
 			backgroundImage: this.state.decoration?.image,
@@ -41,7 +41,7 @@ class Container extends Stateful<ContainerProps, ContainerState> {
 			opacity: this.state.decoration?.opacity ? (this.state.decoration.opacity.clamp(0, 100) / 100) : undefined,
 			// @ts-ignore
 			...Transition({ ...this.props.transition, property: ["opacity", "box-shadow", "border", "border-radius", "transform", "background"] })
-		});
+		};
 	}
 	protected preCSS(): React.CSSProperties {
 		return {};

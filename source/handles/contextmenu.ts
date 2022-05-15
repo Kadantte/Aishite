@@ -1,4 +1,4 @@
-import { StateHandler } from "@/handler";
+import { StateHandler } from "@/handles";
 
 class ContextMenu extends StateHandler<ContextMenuState> {
 	public get state() {
@@ -6,6 +6,9 @@ class ContextMenu extends StateHandler<ContextMenuState> {
 	}
 	public set state(state: ContextMenu["_state"]) {
 		super.state = new ContextMenuState(state);
+	}
+	protected create() {
+		// TODO: none
 	}
 }
 
@@ -25,8 +28,8 @@ class ContextMenuState {
 	}
 }
 
-const singleton = new ContextMenu({
-	state: new ContextMenuState({ x: 0, y: 0, items: [] })
-});
+const singleton = new ContextMenu(
+	new ContextMenuState({ x: 0, y: 0, items: [] })
+);
 
 export default singleton;

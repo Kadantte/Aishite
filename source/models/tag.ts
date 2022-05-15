@@ -1,4 +1,4 @@
-class Tag {
+export class Tag {
 	readonly namespace: string;
 	readonly value: string;
 
@@ -10,5 +10,3 @@ class Tag {
 		return `${this.namespace}:${this.value}`;
 	}
 }
-
-export default Tag;

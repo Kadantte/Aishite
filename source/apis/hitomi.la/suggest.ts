@@ -1,9 +1,9 @@
 import { sha256 } from "js-sha256";
 
-import request from "@/modules/request";
+import client from "@/modules/node.js/request";
 
-import Tag from "@/models/tag";
-import Pair from "@/models/pair";
+import { Tag } from "@/models/tag";
+import { Pair } from "@/models/pair";
 import { Endian } from "@/models/endian";
 
 import { Directory, mirror } from "@/apis/hitomi.la/private/version";
@@ -106,7 +106,7 @@ async function unknown_3(directory: string, value: number) {
 }
 
 async function unknown_4(url: string, offset: number, length: number) {
-	return new Uint8Array((await request.GET(url, "arraybuffer", { headers: { "range": `bytes=${offset}-${length}` } })).body);
+	return new Uint8Array((await client.GET(url, "arraybuffer", { range: `bytes=${offset}-${length}` })).body);
 }
 
 async function unknown_5(type: string, buffer: Uint8Array, bundle: Bundle): Promise<Pair<number, number>> {

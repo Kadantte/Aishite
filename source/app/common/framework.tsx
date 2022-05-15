@@ -65,14 +65,14 @@ export abstract class Stateful<P extends Clear<any>, S> extends React.Component<
 			<Mirror
 				{...this.props}
 				style={{
-					...this.preCSS(),
+					...nullsafe(this.preCSS()),
 					...this.props.style,
-					...position(this.props),
-					...constraint(this.props),
-					...decoration(this.props),
-					...offset(this.props),
-					...this.postCSS(),
-					...behaviour(this.props),
+					...nullsafe(position(this.props)),
+					...nullsafe(constraint(this.props)),
+					...nullsafe(decoration(this.props)),
+					...nullsafe(behaviour(this.props)),
+					...nullsafe(offset(this.props)),
+					...nullsafe(this.postCSS()),
 					...this.props.override
 				}}
 				children={this.build()}
@@ -108,14 +108,14 @@ export abstract class Stateless<P extends Clear<any>> extends React.PureComponen
 			<Mirror
 				{...this.props}
 				style={{
-					...this.preCSS(),
+					...nullsafe(this.preCSS()),
 					...this.props.style,
-					...position(this.props),
-					...constraint(this.props),
-					...decoration(this.props),
-					...offset(this.props),
-					...this.postCSS(),
-					...behaviour(this.props),
+					...nullsafe(position(this.props)),
+					...nullsafe(constraint(this.props)),
+					...nullsafe(decoration(this.props)),
+					...nullsafe(behaviour(this.props)),
+					...nullsafe(offset(this.props)),
+					...nullsafe(this.postCSS()),
 					...this.props.override
 				}}
 				children={this.build()}
@@ -177,22 +177,31 @@ const Mirror = React.memo(class Mirror extends StyleSheet<Casacade> {
 	}
 });
 
+function nullsafe(object: React.CSSProperties) {
+	for (const [key, value] of Object.entries(object)) {
+		if (value === undefined) {
+			delete object[key as keyof typeof object];
+		}
+	}
+	return object;
+}
+
 function position(props: Props<any>): React.CSSProperties {
-	return nullsafe({
+	return {
 		...Position({ all: props.all, top: props.top, left: props.left, right: props.right, bottom: props.bottom })
-	});
+	};
 }
 
 function constraint(props: Props<any>): React.CSSProperties {
-	return nullsafe({
+	return {
 		...Size({ width: props.width, height: props.height, type: undefined }),
 		...Size({ ...props.minimum, type: "minimum" }),
 		...Size({ ...props.maximum, type: "maximum" })
-	});
+	};
 }
 
 function decoration(props: Props<any>): React.CSSProperties {
-	return nullsafe({
+	return {
 		// handfully
 		backgroundColor: props.color,
 		backgroundImage: props.image,
@@ -202,19 +211,19 @@ function decoration(props: Props<any>): React.CSSProperties {
 		...Shadow(props.shadow ?? []),
 		// handfully...
 		opacity: props?.opacity ? (props.opacity.clamp(0, 100) / 100) : undefined
-	});
+	};
 }
 
 function offset(props: Props<any>): React.CSSProperties {
-	return nullsafe({
+	return {
 		...Margin(props.margin ?? {}),
 		...Padding(props.padding ?? {})
-	});
+	};
 }
 
 function behaviour(props: Props<any>): React.CSSProperties {
-	return nullsafe({
+	return {
 		display: props.visible === false ? "none" : undefined,
 		WebkitAppRegion: props.draggable === true ? "drag" : props.draggable === false ? "no-drag" : undefined
-	});
+	};
 }

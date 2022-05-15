@@ -1,7 +1,7 @@
-import request from "@/modules/request";
+import client from "@/modules/node.js/request";
 
-import Tag from "@/models/tag";
-import Pair from "@/models/pair";
+import { Tag } from "@/models/tag";
+import { Pair } from "@/models/pair";
 import { Endian } from "@/models/endian";
 
 import { module as suggest } from "@/apis/hitomi.la/suggest";
@@ -260,12 +260,12 @@ async function query(query: string, fallback: boolean = true): Promise<Set<numbe
 	}
 	// cache
 	const collection = recursive(Prefix.OR, query + space);
-	
+
 	return fallback && collection.isEmpty() ? new Set(await unknown_0(null, new Tag({ namespace: "index", value: "all" }))) : collection;
 }
 
 async function unknown_0(directory: Nullable<string>, tag: Tag) {
-	const response = await request.GET(`https://${["ltn.hitomi.la", "n", directory, `${tag.namespace}-${tag.value}`].filter((element) => element).join("/")}.nozomi`, "arraybuffer");
+	const response = await client.GET(`https://${["ltn.hitomi.la", "n", directory, `${tag.namespace}-${tag.value}`].filter((element) => element).join("/")}.nozomi`, "arraybuffer");
 
 	switch (response.status.code) {
 		case 200:
@@ -317,7 +317,7 @@ async function unknown_2(digits: Pair<number, number>) {
 	if (digits.second <= 0 || digits.second > 100000000) throw Error();
 
 	const response = await suggest.unknown_4(`https://ltn.hitomi.la/galleriesindex/galleries.${await mirror(Directory.GALLERIES)}.data`, digits.first, digits.first + digits.second - 1);
-	
+
 	const table = new DataView(response.buffer);
 	const length = table.getInt32(0, Endian.BIG);
 

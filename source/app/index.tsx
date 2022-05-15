@@ -3,6 +3,8 @@ import Color from "@/app/common/color";
 import { Clear, Props } from "@/app/common/props";
 import { Stateful, LifeCycle } from "@/app/common/framework";
 
+import { Window } from "@/models/window";
+
 import Row from "@/app/layout/row";
 import Text from "@/app/layout/text";
 import Center from "@/app/layout/center";
@@ -21,10 +23,8 @@ import Maximize from "@/app/icons/maximize";
 import Minimize from "@/app/icons/minimize";
 import Unmaximize from "@/app/icons/unmaximize";
 
-import history from "@/handler/history";
-import contextmenu from "@/handler/contextmenu";
-
-import { Window } from "@/apis/electron/bridge";
+import history from "@/handles/history";
+import contextmenu from "@/handles/contextmenu";
 
 interface AppProps extends Clear<undefined> {
 	// TODO: none
@@ -39,7 +39,7 @@ interface AppState {
 class App extends Stateful<AppProps, AppState> {
 	protected create() {
 		// https://github.com/Any-Material/Aishite/releases/download/{version}/{artifact}
-		// request.GET("https://api.github.com/repos/Any-Material/Aishite/releases?per_page=100", "json").then((response) => {
+		// client.GET("https://api.github.com/repos/Any-Material/Aishite/releases?per_page=100", "json").then((response) => {
 		// 	// parse version string to number
 		// 	function version(version: string) {
 		// 		return Number(version.replace(/\./g, ""));
@@ -48,37 +48,21 @@ class App extends Stateful<AppProps, AppState> {
 		// 		// update available	
 		// 	}
 		// });
-		window.addEventListener("keydown", (event) => {
-			switch (event.key) {
-				case "w": {
-					if (!event.altKey && event.ctrlKey && !event.shiftKey) history.close();
-					break;
-				}
-				case "F12": {
-					protocol.development();
-					break;
-				}
-			}
-		});
 		return ({ maximize: false, fullscreen: false, contextmenu: false });
 	}
 	protected events(): LifeCycle<AppProps, AppState> {
 		return {
 			DID_MOUNT: () => {
-				bridge.handle(Window.MAXIMIZE, () => this.setState((state) => ({ maximize: true })));
-				bridge.handle(Window.UNMAXIMIZE, () => this.setState((state) => ({ maximize: false })));
-				bridge.handle(Window.ENTER_FULL_SCREEN, () => this.setState((state) => ({ fullscreen: true })));
-				bridge.handle(Window.LEAVE_FULL_SCREEN, () => this.setState((state) => ({ fullscreen: false })));
+				chromium.handle(Window.BLUR, () => this.setState((state) => ({ contextmenu: false })));
+				chromium.handle(Window.MAXIMIZE, () => this.setState((state) => ({ maximize: true })));
+				chromium.handle(Window.UNMAXIMIZE, () => this.setState((state) => ({ maximize: false })));
+				chromium.handle(Window.ENTER_FULL_SCREEN, () => this.setState((state) => ({ fullscreen: true })));
+				chromium.handle(Window.LEAVE_FULL_SCREEN, () => this.setState((state) => ({ fullscreen: false })));
 
-				contextmenu.handle((state) => {
-					this.setState((state) => ({ contextmenu: true }));
-				});
-				window.addEventListener("wheel", (event) => {
-					if (this.state.contextmenu) this.setState((state) => ({ contextmenu: false }));
-				});
-				window.addEventListener("mousedown", (event) => {
-					if (this.state.contextmenu) this.setState((state) => ({ contextmenu: false }));
-				});
+				contextmenu.handle((state) => this.setState((state) => ({ contextmenu: true })));
+
+				window.addEventListener("wheel", (event) => this.setState((state) => ({ contextmenu: false })));
+				window.addEventListener("mousedown", (event) => this.setState((state) => ({ contextmenu: false })));
 			}
 		};
 	}
@@ -101,7 +85,7 @@ class App extends Stateful<AppProps, AppState> {
 					</Element>
 					<Button id="minimize" width={Unit(50)} draggable={false}
 						onMouseDown={(style) => {
-							protocol.minimize();
+							chromium.minimize();
 						}}
 						onMouseEnter={(style) => {
 							style({ color: Color.DARK_100 });
@@ -114,9 +98,9 @@ class App extends Stateful<AppProps, AppState> {
 					<Button id="maximize" width={Unit(50)} draggable={false}
 						onMouseDown={(style) => {
 							if (this.state.maximize) {
-								protocol.unmaximize();
+								chromium.unmaximize();
 							} else {
-								protocol.maximize();
+								chromium.maximize();
 							}
 						}}
 						onMouseEnter={(style) => {
@@ -129,7 +113,7 @@ class App extends Stateful<AppProps, AppState> {
 					/>
 					<Button id="close" width={Unit(50)} draggable={false}
 						onMouseDown={(style) => {
-							protocol.close("titlebar");
+							chromium.close("titlebar");
 						}}
 						onMouseEnter={(style) => {
 							style({ color: Color.RGBA_100 });

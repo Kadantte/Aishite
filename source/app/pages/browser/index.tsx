@@ -4,10 +4,11 @@ import Page from "@/app/pages";
 
 import Unit from "@/app/common/unit";
 import Color from "@/app/common/color";
+import Layout from "@/app/common/layout";
 import { Clear } from "@/app/common/props";
 import { LifeCycle } from "@/app/common/framework";
 
-import Pair from "@/models/pair";
+import { Pair } from "@/models/pair";
 
 import Text from "@/app/layout/text";
 import Grid from "@/app/layout/grid";
@@ -25,7 +26,7 @@ import Gallery from "@/app/pages/browser/gallery";
 
 import discord from "@/modules/discord";
 
-import history from "@/handler/history";
+import history from "@/handles/history";
 
 import search from "@/apis/hitomi.la/search";
 import suggest from "@/apis/hitomi.la/suggest";
@@ -130,7 +131,7 @@ class Browser extends Page<BrowserProps, BrowserState> {
 									/>
 								</Grid.Cell>
 								<Grid.Cell id="display">
-									<Grid.Layout gap={{ inner: 15 }} count={5} minimum={(responsive.width - 30) / 1.5 - 30}>
+									<Grid.Layout gap={{ inner: 15 }} count={5} minimum={(Layout.width - 30) / 1.5 - 30}>
 										{this.state.gallery.map((_gallery, index) => {
 											return (
 												<ContextMenu key={index} items={[
@@ -166,7 +167,7 @@ class Browser extends Page<BrowserProps, BrowserState> {
 														}
 													}]}>
 													<section id="wrapper">
-														<Gallery gallery={_gallery} height={(responsive.height - (185 - 15))}
+														<Gallery gallery={_gallery} height={(Layout.height - (185 - 15))}
 															onClick={(tag) => {
 																// cache
 																const element = this.state.controller.current;

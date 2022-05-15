@@ -1,9 +1,8 @@
-import node_fs from "fs";
-import node_path from "path";
+import { MappedStateHandler } from "@/handles";
 
-import { MappedStateHandler } from "@/handler";
+import filesystem from "@/modules/node.js/filesystem";
 
-import { Window } from "@/apis/electron/bridge";
+import { Window } from "@/models/window";
 
 class StorageState {
 	public readonly path: string;
@@ -29,7 +28,11 @@ class Storage extends MappedStateHandler<string, StorageState> {
 	}
 	protected create() {
 		for (const [key, value] of super.state.entries()) {
-			this.modify(key, this.import(value.path, value.state), (unsafe) => this.export(key));
+			this.import(value.path, value.state).then((content) => {
+				this.modify(key, content, (unsafe) => {
+					this.export(key);
+				});
+			})
 		}
 		// every 5 mins
 		setInterval(() => {
@@ -38,64 +41,59 @@ class Storage extends MappedStateHandler<string, StorageState> {
 			}
 		}, 1000 * 60 * 5);
 		// before close
-		bridge.handle(Window.CLOSE, () => {
+		chromium.handle(Window.CLOSE, () => {
 			for (const [key, value] of super.state.entries()) {
 				this.export(key);
 			}
-			protocol.close("storage");
+			chromium.close("storage");
 		});
 	}
 	public change(key: string, value: StorageState["state"]) {
-		if (this.state.has(key)) {
-			this.modify(key, new StorageState({ path: this.state.get(key)!.path, state: value }));
-		} else {
-			throw Error();
-		}
+		if (!this.state.has(key)) throw Error();
+
+		this.modify(key, new StorageState({ path: this.state.get(key)!.path, state: value }));
 	}
-	public register(key: string, path: StorageState["path"], fallback: StorageState["state"]) {
-		if (this.state.has(key)) {
-			throw Error();
-		} else {
-			this.modify(key, this.import(path, fallback), (unsafe) => this.export(key));
-		}
+	public async register(key: string, path: StorageState["path"], fallback: StorageState["state"]) {
+		if (!this.state.has(key)) throw Error();
+
+		const content = await this.import(path, fallback);
+
+		this.modify(key, content);
+
+		await this.export(key);
 	}
-	public unregister(key: string) {
-		if (this.state.has(key)) {
-			this.modify(key, null, () => {
-				node_fs.unlinkSync(this.state.get(key)!.path);
-			});
-		} else {
-			throw Error();
-		}
+	public async unregister(key: string) {
+		if (!this.state.has(key)) throw Error();
+
+		this.modify(key, null);
+
+		await filesystem.delete(this.state.get(key)!.path);
 	}
-	private import(path: StorageState["path"], fallback: StorageState["state"] = {}) {
+	protected async import(path: StorageState["path"], fallback: StorageState["state"] = {}) {
 		try {
-			return new StorageState({ path: path, state: JSON.parse(node_fs.readFileSync(path, "utf-8")) });
+			return new StorageState({ path: path, state: JSON.parse(await filesystem.read(path)) });
 		} catch {
 			return new StorageState({ path: path, state: fallback });
 		}
 	}
-	private export(key: string) {
-		if (this.state.has(key)) {
-			node_fs.mkdirSync(node_path.dirname(this.state.get(key)!.path), { recursive: true });
-			node_fs.writeFileSync(this.state.get(key)!.path, JSON.stringify(this.state.get(key)!.state));
-		} else {
-			throw Error();
-		}
+	protected async export(key: string) {
+		if (!this.state.has(key)) throw Error();
+
+		filesystem.write(this.state.get(key)!.path, JSON.stringify(this.state.get(key)!.state));
 	}
 }
 
-const singleton = new Storage({
-	state: new Map(Object.entries({
+const singleton = new Storage(
+	new Map(Object.entries({
 		"settings": new StorageState({
-			path: node_path.resolve(__dirname, "..", "settings.json"),
+			path: filesystem.combine(__dirname, "..", "settings.json"),
 			state: {}
 		}),
 		"bookmark": new StorageState({
-			path: node_path.resolve(__dirname, "..", "bookmark.json"),
+			path: filesystem.combine(__dirname, "..", "bookmark.json"),
 			state: []
 		})
 	}))
-});
+);
 
 export default singleton;

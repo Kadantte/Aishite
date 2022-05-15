@@ -1,5 +1,4 @@
-// modules
-import request from "@/modules/request";
+import client from "@/modules/node.js/request";
 
 const sources = {
 	default: "UklGRjIAAABXRUJQVlA4ICYAAACyAgCdASoCAAEALmk0mk0iIiIiIgBoSygABc6zbAAA/v56QAAAAA==",
@@ -11,7 +10,7 @@ const support = {
 	cache: true
 };
 
-var dependency: Nullable<unknown> = null;
+let dependency: Nullable<unknown> = null;
 
 export function canvas(source: string) {
 	return unknown_0(source);
@@ -70,5 +69,5 @@ async function unknown_1() {
  * @see loadBinaryData
  */
 async function unknown_2(url: string) {
-	return new Uint8Array((await request.GET(url, "arraybuffer")).body);
+	return new Uint8Array((await client.GET(url, "arraybuffer")).body);
 }

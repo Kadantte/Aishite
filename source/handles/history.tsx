@@ -1,10 +1,12 @@
+import Layout from "@/app/common/layout";
+
 import Viewer from "@/app/pages/viewer";
 import Browser from "@/app/pages/browser";
 import Fallback from "@/app/pages/fallback";
 
 import settings from "@/modules/settings";
 
-import { StateHandler } from "@/handler";
+import { StateHandler } from "@/handles";
 
 const cache = new Map<string, Nullable<React.Component>>();
 
@@ -17,6 +19,14 @@ class History extends StateHandler<HistoryState> {
 		super.state = state;
 		// update settings.json
 		reflect();
+	}
+	protected create() {
+		window.addEventListener("keydown", (event) => {
+			// ctrl + w
+			if (event.key === "w" && !event.altKey && event.ctrlKey && !event.shiftKey) {
+				this.close();
+			}
+		});
 	}
 	/** Append `page` as well as change `this.state.index`. */
 	public open(title: string, type: string, args: Record<string, any>) {
@@ -133,7 +143,7 @@ function proxy(ref: Nullable<React.Component>, uuid: string) {
 	cache.set(uuid, ref);
 	// attach
 	if (ref?.componentDidUpdate) {
-		// inject
+		// append
 		ref.componentDidUpdate = inject(ref.componentDidUpdate, () => reflect());
 	}
 }
@@ -164,7 +174,7 @@ function builder(title: string, type: string, args: Record<string, any>, uuid: s
 			break;
 		}
 		case "VIEWER": {
-			page.element = (<Viewer ref={(ref) => proxy(ref, uuid)} key={uuid} data-key={uuid} factor={args.factor ?? responsive.width} gallery={args.gallery ?? 0} {...settings.state.override.viewer}/>);
+			page.element = (<Viewer ref={(ref) => proxy(ref, uuid)} key={uuid} data-key={uuid} factor={args.factor ?? Layout.width} gallery={args.gallery ?? 0} {...settings.state.override.viewer}/>);
 			break;
 		}
 		default: {
@@ -193,11 +203,11 @@ function classname(element: JSX.Element) {
 	}
 }
 
-const singleton = new History({
-	state: new HistoryState({
+const singleton = new History(
+	new HistoryState({
 		index: settings.state.history.index,
 		pages: settings.state.history.pages.map((page) => builder(page.name, page.type, page.args))
 	})
-});
+);
 
 export default singleton;

@@ -3,28 +3,7 @@ import { app, session, Menu, ipcMain, BrowserWindow } from "electron";
 import node_fs from "fs";
 import node_path from "path";
 
-enum Window {
-	BLUR = "blur",
-	FOCUS = "focus",
-	CLOSE = "close",
-	OPEN_URL = "open-url",
-	MINIMIZE = "minimize",
-	MAXIMIZE = "maximize",
-	UNMAXIMIZE = "unmaximize",
-	ENTER_FULL_SCREEN = "enter-full-screen",
-	LEAVE_FULL_SCREEN = "leave-full-screen"
-}
-
-enum Command {
-	BLUR = "blur",
-	FOCUS = "focus",
-	CLOSE = "close",
-	MINIMIZE = "minimize",
-	MAXIMIZE = "maximize",
-	UNMAXIMIZE = "unmaximize",
-	FULLSCREEN = "fullscreen",
-	DEVELOPMENT = "development"
-}
+import { Window } from "@/models/window";
 
 let window: Nullable<BrowserWindow> = null;
 
@@ -44,26 +23,26 @@ app.on("ready", () => {
 	// cannot require until app is ready
 	const { screen } = require("electron");
 
-	// bypass cross-origin policy
-	session.defaultSession.webRequest.onBeforeSendHeaders({ urls: ["*://*.hitomi.la/*"] }, (details, callback) => callback({ requestHeaders: Object.assign({ Referer: "https://hitomi.la" }, details.requestHeaders) }));
-
-	const resolution = {
-		width(pixels: number = screen.getPrimaryDisplay().workArea.width) {
+	class Resolution {
+		public static width(pixels: number = screen.getPrimaryDisplay().workArea.width) {
 			return Math.round((pixels - 30) / 5 * 1.5 + 30);
-		},
-		height(pixels: number = screen.getPrimaryDisplay().workArea.height + (/* TASKBAR */ 45)) {
+		}
+		public static height(pixels: number = screen.getPrimaryDisplay().workArea.height + (/* TASKBAR */ 45)) {
 			return Math.round((pixels - (/* TASKBAR */ 45) - 185) / 2 + 170);
 		}
 	};
+	// bypass cross-origin policy
+	session.defaultSession.webRequest.onBeforeSendHeaders({ urls: ["*://*.hitomi.la/*"] }, (details, callback) => callback({ requestHeaders: Object.assign({ Referer: "https://hitomi.la" }, details.requestHeaders) }));
+
 	// create window
 	window = new BrowserWindow({
 		icon: "source/assets/aishite.ico",
 		show: false,
 		frame: false,
-		width: resolution.width(),
-		height: resolution.height(),
-		minWidth: resolution.width(),
-		minHeight: resolution.height(),
+		width: Resolution.width(),
+		height: Resolution.height(),
+		minWidth: Resolution.width(),
+		minHeight: Resolution.height(),
 		webPreferences: {
 			// webpack or ASAR
 			preload: node_path.resolve(__dirname, "preload.js"),
@@ -111,31 +90,31 @@ app.on("ready", () => {
 	window.on(Window.LEAVE_FULL_SCREEN, () => {
 		window?.webContents.send(Window.LEAVE_FULL_SCREEN);
 	});
-	ipcMain.handle("protocol", (event, command: Command) => {
+	ipcMain.handle("chromium", (event, command: string, ...args: Array<any>) => {
 		setTimeout(() => {
 			switch (command) {
-				case Command.CLOSE: {
+				case "close": {
 					return window?.destroy();
 				}
-				case Command.FOCUS: {
-					return window?.focus();
-				}
-				case Command.BLUR: {
+				case "blur": {
 					return window?.blur();
 				}
-				case Command.MINIMIZE: {
+				case "focus": {
+					return window?.focus();
+				}
+				case "minimize": {
 					return window?.minimize();
 				}
-				case Command.MAXIMIZE: {
+				case "maximize": {
 					return window?.maximize();
 				}
-				case Command.UNMAXIMIZE: {
+				case "unmaximize": {
 					return window?.unmaximize();
 				}
-				case Command.FULLSCREEN: {
+				case "fullscreen": {
 					return window?.setFullScreen(!window.isFullScreen());
 				}
-				case Command.DEVELOPMENT: {
+				case "development": {
 					return window?.webContents.toggleDevTools();
 				}
 			}

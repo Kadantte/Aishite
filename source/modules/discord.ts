@@ -1,122 +1,142 @@
-// @ts-ignore
-import * as RPC from "discord-rpc";
-
-import { StateHandler } from "@/handler";
+import RPC from "discord-rpc";
 
 /** @see https://discord.com/developers/docs/rich-presence/how-to */
-interface RichPresence {
+class RichPresence {
 	readonly state?: string;
-	readonly details: string;
-	readonly startTimestamp?: number;
-	readonly endTimestamp?: number;
+	readonly details?: string;
 	readonly largeImageKey?: string;
 	readonly largeImageText?: string;
 	readonly smallImageKey?: string;
 	readonly smallImageText?: string;
-	readonly primaryButton?: { readonly label: string; readonly url?: string; };
-	readonly secondaryButton?: { readonly label: string; readonly url?: string; };
+	readonly primaryButton?: {
+		readonly label: string;
+		readonly url?: string;
+	};
+	readonly secondaryButton?: {
+		readonly label: string;
+		readonly url?: string;
+	};
 	readonly partyId?: string;
-	readonly partySize?: number;
 	readonly partyMax?: number;
+	readonly partySize?: number;
+	readonly joinSecret?: string;
 	readonly matchSecret?: string;
 	readonly spectateSecret?: string;
-	readonly joinSecret?: string;
+	readonly startTimestamp?: number;
+	readonly endTimestamp?: number;
 	readonly instance?: boolean;
+
+	constructor(args: Args<RichPresence>) {
+		this.state = args.state;
+		this.details = args.details;
+		this.largeImageKey = args.largeImageKey;
+		this.largeImageText = args.largeImageText;
+		this.smallImageKey = args.smallImageKey;
+		this.smallImageText = args.smallImageText;
+		this.primaryButton = args.primaryButton;
+		this.secondaryButton = args.secondaryButton;
+		this.partyId = args.partyId;
+		this.partyMax = args.partyMax;
+		this.partySize = args.partySize;
+		this.joinSecret = args.joinSecret;
+		this.matchSecret = args.matchSecret;
+		this.spectateSecret = args.spectateSecret;
+		this.startTimestamp = args.startTimestamp;
+		this.endTimestamp = args.endTimestamp;
+		this.instance = args.instance;
+	}
+	public toJSON() {
+		// cache
+		const buttons = [this.primaryButton, this.secondaryButton].filter((button) => button);
+
+		return {
+			pid: process.pid,
+			activity: {
+				state: this.state,
+				details: this.details,
+				timestamps: {
+					start: this.startTimestamp,
+					end: this.endTimestamp
+				},
+				assets: {
+					large_image: this.largeImageKey,
+					large_text: this.largeImageText,
+					small_image: this.smallImageKey,
+					small_text: this.smallImageText,
+				},
+				party: {
+					id: this.partyId,
+					size: this.partySize && this.partyMax ? [this.partySize, this.partyMax] : undefined
+				},
+				buttons: buttons.isEmpty() ? undefined : buttons,
+				secrets: buttons.isEmpty() ? { join: this.joinSecret, spectate: this.spectateSecret, match: this.matchSecret } : undefined,
+				instance: this.instance
+			}
+		};
+	}
 }
 
-/** @see https://discord.com/developers/docs/topics/rpc#setactivity */
-function RichPresence(activity: RichPresence) {
-	// cache
-	const buttons = [activity.primaryButton, activity.secondaryButton].filter((button) => button);
+class Discord {
+	private _token: string;
+	private _client: RPC.Client;
+	private _activity: RichPresence;
+	private _connection: boolean;
 
-	return {
-		pid: process.pid,
-		activity: {
-			state: activity.state,
-			details: activity.details,
-			timestamps: {
-				start: activity.startTimestamp,
-				end: activity.endTimestamp
-			},
-			assets: {
-				large_image: activity.largeImageKey,
-				large_text: activity.largeImageText,
-				small_image: activity.smallImageKey,
-				small_text: activity.smallImageText,
-			},
-			party: {
-				id: activity.partyId,
-				size: activity.partySize && activity.partyMax ? [activity.partySize, activity.partyMax] : undefined
-			},
-			buttons: buttons.isEmpty() ? undefined : buttons,
-			secrets: buttons.isEmpty() ? { join: activity.joinSecret, spectate: activity.spectateSecret, match: activity.matchSecret } : undefined,
-			instance: activity.instance
-		}
-	};
-}
+	constructor(state: RichPresence, token: string) {
+		this._token = token;
+		this._client = new RPC.Client({ transport: "ipc" });
+		this._activity = state;
+		this._connection = false;
 
-/** @see https://discord.com/developers/applications/{application_id}/information */
-class DiscordRPC extends StateHandler<{ activity: RichPresence, token: string; }> {
-	protected connection: boolean = false;
-	protected readonly client = new RPC.Client({ transport: "ipc" });
-
-	protected create() {
-		until(() => this.client !== null).then(() => {
-			// attach function before connecting
-			this.client.on("ready", () => {
-				this.connection = true;
+		until(() => this._client !== undefined).then(() => {
+			this._client.on("ready", () => {
+				// update
+				this._connection = true;
 			});
 			// @ts-ignore
-			this.client.transport.once("close", () => {
-				this.connection = false;
+			this._client.transport.on("close", () => {
+				// update
+				this._connection = false;
 				// reconnect
-				this.connect(this.state.token);
+				this.connect();
 			});
 			// connect
-			this.connect(this.state.token);
+			this.connect();
 		});
 	}
-	public get state() {
-		return super.state;
-	}
-	public set state(state: DiscordRPC["_state"]) {
-		super.state = state;
-	}
-	public update(activity: RichPresence = this.state.activity, override: boolean = false) {
+	public update(activity: Args<RichPresence> = this._activity, override: boolean = false) {
 		// conditional override
-		this.state = { ...this.state, activity: Object.assign(override ? {} : this.state.activity, activity) };
+		this._activity = new RichPresence(override ? activity : { ...this._activity, ...activity });
 		// @ts-ignore
-		until(() => this.connection).then(() => this.client.request("SET_ACTIVITY", RichPresence(this.state.activity)));
+		until(() => this._client !== undefined).then(() => this._client.request("SET_ACTIVITY", this._activity.toJSON()));
 	}
-	public connect(secret: string) {
-		// prevent multiple connection
-		if (this.connection) throw new Error();
-		// connecting hearts!
-		this.client.login({ clientId: secret }).then(() => this.update()).catch(() => setTimeout(() => this.connect(secret), 1000 * 60));
+	protected connect() {
+		// prevent multiple connections
+		if (this._connection) throw new Error();
+		// CONNECTING HEART! - DCINSIDE
+		this._client.login({ clientId: this._token }).then(() => this.update()).catch(() => setTimeout(() => this.connect(), 1000 * 60));
 	}
 }
 
-const singleton = new DiscordRPC({
-	state: {
-		activity: {
-			// lore
-			details: "Starting...",
-			// large image
-			largeImageKey: "icon",
-			largeImageText: "Made by Sombian#7940",
-			// small image
-			smallImageKey: "discord",
-			smallImageText: "https://discord.gg/U8SRTpnwvg",
-			// buttons
-			primaryButton: {
-				label: "Get Aishite for FREE!",
-				url: "https://github.com/Any-Material/Aishite"
-			},
-			// time elapsed
-			startTimestamp: Date.now()
+const singleton = new Discord(
+	new RichPresence({
+		// lore
+		details: "Starting...",
+		// large image
+		largeImageKey: "icon",
+		largeImageText: "Made by Sombian#7940",
+		// small image
+		smallImageKey: "discord",
+		smallImageText: "https://discord.gg/U8SRTpnwvg",
+		// buttons
+		primaryButton: {
+			label: "Get Aishite for FREE!",
+			url: "https://github.com/Any-Material/Aishite"
 		},
-		token: "526951055079112724"
-	}
-});
+		// time elapsed
+		startTimestamp: Date.now()
+	}),
+	"526951055079112724"
+);
 
 export default singleton;

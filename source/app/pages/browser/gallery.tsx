@@ -3,7 +3,7 @@ import Color from "@/app/common/color";
 import { Props } from "@/app/common/props";
 import { Stateful, LifeCycle } from "@/app/common/framework";
 
-import Tag from "@/models/tag";
+import { Tag } from "@/models/tag";
 
 import Text from "@/app/layout/text";
 import Center from "@/app/layout/center";
@@ -23,7 +23,7 @@ import Bookmark from "@/app/icons/bookmark";
 import Download from "@/app/icons/download";
 import Discovery from "@/app/icons/discovery";
 
-import history from "@/handler/history";
+import history from "@/handles/history";
 
 import languages from "@/assets/languages.json";
 

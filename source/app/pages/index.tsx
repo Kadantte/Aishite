@@ -1,7 +1,7 @@
 import { Props } from "@/app/common/props";
 import { Stateful } from "@/app/common/framework";
 
-import history from "@/handler/history";
+import history from "@/handles/history";
 
 abstract class Page<P extends Props<never>, S> extends Stateful<P, S> {
 	/**

@@ -1,4 +1,4 @@
-class Pair<T1, T2> {
+export class Pair<T1, T2> {
 	constructor(
 		public readonly first: T1,
 		public readonly second: T2
@@ -12,5 +12,3 @@ class Pair<T1, T2> {
 		return this.toList().toString();
 	}
 }
-
-export default Pair;

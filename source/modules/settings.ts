@@ -1,8 +1,8 @@
-import template from "@/assets/settings.json";
+import { StateHandler } from "@/handles";
 
 import storage from "@/modules/storage";
 
-import { StateHandler } from "@/handler";
+import template from "@/assets/settings.json";
 
 class Settings extends StateHandler<Configuration> {
 	public get state() {
@@ -14,8 +14,8 @@ class Settings extends StateHandler<Configuration> {
 		storage.change("settings", super.state);
 	}
 	protected create() {
-		// update
-		storage.change("settings", super.state);
+		// important
+		chromium.requires(this.state.app.requires);
 	}
 }
 
@@ -42,12 +42,12 @@ class Configuration {
 	}
 }
 
-const singleton = new Settings({
-	state: new Configuration({
+const singleton = new Settings(
+	new Configuration({
 		app: (storage.state.get("settings")?.state as typeof template).app ?? template.app,
 		history: (storage.state.get("settings")?.state as typeof template).history ?? template.history,
 		override: (storage.state.get("settings")?.state as typeof template).override ?? template.override
 	})
-});
+);
 
 export default singleton;

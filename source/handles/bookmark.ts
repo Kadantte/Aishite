@@ -1,6 +1,6 @@
 import storage from "@/modules/storage";
 
-import { MappedStateHandler } from "@/handler";
+import { MappedStateHandler } from "@/handles";
 
 class Bookmark extends MappedStateHandler<number, boolean> {
 	public get state() {
@@ -11,6 +11,9 @@ class Bookmark extends MappedStateHandler<number, boolean> {
 		super.state = state;
 		// update
 		storage.change("bookmark", Array.from(super.state.keys()));
+	}
+	protected create() {
+		// TODO: none
 	}
 	public add(id: number) {
 		this.modify(id, true, (unsafe) => {
@@ -38,8 +41,8 @@ class Bookmark extends MappedStateHandler<number, boolean> {
 	}
 }
 
-const singleton = new Bookmark({
-	state: (storage.state.get("bookmark")?.state as Array<number>).reduce((array, value) => (array.set(value, true), array), new Map())
-});
+const singleton = new Bookmark(
+	(storage.state.get("bookmark")?.state as Array<number>).reduce((array, value) => (array.set(value, true), array), new Map())
+);
 
 export default singleton;

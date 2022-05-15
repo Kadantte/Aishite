@@ -1,12 +1,10 @@
-export class StateHandler<State> {
+export abstract class StateHandler<State> {
 	private _state: State;
-	private readonly _UUID: number;
-	private readonly _event: EventTarget;
+	private readonly _event = new EventTarget();
 
-	constructor(args: { state: State }) {
-		this._state = args.state;
-		this._UUID = random(0, 6974);
-		this._event = new EventTarget();
+	constructor(state: State) {
+		// init
+		this._state = state;
 
 		this.create();
 	}
@@ -14,28 +12,24 @@ export class StateHandler<State> {
 		return this._state;
 	}
 	protected set state(state: State) {
-		//
-		// JavaScript suffers from common issue where cloning an object only clones its reference, not its value
-		//
-		if (state === this._state) throw new Error("Shallow-copy is not allowed");
+		// prevent shallow-copy
+		if (this._state === state) throw new Error("Shallow-copy is not allowed");
 
-		const callback = new StateCallback<State>({ before: this._state, after: state });
+		const callback = new StateCallback({ before: this._state, after: state });
 
 		this._state = state;
 
 		print(callback);
 
-		this._event.dispatchEvent(new CustomEvent(this._UUID.toString(), { detail: callback }));
-	}
-	protected create(): void {
-		print("This class has default class constructor");
+		this._event.dispatchEvent(new CustomEvent("handle", { detail: callback }));
 	}
 	public handle(handle: (event: Event & { detail: StateCallback<State> }) => void) {
-		this._event.addEventListener(this._UUID.toString(), handle as EventListener);
+		this._event.addEventListener("handle", handle as EventListener);
 	}
 	public unhandle(handle: (event: Event & { detail: StateCallback<State> }) => void) {
-		this._event.removeEventListener(this._UUID.toString(), handle as EventListener);
+		this._event.removeEventListener("handle", handle as EventListener);
 	}
+	protected abstract create(): void;
 }
 
 class StateCallback<State> {
@@ -48,14 +42,12 @@ class StateCallback<State> {
 	}
 }
 
-export class MappedStateHandler<Key, Value> {
+export abstract class MappedStateHandler<Key, Value> {
 	private _state: Map<Key, Value>;
-	private readonly _UUID: number;
 	private readonly _event: EventTarget;
 
-	constructor(args: { state: Map<Key, Value> }) {
-		this._state = args.state;
-		this._UUID = random(0, 6974);
+	constructor(state: Map<Key, Value>) {
+		this._state = state;
 		this._event = new EventTarget();
 
 		this.create();
@@ -64,22 +56,15 @@ export class MappedStateHandler<Key, Value> {
 		return this._state;
 	}
 	protected set state(state: Map<Key, Value>) {
-		//
-		// JavaScript suffers from common issue where cloning an object only clones its reference, not its value
-		//
+		// prevent shallow-copy
 		if (this._state === state) throw new Error("Shallow-copy is not allowed");
 
 		this._state = state;
 
-		this._event.dispatchEvent(new CustomEvent(this._UUID.toString(), { detail: null }));
-	}
-	protected create(): void {
-		print("This class has default class constructor");
+		this._event.dispatchEvent(new CustomEvent("handle", { detail: null }));
 	}
 	public modify(key: Key, value: Nullable<Value>, extension?: (unsafe: Map<Key, Value>) => void) {
-		//
-		// JavaScript suffers from common issue where cloning an object only clones its reference, not its value
-		//
+		// prevent shallow-copy
 		if (this._state.get(key) === value) throw new Error("Shallow-copy is not allowed");
 
 		const callback = new MappedStateCallback<Key, Value>({ key: key, value: value, state: this._state });
@@ -93,7 +78,7 @@ export class MappedStateHandler<Key, Value> {
 
 		print(callback);
 
-		this._event.dispatchEvent(new CustomEvent(this._UUID.toString(), { detail: callback }));
+		this._event.dispatchEvent(new CustomEvent("handle", { detail: callback }));
 	}
 	@deprecated()
 	public notify(key: Key, value: Nullable<Value>) {
@@ -104,14 +89,15 @@ export class MappedStateHandler<Key, Value> {
 
 		print(callback);
 
-		this._event.dispatchEvent(new CustomEvent(this._UUID.toString(), { detail: callback }));
+		this._event.dispatchEvent(new CustomEvent("handle", { detail: callback }));
 	}
 	public handle(handle: (event: Event & { detail: MappedStateCallback<Key, Value> }) => void) {
-		this._event.addEventListener(this._UUID.toString(), handle as EventListener);
+		this._event.addEventListener("handle", handle as EventListener);
 	}
 	public unhandle(handle: (event: Event & { detail: MappedStateCallback<Key, Value> }) => void) {
-		this._event.removeEventListener(this._UUID.toString(), handle as EventListener);
+		this._event.removeEventListener("handle", handle as EventListener);
 	}
+	protected abstract create(): void;
 }
 
 class MappedStateCallback<Key, Value> {

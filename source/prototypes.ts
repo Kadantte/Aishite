@@ -142,23 +142,3 @@ Object.defineProperty(window, "inject", {
 		}
 	}
 });
-
-Object.defineProperty(window, "random", {
-	value: function (minimum: number, maximum: number) {
-		return Math.floor(Math.random() * (maximum - minimum + 1)) + minimum;
-	}
-});
-
-var times = 0;
-
-Object.defineProperty(window, "nullsafe", {
-	value: function (target: Record<string, unknown>) {
-		times++;
-		for (const [key, value] of Object.entries(target)) {
-			if (value === undefined) {
-				delete target[key];
-			}
-		}
-		return target;
-	}
-})
