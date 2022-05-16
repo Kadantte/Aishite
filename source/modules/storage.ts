@@ -28,11 +28,7 @@ class Storage extends MappedStateHandler<string, StorageState> {
 	}
 	protected create() {
 		for (const [key, value] of super.state.entries()) {
-			this.import(value.path, value.state).then((content) => {
-				this.modify(key, content, (unsafe) => {
-					this.export(key);
-				});
-			})
+			this.modify(key, this.import(value.path, value.state), (unsafe) => this.export(key));
 		}
 		// every 5 mins
 		setInterval(() => {
@@ -53,30 +49,24 @@ class Storage extends MappedStateHandler<string, StorageState> {
 
 		this.modify(key, new StorageState({ path: this.state.get(key)!.path, state: value }));
 	}
-	public async register(key: string, path: StorageState["path"], fallback: StorageState["state"]) {
+	public register(key: string, path: StorageState["path"], fallback: StorageState["state"]) {
 		if (!this.state.has(key)) throw Error();
 
-		const content = await this.import(path, fallback);
-
-		this.modify(key, content);
-
-		await this.export(key);
+		this.modify(key, this.import(path, fallback), (unsafe) => this.export(key));
 	}
-	public async unregister(key: string) {
+	public unregister(key: string) {
 		if (!this.state.has(key)) throw Error();
 
-		this.modify(key, null);
-
-		await filesystem.delete(this.state.get(key)!.path);
+		this.modify(key, null, (unsafe) => filesystem.delete(this.state.get(key)!.path));
 	}
-	protected async import(path: StorageState["path"], fallback: StorageState["state"] = {}) {
+	protected import(path: StorageState["path"], fallback: StorageState["state"] = {}) {
 		try {
-			return new StorageState({ path: path, state: JSON.parse(await filesystem.read(path)) });
+			return new StorageState({ path: path, state: JSON.parse(filesystem.read(path)) });
 		} catch {
 			return new StorageState({ path: path, state: fallback });
 		}
 	}
-	protected async export(key: string) {
+	protected export(key: string) {
 		if (!this.state.has(key)) throw Error();
 
 		filesystem.write(this.state.get(key)!.path, JSON.stringify(this.state.get(key)!.state));
