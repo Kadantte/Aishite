@@ -5,6 +5,17 @@ import node_path from "path";
 
 import { Window } from "@/models/window";
 
+enum Command {
+	BLUR = "blur",
+	FOCUS = "focus",
+	CLOSE = "close",
+	MINIMIZE = "minimize",
+	MAXIMIZE = "maximize",
+	UNMAXIMIZE = "unmaximize",
+	FULLSCREEN = "fullscreen",
+	DEVELOPMENT = "development"
+}
+
 let window: Nullable<BrowserWindow> = null;
 
 Menu.setApplicationMenu(Menu.buildFromTemplate([{ role: "togglefullscreen" }]));
@@ -25,10 +36,10 @@ app.on("ready", () => {
 
 	class Resolution {
 		public static width(pixels: number = screen.getPrimaryDisplay().workArea.width) {
-			return Math.round((pixels - 30) / 5 * 1.5 + 30);
+			return Math.round((pixels - 30) * 0.3 + 30);
 		}
 		public static height(pixels: number = screen.getPrimaryDisplay().workArea.height + (/* TASKBAR */ 45)) {
-			return Math.round((pixels - (/* TASKBAR */ 45) - 185) / 2 + 170);
+			return Math.round((pixels - (/* TASKBAR */ 45) - 185) * 0.5 + 170);
 		}
 	};
 	// bypass cross-origin policy
@@ -93,28 +104,28 @@ app.on("ready", () => {
 	ipcMain.handle("chromium", (event, command: string, ...args: Array<any>) => {
 		setTimeout(() => {
 			switch (command) {
-				case "close": {
+				case Command.CLOSE: {
 					return window?.destroy();
 				}
-				case "blur": {
-					return window?.blur();
-				}
-				case "focus": {
+				case Command.FOCUS: {
 					return window?.focus();
 				}
-				case "minimize": {
+				case Command.BLUR: {
+					return window?.blur();
+				}
+				case Command.MINIMIZE: {
 					return window?.minimize();
 				}
-				case "maximize": {
+				case Command.MAXIMIZE: {
 					return window?.maximize();
 				}
-				case "unmaximize": {
+				case Command.UNMAXIMIZE: {
 					return window?.unmaximize();
 				}
-				case "fullscreen": {
+				case Command.FULLSCREEN: {
 					return window?.setFullScreen(!window.isFullScreen());
 				}
-				case "development": {
+				case Command.DEVELOPMENT: {
 					return window?.webContents.toggleDevTools();
 				}
 			}

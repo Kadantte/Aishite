@@ -13,6 +13,7 @@ import Element from "@/app/layout/element";
 import Container from "@/app/layout/container";
 
 import Spacer from "@/app/layout/casacade/spacer";
+import Transform from "@/app/layout/casacade/transform";
 
 import Button from "@/app/widgets/button";
 import Viewport from "@/app/widgets/view";
@@ -93,7 +94,7 @@ class App extends Stateful<AppProps, AppState> {
 						onMouseLeave={(style) => {
 							style(null);
 						}}
-						children={<Minimize/>}
+						children={<Minimize />}
 					/>
 					<Button id="maximize" width={Unit(50)} draggable={false}
 						onMouseDown={(style) => {
@@ -109,7 +110,7 @@ class App extends Stateful<AppProps, AppState> {
 						onMouseLeave={(style) => {
 							style(null);
 						}}
-						children={this.state.maximize ? <Unmaximize/> : <Maximize/>}
+						children={this.state.maximize ? <Unmaximize /> : <Maximize />}
 					/>
 					<Button id="close" width={Unit(50)} draggable={false}
 						onMouseDown={(style) => {
@@ -121,7 +122,7 @@ class App extends Stateful<AppProps, AppState> {
 						onMouseLeave={(style) => {
 							style(null);
 						}}
-						children={<Close/>}
+						children={<Close />}
 					/>
 				</Row>
 				{/* CONTENT */}
@@ -129,31 +130,33 @@ class App extends Stateful<AppProps, AppState> {
 					<Viewport></Viewport>
 				</section>
 				{/* CONTEXTMENU */}
-				<Element id="contextmenu" color={Color.DARK_300} top={contextmenu.state.y} left={contextmenu.state.x}  padding={{ top: 5, bottom: 5 }} corner={{ all: 4.5 }} border={{ all: { width: 1.0, style: "solid", color: Color.DARK_500 } }} shadow={[{ x: 0, y: 0, blur: 2.5, spread: 0, color: Color.DARK_100 }]} visible={this.state.contextmenu}>
-					{contextmenu.state.items.map((element, index) => {
-						// seperator
-						if (element === "seperator") return (<section key={index} style={{ width: "auto", height: 1.0, marginTop: 5, marginBottom: 5, background: Color.DARK_500 }}/>);
+				<Transform translate={[contextmenu.state.x > (window.innerWidth / 2) ? -100 : 0, contextmenu.state.y > (window.innerHeight / 2) ? -100 : 0]}>
+					<Element id="contextmenu" color={Color.DARK_300} top={contextmenu.state.y} left={contextmenu.state.x} padding={{ top: 5, bottom: 5 }} corner={{ all: 4.5 }} border={{ all: { width: 1.0, style: "solid", color: Color.DARK_500 } }} shadow={[{ x: 0, y: 0, blur: 2.5, spread: 0, color: Color.DARK_100 }]} visible={this.state.contextmenu}>
+						{contextmenu.state.items.map((element, index) => {
+							// seperator
+							if (element === "seperator") return (<section key={index} style={{ width: "auto", height: 1.0, marginTop: 5, marginBottom: 5, background: Color.DARK_500 }} />);
 
-						return (
-							<Container key={index} height={35} padding={{ left: 10, right: 25 }} phantom={true}
-								onMouseDown={(style) => {
-									if (!element.toggle) return;
-									// update
-									this.setState((state) => ({ contextmenu: false }), () => element.method());
-								}}
-								onMouseEnter={(style) => {
-									style({ color: Color.DARK_400 });
-								}}
-								onMouseLeave={(style) => {
-									style(null);
-								}}>
-								<Center x={false} y={true}>
-									<Text children={[{ text: element.role, color: element.toggle ? "inherit" : Color.DARK_500 }]}/>
-								</Center>
-							</Container>
-						);
-					})}
-				</Element>
+							return (
+								<Container key={index} height={35} padding={{ left: 10, right: 25 }} phantom={true}
+									onMouseDown={(style) => {
+										if (!element.toggle) return;
+										// update
+										this.setState((state) => ({ contextmenu: false }), () => element.method());
+									}}
+									onMouseEnter={(style) => {
+										style({ color: Color.DARK_400 });
+									}}
+									onMouseLeave={(style) => {
+										style(null);
+									}}>
+									<Center x={false} y={true}>
+										<Text children={[{ text: element.role, color: element.toggle ? "inherit" : Color.DARK_500 }]} />
+									</Center>
+								</Container>
+							);
+						})}
+					</Element>
+				</Transform>
 			</Column>
 		);
 	}
@@ -325,7 +328,7 @@ class Controller extends Stateful<ControllerProps, ControllerState> {
 										style(null);
 									}}>
 									{/* TITLE */}
-									<Text all={7.5} left={10} right={29.5} children={[{ text: page.title, color: this.state.index === index ? undefined : Color.DARK_500, weight: "bold" }]}/>
+									<Text all={7.5} left={10} right={29.5} children={[{ text: page.title, color: this.state.index === index ? undefined : Color.DARK_500, weight: "bold" }]} />
 									{/* CLOSE */}
 									<Button all={7.5} left="auto" right={5.0} width={19.5} height={19.5} corner={{ all: 2.5 }}
 										onMouseDown={(style) => {
@@ -337,7 +340,7 @@ class Controller extends Stateful<ControllerProps, ControllerState> {
 										onMouseLeave={(style) => {
 											style(null);
 										}}
-										children={<Close color={this.state.index === index ? undefined : Color.DARK_500}/>}
+										children={<Close color={this.state.index === index ? undefined : Color.DARK_500} />}
 									/>
 								</Container>
 							</Spacer>
@@ -354,7 +357,7 @@ class Controller extends Stateful<ControllerProps, ControllerState> {
 					onMouseLeave={(style) => {
 						style(null);
 					}}
-					children={<Plus/>}
+					children={<Plus />}
 				/>
 			</Row>
 		);

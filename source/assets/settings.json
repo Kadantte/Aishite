@@ -1,5 +1,8 @@
 {
 	"app": {
+		"request": {
+			"engine": "node_js"
+		},
 		"requires": [
 			"storage"
 		]

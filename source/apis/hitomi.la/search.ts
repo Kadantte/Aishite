@@ -15,8 +15,8 @@ enum Prefix {
 }
 
 class Syntax {
-	private readonly pattern = Array<boolean>();
-	private readonly brackets = Array<Prefix>();
+	private readonly _pattern = Array<boolean>();
+	private readonly _brackets = Array<Prefix>();
 
 	public integrity() {
 		this.one();
@@ -24,18 +24,18 @@ class Syntax {
 		this.three();
 	}
 	public open(prefix: Prefix) {
-		this.pattern.add(true);
-		this.brackets.add(prefix);
+		this._pattern.add(true);
+		this._brackets.add(prefix);
 	}
 	public close(prefix: Prefix) {
-		if (this.brackets.isEmpty()) throw Error();
-		if (this.brackets.last !== prefix) throw Error();
+		if (this._brackets.isEmpty()) throw Error();
+		if (this._brackets.last !== prefix) throw Error();
 
-		this.pattern.add(false);
-		this.brackets.pop();
+		this._pattern.add(false);
+		this._brackets.pop();
 	}
-	private one() {
-		switch (this.pattern.length % 2) {
+	protected one() {
+		switch (this._pattern.length % 2) {
 			case 0: {
 				break;
 			}
@@ -44,18 +44,18 @@ class Syntax {
 			}
 		}
 	}
-	private two() {
-		for (let index = 0; index < this.pattern.length; index++) {
+	protected two() {
+		for (let index = 0; index < this._pattern.length; index++) {
 			switch (index % 2) {
 				case 0: {
-					if (!this.pattern[index] && this.pattern[index + 1]) throw Error();
+					if (!this._pattern[index] && this._pattern[index + 1]) throw Error();
 					break;
 				}
 			}
 		}
 	}
-	private three() {
-		if (this.pattern.filter((element) => element).length !== this.pattern.filter((element) => !element).length) throw Error();
+	protected three() {
+		if (this._pattern.filter((element) => element).length !== this._pattern.filter((element) => !element).length) throw Error();
 	}
 }
 
