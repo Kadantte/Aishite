@@ -70,9 +70,9 @@ export abstract class Stateful<P extends Clear<any>, S> extends React.Component<
 					...nullsafe(position(this.props)),
 					...nullsafe(constraint(this.props)),
 					...nullsafe(decoration(this.props)),
-					...nullsafe(behaviour(this.props)),
 					...nullsafe(offset(this.props)),
 					...nullsafe(this.postCSS()),
+					...nullsafe(behaviour(this.props)),
 					...this.props.override
 				}}
 				children={this.build()}
@@ -113,9 +113,9 @@ export abstract class Stateless<P extends Clear<any>> extends React.PureComponen
 					...nullsafe(position(this.props)),
 					...nullsafe(constraint(this.props)),
 					...nullsafe(decoration(this.props)),
-					...nullsafe(behaviour(this.props)),
 					...nullsafe(offset(this.props)),
 					...nullsafe(this.postCSS()),
+					...nullsafe(behaviour(this.props)),
 					...this.props.override
 				}}
 				children={this.build()}

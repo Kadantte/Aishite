@@ -86,7 +86,7 @@ class App extends Stateful<AppProps, AppState> {
 		return (
 			<Column id={"root"}>
 				{/* TITLEBAR */}
-				<Row id="titlebar" color={Color.DARK_000} height={40} visible={!this.state.fullscreen} draggable={true}>
+				<Row id="titlebar" color={Color.DARK_000} height={40} draggable={true} visible={!this.state.fullscreen}>
 					<Spacer>
 						<Controller width={Unit(100, "%")}></Controller>
 					</Spacer>
@@ -301,7 +301,7 @@ class Controller extends Stateful<ControllerProps, ControllerState> {
 						// update
 						this.state.handle.offset = (this.state.handle.offset + event.movementX).clamp(this.state.handle.minimum, this.state.handle.maximum);
 						// style
-						this.state.handle.element.style.left = Unit(this.state.handle.offset);
+						this.state.handle.element.style.setProperty("left", this.state.handle.offset + "px");
 					}
 				});
 			}
