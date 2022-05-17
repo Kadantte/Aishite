@@ -88,7 +88,7 @@ class Discord {
 		this._activity = state;
 		this._connection = false;
 
-		until(() => this._client !== undefined).then(() => {
+		until(() => this._client !== null).then(() => {
 			this._client.on("ready", () => {
 				// update
 				this._connection = true;
@@ -108,7 +108,7 @@ class Discord {
 		// conditional override
 		this._activity = new RichPresence(override ? activity : { ...this._activity, ...activity });
 		// @ts-ignore
-		until(() => this._client !== undefined).then(() => this._client.request("SET_ACTIVITY", this._activity.toJSON()));
+		until(() => this._connection).then(() => this._client.request("SET_ACTIVITY", this._activity.toJSON()));
 	}
 	protected connect() {
 		// prevent multiple connections

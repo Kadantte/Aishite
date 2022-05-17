@@ -57,7 +57,7 @@ export abstract class Stateful<P extends Clear<any>, S> extends React.Component<
 		return {};
 	}
 	/** This is a wrapper to inheirt `this.props.style` automation. */
-	protected abstract build(): Child;
+	protected abstract build(): JSX.Element;
 	/** Consider using `this.build` instead. */
 	@final()
 	public render() {
@@ -83,7 +83,7 @@ export abstract class Stateful<P extends Clear<any>, S> extends React.Component<
 	/** Built-in macro to retrieve self `HTMLElement`. */
 	public node<T extends Element = HTMLElement>() {
 		try {
-			return ReactDOM.findDOMNode(this as React.Component<P, S>) as Nullable<T>;
+			return ReactDOM.findDOMNode(this) as Nullable<T>;
 		} catch {
 			return null;
 		}
@@ -100,7 +100,7 @@ export abstract class Stateless<P extends Clear<any>> extends React.PureComponen
 		return {};
 	}
 	/** This is a wrapper to inheirt `this.props.style` automation. */
-	protected abstract build(): Child;
+	protected abstract build(): JSX.Element;
 	/** Consider using `this.build` instead. */
 	@final()
 	public render() {
@@ -126,7 +126,7 @@ export abstract class Stateless<P extends Clear<any>> extends React.PureComponen
 	/** Built-in macro to retrieve self `HTMLElement`. */
 	public node<T extends Element = HTMLElement>() {
 		try {
-			return ReactDOM.findDOMNode(this as React.PureComponent<P, {}>) as Nullable<T>;
+			return ReactDOM.findDOMNode(this) as Nullable<T>;
 		} catch {
 			return null;
 		}

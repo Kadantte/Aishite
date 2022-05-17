@@ -159,7 +159,7 @@ class Client {
 
 							switch (args.type) {
 								case "arraybuffer": {
-									return buffer.buffer;
+									return buffer.buffer.slice(buffer.byteOffset, buffer.byteOffset + buffer.byteLength);
 								}
 								case "json": {
 									return buffer.toJSON();

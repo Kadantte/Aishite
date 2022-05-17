@@ -80,6 +80,26 @@ Object.defineProperty(Array.prototype, "remove", {
 	}
 });
 
+// Buffer
+
+Object.defineProperty(Buffer.prototype, "skip", {
+	value: function (count: number) {
+		if (count <= 0) {
+			return this;
+		}
+		return this.slice(count);
+	}
+});
+
+Object.defineProperty(Buffer.prototype, "take", {
+	value: function (count: number) {
+		if (count <= 0) {
+			return [];
+		}
+		return this.slice(0, count);
+	}
+});
+
 // ArrayBuffer
 
 Object.defineProperty(ArrayBuffer.prototype, "skip", {

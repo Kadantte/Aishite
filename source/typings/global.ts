@@ -28,6 +28,10 @@ declare global {
 		add(...args: Array<T>): Array<T>;
 		remove(...args: Array<T>): Array<T>;
 	}
+	interface Buffer {
+		skip(count: number): Buffer;
+		take(count: number): Buffer;
+	}
 	interface ArrayBuffer {
 		skip(count: number): ArrayBuffer;
 		take(count: number): ArrayBuffer;

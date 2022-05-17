@@ -43,7 +43,7 @@ app.on("ready", () => {
 		}
 	};
 	// bypass cross-origin policy
-	session.defaultSession.webRequest.onBeforeSendHeaders({ urls: ["*://*.hitomi.la/*"] }, (details, callback) => callback({ requestHeaders: Object.assign({ Referer: "https://hitomi.la" }, details.requestHeaders) }));
+	session.defaultSession.webRequest.onBeforeSendHeaders({ urls: ["*://*.hitomi.la/*"] }, (details, callback) => callback({ requestHeaders: Object.assign({ referer: "https://hitomi.la" }, details.requestHeaders) }));
 
 	// create window
 	window = new BrowserWindow({
