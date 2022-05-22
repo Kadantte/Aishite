@@ -121,16 +121,24 @@ async function block(id: number) {
 	// cache
 	const image = Array<string>();
 
-	for (const children of element.querySelectorAll("img")) {
-		image.add("https:" + children.getAttribute("data-src"));
-	}
+	index = 0;
 
-	for (const children of element.querySelectorAll("source")) {
-		for (const source of children.getAttribute("data-srcset")!.split(space)) {
-			if (source.includes("//")) {
-				image.add("https:" + source);
+	for (const children of element.querySelectorAll("picture > *")) {
+		switch (index % 2) {
+			case 0: {
+				for (const source of children.getAttribute("data-srcset")!.split(space)) {
+					if (source.includes("//")) {
+						image.add("https:" + source);
+					}
+				}
+				break;
+			}
+			default: {
+				image.add("https:" + children.getAttribute("data-src"));
+				break;
 			}
 		}
+		index++;
 	}
 	// update
 	metadata.set("thumbnail", image);
