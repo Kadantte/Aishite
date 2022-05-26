@@ -134,6 +134,10 @@ class App extends Stateful<AppProps, AppState> {
 						children={<Close/>}
 					/>
 				</Row>
+				{/* OVERLAY */}
+				{/* <Element id="overlay" color="#00000090" all="auto" width={Unit(100, "%")} height={Unit(100, "%")} priority={true} draggable={true}>
+					{}
+				</Element> */}
 				{/* CONTENT */}
 				<section id="content" style={{ width: Unit(100, "%"), height: Unit(100, "%"), background: Color.DARK_200 }}>
 					<Viewport></Viewport>
@@ -145,7 +149,7 @@ class App extends Stateful<AppProps, AppState> {
 						if (element === "seperator") return (<section key={index} style={{ width: "auto", height: 1.0, marginTop: 5, marginBottom: 5, background: Color.DARK_500 }}/>);
 
 						return (
-							<Container key={index} height={35} padding={{ left: 10, right: 25 }} phantom={true}
+							<Container key={index} height={35} padding={{ left: 10, right: 25 }} priority={true}
 								onMouseDown={(style) => {
 									if (!element.toggle) return;
 									// update
@@ -335,7 +339,7 @@ class Controller extends Stateful<ControllerProps, ControllerState> {
 										style(null);
 									}}>
 									{/* TITLE */}
-									<Text all={7.5} left={10} right={29.5} children={[{ text: page.title, color: this.state.index === index ? undefined : Color.DARK_500, weight: "bold" }]}/>
+									<Text all={7.5} left={10} right={29.5} children={[{ text: page.title, color: this.state.index === index ? undefined : Color.DARK_500, weight: "bold", style: history.state.pages[index].element.type.name === "Browser" ? "normal" : "italic" }]}/>
 									{/* CLOSE */}
 									<Button all={7.5} left="auto" right={5.0} width={19.5} height={19.5} corner={{ all: 2.5 }}
 										onMouseDown={(style) => {

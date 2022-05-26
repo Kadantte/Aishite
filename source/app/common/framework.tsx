@@ -53,7 +53,7 @@ export abstract class Stateful<P extends Clear<any>, S> extends React.Component<
 	/** Return value will be applied before `this.props.style`. */
 	protected abstract preCSS(): React.CSSProperties;
 	/** **UNSAFE**: Directly pass `HTMLElement` attributes to children. */
-	protected override(): Casacade["override"] {
+	protected override(): Record<string, unknown> {
 		return {};
 	}
 	/** This is a wrapper to inheirt `this.props.style` automation. */
@@ -61,24 +61,21 @@ export abstract class Stateful<P extends Clear<any>, S> extends React.Component<
 	/** Consider using `this.build` instead. */
 	@final()
 	public render() {
-		return (
-			<Mirror
-				{...this.props}
-				style={{
-					...nullsafe(this.preCSS()),
-					...this.props.style,
-					...nullsafe(position(this.props)),
-					...nullsafe(constraint(this.props)),
-					...nullsafe(decoration(this.props)),
-					...nullsafe(offset(this.props)),
-					...nullsafe(this.postCSS()),
-					...nullsafe(behaviour(this.props)),
-					...this.props.override
-				}}
-				children={this.build()}
-				override={this.override()}
-			/>
-		);
+		return React.cloneElement(this.build(), {
+			style: {
+				...nullsafe(this.preCSS()),
+				...this.props.style,
+				...nullsafe(position(this.props)),
+				...nullsafe(constraint(this.props)),
+				...nullsafe(decoration(this.props)),
+				...nullsafe(offset(this.props)),
+				...nullsafe(this.postCSS()),
+				...nullsafe(behaviour(this.props)),
+				...this.props.custom
+			},
+			...inherit(this.props),
+			...this.override()
+		});
 	}
 	/** Built-in macro to retrieve self `HTMLElement`. */
 	public node<T extends Element = HTMLElement>() {
@@ -96,7 +93,7 @@ export abstract class Stateless<P extends Clear<any>> extends React.PureComponen
 	/** Return value will be applied before `this.props.style`. */
 	protected abstract preCSS(): React.CSSProperties;
 	/** **UNSAFE**: Directly pass `HTMLElement` attributes to children. */
-	protected override(): Casacade["override"] {
+	protected override(): Record<string, unknown> {
 		return {};
 	}
 	/** This is a wrapper to inheirt `this.props.style` automation. */
@@ -104,24 +101,21 @@ export abstract class Stateless<P extends Clear<any>> extends React.PureComponen
 	/** Consider using `this.build` instead. */
 	@final()
 	public render() {
-		return (
-			<Mirror
-				{...this.props}
-				style={{
-					...nullsafe(this.preCSS()),
-					...this.props.style,
-					...nullsafe(position(this.props)),
-					...nullsafe(constraint(this.props)),
-					...nullsafe(decoration(this.props)),
-					...nullsafe(offset(this.props)),
-					...nullsafe(this.postCSS()),
-					...nullsafe(behaviour(this.props)),
-					...this.props.override
-				}}
-				children={this.build()}
-				override={this.override()}
-			/>
-		);
+		return React.cloneElement(this.build(), {
+			style: {
+				...nullsafe(this.preCSS()),
+				...this.props.style,
+				...nullsafe(position(this.props)),
+				...nullsafe(constraint(this.props)),
+				...nullsafe(decoration(this.props)),
+				...nullsafe(offset(this.props)),
+				...nullsafe(this.postCSS()),
+				...nullsafe(behaviour(this.props)),
+				...this.props.custom
+			},
+			...inherit(this.props),
+			...this.override()
+		});
 	}
 	/** Built-in macro to retrieve self `HTMLElement`. */
 	public node<T extends Element = HTMLElement>() {
@@ -142,7 +136,7 @@ export abstract class StyleSheet<P extends Casacade> extends React.PureComponent
 	/** Return value will be applied before `this.props.style`. */
 	protected abstract preCSS(): React.CSSProperties;
 	/** **UNSAFE**: Directly pass `HTMLElement` attributes to children. */
-	protected override(): Casacade["override"] {
+	protected override(): Record<string, unknown> {
 		return {};
 	}
 	@final()
@@ -153,29 +147,36 @@ export abstract class StyleSheet<P extends Casacade> extends React.PureComponent
 					return undefined;
 				}
 				default: {
-					// cache
-					const unique: Record<string, any> = {};
-					
-					for (const [key, value] of Object.entries(this.props ?? {})) {
-						if (/^data-([a-z]+)$/.test(key)) {
-							unique[key] = value;
-						}
-					}
-					return React.cloneElement((children), { ...unique, key: index, style: { ...this.preCSS(), ...this.props.style, ...this.postCSS() }, ...this.override(), ...this.props.override });
+					// print(this.constructor.name, children.type?.name ?? children.type);
+					return React.cloneElement(children, {
+						key: index,
+						style: {
+							...this.preCSS(),
+							...this.props.style,
+							...this.postCSS()
+						},
+						...inherit(this.props),
+						...this.override()
+					});
 				}
 			}
 		});
 	}
 }
 
-const Mirror = React.memo(class Mirror extends StyleSheet<Casacade> {
-	protected postCSS(): React.CSSProperties {
-		return {}
+function inherit(object: Record<string, any>) {
+	const cache: Record<string, any> = {};
+
+	for (const [key, value] of Object.entries(object)) {
+		switch (/^data-([a-z]+)$/.test(key)) {
+			case true: {
+				cache[key] = value;
+				break;
+			}
+		}
 	}
-	protected preCSS(): React.CSSProperties {
-		return {};
-	}
-});
+	return cache;
+}
 
 function nullsafe(object: React.CSSProperties) {
 	for (const [key, value] of Object.entries(object)) {

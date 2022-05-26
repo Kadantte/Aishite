@@ -10,7 +10,7 @@ interface Margin {
 
 function Margin(style: Margin): React.CSSProperties {
 	// check before
-	if (!style.all && !style.top && !style.left && !style.right && !style.bottom) return {};
+	if ((style.all ?? style.top ?? style.left ?? style.right ?? style.bottom) === undefined) return {};
 
 	return {
 		marginTop: style.top ?? style.all,

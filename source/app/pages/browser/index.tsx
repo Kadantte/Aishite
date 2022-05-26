@@ -81,8 +81,8 @@ class Browser extends Page<BrowserProps, BrowserState> {
 				<Spacer>
 					<Scroll x="hidden" y="auto" scrollbar="frame">
 						<section>
-							<Grid.Region gap={{ inner: 15, outer: 15 }} rows={[40, Unit(1.0, "fr")]} columns={[Unit(1.0, "fr")]} template={[["form"], ["display"]]}>
-								<Grid.Cell id="form">
+							<Grid.Region gap={{ inner: 15, outer: 15 }} rows={[40, Unit(1.0, "fr")]} columns={[Unit(1.0, "fr")]} template={[["query"], ["collection"]]}>
+								<Grid.Cell id="query">
 									<Dropdown toggle={!this.state.gallery.isEmpty()} index={0} items={this.state.suggests.map((suggestion) => new Pair(suggestion.first.toString(), suggestion.second.toString()))} value={this.state.query === "language:all" ? undefined : this.state.query} fallback={this.state.query.isEmpty() ? "language:all" : this.state.query} highlight={this.state.highlight} controller={this.state.controller}
 										onReset={() => {
 											// expire
@@ -130,7 +130,7 @@ class Browser extends Page<BrowserProps, BrowserState> {
 										}}
 									/>
 								</Grid.Cell>
-								<Grid.Cell id="display">
+								<Grid.Cell id="collection">
 									<Grid.Layout gap={{ inner: 15 }} count={5} minimum={(Layout.width - 30) / 1.5 - 30}>
 										{this.state.gallery.map((_gallery, index) => {
 											return (

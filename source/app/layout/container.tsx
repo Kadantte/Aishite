@@ -8,7 +8,7 @@ import Transition from "@/app/common/style/transition";
 
 interface ContainerProps extends Props<Children> {
 	/** Whether to prevent event triggers from elements underneath. */
-	readonly phantom?: boolean;
+	readonly priority?: boolean;
 	readonly transition?: Transition;
 	// events
 	readonly onMouseUp?: (callback: Container["style"]) => void;
@@ -50,23 +50,23 @@ class Container extends Stateful<ContainerProps, ContainerState> {
 		return (
 			<section id={this.props.id}
 				onMouseUp={(event) => {
-					if (this.props.phantom) event.stopPropagation();
+					if (this.props.priority) event.stopPropagation();
 					this.props.onMouseUp?.(this.style);
 				}}
 				onMouseDown={(event) => {
-					if (this.props.phantom) event.stopPropagation();
+					if (this.props.priority) event.stopPropagation();
 					this.props.onMouseDown?.(this.style);
 				}}
 				onMouseEnter={(event) => {
-					if (this.props.phantom) event.stopPropagation();
+					if (this.props.priority) event.stopPropagation();
 					this.props.onMouseEnter?.(this.style);
 				}}
 				onMouseLeave={(event) => {
-					if (this.props.phantom) event.stopPropagation();
+					if (this.props.priority) event.stopPropagation();
 					this.props.onMouseLeave?.(this.style);
 				}}
 				onMouseOver={(event) => {
-					if (this.props.phantom) event.stopPropagation();
+					if (this.props.priority) event.stopPropagation();
 					this.props.onMouseMove?.(this.style);
 				}}
 				onContextMenu={(event) => {

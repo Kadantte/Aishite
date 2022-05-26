@@ -10,7 +10,7 @@ interface Size {
 
 function Size(style: Size): React.CSSProperties {
 	// check before
-	if (!style.width && !style.height) return {};
+	if ((style.width ?? style.height) === undefined) return {};
 
 	switch (style.type) {
 		case "minimum": {

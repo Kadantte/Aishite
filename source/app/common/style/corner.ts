@@ -14,7 +14,7 @@ interface Corner {
 
 function Corner(style: Corner): React.CSSProperties {
 	// check before
-	if (!style.all && !style.TL && !style.TR && !style.BL && !style.BR) return {};
+	if ((style.all ?? style.TL ?? style.TR ?? style.BL ?? style.BR) === undefined) return {};
 
 	return {
 		borderTopLeftRadius: style.TL ?? style.all,

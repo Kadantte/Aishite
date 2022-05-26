@@ -12,7 +12,7 @@ import Padding from "@/app/common/style/padding";
 export interface Clear<C extends Children> {
 	readonly id?: string;
 	readonly style?: React.CSSProperties;
-	readonly override?: React.CSSProperties;
+	readonly custom?: React.CSSProperties;
 	readonly visible?: boolean;
 	readonly draggable?: boolean;
 	readonly children?: C;
@@ -49,6 +49,5 @@ export interface FlipFlop<C extends Children> extends Props<C> {
 
 export interface Casacade {
 	readonly style?: React.CSSProperties;
-	readonly override?: Record<string, unknown>;
 	readonly children: Children;
 }

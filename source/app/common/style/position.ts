@@ -10,7 +10,7 @@ interface Position {
 
 function Position(style: Position): React.CSSProperties {
 	// check before
-	if (!style.all && !style.top && !style.left && !style.right && !style.bottom) return {};
+	if ((style.all ?? style.top ?? style.left ?? style.right ?? style.bottom) === undefined) return {};
 
 	return {
 		position: "absolute",

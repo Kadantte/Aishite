@@ -58,13 +58,21 @@
 		z-index: 69;
 	}
 
+	#overlay {
+		z-index: 74;
+	}
+
 	#contextmenu {
 		z-index: 6974;
 	}
 
-	[data-scrollable="frame"]::-webkit-scrollbar {
+	/* SCROLLBAR */
+	
+	[data-scrollable]::-webkit-scrollbar {
 		width: 10px;
 	}
+	
+	/* SCROLLBAR-FRAME */
 
 	[data-scrollable="frame"]::-webkit-scrollbar-track {
 		background-color: #111111;
@@ -79,9 +87,7 @@
 		background-color: #505050;
 	}
 
-	[data-scrollable="elegant"]::-webkit-scrollbar {
-		width: 10px;
-	}
+	/* SCROLLBAR-ELEGANT */
 
 	[data-scrollable="elegant"]::-webkit-scrollbar-track {
 		border-radius: 5px;

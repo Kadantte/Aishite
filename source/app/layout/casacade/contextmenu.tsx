@@ -6,7 +6,7 @@ import contextmenu from "@/handles/contextmenu";
 interface ContextMenuProps extends Casacade {
 	readonly items: typeof contextmenu["state"]["items"];
 	/** Whether to prevent event triggers from elements underneath. */
-	readonly phantom?: boolean;
+	readonly priority?: boolean;
 }
 
 class ContextMenu extends StyleSheet<ContextMenuProps> {
@@ -20,7 +20,7 @@ class ContextMenu extends StyleSheet<ContextMenuProps> {
 		return {
 			// events
 			onContextMenu: (event: MouseEvent) => {
-				if (this.props.phantom) event.stopPropagation();
+				if (this.props.priority) event.stopPropagation();
 				// open
 				contextmenu.state = { x: event.pageX, y: event.pageY, items: this.props.items };
 			}

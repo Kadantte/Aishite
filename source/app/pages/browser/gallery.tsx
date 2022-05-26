@@ -93,7 +93,7 @@ class Gallery extends Stateful<GalleryProps, GalleryState> {
 	}
 	protected build() {
 		return (
-			<Container id={"gallery"} color={Color.DARK_400} corner={{ all: 4.5 }} shadow={[{ x: 0, y: 0, blur: 5, spread: 0, color: Color.DARK_100 }]}
+			<Container id="gallery" color={Color.DARK_400} corner={{ all: 4.5 }} shadow={[{ x: 0, y: 0, blur: 5, spread: 0, color: Color.DARK_100 }]}
 				onMouseEnter={(style) => {
 					style({ corner: { all: 14.5 } }, () => {
 						if (this.state.background !== Ayanami.INFORMATION) {
@@ -205,7 +205,7 @@ class Gallery extends Stateful<GalleryProps, GalleryState> {
 						);
 					})}
 				</Stack>
-				<Container color={Color.DARK_300} width={"auto"} height={50} left={25} right={25} bottom={25} corner={{ all: 4.5 }} shadow={[{ x: 0, y: 0, blur: 5, spread: 0, color: Color.DARK_100 }]}
+				<Container color={Color.DARK_300} width="auto" height={50} left={25} right={25} bottom={25} corner={{ all: 4.5 }} shadow={[{ x: 0, y: 0, blur: 5, spread: 0, color: Color.DARK_100 }]}
 					onMouseEnter={(style) => {
 						this.setState((state) => ({ foreground: Asuka.TOOLS }));
 					}}

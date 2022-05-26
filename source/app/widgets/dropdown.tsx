@@ -52,7 +52,7 @@ class Dropdown extends Stateful<DropdownProps, DropdownState> {
 	}
 	protected build() {
 		return (
-			<Element id="dropdown" override={{ overflow: "visible" }}>
+			<Element id="dropdown" custom={{ overflow: "visible" }}>
 				{/* FORM */}
 				<Container color={!this.state.hover && !this.state.focus ? Color.DARK_300 : Color.DARK_400} height={40} corner={{ all: 4.5, BL: this.state.focus && !this.props.items.isEmpty() ? 0 : undefined, BR: this.state.focus && !this.props.items.isEmpty() ? 0 : undefined }} shadow={[{ x: 0, y: 0, blur: 5, spread: 0, color: Color.DARK_100 }]}
 					onMouseEnter={(style) => {
@@ -114,7 +114,7 @@ class Dropdown extends Stateful<DropdownProps, DropdownState> {
 				</Container>
 				{/* MENU */}
 				<Scroll x="hidden" y="scroll">
-					<Container id="items" color={Color.DARK_400} top={Unit(100, "%")} width={Unit(100, "%")} maximum={{ height: 40 * 5 }} corner={{ all: 4.5, TL: 0, TR: 0 }} shadow={[{ x: 0, y: 0, blur: 5, spread: 0, color: Color.DARK_100 }]} visible={this.state.focus && !this.props.items.isEmpty()} override={{ clipPath: "inset(0px -5px -5px -5px)" }}>
+					<Container id="items" color={Color.DARK_400} top={Unit(100, "%")} width={Unit(100, "%")} maximum={{ height: 40 * 5 }} corner={{ all: 4.5, TL: 0, TR: 0 }} shadow={[{ x: 0, y: 0, blur: 5, spread: 0, color: Color.DARK_100 }]} visible={this.state.focus && !this.props.items.isEmpty()} custom={{ clipPath: "inset(0px -5px -5px -5px)" }}>
 						{this.props.items.map((item, index) => {
 							return (
 								<Button key={index} color={this.state.index === index ? Color.DARK_500 : "inherit"} height={40}

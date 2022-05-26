@@ -10,7 +10,7 @@ interface Padding {
 
 function Padding(style: Padding): React.CSSProperties {
 	// check before
-	if (!style.all && !style.top && !style.left && !style.right && !style.bottom) return {};
+	if ((style.all ?? style.top ?? style.left ?? style.right ?? style.bottom) === undefined) return {};
 
 	return {
 		paddingTop: style.top ?? style.all,

@@ -15,7 +15,7 @@ interface IconProps extends Clear<undefined> {
 	readonly margin?: Margin;
 	readonly padding?: Padding;
 	/** Whether to prevent event triggers from elements underneath. */
-	readonly phantom?: boolean;
+	readonly priority?: boolean;
 	readonly transition?: Transition;
 	// events
 	readonly onMouseUp?: (callback: Icon["style"]) => void;
@@ -55,23 +55,23 @@ abstract class Icon extends Stateful<IconProps, IconState> {
 			id: this.props.id,
 			// events
 			onMouseUp: (event: MouseEvent) => {
-				if (this.props.phantom) event.stopPropagation();
+				if (this.props.priority) event.stopPropagation();
 				this.props.onMouseUp?.(this.style);
 			},
 			onMouseDown: (event: MouseEvent) => {
-				if (this.props.phantom) event.stopPropagation();
+				if (this.props.priority) event.stopPropagation();
 				this.props.onMouseDown?.(this.style);
 			},
 			onMouseEnter: (event: MouseEvent) => {
-				if (this.props.phantom) event.stopPropagation();
+				if (this.props.priority) event.stopPropagation();
 				this.props.onMouseEnter?.(this.style);
 			},
 			onMouseLeave: (event: MouseEvent) => {
-				if (this.props.phantom) event.stopPropagation();
+				if (this.props.priority) event.stopPropagation();
 				this.props.onMouseLeave?.(this.style);
 			},
 			onMouseMove: (event: MouseEvent) => {
-				if (this.props.phantom) event.stopPropagation();
+				if (this.props.priority) event.stopPropagation();
 				this.props.onMouseMove?.(this.style);
 			},
 			onContextMenu: (event: MouseEvent) => {

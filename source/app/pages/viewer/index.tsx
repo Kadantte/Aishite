@@ -73,10 +73,10 @@ class Viewer extends Page<ViewerProps, ViewerState> {
 	}
 	protected build() {
 		return (
-			<section id={"viewer"} data-scrollable={"frame"}>
+			<section id="viewer">
 				{this.state.files.map((file, index) => {
 					return (
-						<Image key={index} source={file.url} width={this.state.factor} height={file.height / (file.width / window.innerWidth.clamp(0, this.state.factor))} minimum={{ width: Layout.width }} maximum={{ width: Unit(100, "%") }} margin={{ all: "auto" }}></Image>
+						<Image key={index} source={file.url} width={this.state.factor} height={file.height / (file.width / window.innerWidth.clamp(0, this.state.factor))} minimum={{ width: Layout.width * 0.75 }} maximum={{ width: Unit(100, "%") }} margin={{ all: "auto" }}/>
 					);
 				})}
 			</section>
@@ -101,7 +101,7 @@ class Viewer extends Page<ViewerProps, ViewerState> {
 		if (!this.visible()) return;
 		if (!this.state.ctrl) return;
 		
-		this.setState((state) => ({ factor: (state.factor - event.deltaY).clamp(Layout.width, window.innerWidth) }));
+		this.setState((state) => ({ factor: (state.factor - event.deltaY).clamp(Layout.width * 0.75, window.innerWidth) }));
 	}
 	protected handle_3(event: KeyboardEvent) {
 		if (!this.visible()) return;
