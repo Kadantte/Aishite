@@ -79,12 +79,7 @@ class History extends StateHandler<HistoryState> {
 	public reorder(destination: number) {
 		this.state = new HistoryState({
 			index: destination,
-			pages: this.state.pages.map((page, index) => {
-				// cache
-				const _page = index === this.state.index ? this.state.pages[destination] : index === destination ? this.state.pages[this.state.index] : page;
-
-				return builder(_page.title, classname(_page.element), args(_page.element.props["data-key"]) ?? _page.element.props, _page.element.props["data-key"]);
-			})
+			pages: this.state.pages.map((page, index) => index === this.state.index ? this.state.pages[destination] : index === destination ? this.state.pages[this.state.index] : page)
 		});
 	}
 }

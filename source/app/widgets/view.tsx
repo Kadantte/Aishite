@@ -48,7 +48,7 @@ class Viewport extends Stateful<ViewportProps, ViewportState> {
 		return {};
 	}
 	protected build() {
-		return (<>{history.state.pages.map((page, index) => <section key={index} data-scrollable="frame" style={{ display: (this.state.key ? this.state.key === page.element.key : history.state.index === index) ? "block" : "none", width: Unit(100, "%"), height: Unit(100, "%"), overflow: "auto" }}>{page.element}</section>)}</>);
+		return (<>{history.state.pages.map((page, index) => <section key={page.element.key} data-scrollable="frame" style={{ display: (this.state.key ? this.state.key === page.element.key : history.state.index === index) ? "block" : "none", width: Unit(100, "%"), height: Unit(100, "%"), overflow: "auto" }}>{page.element}</section>)}</>);
 	}
 }
 

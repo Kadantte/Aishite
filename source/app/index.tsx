@@ -257,7 +257,7 @@ class Controller extends Stateful<ControllerProps, ControllerState> {
 					}
 				});
 				window.addEventListener("mousedown", (event) => {
-					if ((event.target as HTMLElement).id === "handle") {
+					if (!this.state.handle && (event.target as HTMLElement).id === "handle") {
 						// cache
 						const children = event.target as HTMLElement;
 						// style
