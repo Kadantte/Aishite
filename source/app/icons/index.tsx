@@ -38,8 +38,9 @@ abstract class Icon extends Stateful<IconProps, IconState> {
 	protected postCSS(): React.CSSProperties {
 		return {
 			fill: this.state.color ?? this.props.color ?? Color.TEXT_000,
-			background: "transparent",
-			backgroundColor: "transparent"
+			background: "unset",
+			backgroundColor: "unset",
+			backgroundImage: "unset"
 		};
 	}
 	protected preCSS(): React.CSSProperties {
