@@ -50,7 +50,7 @@ class Paging extends Stateful<PagingProps, PagingState> {
 			<Row id={"paging"} alignment={Alignment.CENTER}>
 				{this.props.shortcut?.first ? this.props.builder("First", false, () => this.jump(0)) : undefined}
 				<>
-					{Array(this.props.overflow.clamp(0, this.props.length)).fill(null).map((_, index) => {
+					{new Array(this.props.overflow.clamp(0, this.props.length)).fill(null).map((_, index) => {
 						// cache
 						const _index = this.offset(index);
 

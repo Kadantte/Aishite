@@ -38,16 +38,6 @@ interface AppState {
 
 class App extends Stateful<AppProps, AppState> {
 	protected create() {
-		// https://github.com/Any-Material/Aishite/releases/download/{version}/{artifact}
-		// client.GET("https://api.github.com/repos/Any-Material/Aishite/releases?per_page=100", "json").then((response) => {
-		// 	// parse version string to number
-		// 	function version(version: string) {
-		// 		return Number(version.replace(/\./g, ""));
-		// 	}
-		// 	if (version(response.body["0"]["tag_name"]) > version(require("@/../package.json")["version"])) {
-		// 		// update available	
-		// 	}
-		// });
 		return ({ maximize: false, fullscreen: false, contextmenu: false });
 	}
 	protected events(): LifeCycle<AppProps, AppState> {
@@ -271,7 +261,7 @@ class Controller extends Stateful<ControllerProps, ControllerState> {
 				window.addEventListener("mousemove", (event) => {
 					if (this.state.handle) {
 						// extra space
-						const margin = 55;
+						const margin = 0;
 
 						// x-axis check
 						if (event.clientX < this.state.handle.left - margin) return;

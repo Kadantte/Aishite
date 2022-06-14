@@ -5,20 +5,24 @@ import { Window } from "@/models/window";
 const requires = new Set<string>();
 const certification = new Set<string>();
 
-enum Command {
-	CLOSE = "close",
-	REQUIRES = "requires",
+enum App {
 	BLUR = "blur",
 	FOCUS = "focus",
+	CLOSE = "close",
 	MINIMIZE = "minimize",
 	MAXIMIZE = "maximize",
 	UNMAXIMIZE = "unmaximize",
 	FULLSCREEN = "fullscreen",
+}
+
+enum Interface {
+	OPEN_URL = "open_url",
 	DEVELOPMENT = "development"
 }
 
 export class Chromium extends EventTarget {
-	public [Command.CLOSE](ticket: string) {
+	// app
+	public [App.CLOSE](ticket: string) {
 		//
 		// 1. Entry point
 		//
@@ -47,33 +51,38 @@ export class Chromium extends EventTarget {
 				return chromium.signal(Window.CLOSE);
 			}
 		}
-		return call<void>(Command.CLOSE);
+		return call<void>(App.CLOSE);
 	}
-	public [Command.REQUIRES](criteria: Array<string>) {
+	public [App.BLUR]() {
+		return call<void>(App.BLUR);
+	}
+	public [App.FOCUS]() {
+		return call<void>(App.FOCUS);
+	}
+	public [App.MINIMIZE]() {
+		return call<void>(App.MINIMIZE);
+	}
+	public [App.MAXIMIZE]() {
+		return call<void>(App.MAXIMIZE);
+	}
+	public [App.UNMAXIMIZE]() {
+		return call<void>(App.UNMAXIMIZE);
+	}
+	public [App.FULLSCREEN]() {
+		return call<void>(App.FULLSCREEN);
+	}
+	// interface
+	public [Interface.OPEN_URL](url: string) {
+		return call<void>(Interface.OPEN_URL, url);
+	}
+	public [Interface.DEVELOPMENT]() {
+		return call<void>(Interface.DEVELOPMENT);
+	}
+	// built-in
+	public requires(criteria: Array<string>) {
 		for (const value of criteria) {
 			requires.add(value);
 		}
-	}
-	public [Command.BLUR]() {
-		return call<void>(Command.BLUR);
-	}
-	public [Command.FOCUS]() {
-		return call<void>(Command.FOCUS);
-	}
-	public [Command.MINIMIZE]() {
-		return call<void>(Command.MINIMIZE);
-	}
-	public [Command.MAXIMIZE]() {
-		return call<void>(Command.MAXIMIZE);
-	}
-	public [Command.UNMAXIMIZE]() {
-		return call<void>(Command.UNMAXIMIZE);
-	}
-	public [Command.FULLSCREEN]() {
-		return call<void>(Command.FULLSCREEN);
-	}
-	public [Command.DEVELOPMENT]() {
-		return call<void>(Command.DEVELOPMENT);
 	}
 	public signal(event: Window, ...args: Array<unknown>) {
 		super.dispatchEvent(new CustomEvent(event, { detail: args }));
@@ -110,8 +119,8 @@ ipcRenderer.on(Window.LEAVE_FULL_SCREEN, (event, ...args) => {
 	chromium.signal(Window.LEAVE_FULL_SCREEN, ...args);
 });
 
-function call<T>(command: Command, ...args: Array<unknown>) {
-	return ipcRenderer.invoke("chromium", command, ...args).then((response) => {
+async function call<T>(command: App | Interface, ...args: Array<unknown>) {
+	return await ipcRenderer.invoke("chromium", command, ...args).then((response) => {
 		print({
 			command: command,
 			response: response

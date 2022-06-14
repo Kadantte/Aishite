@@ -1,4 +1,4 @@
-export class Pair<T1, T2> {
+export class Pair<T1, T2 = T1> {
 	constructor(
 		public readonly first: T1,
 		public readonly second: T2

@@ -1,11 +1,11 @@
-import { app, session, Menu, ipcMain, BrowserWindow } from "electron";
+import { app, shell, session, Menu, ipcMain, BrowserWindow } from "electron";
 
 import node_fs from "fs";
 import node_path from "path";
 
 import { Window } from "@/models/window";
 
-enum Command {
+enum App {
 	BLUR = "blur",
 	FOCUS = "focus",
 	CLOSE = "close",
@@ -13,6 +13,10 @@ enum Command {
 	MAXIMIZE = "maximize",
 	UNMAXIMIZE = "unmaximize",
 	FULLSCREEN = "fullscreen",
+}
+
+enum Interface {
+	OPEN_URL = "open_url",
 	DEVELOPMENT = "development"
 }
 
@@ -104,28 +108,33 @@ app.on("ready", () => {
 	ipcMain.handle("chromium", (event, command: string, ...args: Array<any>) => {
 		setTimeout(() => {
 			switch (command) {
-				case Command.CLOSE: {
+				// app
+				case App.CLOSE: {
 					return window?.destroy();
 				}
-				case Command.FOCUS: {
+				case App.FOCUS: {
 					return window?.focus();
 				}
-				case Command.BLUR: {
+				case App.BLUR: {
 					return window?.blur();
 				}
-				case Command.MINIMIZE: {
+				case App.MINIMIZE: {
 					return window?.minimize();
 				}
-				case Command.MAXIMIZE: {
+				case App.MAXIMIZE: {
 					return window?.maximize();
 				}
-				case Command.UNMAXIMIZE: {
+				case App.UNMAXIMIZE: {
 					return window?.unmaximize();
 				}
-				case Command.FULLSCREEN: {
+				case App.FULLSCREEN: {
 					return window?.setFullScreen(!window.isFullScreen());
 				}
-				case Command.DEVELOPMENT: {
+				// interface
+				case Interface.OPEN_URL: {
+					return shell.openExternal(args[0]);
+				}
+				case Interface.DEVELOPMENT: {
 					return window?.webContents.toggleDevTools();
 				}
 			}

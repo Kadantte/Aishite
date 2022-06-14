@@ -122,7 +122,7 @@ function args(uuid: string) {
 
 			const _value = ((cache.get(uuid)?.state ?? {}) as Record<string, any>)[key];
 
-			if (_value !== undefined && typeof value === typeof _value) {
+			if (_value !== undefined && typeof _value === typeof value) {
 				args[key] = _value;
 			} else {
 				args[key] = value;

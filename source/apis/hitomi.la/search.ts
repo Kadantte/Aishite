@@ -272,7 +272,7 @@ async function unknown_0(directory: Nullable<string>, tag: Tag) {
 		case 206: {
 			const binary = new DataView(response.body);
 
-			return Array(Math.floor(binary.byteLength / 4)).fill(null).map((_, index) => binary.getInt32(index * 4, Endian.BIG));
+			return new Array(Math.floor(binary.byteLength / 4)).fill(null).map((_, index) => binary.getInt32(index * 4, Endian.BIG));
 		}
 	}
 	return [];
@@ -324,7 +324,7 @@ async function unknown_2(digits: Pair<number, number>) {
 	if (length > 10000000 || 10000000 <= 0) throw Error();
 	if (response.byteLength !== length * 4 + 4) throw Error();
 
-	return Array(length).fill(null).map((_, index) => table.getInt32((index + 1) * 4, Endian.BIG));
+	return new Array(length).fill(null).map((_, index) => table.getInt32((index + 1) * 4, Endian.BIG));
 }
 
 class JavaScriptModule {
