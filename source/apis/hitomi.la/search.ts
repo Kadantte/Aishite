@@ -26,6 +26,11 @@ enum Symbol {
 	EOF
 }
 
+enum Channel {
+	VARIABLE,
+	FUNCTION
+}
+
 class Token {
 	constructor(
 		public readonly type: Symbol,
@@ -119,9 +124,8 @@ class Parser {
 	protected skip(value: number = 1) {
 		// increase
 		this._index += value;
-	}
-	protected grace(index = this._index) {
-		return new Pair(this._tokens[index], this._tokens[index + (/* L_PAREN */ 1) + (/* LITERAL */ 1)]);
+
+		return this.peek();
 	}
 	public async parse() {
 		// empty
@@ -130,30 +134,25 @@ class Parser {
 		let index = 0;
 		// mapping
 		while (index < this._tokens.length) {
-			switch (this._tokens[index].type) {
-				case Symbol.IDENTIFIER: {
-					// cache
-					const fragment = this.grace(index);
-					// key
-					const namespace = fragment.first.value + ":" + fragment.second.value;
+			// cache
+			const [ID, L_PAREN, LITERAL, R_PAREN] = this._tokens.slice(index, index + 4);
 
-					if (!this._table.has(namespace)) {
-						// assign key
-						this._table.set(namespace, null);
+			if (ID.type === Symbol.IDENTIFIER && L_PAREN?.type === Symbol.L_PAREN && (LITERAL?.type === Symbol.N_LITERAL || LITERAL?.type === Symbol.S_LITERAL) && R_PAREN?.type === Symbol.R_PAREN && built_in(Channel.FUNCTION)[this._tokens[index].value as never]) {
+				// cache
+				const namespace = ID.value + ":" + LITERAL.value;
 
-						unknown_1(fragment.first.value as string, fragment.second.value as string).then((response) => {
-							// assign value
-							this._table.set(namespace, new Set(response));
-						});
-					}
-					index += 1 + 1 + 1 + 1;
-					break;
+				if (!this._table.has(namespace)) {
+					// assign key
+					this._table.set(namespace, null);
+
+					(built_in(Channel.FUNCTION)[ID.value as never]! as Function)((LITERAL.value as number).toString().replace(/_/g, space)).then((response: Array<number>) => {
+						// assign value
+						this._table.set(namespace, new Set(response));
+					});
 				}
-				default: {
-					index += 1;
-					break;
-				}
+				index += 3;
 			}
+			index += 1;
 		}
 		// wait for cache
 		await until(() => Array.from(this._table.values()).every((element) => element));
@@ -221,7 +220,7 @@ class Parser {
 		switch (this.peek().type) {
 			case Symbol.IDENTIFIER: {
 				// compute
-				value = this.F();
+				value = this.I();
 				break;
 			}
 			case Symbol.L_PAREN: {
@@ -237,16 +236,79 @@ class Parser {
 
 		return value;
 	}
-	protected F() {
-		// cache
-		const fragment = this.grace();
-		// raise
-		this.skip(3); // L_PAREN, LITERAL, R_PAREN
+	protected I() {
+		let value = new Set<number>();
 
-		return this._table.get(fragment.first.value + ":" + fragment.second.value)!;
+		value = built_in(Channel.VARIABLE)[this.peek().value as never];
+
+		if (value) return value;
+
+		value = built_in(Channel.FUNCTION)[this.peek().value as never];
+
+		const [ID, L_PAREN, LITERAL, R_PAREN] = [this.peek(), this.skip(), this.skip(), this.skip()];
+
+		if (value && L_PAREN.type === Symbol.L_PAREN && (LITERAL.type === Symbol.N_LITERAL || LITERAL.type === Symbol.S_LITERAL) && R_PAREN.type === Symbol.R_PAREN) return this._table.get(ID.value + ":" + LITERAL.value)!;
+
+		throw Error();
 	}
 	protected async fallback() {
 		return new Set(await unknown_0(null, new Tag({ namespace: "index", value: "all" })));
+	}
+}
+
+function built_in(channel: Channel) {
+	switch (channel) {
+		case Channel.VARIABLE: {
+			return {};
+		}
+		case Channel.FUNCTION: {
+			return {
+				// id
+				id: async (value: string) => {
+					return [Number(value)];
+				},
+				// tag
+				male: async (value: string) => {
+					return unknown_0("tag", new Tag({ namespace: "male:" + value, value: "all" }));
+				},
+				female: async (value: string) => {
+					return unknown_0("tag", new Tag({ namespace: "female:" + value, value: "all" }));
+				},
+				// title
+				title: async (value: string) => {
+					try {
+						const bundle = await suggest.unknown_3("galleries", 0);
+						const digits = await suggest.unknown_5("galleries", suggest.unknown_1(value), bundle);
+						return unknown_1(digits);
+					} catch {
+						return [];
+					}
+				},
+				// language
+				language: async (value: string) => {
+					return unknown_0(null, new Tag({ namespace: "index", value: value }));
+				},
+				// etc
+				type: async (value: string) => {
+					return unknown_0("type", new Tag({ namespace: value, value: "all" }));
+				},
+				group: async (value: string) => {
+					return unknown_0("group", new Tag({ namespace: value, value: "all" }));
+				},
+				series: async (value: string) => {
+					return unknown_0("series", new Tag({ namespace: value, value: "all" }));
+				},
+				artist: async (value: string) => {
+					return unknown_0("artist", new Tag({ namespace: value, value: "all" }));
+				},
+				popular: async (value: string) => {
+					return unknown_0("popular", new Tag({ namespace: value, value: "all" }));
+				},
+				character: async (value: string) => {
+					return unknown_0("character", new Tag({ namespace: value, value: "all" }));
+				}
+			};
+		}
 	}
 }
 
@@ -264,37 +326,7 @@ async function unknown_0(directory: Nullable<string>, tag: Tag) {
 	return [];
 }
 
-async function unknown_1(namespace: string, value: string | number) {
-	// clean up
-	value = value.toString().replace(/_/g, space);
-
-	switch (namespace) {
-		case "id": {
-			return [Number(value)];
-		}
-		case "male":
-		case "female": {
-			return unknown_0("tag", new Tag({ namespace: namespace + ":" + value, value: "all" }));
-		}
-		case "title": {
-			try {
-				const bundle = await suggest.unknown_3("galleries", 0);
-				const digits = await suggest.unknown_5("galleries", suggest.unknown_1(value), bundle);
-				return unknown_2(digits);
-			} catch {
-				return [];
-			}
-		}
-		case "language": {
-			return unknown_0(null, new Tag({ namespace: "index", value: value }));
-		}
-		default: {
-			return unknown_0(namespace, new Tag({ namespace: value, value: "all" }));
-		}
-	}
-}
-
-async function unknown_2(digits: Pair<number, number>) {
+async function unknown_1(digits: Pair<number, number>) {
 	// check before request
 	if (!(0 < digits.second && digits.second <= 10000000 * 10)) throw Error();
 
@@ -312,10 +344,8 @@ async function unknown_2(digits: Pair<number, number>) {
 class JavaScriptModule {
 	/** @alias get_galleryids_from_nozomi */
 	public unknown_0(...args: Parameters<typeof unknown_0>) { return unknown_0(...args); }
-	/** @alias get_galleryids_from_query */
-	public unknown_1(...args: Parameters<typeof unknown_1>) { return unknown_1(...args); }
 	/** @alias get_galleryids_from_data */
-	public unknown_2(...args: Parameters<typeof unknown_2>) { return unknown_2(...args); }
+	public unknown_1(...args: Parameters<typeof unknown_1>) { return unknown_1(...args); }
 }
 
 export const module = new JavaScriptModule();
