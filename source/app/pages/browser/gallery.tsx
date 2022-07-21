@@ -146,36 +146,36 @@ class Gallery extends Stateful<GalleryProps, GalleryState> {
 																		// skip
 																		if (!toggle) return;
 
-																		let callback: Nullable<string> = null;
+																		let callback: Tag;
 
 																		switch (section.key) {
 																			case "type": {
-																				callback = `type:${chip.toString().replace(/\s/g, "")}`;
+																				callback = new Tag({ namespace: "type", value: chip.toString().replace(/\s/g, "") });
 																				break;
 																			}
 																			case "language": {
-																				callback = `language:${Object.keys(languages).filter((tongue) => languages[tongue as keyof typeof languages] === chip)}`;
+																				callback = new Tag({ namespace: "language", value: Object.keys(languages).filter((tongue) => languages[tongue as keyof typeof languages] === chip)[0] });
 																				break;
 																			}
 																			case "artists": {
-																				callback = `artist:${chip.toString()}`;
+																				callback = new Tag({ namespace: "artist", value: chip.toString() });
 																				break;
 																			}
 																			case "parody": {
-																				callback = `series:${chip.toString()}`;
+																				callback = new Tag({ namespace: "series", value: chip.toString() });
 																				break;
 																			}
 																			case "tags": {
-																				callback = chip.toString();
+																				callback = chip as Tag;
 																				break;
 																			}
 																			default: {
-																				callback = `${section.key}:${chip.toString()}`;
+																				callback = new Tag({ namespace: section.key, value: chip.toString() });
 																				break;
 																			}
 																		}
 																		// trigger
-																		this.props.onClick?.(callback.toLowerCase().replace(/\s/g, "_"));
+																		this.props.onClick?.(callback.toString());
 																	}}
 																	onMouseEnter={(style) => {
 																		if (!toggle) return;

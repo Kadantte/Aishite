@@ -12,5 +12,5 @@ Object.defineProperty(window, "comma", {
 });
 
 Object.defineProperty(window, "__dirname", {
-	value: __dirname.split("app.asar").first
+	value: __dirname.split("app.asar")[0]
 });

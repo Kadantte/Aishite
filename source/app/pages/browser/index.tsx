@@ -83,7 +83,7 @@ class Browser extends Page<BrowserProps, BrowserState> {
 						<section>
 							<Grid.Region gap={{ inner: 15, outer: 15 }} rows={[40, Unit(1.0, "fr")]} columns={[Unit(1.0, "fr")]} template={[["query"], ["collection"]]}>
 								<Grid.Cell id="query">
-									<Dropdown toggle={!this.state.gallery.isEmpty()} index={0} items={this.state.suggests.map((suggestion) => new Pair(suggestion.first.toString(), suggestion.second.toString()))} value={this.state.query === "language(\"all\")" ? undefined : this.state.query} fallback={this.state.query.isEmpty() ? "language(\"all\")" : this.state.query} highlight={this.state.highlight} controller={this.state.controller}
+									<Dropdown toggle={!this.state.gallery.isEmpty()} index={0} items={this.state.suggests.map((suggestion) => new Pair(suggestion.first.namespace + ":" + suggestion.first.value, suggestion.second.toString()))} value={this.state.query === "language(\"all\")" ? undefined : this.state.query} fallback={this.state.query.isEmpty() ? "language(\"all\")" : this.state.query} highlight={this.state.highlight} controller={this.state.controller}
 										onReset={() => {
 											// expire
 											suggest.outdate();
@@ -97,7 +97,7 @@ class Browser extends Page<BrowserProps, BrowserState> {
 											const element = this.state.controller.current;
 
 											if (element) {
-												element.value = element.value.trim().split(space).slice(0, -1).filter((value, index, array) => index + 1 === array.length ? value !== "&" : true).add("&").add(this.state.suggests[index].first.namespace + "(\"" + this.state.suggests[index].first.value + "\")").join(space).replace(/^\s*&\s*/, "");
+												element.value = (element.value.trim().split(space).slice(0, -1).join(space).replace(/\s*&\s*$/, "") + space + "&" + space + this.state.suggests[index].first).replace(/^\s*&\s*/, "");
 											}
 										}}
 										onSelect={(text) => {
@@ -173,7 +173,7 @@ class Browser extends Page<BrowserProps, BrowserState> {
 																const element = this.state.controller.current;
 
 																if (element) {
-																	element.value = (element.value.includes(tag) ? element.value.replace(tag, "") : element.value + space + tag).replace(/\s+/g, space).replace(/^\s+/, "").replace(/\s+$/, "");
+																	element.value = element.value.includes(tag) ? element.value.replace(tag, "").replace(/\s*&\s*$/, "") : (element.value + space + "&" + space + tag).replace(/^\s*&\s*/, "");
 																}
 															}}
 														/>

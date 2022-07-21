@@ -7,6 +7,6 @@ export class Tag {
 		this.value = args.value;
 	}
 	public toString() {
-		return `${this.namespace}:${this.value}`;
+		return `${this.namespace}("${this.value}")`;
 	}
 }
