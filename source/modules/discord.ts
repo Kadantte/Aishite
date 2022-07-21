@@ -93,10 +93,11 @@ class Discord {
 				// update
 				this._connection = true;
 			});
-			// @ts-ignore
-			this._client.transport.on("close", () => {
+			this._client.on("disconnected", () => {
 				// update
 				this._connection = false;
+				// recreate
+				this.create()
 				// reconnect
 				this.connect();
 			});
@@ -109,6 +110,12 @@ class Discord {
 		this._activity = new RichPresence(override ? activity : { ...this._activity, ...activity });
 		// @ts-ignore
 		until(() => this._connection).then(() => this._client.request("SET_ACTIVITY", this._activity.toJSON()));
+	}
+	protected create() {
+		// just in case
+		this._client?.destroy();
+		// assign
+		this._client = new RPC.Client({ transport: "ipc" });
 	}
 	protected connect() {
 		// prevent multiple connections
@@ -124,10 +131,10 @@ const singleton = new Discord(
 		details: "Starting...",
 		// large image
 		largeImageKey: "icon",
-		largeImageText: "Made by Sombian#7940",
+		largeImageText: "Thine shine I'll be...",
 		// small image
 		smallImageKey: "discord",
-		smallImageText: "https://discord.gg/U8SRTpnwvg",
+		smallImageText: "Unavailable",
 		// buttons
 		primaryButton: {
 			label: "Get Aishite for FREE!",

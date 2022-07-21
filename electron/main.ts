@@ -22,7 +22,7 @@ enum Interface {
 
 let window: Nullable<BrowserWindow> = null;
 
-Menu.setApplicationMenu(Menu.buildFromTemplate([{ role: "togglefullscreen" }]));
+Menu.setApplicationMenu(Menu.buildFromTemplate(app.isPackaged ? [{ role: "togglefullscreen" }] : [{ role: "togglefullscreen" }, { role: "toggleDevTools" }]));
 
 const instance = app.requestSingleInstanceLock();
 
@@ -46,9 +46,26 @@ app.on("ready", () => {
 			return Math.round((pixels - (/* TASKBAR */ 45) - 185) * 0.5 + 170);
 		}
 	};
-	// bypass cross-origin policy
-	session.defaultSession.webRequest.onBeforeSendHeaders({ urls: ["*://*.hitomi.la/*"] }, (details, callback) => callback({ requestHeaders: Object.assign({ referer: "https://hitomi.la" }, details.requestHeaders) }));
 
+	// content security policy
+	// session.defaultSession.webRequest.onHeadersReceived((details, callback) => callback({
+	// 	responseHeaders: {
+	// 		// inherit
+	// 		...details.responseHeaders,
+	// 		// override
+	// 		"Content-Security-Policy": [["default-src", "'self'", "filesystem", "*.hitomi.la/*"].join("\u0020")]
+	// 	}
+	// }));
+	// bypass cross-origin policy
+	session.defaultSession.webRequest.onBeforeSendHeaders({ urls: ["*://*.hitomi.la/*"] }, (details, callback) => callback({
+		requestHeaders: {
+			// inherit
+			...details.requestHeaders,
+			// override
+			"Referer": "https://hitomi.la"
+		}
+	}));
+	
 	// create window
 	window = new BrowserWindow({
 		icon: "source/assets/aishite.ico",
@@ -65,17 +82,17 @@ app.on("ready", () => {
 			nodeIntegration: true,
 			// isolate preload
 			contextIsolation: false,
-			// early adaptor
-			experimentalFeatures: true,
 			// allow webworker interacts with nodejs
 			nodeIntegrationInWorker: true
 		},
 		backgroundColor: "#00000000"
 	});
 	window.on("ready-to-show", () => {
+		// show app
 		window?.show();
 	});
 	window.on("unresponsive", () => {
+		// reload app
 		window?.reload();
 	});
 	window.on(Window.CLOSE, (event) => {

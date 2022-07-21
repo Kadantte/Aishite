@@ -141,7 +141,7 @@ class Gallery extends Stateful<GalleryProps, GalleryState> {
 															const toggle = chip !== "N/A" && section.key !== "title" && section.key !== "date";
 
 															return (
-																<Button key={_index} color={Color.DARK_400} maximum={{ width: Unit(69, "%") }} border={{ all: { width: 0.75, style: "solid", color: Color.DARK_200 } }} corner={{ all: 3.0 }} margin={{ all: 3.0 }} padding={{ all: 3.0, left: 5.5, right: 5.5 }}
+																<Button key={_index} color={Color.DARK_400} maximum={{ width: Unit(69, "%") }} margin={{ all: 3.0 }} padding={{ all: 3.0, left: 5.5, right: 5.5 }} border={{ all: { width: 0.75, style: "solid", color: Color.DARK_200 } }} corner={{ all: 3.0 }}  shadow={[{ x: 0, y: 0, blur: 0.5, spread: 0, color: Color.DARK_100 }]}
 																	onMouseDown={(style) => {
 																		// skip
 																		if (!toggle) return;

@@ -10,14 +10,14 @@ client.GET("https://ltn.hitomi.la/gg.js", "text").then((response) => {
 	// update
 	gg_js = "var\u0020gg;" + response.body.split("\n").filter((section) => !/if\s\([\D\d]+\)\s{\sreturn\s[\d]+;\s}/.test(section)).join("\n");
 
-	if (/eval|require/.test(gg_js)) throw Error();
+	if (/eval|require/g.test(gg_js)) throw Error();
 });
 
 client.GET("https://ltn.hitomi.la/common.js", "text").then((response) => {
 	// update
 	common_js = response.body.split("\nfunction\u0020").filter((section) => /^(subdomain_from_url|url_from_url|full_path_from_hash|real_full_path_from_hash|url_from_hash|url_from_url_from_hash|rewrite_tn_paths)/.test(section)).map((section) => "function" + space + section).join("");
 
-	if (/eval|require/.test(common_js)) throw Error();
+	if (/eval|require/g.test(common_js)) throw Error();
 });
 
 class _Gallery extends Gallery {

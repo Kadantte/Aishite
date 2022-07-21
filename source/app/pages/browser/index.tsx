@@ -83,21 +83,21 @@ class Browser extends Page<BrowserProps, BrowserState> {
 						<section>
 							<Grid.Region gap={{ inner: 15, outer: 15 }} rows={[40, Unit(1.0, "fr")]} columns={[Unit(1.0, "fr")]} template={[["query"], ["collection"]]}>
 								<Grid.Cell id="query">
-									<Dropdown toggle={!this.state.gallery.isEmpty()} index={0} items={this.state.suggests.map((suggestion) => new Pair(suggestion.first.toString(), suggestion.second.toString()))} value={this.state.query === "language:all" ? undefined : this.state.query} fallback={this.state.query.isEmpty() ? "language:all" : this.state.query} highlight={this.state.highlight} controller={this.state.controller}
+									<Dropdown toggle={!this.state.gallery.isEmpty()} index={0} items={this.state.suggests.map((suggestion) => new Pair(suggestion.first.toString(), suggestion.second.toString()))} value={this.state.query === "language(\"all\")" ? undefined : this.state.query} fallback={this.state.query.isEmpty() ? "language(\"all\")" : this.state.query} highlight={this.state.highlight} controller={this.state.controller}
 										onReset={() => {
 											// expire
 											suggest.outdate();
 
-											history.rename("language:all");
+											history.rename("NEW TAB");
 
-											this.display("language:all", 0);
+											this.display("language(\"all\")", 0);
 										}}
 										onIndex={(index) => {
 											// cache
 											const element = this.state.controller.current;
 
 											if (element) {
-												element.value = element.value.split(/\s+/).slice(0, -1).add(this.state.suggests[index].first.toString()).join(space).replace(/\s+/g, space).replace(/^\s+/, "").replace(/\s+$/, "");
+												element.value = element.value.trim().split(space).slice(0, -1).filter((value, index, array) => index + 1 === array.length ? value !== "&" : true).add("&").add(this.state.suggests[index].first.namespace + "(\"" + this.state.suggests[index].first.value + "\")").join(space).replace(/^\s*&\s*/, "");
 											}
 										}}
 										onSelect={(text) => {
@@ -108,11 +108,11 @@ class Browser extends Page<BrowserProps, BrowserState> {
 										}}
 										onSubmit={(text) => {
 											// cache
-											const query = text.isEmpty() ? "language:all" : text;
+											const query = text.isEmpty() ? "language(\"all\")" : text;
 											// expire
 											suggest.outdate();
 
-											history.rename(query);
+											history.rename(query.trim().split(space).map((value) => value.replace(/^(\D)\w+\("(\w+)"\)$/, ($0, $1, $2) => $1.toUpperCase() + ":" + $2.toLowerCase())).join(space));
 
 											this.display(query, 0);
 										}}
@@ -122,7 +122,7 @@ class Browser extends Page<BrowserProps, BrowserState> {
 
 											if (!this.state.suggests.isEmpty()) this.setState((state) => ({ suggests: [] }));
 
-											this.state.highlight = text.split(/\s+/).last?.split(":").last ?? "";
+											this.state.highlight = text.trim().split(space).last ?? "<empty>";
 
 											suggest.tags(this.state.highlight).then((suggestion) => {
 												if (!suggestion.isEmpty()) this.setState((state) => ({ suggests: suggestion }));

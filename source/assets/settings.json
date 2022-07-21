@@ -12,10 +12,10 @@
 		"pages": [
 			{
 				"type": "BROWSER",
-				"name": "language:all",
+				"name": "NEW TAB",
 				"args": {
 					"index": 0,
-					"query": "language:all"
+					"query": "language(\"all\")"
 				}
 			}
 		]

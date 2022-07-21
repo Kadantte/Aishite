@@ -1,7 +1,7 @@
 # About
 
 
-[![Discord](https://discordapp.com/api/guilds/954812774956036097/widget.png?style=shield)](https://discord.gg/U8SRTpnwvg)
+[comment]: [![Discord](https://discordapp.com/api/guilds/954812774956036097/widget.png?style=shield)](https://discord.gg/U8SRTpnwvg)
 [![Downloads](https://img.shields.io/github/downloads/Any-Material/Aishite/total.svg)](https://github.com/Any-Material/Aishite/releases)
 
 
