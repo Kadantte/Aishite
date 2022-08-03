@@ -14,7 +14,7 @@ is written in [TypeScript](https://github.com/microsoft/TypeScript) and powered 
 ## Q. **App** is not showing anything!
 
 If you ever encounter this issue, it means something is blocking your `http?s-request` to the server.<br>
-Thankfully, recent change to our code allows debugging much easier.<br>
+Thankfully, recent change to our code makes debugging much easier.<br>
 Thus please file an issue with debugger logs attached to.<br>
 In addition, if you live in `South Korea`, chances are high that it's due to<br>
 `South Korea` government's censorship against pornography.<br>
@@ -22,18 +22,18 @@ In order to bypass such, you have couple options.<br>
 
 ### 1. **VPN**
 
-A `VPN` is a third-party service that instead makes request for you and send you back.<br>
-It's definitely slow but safe, undetectable, but performance is very provider dependent.<br>
+A `VPN` is a third-party service that makes requests for you and sends them back.<br>
+It's safe and undetectable, but it can be performance-heavy and slow depending on your provider.<br>
 
 ### 2. **DPI** (Deep Packet Inspection) **Bypasser**
 
-A `DPI` bypasser splits packet to hid destination IP adress.<br>
+A `DPI` bypasser splits packet to hid destination IP address.<br>
 It doesn't cost much request speed, very undetectable, but performance varies per software.<br>
 
 ## Q. Will there be **web version** given its powered by Electron?
 
 Possibly, but nothing is confirmed.<br>
-As such, there are some technical difficulties due to **Browser**s' inheirt restrictions.<br>
+As such, there are some technical difficulties due to **Browser**s' inherit restrictions.<br>
 Though, its possible to avoid most of it, via backend and more.<br>
 But it will require me to host a server which equals monthly fees.<br>
 Throughout years I developed everyone was just lurking...<br>
@@ -78,7 +78,7 @@ Do note only double quotes is allowed.<br>
 
 - **PLUS**: Always combine **collection**s' elements regardless.<br>
 
-- **MINUS**: Alawys remove **collection**'s elements from another regardless.<br>
+- **MINUS**: Always remove **collection**'s elements from another regardless.<br>
 
 - **EQUAL** and **NOT EQUAL**: Return gallery **collection** accordingly.<br>
 
@@ -124,4 +124,4 @@ language = "english" + title("just some title string") + id = 69
 title("just some title string") + language = "english" + id = 69
 ```
 
-Do note **id** always contain single element, thus using **AND** operator is not recommended.<br>
+Do note **id** always contain single element, thus using **AND** operator is not encouraged.<br>
