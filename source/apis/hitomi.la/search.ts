@@ -80,59 +80,68 @@ class Parser {
 				}
 			}
 		}
-		const exception = () => {
+
+		function exception(): never {
 			throw Error(`Could not parse ${unprocessed.at(index)} at position ${index}`);
 		}
 
-		while (index < unprocessed.length) {
-			switch (unprocessed.at(index)) {
-				case "&": { process(Symbol.AND); continue; }
-				case "+": { process(Symbol.PLUS); continue; }
-				case "=": { process(Symbol.EQUAL); continue; }
-				case "-": { process(Symbol.MINUS); continue; }
-				case "(": { process(Symbol.L_PAREN); continue; }
-				case ")": { process(Symbol.R_PAREN); continue; }
-				case "!": {
-					if (unprocessed.at(index + 1) === "=") {
-						process(Symbol.N_EQUAL);
-						continue;
+		try {
+			while (index < unprocessed.length) {
+				switch (unprocessed.at(index)) {
+					case "&": { process(Symbol.AND); continue; }
+					case "+": { process(Symbol.PLUS); continue; }
+					case "=": { process(Symbol.EQUAL); continue; }
+					case "-": { process(Symbol.MINUS); continue; }
+					case "(": { process(Symbol.L_PAREN); continue; }
+					case ")": { process(Symbol.R_PAREN); continue; }
+					case "!": {
+						if (unprocessed.at(index + 1) === "=") {
+							process(Symbol.N_EQUAL);
+							continue;
+						}
+						// nani?
+						return exception();
 					}
-					// nani?
-					return exception();
+					case space: { index++; continue; }
 				}
-				case space: { index++; continue; }
+				// cache
+				const chunk = unprocessed.substring(index);
+	
+				let match: Nullable<RegExpExecArray>;
+	
+				// number
+				if ((match = /^[\d]+/.exec(chunk)) !== null) {
+					this._tokens.push(new Token(Symbol.N_LITERAL, Number(match[0])));
+					index += match[0].length;
+					continue;
+				}
+				// string
+				if ((match = /^"([^"]*)"/.exec(chunk)) !== null) {
+					this._tokens.push(new Token(Symbol.S_LITERAL, match[1]));
+					index += match[0].length;
+					continue;
+				}
+				// identifier
+				if ((match = /^[\w]+/.exec(chunk)) !== null) {
+					this._tokens.push(new Token(Symbol.IDENTIFIER, match[0]));
+					index += match[0].length;
+					continue;
+				}
+				// nani?
+				return exception();
 			}
-			// cache
-			const chunk = unprocessed.substring(index);
+			// close
+			this._tokens.push(new Token(Symbol.EOF));
 
-			let match: Nullable<RegExpExecArray>;
-
-			// number
-			if ((match = /^[\d]+/.exec(chunk)) !== null) {
-				this._tokens.push(new Token(Symbol.N_LITERAL, Number(match[0])));
-				index += match[0].length;
-				continue;
+			// debug
+			for (const token of this._tokens) {
+				print(token.toString());
 			}
-			// string
-			if ((match = /^"([^"]*)"/.exec(chunk)) !== null) {
-				this._tokens.push(new Token(Symbol.S_LITERAL, match[1]));
-				index += match[0].length;
-				continue;
-			}
-			// identifier
-			if ((match = /^[\w]+/.exec(chunk)) !== null) {
-				this._tokens.push(new Token(Symbol.IDENTIFIER, match[0]));
-				index += match[0].length;
-				continue;
-			}
-			// nani?
-			return exception();
-		}
-		// close
-		this._tokens.push(new Token(Symbol.EOF));
-
-		for (const token of this._tokens) {
-			print(token.toString());
+		} catch (error) {
+			// debug
+			print(error);
+			// reset
+			this._tokens = [];
 		}
 	}
 	protected peek() {

@@ -46,9 +46,6 @@ class RichPresence {
 		this.instance = args.instance;
 	}
 	public toJSON() {
-		// cache
-		const buttons = [this.primaryButton, this.secondaryButton].filter((button) => button);
-		
 		return {
 			pid: process.pid,
 			activity: {
@@ -68,8 +65,8 @@ class RichPresence {
 					id: this.partyId,
 					size: this.partySize && this.partyMax ? [this.partySize, this.partyMax] : undefined
 				},
-				buttons: buttons.isEmpty() ? undefined : buttons,
-				secrets: buttons.isEmpty() ? { join: this.joinSecret, spectate: this.spectateSecret, match: this.matchSecret } : undefined,
+				buttons: this.primaryButton && this.secondaryButton ? [this.primaryButton, this.secondaryButton] : this.primaryButton ? [this.primaryButton] : this.secondaryButton ? [this.secondaryButton] : undefined,
+				secrets: !this.primaryButton && !this.secondaryButton ? { join: this.joinSecret, spectate: this.spectateSecret, match: this.matchSecret } : undefined,
 				instance: this.instance
 			}
 		};

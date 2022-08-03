@@ -1,14 +1,13 @@
+import CSS from "@/app/common/style";
 import Unit from "@/app/common/unit";
 import { Casacade } from "@/app/common/props";
 import { StyleSheet } from "@/app/common/framework";
-
-import Transition from "@/app/common/style/transition";
 
 interface TransformProps extends Casacade {
 	readonly scale?: Parameters<typeof scale>;
 	readonly rotate?: Parameters<typeof rotate>;
 	readonly translate?: Parameters<typeof translate>;
-	readonly transition?: Transition;
+	readonly transition?: CSS["transition"];
 }
 
 class Transform extends StyleSheet<TransformProps> {
@@ -16,7 +15,7 @@ class Transform extends StyleSheet<TransformProps> {
 		return {
 			transform: [scale(...this.props.scale ?? []), rotate(...this.props.rotate ?? []), translate(...this.props.translate ?? [])].join(space),
 			// automatic
-			...Transition({ ...this.props.transition, property: ["transform"] })
+			...CSS.Transition({ ...this.props.transition, property: ["transform"] })
 		};
 	}
 	protected preCSS(): React.CSSProperties {

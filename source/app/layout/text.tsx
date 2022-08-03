@@ -1,11 +1,6 @@
+import CSS from "@/app/common/style";
 import Unit from "@/app/common/unit";
 import { Stateless } from "@/app/common/framework";
-
-import Size from "@/app/common/style/size";
-import Margin from "@/app/common/style/margin";
-import Padding from "@/app/common/style/padding";
-import Position from "@/app/common/style/position";
-import Transition from "@/app/common/style/transition";
 
 interface StringBuffer {
 	readonly text: string;
@@ -27,11 +22,11 @@ interface TextProps {
 	readonly left?: Unit;
 	readonly right?: Unit;
 	readonly bottom?: Unit;
-	readonly margin?: Margin;
-	readonly padding?: Padding;
+	readonly margin?: CSS["margin"];
+	readonly padding?: CSS["padding"];
 	// custom
 	readonly length?: Unit;
-	readonly transition?: Transition;
+	readonly transition?: CSS["transition"];
 	// override
 	readonly children: Array<StringBuffer>;
 }
@@ -39,10 +34,10 @@ interface TextProps {
 class Text extends Stateless<TextProps> {
 	protected postCSS(): React.CSSProperties {
 		return {
-			...Size({ type: "maximum", width: Unit(this.props.length ?? "auto", "ch") }),
-			...Margin(this.props.margin ?? {}),
-			...Padding(this.props.padding ?? {}),
-			...Position({ all: this.props.all, top: this.props.top, left: this.props.left, right: this.props.right, bottom: this.props.bottom })
+			...CSS.Size({ type: "maximum", width: Unit(this.props.length ?? "auto", "ch") }),
+			...CSS.Margin(this.props.margin ?? {}),
+			...CSS.Padding(this.props.padding ?? {}),
+			...CSS.Position({ all: this.props.all, top: this.props.top, left: this.props.left, right: this.props.right, bottom: this.props.bottom })
 		};
 	}
 	protected preCSS(): React.CSSProperties {
@@ -56,7 +51,7 @@ class Text extends Stateless<TextProps> {
 	}
 	protected build() {
 		// cache
-		const transition = Transition({ ...this.props.transition, property: ["color"] });
+		const transition = CSS.Transition({ ...this.props.transition, property: ["color"] });
 
 		return (
 			<section id={this.props.id}>

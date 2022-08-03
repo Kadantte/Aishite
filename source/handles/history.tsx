@@ -169,15 +169,15 @@ function builder(title: string, type: string, args: Record<string, any>, uuid: s
 
 	switch (type) {
 		case "FALLBACK": {
-			page.element = (<Fallback ref={(ref) => proxy(ref, uuid)} key={uuid} data-key={uuid} {...settings.state.override.fallback} />);
+			page.element = (<Fallback ref={(ref) => proxy(ref, uuid)} key={uuid} data-key={uuid} {...settings.state.override.fallback}/>);
 			break;
 		}
 		case "BROWSER": {
-			page.element = (<Browser ref={(ref) => proxy(ref, uuid)} key={uuid} data-key={uuid} index={args.index ?? 0} query={args.query ?? "language = \"all\""} {...settings.state.override.browser} />);
+			page.element = (<Browser ref={(ref) => proxy(ref, uuid)} key={uuid} data-key={uuid} index={args.index ?? 0} query={args.query ?? "language = \"all\""} {...settings.state.override.browser}/>);
 			break;
 		}
 		case "VIEWER": {
-			page.element = (<Viewer ref={(ref) => proxy(ref, uuid)} key={uuid} data-key={uuid} factor={args.factor ?? Layout.width} gallery={args.gallery ?? 0} {...settings.state.override.viewer} />);
+			page.element = (<Viewer ref={(ref) => proxy(ref, uuid)} key={uuid} data-key={uuid} factor={args.factor ?? Layout.width} gallery={args.gallery ?? 0} {...settings.state.override.viewer}/>);
 			break;
 		}
 		default: {

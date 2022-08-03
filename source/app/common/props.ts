@@ -1,13 +1,7 @@
 import React from "react";
 
+import CSS from "@/app/common/style";
 import Unit from "@/app/common/unit";
-
-import Size from "@/app/common/style/size";
-import Border from "@/app/common/style/border";
-import Corner from "@/app/common/style/corner";
-import Shadow from "@/app/common/style/shadow";
-import Margin from "@/app/common/style/margin";
-import Padding from "@/app/common/style/padding";
 
 export interface Clear<C extends Children> {
 	readonly id?: string;
@@ -28,18 +22,18 @@ export interface Props<C extends Children> extends Clear<C> {
 	// constraint
 	readonly width?: Unit
 	readonly height?: Unit;
-	readonly minimum?: Omit<Size, "type">;
-	readonly maximum?: Omit<Size, "type">;
+	readonly minimum?: Omit<CSS["size"], "type">;
+	readonly maximum?: Omit<CSS["size"], "type">;
 	// offset
-	readonly margin?: Margin;
-	readonly padding?: Padding;
+	readonly margin?: CSS["margin"];
+	readonly padding?: CSS["padding"];
 	// behaviour
 	// decoration
 	readonly color?: React.CSSProperties["backgroundColor"];
 	readonly image?: React.CSSProperties["backgroundImage"];
-	readonly border?: Parameters<typeof Border>[0];
-	readonly corner?: Parameters<typeof Corner>[0];
-	readonly shadow?: Parameters<typeof Shadow>[0];
+	readonly border?: CSS["border"];
+	readonly corner?: CSS["corner"];
+	readonly shadow?: CSS["shadow"];
 	readonly opacity?: number;
 }
 

@@ -12,6 +12,7 @@ import { Pair } from "@/models/pair";
 
 import Text from "@/app/layout/text";
 import Grid from "@/app/layout/grid";
+import Form from "@/app/layout/form";
 import Column from "@/app/layout/column";
 
 import Scroll from "@/app/layout/casacade/scroll";
@@ -185,7 +186,7 @@ class Browser extends Page<BrowserProps, BrowserState> {
 						</section>
 					</Scroll>
 				</Spacer>
-				<Paging toggle={!this.state.gallery.isEmpty()} index={this.state.index} length={this.state.length} overflow={7} shortcut={new Pair(true, true)} color={Color.DARK_100} height={45} shadow={[{ x: 0, y: 0, blur: 5, spread: 0, color: Color.DARK_100 }]} visible={this.state.length > 1}
+				<Paging toggle={!this.state.gallery.isEmpty()} index={this.state.index} length={this.state.length} overflow={5} shortcut={new Pair(true, true)} color={Color.DARK_100} height={45} shadow={[{ x: 0, y: 0, blur: 5, spread: 0, color: Color.DARK_100 }]} visible={this.state.length > 1}
 					onPaging={(index) => {
 						// disapprove
 						if (!this.visible()) return false;
@@ -194,11 +195,12 @@ class Browser extends Page<BrowserProps, BrowserState> {
 						// approve
 						return true;
 					}}
-					builder={(key, indexing, handle) => {
-						return (
-							<Button key={key} minimum={{ width: 50 }} margin={{ top: 7.5, bottom: 7.5 }} padding={{ left: 7.5, right: 7.5 }} corner={{ all: 4.5 }}
+					builder={(key, index, indexing, handle) => {
+						// cache
+						const button = (
+							<Button key={key} minimum={{ width: 50 }} margin={{ all: 2.5, top: 7.5, bottom: 7.5 }} padding={{ left: 7.5, right: 7.5 }} corner={{ all: 4.5 }}
 								onMouseDown={(style) => {
-									style(null, () => handle());
+									style(null, () => handle(index));
 								}}
 								onMouseEnter={(style) => {
 									style({ color: Color.DARK_200 });
@@ -206,9 +208,26 @@ class Browser extends Page<BrowserProps, BrowserState> {
 								onMouseLeave={(style) => {
 									style(null);
 								}}
-								children={<Text>{[{ text: typeof key === "string" ? key : (key + 1).toString(), color: !this.state.gallery.isEmpty() && this.state.length ? indexing ? Color.RGBA_000 : "inherit" : Color.DARK_500 }]}</Text>}
+								children={<Text children={[{ text: /^[0-9]$/.test(key) ? (index + 1).toString() : key, color: !this.state.gallery.isEmpty() && this.state.length ? indexing ? Color.RGBA_000 : "inherit" : Color.DARK_500 }]}/>}
 							/>
 						);
+
+						switch (key) {
+							case "2":
+							case "4": {
+								if (this.state.length > 5) {
+									const portal = (
+										<Button key={"unique"} color={Color.DARK_200} margin={{ all: 2.5, top: 7.5, bottom: 7.5 }} padding={{ left: 4.5, right: 4.5 }} corner={{ all: 4.5 }}
+											children={<Form width={50} align="center" toggle={!this.state.gallery.isEmpty()} fallback={"..."} onSubmit={(text) => handle(Number(text) - 1)} onChange={(text) => text.isEmpty() ? text : Number(text).clamp(0, this.state.length).toString()} onTyping={(text) => /^(Backspace|ArrowLeft|ArrowRight|[0-9])$/.test(text)}/>}
+										/>
+									);
+									return key === "2" ? <React.Fragment key={key}>{button}{portal}</React.Fragment> : <React.Fragment key={key}>{portal}{button}</React.Fragment>;
+								}
+							}
+							default: {
+								return button;
+							}
+						}
 					}}
 				/>
 			</Column>

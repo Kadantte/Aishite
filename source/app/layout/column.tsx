@@ -1,9 +1,8 @@
+import CSS from "@/app/common/style";
 import Unit from "@/app/common/unit";
 import { Props } from "@/app/common/props";
 import { Stateless } from "@/app/common/framework";
 import { Vertical, Alignment } from "@/app/common/geometry";
-
-import Size from "@/app/common/style/size";
 
 interface ColumnProps extends Props<Children> {
 	readonly wrap?: boolean;
@@ -24,7 +23,7 @@ class Column extends Stateless<ColumnProps> {
 	}
 	protected preCSS(): React.CSSProperties {
 		return {
-			...Size({ width: Unit(100, "%"), height: Unit(100, "%") })
+			...CSS.Size({ width: Unit(100, "%"), height: Unit(100, "%") })
 		};
 	}
 	protected build() {

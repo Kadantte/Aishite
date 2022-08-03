@@ -1,15 +1,11 @@
+import CSS from "@/app/common/style";
 import { Props } from "@/app/common/props";
 import { Stateful } from "@/app/common/framework";
-
-import Border from "@/app/common/style/border";
-import Corner from "@/app/common/style/corner";
-import Shadow from "@/app/common/style/shadow";
-import Transition from "@/app/common/style/transition";
 
 interface ContainerProps extends Props<Children> {
 	/** Whether to prevent event triggers from elements underneath. */
 	readonly priority?: boolean;
-	readonly transition?: Transition;
+	readonly transition?: CSS["transition"];
 	// events
 	readonly onMouseUp?: (callback: Container["style"]) => void;
 	readonly onMouseDown?: (callback: Container["style"]) => void;
@@ -34,13 +30,13 @@ class Container extends Stateful<ContainerProps, ContainerState> {
 			backgroundColor: this.state.decoration?.color,
 			backgroundImage: this.state.decoration?.image,
 			// automatic
-			...Border(this.state.decoration?.border ?? {}),
-			...Corner(this.state.decoration?.corner ?? {}),
-			...Shadow(this.state.decoration?.shadow ?? []),
+			...CSS.Border(this.state.decoration?.border ?? {}),
+			...CSS.Corner(this.state.decoration?.corner ?? {}),
+			...CSS.Shadow(this.state.decoration?.shadow ?? []),
 			// handfully...
 			opacity: this.state.decoration?.opacity ? (this.state.decoration.opacity.clamp(0, 100) / 100) : undefined,
 			// @ts-ignore
-			...Transition({ ...this.props.transition, property: ["opacity", "box-shadow", "border", "border-radius", "transform", "background"] })
+			...CSS.Transition({ ...this.props.transition, property: ["opacity", "box-shadow", "border", "border-radius", "transform", "background"] })
 		};
 	}
 	protected preCSS(): React.CSSProperties {

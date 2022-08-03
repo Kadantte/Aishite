@@ -13,7 +13,7 @@ interface PagingProps extends FlipFlop<undefined> {
 	readonly overflow: number;
 	readonly shortcut?: Pair<boolean, boolean>;
 	// builder
-	readonly builder: (key: string | number, indexing: boolean, handle: () => void) => Child;
+	readonly builder: (key: string, index: number, indexing: boolean, handle: (index: number) => void) => Child;
 	// events
 	readonly onPaging?: (index: number) => boolean;
 }
@@ -25,6 +25,7 @@ interface PagingState {
 class Paging extends Stateful<PagingProps, PagingState> {
 	protected create() {
 		// permanent
+		this.jump = this.jump.bind(this);
 		this.handle = this.handle.bind(this);
 
 		return ({ index: this.props.index });
@@ -48,16 +49,16 @@ class Paging extends Stateful<PagingProps, PagingState> {
 	protected build() {
 		return (
 			<Row id={"paging"} alignment={Alignment.CENTER}>
-				{this.props.shortcut?.first ? this.props.builder("First", false, () => this.jump(0)) : undefined}
+				{this.props.shortcut?.first ? this.props.builder("First", 0, false, this.jump) : undefined}
 				<>
 					{new Array(this.props.overflow.clamp(0, this.props.length)).fill(null).map((_, index) => {
 						// cache
 						const _index = this.offset(index);
 
-						return this.props.builder?.(_index, this.state.index === _index, () => this.jump(_index));
+						return this.props.builder?.((index + 1).toString(), _index, this.state.index === _index, this.jump);
 					})}
 				</>
-				{this.props.shortcut?.first ? this.props.builder("Last", false, () => this.jump(Infinity)) : undefined}
+				{this.props.shortcut?.first ? this.props.builder("Last", Infinity, false, this.jump) : undefined}
 			</Row>
 		);
 	}

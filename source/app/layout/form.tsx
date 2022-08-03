@@ -1,13 +1,13 @@
+import CSS from "@/app/common/style";
 import Unit from "@/app/common/unit";
 import { FlipFlop } from "@/app/common/props";
 import { Stateful, LifeCycle } from "@/app/common/framework";
-
-import Size from "@/app/common/style/size";
 
 import ContextMenu from "@/app/layout/casacade/contextmenu";
 
 interface FormProps extends FlipFlop<undefined> {
 	readonly value?: string;
+	readonly align?: React.CSSProperties["textAlign"];
 	readonly fallback?: string;
 	readonly controller?: Reference<HTMLInputElement>;
 	// events
@@ -38,11 +38,13 @@ class Form extends Stateful<FormProps, FormState> {
 		};
 	}
 	protected postCSS(): React.CSSProperties {
-		return {};
+		return {
+			textAlign: this.props.align
+		};
 	}
 	protected preCSS(): React.CSSProperties {
 		return {
-			...Size({ width: Unit(100, "%"), height: Unit(100, "%") })
+			...CSS.Size({ width: Unit(100, "%"), height: Unit(100, "%") })
 		};
 	}
 	protected build() {
@@ -109,10 +111,13 @@ class Form extends Stateful<FormProps, FormState> {
 						this.setState((state) => ({ focus: true }), () => this.props.onFocus?.());
 					}}
 					onChange={(event) => {
-						this.props.onChange?.(event.target.value);
+						event.target.value = this.props.onChange?.(event.target.value) ?? event.target.value;
 					}}
 					onKeyDown={(event) => {
-						if (!this.state.focus) return;
+						// check ahead
+						if (!this.state.focus) return event.preventDefault();
+						// trigger
+						if (!this.props.onTyping?.(event.key) ?? false) event.preventDefault();
 						// trigger
 						if (event.key === "Enter") return this.props.onSubmit?.(this.node<HTMLInputElement>()?.value ?? "N/A");
 
@@ -123,8 +128,6 @@ class Form extends Stateful<FormProps, FormState> {
 								break;
 							}
 						}
-						// trigger
-						return this.props.onTyping?.(event.key);
 					}}
 					onMouseUp={(event) => {
 						this.setState((state) => ({ highlight: window.getSelection()!.toString().length > 0 }));
