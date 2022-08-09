@@ -5,7 +5,7 @@ import { Window } from "@/models/window";
 const requires = new Set<string>();
 const certification = new Set<string>();
 
-enum App {
+enum Events {
 	BLUR = "blur",
 	FOCUS = "focus",
 	CLOSE = "close",
@@ -15,14 +15,21 @@ enum App {
 	FULLSCREEN = "fullscreen",
 }
 
-enum Interface {
+enum Functions {
 	OPEN_URL = "open_url",
 	DEVELOPMENT = "development"
 }
 
+enum Properties {
+	VERSION = "version",
+	IS_PACKAGED = "is_packaged"
+}
+
 export class Chromium extends EventTarget {
-	// app
-	public [App.CLOSE](ticket: string) {
+	//
+	// Events
+	//
+	public [Events.CLOSE](ticket: string) {
 		//
 		// 1. Entry point
 		//
@@ -51,34 +58,47 @@ export class Chromium extends EventTarget {
 				return chromium.signal(Window.CLOSE);
 			}
 		}
-		return call<void>(App.CLOSE);
+		return call<void>(Events.CLOSE);
 	}
-	public [App.BLUR]() {
-		return call<void>(App.BLUR);
+	public [Events.BLUR]() {
+		return call<void>(Events.BLUR);
 	}
-	public [App.FOCUS]() {
-		return call<void>(App.FOCUS);
+	public [Events.FOCUS]() {
+		return call<void>(Events.FOCUS);
 	}
-	public [App.MINIMIZE]() {
-		return call<void>(App.MINIMIZE);
+	public [Events.MINIMIZE]() {
+		return call<void>(Events.MINIMIZE);
 	}
-	public [App.MAXIMIZE]() {
-		return call<void>(App.MAXIMIZE);
+	public [Events.MAXIMIZE]() {
+		return call<void>(Events.MAXIMIZE);
 	}
-	public [App.UNMAXIMIZE]() {
-		return call<void>(App.UNMAXIMIZE);
+	public [Events.UNMAXIMIZE]() {
+		return call<void>(Events.UNMAXIMIZE);
 	}
-	public [App.FULLSCREEN]() {
-		return call<void>(App.FULLSCREEN);
+	public [Events.FULLSCREEN]() {
+		return call<void>(Events.FULLSCREEN);
 	}
-	// interface
-	public [Interface.OPEN_URL](url: string) {
-		return call<void>(Interface.OPEN_URL, url);
+	//
+	// Functions
+	//
+	public [Functions.OPEN_URL](url: string) {
+		return call<void>(Functions.OPEN_URL, url);
 	}
-	public [Interface.DEVELOPMENT]() {
-		return call<void>(Interface.DEVELOPMENT);
+	public [Functions.DEVELOPMENT]() {
+		return call<void>(Functions.DEVELOPMENT);
 	}
+	//
+	// Properties
+	//
+	public [Properties.VERSION]() {
+		return call<string>(Properties.VERSION);
+	}
+	public [Properties.IS_PACKAGED]() {
+		return call<boolean>(Properties.IS_PACKAGED);
+	}
+	//
 	// built-in
+	//
 	public requires(criteria: Array<string>) {
 		for (const value of criteria) {
 			requires.add(value);
@@ -119,14 +139,13 @@ ipcRenderer.on(Window.LEAVE_FULL_SCREEN, (event, ...args) => {
 	chromium.signal(Window.LEAVE_FULL_SCREEN, ...args);
 });
 
-async function call<T>(command: App | Interface, ...args: Array<unknown>) {
-	return await ipcRenderer.invoke("chromium", command, ...args).then((response) => {
-		print({
-			command: command,
-			response: response
-		});
-		return response as T;
-	});
+async function call<T>(command: Events | Functions | Properties, ...args: Array<unknown>) {
+	// cache
+	const response = await ipcRenderer.invoke("chromium", command, ...args);
+
+	print({ command: command, response: response });
+
+	return response;
 }
 
 Object.defineProperty(window, "chromium", {
