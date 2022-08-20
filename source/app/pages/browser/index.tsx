@@ -217,8 +217,8 @@ class Browser extends Page<BrowserProps, BrowserState> {
 							case "4": {
 								if (this.state.length > 5) {
 									const portal = (
-										<Button key={"unique"} color={Color.DARK_200} margin={{ all: 2.5, top: 7.5, bottom: 7.5 }} padding={{ left: 4.5, right: 4.5 }} corner={{ all: 4.5 }}
-											children={<Form width={50} align="center" toggle={!this.state.gallery.isEmpty()} fallback={"..."} onSubmit={(text) => handle(Number(text) - 1)} onChange={(text) => text.isEmpty() ? text : Number(text).clamp(0, this.state.length).toString()} onTyping={(text) => /^(Backspace|ArrowLeft|ArrowRight|[0-9])$/.test(text)}/>}
+										<Button key="unique" color={Color.DARK_200} margin={{ all: 2.5, top: 7.5, bottom: 7.5 }} padding={{ left: 4.5, right: 4.5 }} corner={{ all: 4.5 }}
+											children={<Form width={50} align="center" toggle={!this.state.gallery.isEmpty()} fallback="..." onSubmit={(text) => handle(Number(text) - 1)} onChange={(text) => text.isEmpty() ? text : Number(text).clamp(0, this.state.length).toString()} onTyping={(text) => /^(Backspace|ArrowLeft|ArrowRight|[0-9])$/.test(text)}/>}
 										/>
 									);
 									return key === "2" ? <React.Fragment key={key}>{button}{portal}</React.Fragment> : <React.Fragment key={key}>{portal}{button}</React.Fragment>;

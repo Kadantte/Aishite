@@ -58,7 +58,7 @@ class App extends Stateful<AppProps, AppState> {
 								role: "New Tab",
 								toggle: true,
 								method: () => {
-									history.reset()
+									history.open("NEW TAB", "BROWSER", {});
 								}
 							},
 							"seperator",
@@ -66,7 +66,7 @@ class App extends Stateful<AppProps, AppState> {
 								role: "Close All Tabs",
 								toggle: true,
 								method: () => {
-									history.reset()
+									history.reset();
 								}
 							},
 						]
@@ -98,7 +98,7 @@ class App extends Stateful<AppProps, AppState> {
 	}
 	protected build() {
 		return (
-			<Column id={"root"}>
+			<Column id="root">
 				{/* TITLEBAR */}
 				<Row id="titlebar" color={Color.DARK_000} height={40} draggable={true} visible={!this.state.fullscreen}>
 					<Spacer>
@@ -107,7 +107,7 @@ class App extends Stateful<AppProps, AppState> {
 					<Element width={69}>
 						{/* GAP */}
 					</Element>
-					<Button id="minimize" width={Unit(50)} draggable={false}
+					<Button id="minimize" width={50} draggable={false}
 						onMouseDown={(style) => {
 							chromium.minimize();
 						}}
@@ -119,7 +119,7 @@ class App extends Stateful<AppProps, AppState> {
 						}}
 						children={<Minimize/>}
 					/>
-					<Button id="maximize" width={Unit(50)} draggable={false}
+					<Button id="maximize" width={50} draggable={false}
 						onMouseDown={(style) => {
 							if (this.state.maximize) {
 								chromium.unmaximize();
@@ -135,7 +135,7 @@ class App extends Stateful<AppProps, AppState> {
 						}}
 						children={this.state.maximize ? <Unmaximize/> : <Maximize/>}
 					/>
-					<Button id="close" width={Unit(50)} draggable={false}
+					<Button id="close" width={50} draggable={false}
 						onMouseDown={(style) => {
 							chromium.close("titlebar");
 						}}
@@ -333,7 +333,7 @@ class Controller extends Stateful<ControllerProps, ControllerState> {
 	}
 	protected build() {
 		return (
-			<Row id={"controller"}>
+			<Row id="controller">
 				<>
 					{history.state.pages.map((page, index) => {
 						return (

@@ -48,7 +48,7 @@ class Paging extends Stateful<PagingProps, PagingState> {
 	}
 	protected build() {
 		return (
-			<Row id={"paging"} alignment={Alignment.CENTER}>
+			<Row id="paging" alignment={Alignment.CENTER}>
 				{this.props.shortcut?.first ? this.props.builder("First", 0, false, this.jump) : undefined}
 				<>
 					{new Array(this.props.overflow.clamp(0, this.props.length)).fill(null).map((_, index) => {
