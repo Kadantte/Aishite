@@ -3,27 +3,7 @@ import { app, shell, session, Menu, ipcMain, BrowserWindow } from "electron";
 import node_fs from "fs";
 import node_path from "path";
 
-import { Window } from "@/models/window";
-
-enum Events {
-	BLUR = "blur",
-	FOCUS = "focus",
-	CLOSE = "close",
-	MINIMIZE = "minimize",
-	MAXIMIZE = "maximize",
-	UNMAXIMIZE = "unmaximize",
-	FULLSCREEN = "fullscreen",
-}
-
-enum Functions {
-	OPEN_URL = "open_url",
-	DEVELOPMENT = "development"
-}
-
-enum Properties {
-	VERSION = "version",
-	IS_PACKAGED = "is_packaged"
-}
+import { Window } from "@/models/chromium";
 
 let window: Nullable<BrowserWindow> = null;
 
@@ -108,84 +88,99 @@ app.on("ready", () => {
 	//
 	// behaviours
 	//
-	window.on("ready-to-show", () => {
-		// show app
-		window?.show();
-	});
-	window.on("unresponsive", () => {
-		// reload app
-		window?.reload();
-	});
-	window.on(Window.CLOSE, (event) => {
+	window.on("close", (event) => {
 		// prevent
 		event.preventDefault();
-		// send event anyways
-		window?.webContents.send(Window.CLOSE);
+	});
+	window.on("unresponsive", () => {
+		// reload
+		window?.reload();
+	});
+	window.on("ready-to-show", () => {
+		// display
+		window?.show();
+	});
+	//
+	// https://github.com/electron/electron/issues/24893#issuecomment-1109262719
+	//
+	window.hookWindowMessage(0x0116, () => {
+		// prevent
+		window?.setEnabled(false);
+		window?.setEnabled(true);
+
+		window?.webContents.send(Window.Event.CONTEXTMENU, { x: screen.getCursorScreenPoint().x - window?.getPosition()[0], y: screen.getCursorScreenPoint().y - window?.getPosition()[1] });
 	});
 	//
 	// chromium events
 	//
-	window.on(Window.BLUR, () => window?.webContents.send(Window.BLUR));
-	window.on(Window.FOCUS, () => window?.webContents.send(Window.FOCUS));
-	window.on(Window.MINIMIZE, () => window?.webContents.send(Window.MINIMIZE));
-	window.on(Window.MAXIMIZE, () => window?.webContents.send(Window.MAXIMIZE));
-	window.on(Window.UNMAXIMIZE, () => window?.webContents.send(Window.UNMAXIMIZE));
-	window.on(Window.ENTER_FULL_SCREEN, () => window?.webContents.send(Window.ENTER_FULL_SCREEN));
-	window.on(Window.LEAVE_FULL_SCREEN, () => window?.webContents.send(Window.LEAVE_FULL_SCREEN));
+	window.on(Window.Event.BLUR, () => window?.webContents.send(Window.Event.BLUR));
+	window.on(Window.Event.FOCUS, () => window?.webContents.send(Window.Event.FOCUS));
+	window.on(Window.Event.CLOSE, () => window?.webContents.send(Window.Event.CLOSE));
+	window.on(Window.Event.MINIMIZE, () => window?.webContents.send(Window.Event.MINIMIZE));
+	window.on(Window.Event.MAXIMIZE, () => window?.webContents.send(Window.Event.MAXIMIZE));
+	window.on(Window.Event.UNMAXIMIZE, () => window?.webContents.send(Window.Event.UNMAXIMIZE));
+	window.on(Window.Event.ENTER_FULL_SCREEN, () => window?.webContents.send(Window.Event.ENTER_FULL_SCREEN));
+	window.on(Window.Event.LEAVE_FULL_SCREEN, () => window?.webContents.send(Window.Event.LEAVE_FULL_SCREEN));
 	//
 	// https://github.com/electron/electron/issues/24759
 	//
 	ipcMain.handle("chromium", async (event, command: string, ...args: Array<any>) => {
-		switch (command) {
+		switch (command as Window.Function | Window.Property) {
 			//
-			// Events
+			// Function
 			//
-			case Events.CLOSE: {
-				window?.destroy();
-				break;
-			}
-			case Events.BLUR: {
+			case Window.Function.BLUR: {
 				setTimeout(() => window?.blur(), 150);
 				break;
 			}
-			case Events.FOCUS: {
+			case Window.Function.FOCUS: {
 				setTimeout(() => window?.focus(), 150);
 				break;
 			}
-			case Events.MINIMIZE: {
-				setTimeout(() => window?.minimize(), 150);
+			case Window.Function.CLOSE: {
+				window?.destroy();
 				break;
 			}
-			case Events.MAXIMIZE: {
-				setTimeout(() => window?.maximize(), 150);
-				break;
-			}
-			case Events.UNMAXIMIZE: {
-				setTimeout(() => window?.unmaximize(), 150);
-				break;
-			}
-			case Events.FULLSCREEN: {
-				window?.setFullScreen(!window.isFullScreen());
-				break;
-			}
-			//
-			// Functions
-			//
-			case Functions.OPEN_URL: {
+			case Window.Function.OPEN_URL: {
 				shell.openExternal(args[0]);
 				break;
 			}
-			case Functions.DEVELOPMENT: {
+			case Window.Function.MINIMIZE: {
+				setTimeout(() => window?.minimize(), 150);
+				break;
+			}
+			case Window.Function.MAXIMIZE: {
+				setTimeout(() => window?.maximize(), 150);
+				break;
+			}
+			case Window.Function.UNMAXIMIZE: {
+				setTimeout(() => window?.unmaximize(), 150);
+				break;
+			}
+			case Window.Function.FULLSCREEN: {
+				switch (window?.isFullScreen()) {
+					case true: {
+						window.setFullScreen(false);
+						break;
+					}
+					case false: {
+						window.setFullScreen(true);
+						break;
+					}
+				}
+				break;
+			}
+			case Window.Function.DEVELOPMENT: {
 				window?.webContents.toggleDevTools();
 				break;
 			}
 			//
-			// Properties
+			// Property
 			//
-			case Properties.VERSION: {
+			case Window.Property.VERSION: {
 				return app.getVersion();
 			}
-			case Properties.IS_PACKAGED: {
+			case Window.Property.IS_PACKAGED: {
 				return app.isPackaged;
 			}
 		}

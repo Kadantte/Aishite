@@ -1,35 +1,15 @@
 import { ipcRenderer } from "electron";
 
-import { Window } from "@/models/window";
+import { Window } from "@/models/chromium";
 
 const requires = new Set<string>();
 const certification = new Set<string>();
 
-enum Events {
-	BLUR = "blur",
-	FOCUS = "focus",
-	CLOSE = "close",
-	MINIMIZE = "minimize",
-	MAXIMIZE = "maximize",
-	UNMAXIMIZE = "unmaximize",
-	FULLSCREEN = "fullscreen",
-}
-
-enum Functions {
-	OPEN_URL = "open_url",
-	DEVELOPMENT = "development"
-}
-
-enum Properties {
-	VERSION = "version",
-	IS_PACKAGED = "is_packaged"
-}
-
 export class Chromium extends EventTarget {
 	//
-	// Events
+	// Function
 	//
-	public [Events.CLOSE](ticket: string) {
+	public [Window.Function.CLOSE](ticket: string) {
 		//
 		// 1. Entry point
 		//
@@ -55,46 +35,43 @@ export class Chromium extends EventTarget {
 
 		for (const vertify of requires) {
 			if (!certification.has(vertify)) {
-				return chromium.signal(Window.CLOSE);
+				return chromium.signal(Window.Event.CLOSE);
 			}
 		}
-		return call<void>(Events.CLOSE);
+		return call<void>(Window.Function.CLOSE);
 	}
-	public [Events.BLUR]() {
-		return call<void>(Events.BLUR);
+	public [Window.Function.BLUR]() {
+		return call<void>(Window.Function.BLUR);
 	}
-	public [Events.FOCUS]() {
-		return call<void>(Events.FOCUS);
+	public [Window.Function.FOCUS]() {
+		return call<void>(Window.Function.FOCUS);
 	}
-	public [Events.MINIMIZE]() {
-		return call<void>(Events.MINIMIZE);
+	public [Window.Function.OPEN_URL](url: string) {
+		return call<void>(Window.Function.OPEN_URL, url);
 	}
-	public [Events.MAXIMIZE]() {
-		return call<void>(Events.MAXIMIZE);
+	public [Window.Function.MINIMIZE]() {
+		return call<void>(Window.Function.MINIMIZE);
 	}
-	public [Events.UNMAXIMIZE]() {
-		return call<void>(Events.UNMAXIMIZE);
+	public [Window.Function.MAXIMIZE]() {
+		return call<void>(Window.Function.MAXIMIZE);
 	}
-	public [Events.FULLSCREEN]() {
-		return call<void>(Events.FULLSCREEN);
+	public [Window.Function.UNMAXIMIZE]() {
+		return call<void>(Window.Function.UNMAXIMIZE);
 	}
-	//
-	// Functions
-	//
-	public [Functions.OPEN_URL](url: string) {
-		return call<void>(Functions.OPEN_URL, url);
+	public [Window.Function.FULLSCREEN]() {
+		return call<void>(Window.Function.FULLSCREEN);
 	}
-	public [Functions.DEVELOPMENT]() {
-		return call<void>(Functions.DEVELOPMENT);
+	public [Window.Function.DEVELOPMENT]() {
+		return call<void>(Window.Function.DEVELOPMENT);
 	}
 	//
-	// Properties
+	// Property
 	//
-	public [Properties.VERSION]() {
-		return call<string>(Properties.VERSION);
+	public [Window.Property.VERSION]() {
+		return call<string>(Window.Property.VERSION);
 	}
-	public [Properties.IS_PACKAGED]() {
-		return call<boolean>(Properties.IS_PACKAGED);
+	public [Window.Property.IS_PACKAGED]() {
+		return call<boolean>(Window.Property.IS_PACKAGED);
 	}
 	//
 	// built-in
@@ -104,42 +81,45 @@ export class Chromium extends EventTarget {
 			requires.add(value);
 		}
 	}
-	public signal(event: Window, ...args: Array<unknown>) {
+	public signal(event: Window.Event, ...args: Array<unknown>) {
 		super.dispatchEvent(new CustomEvent(event, { detail: args }));
 	}
-	public handle(event: Window, handle: (event: Event & { detail: unknown }) => void) {
+	public handle(event: Window.Event, handle: (event: Event & { detail: unknown }) => void) {
 		super.addEventListener(event, handle as EventListener);
 	}
-	public unhandle(event: Window, handle: (event: Event & { detail: unknown }) => void) {
+	public unhandle(event: Window.Event, handle: (event: Event & { detail: unknown }) => void) {
 		super.removeEventListener(event, handle as EventListener);
 	}
 }
-ipcRenderer.on(Window.CLOSE, (event, ...args) => {
+ipcRenderer.on(Window.Event.CLOSE, (event, ...args) => {
 	chromium.close("renderer");
 });
-ipcRenderer.on(Window.BLUR, (event, ...args) => {
-	chromium.signal(Window.BLUR, args);
+ipcRenderer.on(Window.Event.BLUR, (event, ...args) => {
+	chromium.signal(Window.Event.BLUR, args);
 });
-ipcRenderer.on(Window.FOCUS, (event, ...args) => {
-	chromium.signal(Window.BLUR, ...args);
+ipcRenderer.on(Window.Event.FOCUS, (event, ...args) => {
+	chromium.signal(Window.Event.BLUR, ...args);
 });
-ipcRenderer.on(Window.MINIMIZE, (event, ...args) => {
-	chromium.signal(Window.MINIMIZE, ...args);
+ipcRenderer.on(Window.Event.MINIMIZE, (event, ...args) => {
+	chromium.signal(Window.Event.MINIMIZE, ...args);
 });
-ipcRenderer.on(Window.MAXIMIZE, (event, ...args) => {
-	chromium.signal(Window.MAXIMIZE, ...args);
+ipcRenderer.on(Window.Event.MAXIMIZE, (event, ...args) => {
+	chromium.signal(Window.Event.MAXIMIZE, ...args);
 });
-ipcRenderer.on(Window.UNMAXIMIZE, (event, ...args) => {
-	chromium.signal(Window.UNMAXIMIZE, ...args);
+ipcRenderer.on(Window.Event.UNMAXIMIZE, (event, ...args) => {
+	chromium.signal(Window.Event.UNMAXIMIZE, ...args);
 });
-ipcRenderer.on(Window.ENTER_FULL_SCREEN, (event, ...args) => {
-	chromium.signal(Window.ENTER_FULL_SCREEN, ...args);
+ipcRenderer.on(Window.Event.CONTEXTMENU, (event, ...args) => {
+	chromium.signal(Window.Event.CONTEXTMENU, ...args);
 });
-ipcRenderer.on(Window.LEAVE_FULL_SCREEN, (event, ...args) => {
-	chromium.signal(Window.LEAVE_FULL_SCREEN, ...args);
+ipcRenderer.on(Window.Event.ENTER_FULL_SCREEN, (event, ...args) => {
+	chromium.signal(Window.Event.ENTER_FULL_SCREEN, ...args);
+});
+ipcRenderer.on(Window.Event.LEAVE_FULL_SCREEN, (event, ...args) => {
+	chromium.signal(Window.Event.LEAVE_FULL_SCREEN, ...args);
 });
 
-async function call<T>(command: Events | Functions | Properties, ...args: Array<unknown>) {
+async function call<T>(command: Window.Function | Window.Property, ...args: Array<unknown>) {
 	// cache
 	const response = await ipcRenderer.invoke("chromium", command, ...args);
 

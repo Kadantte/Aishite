@@ -3,7 +3,7 @@ import Color from "@/app/common/color";
 import { Clear, Props } from "@/app/common/props";
 import { Stateful, LifeCycle } from "@/app/common/framework";
 
-import { Window } from "@/models/window";
+import { Window } from "@/models/chromium";
 
 import Row from "@/app/layout/row";
 import Text from "@/app/layout/text";
@@ -43,22 +43,46 @@ class App extends Stateful<AppProps, AppState> {
 	protected events(): LifeCycle<AppProps, AppState> {
 		return {
 			DID_MOUNT: () => {
-				chromium.handle(Window.BLUR, () => this.setState((state) => ({ contextmenu: false })));
-				chromium.handle(Window.MAXIMIZE, () => this.setState((state) => ({ maximize: true })));
-				chromium.handle(Window.UNMAXIMIZE, () => this.setState((state) => ({ maximize: false })));
-				chromium.handle(Window.ENTER_FULL_SCREEN, () => this.setState((state) => ({ fullscreen: true })));
-				chromium.handle(Window.LEAVE_FULL_SCREEN, () => this.setState((state) => ({ fullscreen: false })));
+				chromium.handle(Window.Event.BLUR, () => this.setState((state) => ({ contextmenu: false })));
+				chromium.handle(Window.Event.MAXIMIZE, () => this.setState((state) => ({ maximize: true })));
+				chromium.handle(Window.Event.UNMAXIMIZE, () => this.setState((state) => ({ maximize: false })));
+				chromium.handle(Window.Event.CONTEXTMENU, (event) => {
+					// custom system contextmenu
+					contextmenu.state = {
+						// @ts-ignore
+						x: event.detail[0].x,
+						// @ts-ignore
+						y: event.detail[0].y,
+						items: [
+							{
+								role: "New Tab",
+								toggle: true,
+								method: () => {
+									history.reset()
+								}
+							},
+							"seperator",
+							{
+								role: "Close All Tabs",
+								toggle: true,
+								method: () => {
+									history.reset()
+								}
+							},
+						]
+					};
+				});
+				chromium.handle(Window.Event.ENTER_FULL_SCREEN, () => this.setState((state) => ({ fullscreen: true })));
+				chromium.handle(Window.Event.LEAVE_FULL_SCREEN, () => this.setState((state) => ({ fullscreen: false })));
 
 				contextmenu.handle((state) => {
-					// cache
-					const reverse = {
-						x: state.detail.after.x > window.innerWidth / 2,
-						y: state.detail.after.y > window.innerHeight / 2
-					};
-					// adjust
-					(document.querySelector("#contextmenu") as HTMLElement).style.setProperty("transform", `translate(${[reverse.x, reverse.y].map((toggle) => (toggle ? -100 : 0) + "%").join(comma)})`);
 					// update
-					this.setState((state) => ({ contextmenu: true }));
+					this.setState((state) => ({ contextmenu: true }), () => {
+						// cache
+						const element = document.querySelector("#contextmenu") as HTMLElement;
+						// adjust
+						element.style.setProperty("transform", `translate(${[state.detail.after.x + element.getBoundingClientRect().width >= window.innerWidth, state.detail.after.y + element.getBoundingClientRect().height >= window.innerHeight].map((toggle) => (toggle ? -100 : 0) + "%").join(comma)})`);
+					});
 				});
 
 				window.addEventListener("wheel", (event) => this.setState((state) => ({ contextmenu: false })));

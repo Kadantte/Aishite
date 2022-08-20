@@ -32,6 +32,13 @@ class History extends StateHandler<HistoryState> {
 		// update title
 		title(this.state.pages[this.state.index])
 	}
+	/** Back to initial state. */
+	public reset() {
+		this.state = new HistoryState({
+			index: 0,
+			pages: [builder("NEW TAB", "BROWSER", {})]
+		});
+	}
 	/** Append `page` as well as change `this.state.index`. */
 	public open(title: string, type: string, args: Record<string, any>) {
 		this.state = new HistoryState({
@@ -50,10 +57,7 @@ class History extends StateHandler<HistoryState> {
 	public close(index: number = this.state.index) {
 		switch (this.state.pages.length) {
 			case 1: {
-				this.state = new HistoryState({
-					index: 0,
-					pages: [builder("NEW TAB", "BROWSER", {})]
-				});
+				this.reset();
 				break;
 			}
 			default: {

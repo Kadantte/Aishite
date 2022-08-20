@@ -2,7 +2,7 @@ import { MappedStateHandler } from "@/handles";
 
 import filesystem from "@/modules/node.js/filesystem";
 
-import { Window } from "@/models/window";
+import { Window } from "@/models/chromium";
 
 class StorageState {
 	public readonly path: string;
@@ -37,7 +37,7 @@ class Storage extends MappedStateHandler<string, StorageState> {
 			}
 		}, 1000 * 60 * 5);
 		// before close
-		chromium.handle(Window.CLOSE, () => {
+		chromium.handle(Window.Event.CLOSE, () => {
 			for (const [key, value] of super.state.entries()) {
 				this.export(key);
 			}
