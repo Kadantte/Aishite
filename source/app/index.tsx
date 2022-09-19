@@ -98,7 +98,7 @@ class App extends Stateful<AppProps, AppState> {
 	}
 	protected build() {
 		return (
-			<Column id="root">
+			<Column id="app">
 				{/* TITLEBAR */}
 				<Row id="titlebar" color={Color.DARK_000} height={40} draggable={true} visible={!this.state.fullscreen}>
 					<Spacer>
@@ -372,7 +372,7 @@ class Controller extends Stateful<ControllerProps, ControllerState> {
 						);
 					})}
 				</>
-				<Button id="open" color={Color.DARK_200} width={26.5} height={26.5} margin={{ all: 20 - 13.25 }} corner={{ all: 2.5 }} draggable={false}
+				<Button id="open" color={Color.DARK_200} width={26.5} height={26.5} margin={{ all: (40 - 26.5) / 2 }} corner={{ all: 2.5 }} draggable={false}
 					onMouseDown={(style) => {
 						history.open("NEW TAB", "BROWSER", {});
 					}}

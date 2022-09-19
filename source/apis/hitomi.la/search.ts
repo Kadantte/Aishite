@@ -13,6 +13,7 @@ enum Symbol {
 	AND,
 	PLUS,
 	MINUS,
+	COMMA,
 	//
 	EQUAL,
 	N_EQUAL,
@@ -36,23 +37,16 @@ enum Channel {
 class Token {
 	constructor(
 		public readonly type: Symbol,
-		public readonly value?: unknown
+		public readonly value: unknown = undefined
 	) { }
-
 	public is(type: Symbol) {
 		return this.type === type;
-	}
-	public toString() {
-		// skip
-		if (this.value) return { type: Symbol[this.type], value: this.value };
-
-		return { type: Symbol[this.type] };
 	}
 }
 
 class Parser {
 	private _index: number;
-	private _table: Map<string, Nullable<Set<number>>>;
+	private _table: Map<string, Set<number>>;
 	private _tokens: Array<Token>;
 
 	constructor(unprocessed: string) {
@@ -65,9 +59,9 @@ class Parser {
 
 		let index = 0;
 
-		const process = (symbol: Symbol) => {
+		function process(instance: Parser, symbol: Symbol) {
 			// update
-			this._tokens.push(new Token(symbol));
+			instance._tokens.push(new Token(symbol));
 
 			switch (symbol) {
 				case Symbol.N_EQUAL: {
@@ -88,15 +82,16 @@ class Parser {
 		try {
 			while (index < unprocessed.length) {
 				switch (unprocessed.at(index)) {
-					case "&": { process(Symbol.AND); continue; }
-					case "+": { process(Symbol.PLUS); continue; }
-					case "=": { process(Symbol.EQUAL); continue; }
-					case "-": { process(Symbol.MINUS); continue; }
-					case "(": { process(Symbol.L_PAREN); continue; }
-					case ")": { process(Symbol.R_PAREN); continue; }
+					case "&": { process(this, Symbol.AND); continue; }
+					case "+": { process(this, Symbol.PLUS); continue; }
+					case "=": { process(this, Symbol.EQUAL); continue; }
+					case "-": { process(this, Symbol.MINUS); continue; }
+					case ",": { process(this, Symbol.COMMA); continue; }
+					case "(": { process(this, Symbol.L_PAREN); continue; }
+					case ")": { process(this, Symbol.R_PAREN); continue; }
 					case "!": {
 						if (unprocessed.at(index + 1) === "=") {
-							process(Symbol.N_EQUAL);
+							process(this, Symbol.N_EQUAL);
 							continue;
 						}
 						// nani?
@@ -106,18 +101,18 @@ class Parser {
 				}
 				// cache
 				const chunk = unprocessed.substring(index);
-	
+
 				let match: Nullable<RegExpExecArray>;
-	
+
 				// number
-				if ((match = /^[\d]+/.exec(chunk)) !== null) {
+				if ((match = /^[-?\d]+/.exec(chunk)) !== null) {
 					this._tokens.push(new Token(Symbol.N_LITERAL, Number(match[0])));
 					index += match[0].length;
 					continue;
 				}
 				// string
 				if ((match = /^"([^"]*)"/.exec(chunk)) !== null) {
-					this._tokens.push(new Token(Symbol.S_LITERAL, match[1]));
+					this._tokens.push(new Token(Symbol.S_LITERAL, String(match[1])));
 					index += match[0].length;
 					continue;
 				}
@@ -135,7 +130,7 @@ class Parser {
 
 			// debug
 			for (const token of this._tokens) {
-				print(token.toString());
+				print(token.value ? { type: Symbol[token.type], value: token.value } : { type: Symbol[token.type] });
 			}
 		} catch (error) {
 			// debug
@@ -156,63 +151,23 @@ class Parser {
 	public async parse() {
 		// empty
 		if (this._tokens.isEmpty()) return this.fallback();
-
-		let index = 0;
-
-		while (index < this._tokens.length) {
-			switch (this._tokens[index].type) {
-				case Symbol.IDENTIFIER: {
-					// cache
-					const [id, unknown, value] = this._tokens.slice(index, index + 1 + 1 + 1); const namespace = id.value + (unknown.is(Symbol.N_EQUAL) ? "!" : "=") + value.value;
-
-					const script = built_in(unknown.is(Symbol.L_PAREN) ? Channel.FUNCTION : Channel.PROPERTY);
-
-					if (script[id.value as never] && !this._table.has(namespace)) {
-						// assign key
-						this._table.set(namespace, null);
-
-						(script[id.value as never]! as Function)((value.value as string).toString().replace(/_/g, space)).then(async (response: Array<number>) => {
-							// um...
-							if (unknown.is(Symbol.N_EQUAL)) {
-								// cache
-								const value = await this.fallback();
-
-								for (const element of new Set(response).values()) {
-									value.delete(element);
-								}
-								// assign value
-								this._table.set(namespace, value);
-							} else {
-								// assign value
-								this._table.set(namespace, new Set(response));
-							}
-						});
-					}
-					index += unknown.is(Symbol.L_PAREN) ? 4 : 3;
-					continue;
-				}
-				default: {
-					index += 1;
-					continue;
-				}
-			}
-		}
-		// wait for cache
-		await until(() => Array.from(this._table.values()).every((element) => element));
-
+		
 		try {
 			// cache
-			const value = this.E();
+			const value = await this.E();
 
 			return value.isEmpty() ? this.fallback() : value;
-		} catch {
+		} catch (error) {
+			// debug
+			print(`Could not process token at position ${this._index}`); print(error);
+
 			return this.fallback();
 		}
 	}
-	protected E() {
+	protected async E() {
 		let value = new Set<number>();
 
-		value = this.T();
+		value = await this.T();
 
 		while (true) {
 			switch (this.peek().type) {
@@ -229,7 +184,7 @@ class Parser {
 
 			this.skip();
 
-			const _value = this.T();
+			const _value = await this.T();
 
 			switch (token.type) {
 				case Symbol.AND: {
@@ -253,20 +208,20 @@ class Parser {
 			}
 		}
 	}
-	protected T() {
+	protected async T() {
 		let value = new Set<number>();
 
 		switch (this.peek().type) {
 			case Symbol.IDENTIFIER: {
 				// compute
-				value = this.I();
+				value = await this.I();
 				break;
 			}
 			case Symbol.L_PAREN: {
 				// raise
 				this.skip();
 				// compute
-				value = this.E();
+				value = await this.E();
 				break;
 			}
 		}
@@ -275,96 +230,163 @@ class Parser {
 
 		return value;
 	}
-	protected I() {
-		const [token, unknown] = [this.peek(), this.skip()];
+	protected async I(): Promise<Set<number>> {
+		const token = this.peek(), handle = built_in(token.value as string);
 
-		switch (unknown.type) {
-			case Symbol.EQUAL:
-			case Symbol.N_EQUAL:
-			case Symbol.L_PAREN: {
-				// raise
-				this.skip();
+		if (handle === null) {
+			throw Error();
+		}
+		else if (handle instanceof HandleProperty) {
+			switch (this.skip().type) {
+				case Symbol.EQUAL: {
+					// cache
+					const key = token.value as string + "==" + this.skip().value;
 
-				if (!this.peek().is(Symbol.N_LITERAL) && !this.peek().is(Symbol.S_LITERAL)) throw Error();
+					if (this._table.has(key)) return this._table.get(key)!;
 
-				const value = this._table.get(token.value + (unknown.is(Symbol.N_EQUAL) ? "!" : "=") + this.peek().value) as Set<number>;
+					const value = await handle.call(this.peek());
 
-				if (unknown.is(Symbol.L_PAREN) ? !this.skip().is(Symbol.R_PAREN) : false) throw Error();
+					this._table.set(key, value);
 
-				return value ?? new Set<number>();
-			}
-			default: {
-				throw Error();
+					return value;
+				}
+				case Symbol.N_EQUAL: {
+					// cache
+					const key = token.value as string + "!=" + this.skip().value;
+
+					if (this._table.has(key)) return this._table.get(key)!;
+
+					const value = await this.fallback();
+
+					for (const element of (await handle.call(this.peek())).values()) {
+						value.delete(element);
+					}
+					this._table.set(key, value);
+
+					return value;
+				}
+				default: {
+					throw Error();
+				}
 			}
 		}
-	}
-	protected async fallback() {
-		// cache
-		if (!this._table.has("language=all")) this._table.set("language=all", new Set(await unknown_0(null, new Tag({ namespace: "index", value: "all" }))));
+		else if (handle instanceof HandleFunction) {
+			// open
+			if (!this.skip().is(Symbol.L_PAREN)) throw Error();
 
-		return this._table.get("language=all") as Set<number>;
+			const token: Array<Token> = [];
+
+			while (token.length < handle.length) {
+				// update
+				token.add(this.skip());
+				// check
+				if (token.length < handle.length && !this.skip().is(Symbol.COMMA)) throw Error();
+			}
+			// close
+			if (!this.skip().is(Symbol.R_PAREN)) throw Error();
+
+			return handle.call(...token);
+		}
+		else {
+			throw Error();
+		}
+	}
+	protected async fallback(): Promise<Set<number>> {
+		// cache
+		if (!this._table.has("language==all")) this._table.set("language==all", new Set(await unknown_0(null, new Tag({ namespace: "index", value: "all" }))));
+
+		return this._table.get("language==all")!;
 	}
 }
 
-function built_in(channel: Channel) {
-	switch (channel) {
-		case Channel.PROPERTY: {
-			return {
-				// id
-				id: async (value: string) => {
-					return [value];
-				},
-				// tag
-				male: async (value: string) => {
-					return unknown_0("tag", new Tag({ namespace: "male:" + value, value: "all" }));
-				},
-				female: async (value: string) => {
-					return unknown_0("tag", new Tag({ namespace: "female:" + value, value: "all" }));
-				},
-				// etc
-				type: async (value: string) => {
-					return unknown_0("type", new Tag({ namespace: value, value: "all" }));
-				},
-				group: async (value: string) => {
-					return unknown_0("group", new Tag({ namespace: value, value: "all" }));
-				},
-				series: async (value: string) => {
-					return unknown_0("series", new Tag({ namespace: value, value: "all" }));
-				},
-				artist: async (value: string) => {
-					return unknown_0("artist", new Tag({ namespace: value, value: "all" }));
-				},
-				popular: async (value: string) => {
-					return unknown_0("popular", new Tag({ namespace: value, value: "all" }));
-				},
-				character: async (value: string) => {
-					return unknown_0("character", new Tag({ namespace: value, value: "all" }));
-				},
-				// language
-				language: async (value: string) => {
-					return unknown_0(null, new Tag({ namespace: "index", value: value }));
-				}
-			};
+class HandleProperty {
+	constructor(
+		private readonly type: Symbol,
+		private readonly handle: (token: Token) => Promise<Array<number>>
+	) {
+		// TODO: none
+	}
+	public async call(token: Token) {
+		if (!token.is(this.type)) throw Error(`Could not match symbol, ${Symbol[token.type]} is not ${Symbol[this.type]}`);
+
+		return new Set(await this.handle(token));
+	}
+}
+
+class HandleFunction {
+	constructor(
+		private readonly type: Array<Symbol>,
+		private readonly handle: (...token: Array<Token>) => Promise<Array<number>>
+	) {
+		// TODO: none
+	}
+	public async call(...token: Array<Token>) {
+		for (let index = 0; index < token.length; index++) {
+			if (!token[index].is(this.type[index])) throw Error(`Could not match symbol, ${Symbol[token[index].type]} is not ${Symbol[this.type[index]]}`);
 		}
-		case Channel.FUNCTION: {
-			return {
-				// title
-				title: async (value: string) => {
-					try {
-						const bundle = await suggest.unknown_3("galleries", 0);
-						const digits = await suggest.unknown_5("galleries", suggest.unknown_1(value), bundle);
-						return unknown_1(digits);
-					} catch {
-						return [];
-					}
+		return new Set(await this.handle(...token));
+	}
+	public get length() {
+		return this.type.length;
+	}
+}
+
+function built_in(namespace: string) {
+	switch (namespace) {
+		// property
+		case "id": {
+			return new HandleProperty(Symbol.N_LITERAL, async (token_0) => [token_0.value as number]);
+		}
+		case "male": {
+			return new HandleProperty(Symbol.S_LITERAL, async (token_0) => unknown_0("tag", new Tag({ namespace: "male:" + token_0.value as string, value: "all" })));
+		}
+		case "female": {
+			return new HandleProperty(Symbol.S_LITERAL, async (token_0) => unknown_0("tag", new Tag({ namespace: "female:" + token_0.value as string, value: "all" })));
+		}
+		case "type": {
+			return new HandleProperty(Symbol.S_LITERAL, async (token_0) => unknown_0("type", new Tag({ namespace: token_0.value as string, value: "all" })));
+		}
+		case "group": {
+			return new HandleProperty(Symbol.S_LITERAL, async (token_0) => unknown_0("group", new Tag({ namespace: token_0.value as string, value: "all" })));
+		}
+		case "series": {
+			return new HandleProperty(Symbol.S_LITERAL, async (token_0) => unknown_0("series", new Tag({ namespace: token_0.value as string, value: "all" })));
+		}
+		case "artist": {
+			return new HandleProperty(Symbol.S_LITERAL, async (token_0) => unknown_0("artist", new Tag({ namespace: token_0.value as string, value: "all" })));
+		}
+		case "popular": {
+			return new HandleProperty(Symbol.S_LITERAL, async (token_0) => unknown_0("popular", new Tag({ namespace: token_0.value as string, value: "all" })));
+		}
+		case "character": {
+			return new HandleProperty(Symbol.S_LITERAL, async (token_0) => unknown_0("character", new Tag({ namespace: token_0.value as string, value: "all" })));
+		}
+		case "language": {
+			return new HandleProperty(Symbol.S_LITERAL, async (token_0) => unknown_0(null, new Tag({ namespace: "index", value: token_0.value as string })));
+		}
+		// function
+		case "idk": {
+			return new HandleFunction([Symbol.N_LITERAL, Symbol.N_LITERAL], async (token_0, token_1) => {
+				return [(token_0.value as number) + (token_1.value as number)];
+			});
+		}
+		case "title": {
+			return new HandleFunction([Symbol.S_LITERAL], async (token_0) => {
+				try {
+					return unknown_1(await suggest.unknown_5("galleries", suggest.unknown_1(token_0.value as string), await suggest.unknown_3("galleries", 0)));
+				} catch {
+					return [];
 				}
-			};
+			});
+		}
+		default: {
+			return null;
 		}
 	}
 }
 
 async function unknown_0(directory: Nullable<string>, tag: Tag) {
-	const response = await client.GET(`https://${["ltn.hitomi.la", "n", directory, `${tag.namespace}-${tag.value}`].filter((element) => element).join("/")}.nozomi`, "arraybuffer");
+	const response = await client.GET(`https://${["ltn.hitomi.la", "n", directory, `${tag.namespace.replace(/_/g, space)}-${tag.value.replace(/_/g, space)}`].filter((element) => element).join("/")}.nozomi`, "arraybuffer");
 
 	switch (response.status.code) {
 		case 200:

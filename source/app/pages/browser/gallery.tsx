@@ -110,8 +110,8 @@ class Gallery extends Stateful<GalleryProps, GalleryState> {
 				}}>
 				<Stack>
 					{[
-						<Element id="thumbnail_1" image={this.props.gallery.thumbnail.skip(0).take(3).map((url) => `url(${url})`).join(comma)} opacity={69}></Element>,
-						<Element id="thumbnail_2" image={this.props.gallery.thumbnail.skip(3).take(3).map((url) => `url(${url})`).join(comma)} opacity={69}></Element>,
+						<Element id="thumbnail_1" image={"url(" + this.props.gallery.thumbnail.first + ")"} opacity={69}></Element>,
+						<Element id="thumbnail_2" image={"url(" + this.props.gallery.thumbnail.last + ")"} opacity={69}></Element>,
 						<section id="information">
 							<Element color={Color.DARK_300} all={25} bottom={100} corner={{ all: 4.5 }} shadow={[{ x: 0, y: 0, blur: 5, spread: 0, color: Color.DARK_100 }]}>
 								<Scroll x="hidden" y="auto" scrollbar="elegant">

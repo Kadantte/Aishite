@@ -4,7 +4,7 @@ import App from "@/app";
 
 import client from "@/modules/node.js/request";
 
-const element = document.getElementById("app");
+const element = document.getElementById("root");
 
 if (!element) throw Error();
 

@@ -114,7 +114,7 @@ async function block(id: number) {
 	// cache
 	const artists = Array<string>();
 
-	for (const children of element.querySelectorAll(".artist-list a")) {
+	for (const children of element.getElementsByClassName("artist-list")) {
 		// assign value
 		artists.add(children.textContent ?? "N/A");
 	}
@@ -123,24 +123,11 @@ async function block(id: number) {
 	
 	// cache
 	const image = Array<string>();
-
-	index = 0;
-
-	for (const children of element.querySelectorAll("picture > *")) {
-		switch (index % 2) {
-			case 0: {
-				for (const source of children.getAttribute("data-srcset")!.split(space)) {
-					if (source.includes("//")) image.add("https:" + source);
-				}
-				break;
-			}
-			default: {
-				image.add("https:" + children.getAttribute("data-src"));
-				break;
-			}
-		}
-		index++;
+	
+	for (const source of element.getElementsByClassName("lazyload")) {
+		image.add("https:" + source.getAttribute("data-src"));
 	}
+
 	// update
 	metadata.set("thumbnail", image);
 

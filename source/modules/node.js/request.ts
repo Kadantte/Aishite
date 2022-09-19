@@ -125,7 +125,7 @@ class Client {
 			const SSL = /^https/.test(args.url);
 
 			const chunks = Array<any>();
-			const fragment = (args.url === decodeURI(args.url) ? encodeURI(args.url) : args.url).replace(/https?:\/\//, "").split("/");
+			const fragment = (args.url === decodeURI(args.url) ? encodeURI(args.url) : args.url).replace(/https?:\/\//, "").replace(/\s/g, "%20").split("/");
 
 			const host = fragment[0];
 			const path = fragment.map((element, index) => index > 0 ? element : "").join("/");

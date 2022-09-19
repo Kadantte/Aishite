@@ -108,7 +108,9 @@ app.on("ready", () => {
 		window?.setEnabled(false);
 		window?.setEnabled(true);
 
-		window?.webContents.send(Window.Event.CONTEXTMENU, { x: screen.getCursorScreenPoint().x - window?.getPosition()[0], y: screen.getCursorScreenPoint().y - window?.getPosition()[1] });
+		const [position, cursor] = [{ x: window?.getPosition()[0] ?? 0, y: window?.getPosition()[1] ?? 0 } as Electron.Point, screen.getCursorScreenPoint()];
+
+		window?.webContents.send(Window.Event.CONTEXTMENU, { x: cursor.x - position.x, y: cursor.y - position.y });
 	});
 	//
 	// chromium events
