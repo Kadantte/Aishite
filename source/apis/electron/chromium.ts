@@ -125,7 +125,7 @@ async function call<T>(command: Window.Function | Window.Property, ...args: Arra
 
 	print({ command: command, response: response });
 
-	return response;
+	return response as T;
 }
 
 Object.defineProperty(window, "chromium", {
