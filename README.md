@@ -63,13 +63,13 @@ For **property** comparisons, syntax is as followed.<br>
 For **function** calls, syntax is as followed.<br>
 
 ```md
-<identifier>(<literal>)
+<identifier>(<literal>) or <identifier>(<literal>, ..., <literal>)
 ```
 
 **Literal** can be any of followed.<br>
 
 ```md
-<literal> = <number> or <string>
+<literal> = <number> or <string> or <boolean>
 ```
 
 Do note only double quotes is allowed.<br>
@@ -84,7 +84,7 @@ Do note only double quotes is allowed.<br>
 
 Below is a usage example.<br>
 
-```md
+```ts
 language = "english" & type != "manga"
 ```
 
@@ -94,32 +94,30 @@ If **parser** fails under any circumstances or result **collection** is empty, r
 
 Below is full list of available properties.<br>
 
-```md
-# string
-id
-# number
-type
-group
-series
-artist
-male
-female
-popular
-character
-language
+```ts
+id = <number>
+type = <string>
+group = <string>
+series = <string>
+artist = <string>
+male = <string>
+female = <string>
+popular = <string>
+character = <string>
+language = <string>
 ```
 
 Below is full list of available functions.<br>
 
-```md
-# string
-title
+```ts
+title(value: <string>)
+random(minimum: <number>, maximum: <number>)
 ```
 
 Below is a usage example.<br>
 
-```md
-# contains the same elements but order differs
+```ts
+// contains the same elements but order differs
 language = "english" + title("just some title string") + id = 69
 title("just some title string") + language = "english" + id = 69
 ```

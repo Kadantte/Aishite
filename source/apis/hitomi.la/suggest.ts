@@ -58,7 +58,8 @@ async function unknown_0(query: string) {
 		const sigma = await unknown_6(fragment[0], digits);
 		if (timestamp !== UUID) throw Error();
 		return sigma;
-	} catch {
+	}
+	catch {
 		return [];
 	}
 }

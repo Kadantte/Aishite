@@ -62,7 +62,8 @@ class Storage extends MappedStateHandler<string, StorageState> {
 	protected import(path: StorageState["path"], fallback: StorageState["state"] = {}) {
 		try {
 			return new StorageState({ path: path, state: JSON.parse(filesystem.read(path)) });
-		} catch {
+		}
+		catch {
 			return new StorageState({ path: path, state: fallback });
 		}
 	}

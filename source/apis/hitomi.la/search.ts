@@ -23,6 +23,7 @@ enum Symbol {
 	//
 	N_LITERAL,
 	S_LITERAL,
+	B_LITERAL,
 	//
 	IDENTIFIER,
 	//
@@ -75,12 +76,45 @@ class Parser {
 			}
 		}
 
-		function exception(): never {
-			throw Error(`Could not parse ${unprocessed.at(index)} at position ${index}`);
-		}
-
 		try {
 			while (index < unprocessed.length) {
+				// cache
+				const chunk = unprocessed.substring(index);
+
+				let match: Nullable<RegExpExecArray>;
+
+				// number
+				if ((match = /^(-?[\d]+)/.exec(chunk)) !== null) {
+					this._tokens.push(new Token(Symbol.N_LITERAL, Number(match[1])));
+					index += match[0].length;
+					continue;
+				}
+				// string
+				if ((match = /^"([^"]*)"/.exec(chunk)) !== null) {
+					this._tokens.push(new Token(Symbol.S_LITERAL, String(match[1])));
+					index += match[0].length;
+					continue;
+				}
+				// identifier
+				if ((match = /^[\w]+/.exec(chunk)) !== null) {
+					switch (match[0]) {
+						case "true": {
+							this._tokens.push(new Token(Symbol.B_LITERAL, true));
+							break;
+						}
+						case "false": {
+							this._tokens.push(new Token(Symbol.B_LITERAL, false));
+							break;
+						}
+						default: {
+							this._tokens.push(new Token(Symbol.IDENTIFIER, match[0]));
+							break;
+						}
+					}
+					index += match[0].length;
+					continue;
+				}
+				// etc
 				switch (unprocessed.at(index)) {
 					case "&": { process(this, Symbol.AND); continue; }
 					case "+": { process(this, Symbol.PLUS); continue; }
@@ -94,36 +128,11 @@ class Parser {
 							process(this, Symbol.N_EQUAL);
 							continue;
 						}
-						// nani?
-						return exception();
+						throw Error(`Could not parse ${unprocessed.at(index)} at position ${index}`);
 					}
 					case space: { index++; continue; }
 				}
-				// cache
-				const chunk = unprocessed.substring(index);
-
-				let match: Nullable<RegExpExecArray>;
-
-				// number
-				if ((match = /^[-?\d]+/.exec(chunk)) !== null) {
-					this._tokens.push(new Token(Symbol.N_LITERAL, Number(match[0])));
-					index += match[0].length;
-					continue;
-				}
-				// string
-				if ((match = /^"([^"]*)"/.exec(chunk)) !== null) {
-					this._tokens.push(new Token(Symbol.S_LITERAL, String(match[1])));
-					index += match[0].length;
-					continue;
-				}
-				// identifier
-				if ((match = /^[\w]+/.exec(chunk)) !== null) {
-					this._tokens.push(new Token(Symbol.IDENTIFIER, match[0]));
-					index += match[0].length;
-					continue;
-				}
-				// nani?
-				return exception();
+				throw Error(`Could not parse ${unprocessed.at(index)} at position ${index}`);
 			}
 			// close
 			this._tokens.push(new Token(Symbol.EOF));
@@ -132,7 +141,8 @@ class Parser {
 			for (const token of this._tokens) {
 				print(token.value ? { type: Symbol[token.type], value: token.value } : { type: Symbol[token.type] });
 			}
-		} catch (error) {
+		}
+		catch (error) {
 			// debug
 			print(error);
 			// reset
@@ -142,24 +152,27 @@ class Parser {
 	protected peek() {
 		return this._tokens[this._index];
 	}
-	protected skip(value: number = 1) {
-		// increase
-		this._index += value;
+	protected next() {
+		// raise
+		this._index++;
 
 		return this.peek();
 	}
 	public async parse() {
 		// empty
 		if (this._tokens.isEmpty()) return this.fallback();
-		
+
 		try {
 			// cache
 			const value = await this.E();
 
-			return value.isEmpty() ? this.fallback() : value;
-		} catch (error) {
+			if (value.isEmpty()) return this.fallback();
+
+			return value;
+		}
+		catch (error) {
 			// debug
-			print(`Could not process token at position ${this._index}`); print(error);
+			print(`Could not process token at index ${this._index}`); print(error);
 
 			return this.fallback();
 		}
@@ -182,7 +195,7 @@ class Parser {
 			}
 			const token = this.peek();
 
-			this.skip();
+			this.next();
 
 			const _value = await this.T();
 
@@ -219,14 +232,14 @@ class Parser {
 			}
 			case Symbol.L_PAREN: {
 				// raise
-				this.skip();
+				this.next();
 				// compute
 				value = await this.E();
 				break;
 			}
 		}
 		// raise
-		this.skip();
+		this.next();
 
 		return value;
 	}
@@ -234,13 +247,13 @@ class Parser {
 		const token = this.peek(), handle = built_in(token.value as string);
 
 		if (handle === null) {
-			throw Error();
+			throw Error(`Could not find property or function named "${this.peek().value}"`);
 		}
-		else if (handle instanceof HandleProperty) {
-			switch (this.skip().type) {
+		else if (handle instanceof _Property) {
+			switch (this.next().type) {
 				case Symbol.EQUAL: {
 					// cache
-					const key = token.value as string + "==" + this.skip().value;
+					const key = token.value as string + "==" + this.next().value;
 
 					if (this._table.has(key)) return this._table.get(key)!;
 
@@ -252,7 +265,7 @@ class Parser {
 				}
 				case Symbol.N_EQUAL: {
 					// cache
-					const key = token.value as string + "!=" + this.skip().value;
+					const key = token.value as string + "!=" + this.next().value;
 
 					if (this._table.has(key)) return this._table.get(key)!;
 
@@ -266,29 +279,31 @@ class Parser {
 					return value;
 				}
 				default: {
-					throw Error();
+					throw Error(`Could not process property comparison, ${Symbol[this.peek().type]} is invalid operator`);
 				}
 			}
 		}
-		else if (handle instanceof HandleFunction) {
+		else if (handle instanceof _Function) {
 			// open
-			if (!this.skip().is(Symbol.L_PAREN)) throw Error();
+			if (!this.next().is(Symbol.L_PAREN)) throw Error(`Could not process function call, expected ${Symbol[Symbol.L_PAREN]} but received ${Symbol[this.peek().type]}`);
 
 			const token: Array<Token> = [];
 
-			while (token.length < handle.length) {
+			while (true) {
 				// update
-				token.add(this.skip());
-				// check
-				if (token.length < handle.length && !this.skip().is(Symbol.COMMA)) throw Error();
+				token.add(this.next());
+
+				if (token.length === handle.length) break;
+
+				if (!this.next().is(Symbol.COMMA)) throw Error(`Could not process function call, expected ${Symbol[Symbol.COMMA]} but received ${Symbol[this.peek().type]}`);
 			}
 			// close
-			if (!this.skip().is(Symbol.R_PAREN)) throw Error();
+			if (!this.next().is(Symbol.R_PAREN)) throw Error(`Could not process function call, expected ${Symbol[Symbol.R_PAREN]} but received ${Symbol[this.peek().type]}`);
 
 			return handle.call(...token);
 		}
 		else {
-			throw Error();
+			throw Error(`Could not process identifier`);
 		}
 	}
 	protected async fallback(): Promise<Set<number>> {
@@ -299,7 +314,7 @@ class Parser {
 	}
 }
 
-class HandleProperty {
+class _Property {
 	constructor(
 		private readonly type: Symbol,
 		private readonly handle: (token: Token) => Promise<Array<number>>
@@ -307,13 +322,13 @@ class HandleProperty {
 		// TODO: none
 	}
 	public async call(token: Token) {
-		if (!token.is(this.type)) throw Error(`Could not match symbol, ${Symbol[token.type]} is not ${Symbol[this.type]}`);
+		if (!token.is(this.type)) throw Error(`Could not match symbol, expected ${Symbol[this.type]} but received ${Symbol[token.type]}`);
 
 		return new Set(await this.handle(token));
 	}
 }
 
-class HandleFunction {
+class _Function {
 	constructor(
 		private readonly type: Array<Symbol>,
 		private readonly handle: (...token: Array<Token>) => Promise<Array<number>>
@@ -322,7 +337,7 @@ class HandleFunction {
 	}
 	public async call(...token: Array<Token>) {
 		for (let index = 0; index < token.length; index++) {
-			if (!token[index].is(this.type[index])) throw Error(`Could not match symbol, ${Symbol[token[index].type]} is not ${Symbol[this.type[index]]}`);
+			if (!token[index].is(this.type[index])) throw Error(`Could not match symbol, expected ${Symbol[this.type[index]]} but received ${Symbol[token[index].type]}`);
 		}
 		return new Set(await this.handle(...token));
 	}
@@ -335,48 +350,52 @@ function built_in(namespace: string) {
 	switch (namespace) {
 		// property
 		case "id": {
-			return new HandleProperty(Symbol.N_LITERAL, async (token_0) => [token_0.value as number]);
+			return new _Property(Symbol.N_LITERAL, async (token_0) => [token_0.value as number]);
 		}
 		case "male": {
-			return new HandleProperty(Symbol.S_LITERAL, async (token_0) => unknown_0("tag", new Tag({ namespace: "male:" + token_0.value as string, value: "all" })));
+			return new _Property(Symbol.S_LITERAL, async (token_0) => unknown_0("tag", new Tag({ namespace: "male:" + token_0.value as string, value: "all" })));
 		}
 		case "female": {
-			return new HandleProperty(Symbol.S_LITERAL, async (token_0) => unknown_0("tag", new Tag({ namespace: "female:" + token_0.value as string, value: "all" })));
+			return new _Property(Symbol.S_LITERAL, async (token_0) => unknown_0("tag", new Tag({ namespace: "female:" + token_0.value as string, value: "all" })));
 		}
 		case "type": {
-			return new HandleProperty(Symbol.S_LITERAL, async (token_0) => unknown_0("type", new Tag({ namespace: token_0.value as string, value: "all" })));
+			return new _Property(Symbol.S_LITERAL, async (token_0) => unknown_0("type", new Tag({ namespace: token_0.value as string, value: "all" })));
 		}
 		case "group": {
-			return new HandleProperty(Symbol.S_LITERAL, async (token_0) => unknown_0("group", new Tag({ namespace: token_0.value as string, value: "all" })));
+			return new _Property(Symbol.S_LITERAL, async (token_0) => unknown_0("group", new Tag({ namespace: token_0.value as string, value: "all" })));
 		}
 		case "series": {
-			return new HandleProperty(Symbol.S_LITERAL, async (token_0) => unknown_0("series", new Tag({ namespace: token_0.value as string, value: "all" })));
+			return new _Property(Symbol.S_LITERAL, async (token_0) => unknown_0("series", new Tag({ namespace: token_0.value as string, value: "all" })));
 		}
 		case "artist": {
-			return new HandleProperty(Symbol.S_LITERAL, async (token_0) => unknown_0("artist", new Tag({ namespace: token_0.value as string, value: "all" })));
+			return new _Property(Symbol.S_LITERAL, async (token_0) => unknown_0("artist", new Tag({ namespace: token_0.value as string, value: "all" })));
 		}
 		case "popular": {
-			return new HandleProperty(Symbol.S_LITERAL, async (token_0) => unknown_0("popular", new Tag({ namespace: token_0.value as string, value: "all" })));
+			return new _Property(Symbol.S_LITERAL, async (token_0) => unknown_0("popular", new Tag({ namespace: token_0.value as string, value: "all" })));
 		}
 		case "character": {
-			return new HandleProperty(Symbol.S_LITERAL, async (token_0) => unknown_0("character", new Tag({ namespace: token_0.value as string, value: "all" })));
+			return new _Property(Symbol.S_LITERAL, async (token_0) => unknown_0("character", new Tag({ namespace: token_0.value as string, value: "all" })));
 		}
 		case "language": {
-			return new HandleProperty(Symbol.S_LITERAL, async (token_0) => unknown_0(null, new Tag({ namespace: "index", value: token_0.value as string })));
+			return new _Property(Symbol.S_LITERAL, async (token_0) => unknown_0(null, new Tag({ namespace: "index", value: token_0.value as string })));
 		}
 		// function
-		case "idk": {
-			return new HandleFunction([Symbol.N_LITERAL, Symbol.N_LITERAL], async (token_0, token_1) => {
-				return [(token_0.value as number) + (token_1.value as number)];
-			});
-		}
 		case "title": {
-			return new HandleFunction([Symbol.S_LITERAL], async (token_0) => {
+			return new _Function([Symbol.S_LITERAL], async (token_0) => {
 				try {
 					return unknown_1(await suggest.unknown_5("galleries", suggest.unknown_1(token_0.value as string), await suggest.unknown_3("galleries", 0)));
-				} catch {
+				}
+				catch {
 					return [];
 				}
+			});
+		}
+		case "random": {
+			return new _Function([Symbol.N_LITERAL, Symbol.N_LITERAL], async (token_0, token_1) => {
+				const minimum = token_0.value as number;
+				const maximum = token_1.value as number;
+
+				return [Math.floor(Math.random() * (maximum - minimum + 1)) + minimum];
 			});
 		}
 		default: {

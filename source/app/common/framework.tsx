@@ -81,7 +81,8 @@ export abstract class Stateful<P extends Clear<any>, S> extends React.Component<
 	public node<T extends Element = HTMLElement>() {
 		try {
 			return ReactDOM.findDOMNode(this as React.Component) as Nullable<T>;
-		} catch {
+		}
+		catch {
 			return null;
 		}
 	}
@@ -121,7 +122,8 @@ export abstract class Stateless<P extends Clear<any>> extends React.PureComponen
 	public node<T extends Element = HTMLElement>() {
 		try {
 			return ReactDOM.findDOMNode(this as React.Component) as Nullable<T>;
-		} catch {
+		}
+		catch {
 			return null;
 		}
 	}
