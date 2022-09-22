@@ -132,7 +132,8 @@ function args(uuid: string) {
 
 			if (_value !== undefined && typeof _value === typeof value) {
 				args[key] = _value;
-			} else {
+			}
+			else {
 				args[key] = value;
 			}
 		}

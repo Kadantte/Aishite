@@ -263,7 +263,8 @@ class Gallery extends Stateful<GalleryProps, GalleryState> {
 									onMouseDown={(style) => {
 										if (this.state.background !== Ayanami.INFORMATION) {
 											style(Color.RGBA_000, () => this.setState((state) => ({ background: Ayanami.INFORMATION })));
-										} else {
+										}
+										else {
 											style(Color.TEXT_000, () => this.setState((state) => ({ background: Ayanami.THUMBNAIL_1 })));
 										}
 									}}

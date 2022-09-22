@@ -102,7 +102,8 @@ async function block(id: number) {
 					}
 					// assign value
 					metadata.set(key, value);
-				} else {
+				}
+				else {
 					// assign value
 					metadata.set(key, children.textContent);
 				}

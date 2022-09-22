@@ -71,7 +71,8 @@ export abstract class MappedStateHandler<Key, Value> {
 
 		if (value === null) {
 			this._state.delete(key);
-		} else {
+		}
+		else {
 			this._state.set(key, value);
 		}
 		extension?.(this._state);

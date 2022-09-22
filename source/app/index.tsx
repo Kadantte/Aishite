@@ -123,7 +123,8 @@ class App extends Stateful<AppProps, AppState> {
 						onMouseDown={(style) => {
 							if (this.state.maximize) {
 								chromium.unmaximize();
-							} else {
+							}
+							else {
 								chromium.maximize();
 							}
 						}}
@@ -261,10 +262,12 @@ class Controller extends Stateful<ControllerProps, ControllerState> {
 							children.style.setProperty("z-index", "unset");
 							children.style.setProperty("transform", "unset");
 						}
+
 						if (history.state.index !== this.state.handle.index) {
 							// update
 							history.reorder(this.state.handle.index);
-						} else {
+						}
+						else {
 							// reset
 							this.setState((state) => ({ handle: null }));
 						}
@@ -301,7 +304,8 @@ class Controller extends Stateful<ControllerProps, ControllerState> {
 							if (event.movementX < 0) {
 								if (this.state.index < this.state.handle.index && this.state.handle.index > destination) {
 									(element.children.item(destination + 1) as HTMLElement).style.setProperty("transform", "unset");
-								} else {
+								}
+								else {
 									(element.children.item(destination) as HTMLElement).style.setProperty("transform", "translateX(100%)");
 								}
 							}
@@ -309,7 +313,8 @@ class Controller extends Stateful<ControllerProps, ControllerState> {
 							if (event.movementX > 0) {
 								if (this.state.index > this.state.handle.index && this.state.handle.index < destination) {
 									(element.children.item(destination - 1) as HTMLElement).style.setProperty("transform", "unset");
-								} else {
+								}
+								else {
 									(element.children.item(destination) as HTMLElement).style.setProperty("transform", "translateX(-100%)");
 								}
 							}

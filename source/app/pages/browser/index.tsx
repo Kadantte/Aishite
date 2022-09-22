@@ -239,7 +239,8 @@ class Browser extends Page<BrowserProps, BrowserState> {
 		if (this.state.init) {
 			// update
 			this.discord(true);
-		} else {
+		}
+		else {
 			// update
 			this.discord(false);
 

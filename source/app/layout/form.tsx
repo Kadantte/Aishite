@@ -31,7 +31,7 @@ class Form extends Stateful<FormProps, FormState> {
 		return {
 			SHOULD_UPDATE: (props, state, context) => {
 				if (this.props.toggle !== props.toggle) {
-					this.node<HTMLInputElement>()?.blur();
+					this.node<HTMLInputElement>().blur();
 				}
 				return true;
 			}
@@ -54,18 +54,20 @@ class Form extends Stateful<FormProps, FormState> {
 					role: "Cut",
 					toggle: this.state.highlight,
 					method: async () => {
-						// @ts-ignore
-						this.node<HTMLInputElement>()!.value = null;
-						// text/plain
-						navigator.clipboard.writeText(window.getSelection()!.toString());
+						// clipboard
+						navigator.clipboard.write([new ClipboardItem({ "text/plain": new Blob([window.getSelection()!.toString()], { type: "text/plain" }) })]);
+						// cache
+						const element = this.node<HTMLInputElement>();
+						// modify
+						element.value = element.value.substring(0, element.selectionStart!) + element.value.substring(element.selectionEnd!, element.value.length);
 					}
 				},
 				{
 					role: "Copy",
 					toggle: this.state.highlight,
 					method: async () => {
-						// text/plain
-						navigator.clipboard.writeText(window.getSelection()!.toString());
+						// clipboard
+						navigator.clipboard.write([new ClipboardItem({ "text/plain": new Blob([window.getSelection()!.toString()], { type: "text/plain" }) })]);
 					}
 				},
 				{
@@ -73,8 +75,8 @@ class Form extends Stateful<FormProps, FormState> {
 					toggle: true,
 					method: async () => {
 						// cache
-						const element = this.node<HTMLInputElement>()!;
-						// reset
+						const element = this.node<HTMLInputElement>();
+						// modify
 						element.value = element.value.substring(0, element.selectionStart!) + await navigator.clipboard.readText() + element.value.substring(element.selectionEnd!, element.value.length);
 					}
 				},
@@ -83,8 +85,8 @@ class Form extends Stateful<FormProps, FormState> {
 					toggle: this.state.highlight,
 					method: async () => {
 						// cache
-						const element = this.node<HTMLInputElement>()!;
-						// reset
+						const element = this.node<HTMLInputElement>();
+						// modify
 						element.value = element.value.substring(0, element.selectionStart!) + element.value.substring(element.selectionEnd!, element.value.length);
 					}
 				},
@@ -93,7 +95,7 @@ class Form extends Stateful<FormProps, FormState> {
 					toggle: true,
 					method: async () => {
 						// cache
-						const element = this.node<HTMLInputElement>()!;
+						const element = this.node<HTMLInputElement>();
 
 						setTimeout(() => {
 							// focus
@@ -119,7 +121,7 @@ class Form extends Stateful<FormProps, FormState> {
 						// trigger
 						if (!this.props.onTyping?.(event.key) ?? false) event.preventDefault();
 						// trigger
-						if (event.key === "Enter") return this.props.onSubmit?.(this.node<HTMLInputElement>()?.value ?? "N/A");
+						if (event.key === "Enter") return this.props.onSubmit?.(this.node<HTMLInputElement>().value ?? "N/A");
 
 						switch (event.key) {
 							case "ArrowUp":

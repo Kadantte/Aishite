@@ -79,12 +79,7 @@ export abstract class Stateful<P extends Clear<any>, S> extends React.Component<
 	}
 	/** Built-in macro to retrieve self `HTMLElement`. */
 	public node<T extends Element = HTMLElement>() {
-		try {
-			return ReactDOM.findDOMNode(this as React.Component) as Nullable<T>;
-		}
-		catch {
-			return null;
-		}
+		return ReactDOM.findDOMNode(this as React.Component) as T;
 	}
 }
 
@@ -120,12 +115,7 @@ export abstract class Stateless<P extends Clear<any>> extends React.PureComponen
 	}
 	/** Built-in macro to retrieve self `HTMLElement`. */
 	public node<T extends Element = HTMLElement>() {
-		try {
-			return ReactDOM.findDOMNode(this as React.Component) as Nullable<T>;
-		}
-		catch {
-			return null;
-		}
+		return ReactDOM.findDOMNode(this as React.Component) as T;
 	}
 }
 

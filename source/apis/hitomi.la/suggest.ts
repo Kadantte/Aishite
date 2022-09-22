@@ -118,7 +118,8 @@ async function unknown_5(type: string, buffer: Uint8Array, bundle: Bundle): Prom
 		for (let index = 0; index < Math.min(first.length, second.length); index++) {
 			if (first[index] < second[index]) {
 				return new Pair(true, false);
-			} else if (first[index] > second[index]) {
+			}
+			else if (first[index] > second[index]) {
 				return new Pair(false, false);
 			}
 		}

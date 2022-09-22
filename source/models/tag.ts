@@ -1,6 +1,6 @@
 export class Tag {
 	readonly namespace: string;
-	readonly value: string;
+	readonly value: any;
 
 	constructor(args: Args<Tag>) {
 		this.namespace = args.namespace;

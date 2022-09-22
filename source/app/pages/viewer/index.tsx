@@ -87,7 +87,8 @@ class Viewer extends Page<ViewerProps, ViewerState> {
 
 		if (this.state.init) {
 			this.discord();
-		} else {
+		}
+		else {
 			this.display();
 		}
 
