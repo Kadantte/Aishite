@@ -100,7 +100,7 @@ class Browser extends Stateful<BrowserProps, BrowserState> {
 						// cache
 						const input = this.node().getElementsByTagName("input").item(0)!;
 
-						input.value = (input.value.trim().replace(/\s*(=|!=)\s*/g, ($0, $1) => $1).split(space).slice(0, -1).join(space).replace(/\s*[&?+-]\s*$/, "") + space + "&" + space + this.state.suggest.items[index].first).replace(/\s*(=|!=)\s*/g, ($0, $1) => space + $1 + space).replace(/^\s*[&?+-]\s*/, "");
+						input.value = (input.value.trim().replace(/\s*(=|!=)\s*/g, ($0, $1) => $1).split(space).slice(0, -1).join(space).replace(/\s*[&?+-]\s*$/, "") + space + "&" + space + this.state.suggest.items[index].first.toString()).replace(/\s*(=|!=)\s*/g, ($0, $1) => space + $1 + space).replace(/^\s*[&?+-]\s*/, "");
 					}}
 					onSelect={(text) => {
 						suggest("expire");
@@ -232,27 +232,29 @@ class Browser extends Stateful<BrowserProps, BrowserState> {
 		}
 	}
 	protected async browse(value: string, index: number = 0) {
-		// update
-		await this.setState((state) => ({ search: { value: value, index: index }, suggest: { items: [] }, gallery: { value: [], length: this.state.gallery.length }, highlight: "???" }), this.discord);
+		return new Promise(async (resolve, reject) => {
+			// update
+			await this.setState((state) => ({ search: { value: value, index: index }, suggest: { items: [] }, gallery: { value: [], length: this.state.gallery.length }, highlight: "???" }), this.discord);
 
-		const [_bundle, _galleries] = [Array.from(await search(value)), []];
+			const [_bundle, _galleries] = [Array.from(await search(value)), []];
 
-		const [_offset, _length] = [index * 25, (_bundle.length - index * 25).clamp(0, 25)];
+			const [_offset, _length] = [index * 25, (_bundle.length - index * 25).clamp(0, 25)];
 
-		for (let _index = 0; _index < _length; _index++) {
-			// bottleneck
-			gallery(_bundle[_index + _offset]).then(async (_gallery) => {
-				// @ts-ignore
-				_galleries[_index] = _gallery;
+			for (let _index = 0; _index < _length; _index++) {
+				// bottleneck
+				gallery(_bundle[_index + _offset]).then(async (_gallery) => {
+					// @ts-ignore
+					_galleries[_index] = _gallery;
 
-				if (_galleries.filter((_) => _).length === _length) {
-					// update
-					await this.setState((state) => ({ gallery: { value: _galleries, length: Math.ceil(_bundle.length / 25) } }), this.discord);
-	
-					return _bundle.length;
-				}
-			});
-		}
+					if (_galleries.filter((_) => _).length === _length) {
+						// update
+						await this.setState((state) => ({ gallery: { value: _galleries, length: Math.ceil(_bundle.length / 25) } }), this.discord);
+
+						return resolve(_bundle.length);
+					}
+				});
+			}
+		});
 	}
 	@autobind()
 	protected async onRender() {
