@@ -1,8 +1,8 @@
 {
-	"name": "aishite",
+	"name": "daisuki",
 	"main": "build/main.js",
 	"version": "2.1.5",
-	"description": "Thine shine I'll be...",
+	"description": "..?",
 	"scripts": {
 		"serve": "set NODE_ENV=development && node webpack/serve.js",
 		"build": "set NODE_ENV=production && node webpack/build.js",
@@ -10,24 +10,24 @@
 	},
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/Any-Material/Aishite.git"
+		"url": "https://github.com/Any-Material/Daisuki.git"
 	},
 	"devDependencies": {
-		"@types/node": "18.7.18",
-		"@types/react": "18.0.20",
-		"@types/react-dom": "18.0.6",
 		"@types/discord-rpc": "4.0.3",
+		"@types/node": "18.11.9",
+		"@types/react": "18.0.25",
+		"@types/react-dom": "18.0.9",
 		"discord-rpc": "4.0.1",
-		"electron": "20.1.4",
-		"electron-builder": "23.3.3",
+		"electron": "21.3.1",
+		"electron-builder": "23.6.0",
 		"file-loader": "6.2.0",
 		"html-webpack-plugin": "5.5.0",
 		"js-sha256": "0.9.0",
 		"react": "18.2.0",
 		"react-dom": "18.2.0",
-		"ts-loader": "9.4.0",
-		"typescript": "4.8.3",
-		"webpack": "5.74.0"
+		"ts-loader": "9.4.1",
+		"typescript": "4.9.3",
+		"webpack": "5.75.0"
 	},
 	"author": "Sombian"
 }

@@ -1,4 +1,4 @@
-import Unit from "@/app/common/unit";
+import unit from "@/app/common/unit";
 
 interface Transition {
 	readonly delay?: number;
@@ -7,16 +7,16 @@ interface Transition {
 	readonly function?: React.CSSProperties["transitionTimingFunction"];
 }
 
-function Transition(style: Args<Transition>): React.CSSProperties {
+function transition(style: Args<Transition>): React.CSSProperties {
 	// check before
 	if (style.property?.isEmpty()) return {};
 
 	return {
-		transitionDelay: Unit(style.delay ?? 0, "ms"),
-		transitionDuration: Unit(style.duration ?? 350, "ms"),
+		transitionDelay: unit(style.delay ?? 0, "ms"),
+		transitionDuration: unit(style.duration ?? 350, "ms"),
 		transitionProperty: style.property?.join(comma),
 		transitionTimingFunction: style.function ?? "ease-in-out"
 	};
 }
 
-export default Transition;
+export default transition;

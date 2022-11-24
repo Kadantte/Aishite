@@ -1,20 +1,16 @@
-import { Stateless } from "@/app/common/framework";
-
-import Center from "@/app/layout/center";
 import Container from "@/app/layout/container";
 
-class Button extends Stateless<Container["props"]> {
-	protected postCSS(): React.CSSProperties {
-		return {};
-	}
+class Button extends Container {
 	protected preCSS(): React.CSSProperties {
-		return {};
+		return {
+			display: "flex",
+			alignItems: "center",
+			justifyContent: "center"
+		};
 	}
 	protected build() {
 		return (
-			<Container {...this.props}>
-				<Center x={true} y={true} children={this.props.children}/>
-			</Container>
+			<section id={this.props.id ?? "button"}>{this.props.children}</section>
 		);
 	}
 }

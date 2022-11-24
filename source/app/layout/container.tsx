@@ -1,79 +1,81 @@
-import CSS from "@/app/common/style";
+import Style from "@/app/common/styles";
 import { Props } from "@/app/common/props";
+import { CSSProps } from "@/app/common/framework";
 import { Stateful } from "@/app/common/framework";
 
-interface ContainerProps extends Props<Children> {
-	/** Whether to prevent event triggers from elements underneath. */
+interface ContainerProps extends Props.Clear, Props.Style {
+	// optional
 	readonly priority?: boolean;
-	readonly transition?: CSS["transition"];
+	readonly transition?: Style["transition"];
 	// events
-	readonly onMouseUp?: (callback: Container["style"]) => void;
-	readonly onMouseDown?: (callback: Container["style"]) => void;
-	readonly onMouseEnter?: (callback: Container["style"]) => void;
-	readonly onMouseLeave?: (callback: Container["style"]) => void;
-	readonly onMouseMove?: (callback: Container["style"]) => void;
+	readonly onMouseUp?: (setStyle: typeof Container.prototype["setStyle"]) => void;
+	readonly onMouseDown?: (setStyle: typeof Container.prototype["setStyle"]) => void;
+	readonly onMouseEnter?: (setStyle: typeof Container.prototype["setStyle"]) => void;
+	readonly onMouseLeave?: (setStyle: typeof Container.prototype["setStyle"]) => void;
+	readonly onMouseMove?: (setStyle: typeof Container.prototype["setStyle"]) => void;
 }
 
 interface ContainerState {
-	decoration: Nullable<Pick<ContainerProps, ("color" | "image" | "border" | "corner" | "shadow" | "opacity")>>;
+	decoration?: Props.Style;
 }
 
 class Container extends Stateful<ContainerProps, ContainerState> {
 	protected create() {
-		this.style = this.style.bind(this);
-
-		return ({ decoration: null });
-	}
-	protected postCSS(): React.CSSProperties {
 		return {
-			// handfully
-			backgroundColor: this.state.decoration?.color,
-			backgroundImage: this.state.decoration?.image,
-			// automatic
-			...CSS.Border(this.state.decoration?.border ?? {}),
-			...CSS.Corner(this.state.decoration?.corner ?? {}),
-			...CSS.Shadow(this.state.decoration?.shadow ?? []),
-			// handfully...
-			opacity: this.state.decoration?.opacity ? (this.state.decoration.opacity.clamp(0, 100) / 100) : undefined,
-			// @ts-ignore
-			...CSS.Transition({ ...this.props.transition, property: ["opacity", "box-shadow", "border", "border-radius", "transform", "background"] })
+			decoration: undefined
 		};
+	}
+	protected events() {
+		return {};
 	}
 	protected preCSS(): React.CSSProperties {
 		return {};
 	}
+	protected postCSS(): React.CSSProperties {
+		return {
+			// automatic
+			...CSSProps.plus(this.state.decoration ?? {}),
+			// @ts-ignore
+			...Style.transition({ ...this.props.transition, property: ["opacity", "box-shadow", "border", "border-radius", "transform", "background"] })
+		};
+	}
+	protected override() {
+		return {
+			// events
+			onMouseUp: (event: MouseEvent) => {
+				if (this.props.priority) event.stopPropagation();
+				this.props.onMouseUp?.(this.setStyle);
+			},
+			onMouseDown: (event: MouseEvent) => {
+				if (this.props.priority) event.stopPropagation();
+				this.props.onMouseDown?.(this.setStyle);
+			},
+			onMouseEnter: (event: MouseEvent) => {
+				if (this.props.priority) event.stopPropagation();
+				this.props.onMouseEnter?.(this.setStyle);
+			},
+			onMouseLeave: (event: MouseEvent) => {
+				if (this.props.priority) event.stopPropagation();
+				this.props.onMouseLeave?.(this.setStyle);
+			},
+			onMouseMove: (event: MouseEvent) => {
+				if (this.props.priority) event.stopPropagation();
+				this.props.onMouseMove?.(this.setStyle);
+			},
+			onContextMenu: (event: MouseEvent) => {
+				if (this.props.onMouseUp) event.stopPropagation();
+				if (this.props.onMouseDown) event.stopPropagation();
+			}
+		};
+	}
 	protected build() {
 		return (
-			<section id={this.props.id}
-				onMouseUp={(event) => {
-					if (this.props.priority) event.stopPropagation();
-					this.props.onMouseUp?.(this.style);
-				}}
-				onMouseDown={(event) => {
-					if (this.props.priority) event.stopPropagation();
-					this.props.onMouseDown?.(this.style);
-				}}
-				onMouseEnter={(event) => {
-					if (this.props.priority) event.stopPropagation();
-					this.props.onMouseEnter?.(this.style);
-				}}
-				onMouseLeave={(event) => {
-					if (this.props.priority) event.stopPropagation();
-					this.props.onMouseLeave?.(this.style);
-				}}
-				onMouseOver={(event) => {
-					if (this.props.priority) event.stopPropagation();
-					this.props.onMouseMove?.(this.style);
-				}}
-				onContextMenu={(event) => {
-					if (this.props.onMouseUp) event.stopPropagation();
-					if (this.props.onMouseDown) event.stopPropagation();
-				}}
-			>{this.props.children}</section>
+			<section id={this.props.id ?? "container"}>{this.props.children}</section>
 		);
 	}
-	public style(decoration: ContainerState["decoration"], callback?: () => void) {
-		this.setState((state) => ({ decoration: decoration }), () => callback?.());
+	@autobind()
+	protected setStyle(decoration: ContainerState["decoration"], callback?: () => void) {
+		this.setState((state) => ({ decoration: decoration }), callback);
 	}
 }
 

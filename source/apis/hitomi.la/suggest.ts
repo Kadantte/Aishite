@@ -32,15 +32,7 @@ class Bundle {
 	}
 }
 
-async function tags(query: string) {
-	return unknown_0(query.replace(/_/g, space));
-}
-
-async function outdate() {
-	timestamp++;
-}
-
-async function unknown_0(query: string) {
+async function unknown_0(value: string) {
 	timestamp++;
 
 	const UUID = timestamp;
@@ -48,16 +40,16 @@ async function unknown_0(query: string) {
 	// 0: namespace
 	// 1: value
 	//
-	const fragment = query.includes(":") ? query.split(":") : ["global", query];
+	const fragment = value.includes(":") ? value.split(":") : ["global", value];
 
 	try {
 		const bundle = await unknown_3(fragment[0], 0);
 		if (timestamp !== UUID) throw Error();
 		const digits = await unknown_5(fragment[0], unknown_1(fragment[1]), bundle);
 		if (timestamp !== UUID) throw Error();
-		const sigma = await unknown_6(fragment[0], digits);
+		const result = await unknown_6(fragment[0], digits);
 		if (timestamp !== UUID) throw Error();
-		return sigma;
+		return result;
 	}
 	catch {
 		return [];
@@ -163,7 +155,7 @@ async function unknown_6(type: string, digits: Pair<number, number>) {
 
 	const binary = new Binary({ offset: 0, buffer: new DataView(response.buffer) });
 
-	const sigma = Array<Pair<Tag, number>>();
+	const result = Array<Pair<Tag, number>>();
 
 	const _0 = binary.buffer.getInt32(binary.offset, Endian.BIG);
 	binary.offset += 4;
@@ -194,10 +186,25 @@ async function unknown_6(type: string, digits: Pair<number, number>) {
 			binary.offset += 1;
 		}
 
-		sigma.add(new Pair(new Tag({ namespace: namespace, value: value }), binary.buffer.getUint32(binary.offset, Endian.BIG)));
+		result.add(new Pair(new Tag({ namespace: namespace, value: value }), binary.buffer.getUint32(binary.offset, Endian.BIG)));
 		binary.offset += 4;
 	}
-	return sigma;
+	
+	return result;
+}
+
+export async function suggest(value: string) {
+	switch (value) {
+		case "expire": {
+			// outdate
+			timestamp++;
+
+			return new Promise((resolve, reject) => resolve([])) as ReturnType<Await<typeof unknown_0>>;
+		}
+		default: {
+			return unknown_0(value.replace(/_/g, space));
+		}
+	}
 }
 
 class JavaScriptModule {
@@ -217,11 +224,4 @@ class JavaScriptModule {
 	public unknown_6(...args: Parameters<typeof unknown_6>) { return unknown_6(...args); }
 }
 
-export const module = new JavaScriptModule();
-
-const suggest = {
-	tags: tags,
-	outdate: outdate
-};
-
-export default suggest;
+export const suggestJS = new JavaScriptModule();

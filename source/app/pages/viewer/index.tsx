@@ -1,139 +1,151 @@
-import Page from "@/app/pages";
-
-import Unit from "@/app/common/unit";
-import Layout from "@/app/common/layout";
-import { Clear } from "@/app/common/props";
-import { LifeCycle } from "@/app/common/framework";
+import Style from "@/app/common/styles";
+import Color from "@/app/common/color";
+import { Props } from "@/app/common/props";
+import { Stateful } from "@/app/common/framework";
 
 import Image from "@/app/layout/image";
 
 import discord from "@/modules/discord";
 
-import history from "@/handles/history";
+import structure from "@/handles";
 
-import gallery from "@/apis/hitomi.la/gallery";
+import { gallery } from "@/apis/hitomi.la/gallery";
 
-type _Gallery = Await<ReturnType<typeof gallery["get"]>>;
-type _GalleryFile = Await<ReturnType<_Gallery["getFiles"]>>;
-
-interface ViewerProps extends Clear<undefined> {
-	readonly factor: number;
+interface ViewerProps extends Props.Clear<undefined> {
+	// required
+	readonly width: number;
 	readonly gallery: number;
 }
 
 interface ViewerState {
 	init: boolean;
-	ctrl: boolean;
-	title: string;
-	files: _GalleryFile;
-	factor: number;
+	width: number;
+	control: boolean;
+	gallery: {
+		title: string;
+		files: Await<ReturnType<Await<ReturnType<typeof gallery>>["files"]>>;
+	};
 }
 
-class Viewer extends Page<ViewerProps, ViewerState> {
+class Viewer extends Stateful<ViewerProps, ViewerState> {
 	protected create() {
-		// permanent
-		this.handle_0 = this.handle_0.bind(this);
-		this.handle_1 = this.handle_1.bind(this);
-		this.handle_2 = this.handle_2.bind(this);
-		this.handle_3 = this.handle_3.bind(this);
-		this.handle_4 = this.handle_4.bind(this);
-
-		return ({ init: false, ctrl: false, title: "Loading...", files: [], factor: this.props.factor });
+		return {
+			init: false,
+			width: this.props.width,
+			control: false,
+			gallery: {
+				title: "???",
+				files: []
+			}
+		};
 	}
-	protected events(): LifeCycle<ViewerProps, ViewerState> {
+	protected events() {
 		return {
 			DID_MOUNT: () => {
+				// initial
+				this.onRender();
 				// @ts-ignore
-				this.handle_0(null);
+				structure("history").handle(this.onRender);
 
-				history.handle(this.handle_0);
-
-				window.addEventListener("resize", this.handle_1);
-				// for zoom
-				window.addEventListener("wheel", this.handle_2);
-				window.addEventListener("keyup", this.handle_3);
-				window.addEventListener("keydown", this.handle_4);
+				window.addEventListener("wheel", this.onWheel);
+				window.addEventListener("keyup", this.onKeyUp);
+				window.addEventListener("resize", this.onResize);
+				window.addEventListener("keydown", this.onKeyDown);
 			},
 			WILL_UNMOUNT: () => {
-				history.unhandle(this.handle_0);
+				// @ts-ignore
+				structure("history").unhandle(this.onRender);
 
-				window.removeEventListener("resize", this.handle_1);
-				// for zoom
-				window.removeEventListener("wheel", this.handle_2);
-				window.removeEventListener("keyup", this.handle_3);
-				window.removeEventListener("keydown", this.handle_4);
+				window.removeEventListener("wheel", this.onWheel);
+				window.removeEventListener("keyup", this.onKeyUp);
+				window.removeEventListener("resize", this.onResize);
+				window.removeEventListener("keydown", this.onKeyDown);
 			}
+		};
+	}
+	protected preCSS(): React.CSSProperties {
+		return {
+			// manually
+			overflow: "auto",
+			// automatic
+			...Style.size({ width: 100.0 + "%", height: 100.0 + "%" })
 		};
 	}
 	protected postCSS(): React.CSSProperties {
 		return {};
 	}
-	protected preCSS(): React.CSSProperties {
-		return {};
+	protected override() {
+		return {
+			"data-scrollbar": "square"
+		};
 	}
 	protected build() {
 		return (
-			<section id="viewer">
-				{this.state.files.map((file, index) => {
+			<section id={this.props.id ?? "viewer"}>
+				{this.state.gallery.files.map((file, index) => {
 					return (
-						<Image key={index} source={file.url} width={this.state.factor} height={file.height / (file.width / window.innerWidth.clamp(0, this.state.factor))} minimum={{ width: Layout.width * 0.75 }} maximum={{ width: Unit(100, "%") }} margin={{ all: "auto" }}/>
+						<Image key={index} source={file.url} offset={{ margin: { all: "auto" } }} constraint={{ width: this.state.width, height: file.height / (file.width / window.innerWidth.clamp(0, this.state.width)), minimum: { width: app.min_width * 0.75 }, maximum: { width: 100.0 + "%" } }} decoration={{ color: Color.pick(3.0), shadow: [{ x: -4.5, y: 0, blur: 4.5, spread: -4.5, color: Color.pick(1.0) }, { x: 4.5, y: 0, blur: 4.5, spread: -4.5, color: Color.pick(1.0) }] }}></Image>
 					);
 				})}
 			</section>
 		);
 	}
-	protected handle_0(event: Parameters<Parameters<typeof history["handle"]>[0]>[0]) {
-		if (!this.visible()) return;
-
-		if (this.state.init) {
-			this.discord();
-		}
-		else {
-			this.display();
-		}
-
+	protected visible() {
+		return structure("history").state.pages[structure("history").state.index].element.props["data-key"] === (this.props as any)["data-key"];
 	}
-	protected handle_1(event: UIEvent) {
+	protected discord() {
+		// skip
 		if (!this.visible()) return;
 
+		discord.update({ state: "Reading (" + this.props.gallery + ")", details: this.state.gallery.title, partyMax: undefined, partySize: undefined });
+	}
+	@autobind()
+	protected async onRender() {
+		// skip
+		if (!this.visible()) return;
+		// discordRPC
+		this.discord();
+
+		if (!this.state.init) {
+			// update
+			this.state.init = true;
+
+			const _gallery = await gallery(this.props.gallery);
+			const _files = await _gallery.files();
+
+			await this.setState((state) => ({ gallery: { title: _gallery.title, files: _files } }));
+		}
+	}
+	@autobind()
+	protected async onWheel(event: WheelEvent) {
+		// skip
+		if (!this.visible()) return;
+		if (!this.state.control) return;
+
+		await this.setState((state) => ({ width: (state.width - event.deltaY).clamp(app.min_width * 0.75, window.innerWidth) }));
+	}
+	@autobind()
+	protected async onKeyUp(event: KeyboardEvent) {
+		// skip
+		if (!this.visible()) return;
+		if (event.key !== "Control") return;
+
+		this.state.control = false;
+	}
+	@autobind()
+	protected async onResize(event: UIEvent) {
+		// skip
+		if (!this.visible()) return;
+		// re-render
 		this.setState((state) => ({}));
 	}
-	protected handle_2(event: WheelEvent) {
-		if (!this.visible()) return;
-		if (!this.state.ctrl) return;
-		
-		this.setState((state) => ({ factor: (state.factor - event.deltaY).clamp(Layout.width * 0.75, window.innerWidth) }));
-	}
-	protected handle_3(event: KeyboardEvent) {
+	@autobind()
+	protected async onKeyDown(event: KeyboardEvent) {
+		// skip
 		if (!this.visible()) return;
 		if (event.key !== "Control") return;
-		
-		this.state.ctrl = false;
-	}
-	protected handle_4(event: KeyboardEvent) {
-		if (!this.visible()) return;
-		if (event.key !== "Control") return;
-		
-		this.state.ctrl = true;
-	}
-	protected discord(state: boolean = true) {
-		if (!this.visible()) return;
 
-		switch (state) {
-			case true:
-			case false: {
-				discord.update({
-					state: `Reading (${this.props.gallery})`,
-					details: this.state.title,
-					partyMax: undefined,
-					partySize: undefined
-				});
-				break;
-			}
-		}
-	}
-	protected display() {
-		gallery.get(this.props.gallery).then((_gallery) => _gallery.getFiles().then((files) => this.setState((state) => ({ init: true, title: _gallery.title, files: files }), () => this.discord())));
+		this.state.control = true;
 	}
 }
 

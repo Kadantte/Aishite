@@ -1,21 +1,19 @@
-export abstract class StateHandler<State> {
-	private _state: State;
+export abstract class StateHandler<S> {
+	private _state: S;
 	private readonly _event = new EventTarget();
 
-	constructor(state: State) {
-		// init
+	constructor(state: S) {
 		this._state = state;
-
 		this.create();
 	}
 	protected get state() {
 		return this._state;
 	}
-	protected set state(state: State) {
+	protected set state(state: S) {
 		// prevent shallow-copy
 		if (this._state === state) throw new Error("Shallow-copy is not allowed");
 
-		const callback = new StateCallback({ before: this._state, after: state });
+		const callback = new StateCallback({ pre: this._state, post: state });
 
 		this._state = state;
 
@@ -23,30 +21,30 @@ export abstract class StateHandler<State> {
 
 		this._event.dispatchEvent(new CustomEvent("handle", { detail: callback }));
 	}
-	public handle(handle: (event: Event & { detail: StateCallback<State> }) => void) {
+	public handle(handle: (event: Event & { detail: StateCallback<S> }) => void) {
 		this._event.addEventListener("handle", handle as EventListener);
 	}
-	public unhandle(handle: (event: Event & { detail: StateCallback<State> }) => void) {
+	public unhandle(handle: (event: Event & { detail: StateCallback<S> }) => void) {
 		this._event.removeEventListener("handle", handle as EventListener);
 	}
 	protected abstract create(): void;
 }
 
-class StateCallback<State> {
-	public readonly before: State;
-	public readonly after: State;
+class StateCallback<S> {
+	public readonly pre: S;
+	public readonly post: S;
 
-	constructor(args: StateCallback<State>) {
-		this.before = args.before;
-		this.after = args.after;
+	constructor(args: StateCallback<S>) {
+		this.pre = args.pre;
+		this.post = args.post;
 	}
 }
 
-export abstract class MappedStateHandler<Key, Value> {
-	private _state: Map<Key, Value>;
+export abstract class MappedStateHandler<K, V> {
+	private _state: Map<K, V>;
 	private readonly _event: EventTarget;
 
-	constructor(state: Map<Key, Value>) {
+	constructor(state: MappedStateHandler<K, V>["_state"]) {
 		this._state = state;
 		this._event = new EventTarget();
 
@@ -55,7 +53,7 @@ export abstract class MappedStateHandler<Key, Value> {
 	protected get state() {
 		return this._state;
 	}
-	protected set state(state: Map<Key, Value>) {
+	protected set state(state: MappedStateHandler<K, V>["_state"]) {
 		// prevent shallow-copy
 		if (this._state === state) throw new Error("Shallow-copy is not allowed");
 
@@ -63,13 +61,13 @@ export abstract class MappedStateHandler<Key, Value> {
 
 		this._event.dispatchEvent(new CustomEvent("handle", { detail: null }));
 	}
-	public modify(key: Key, value: Nullable<Value>, extension?: (unsafe: Map<Key, Value>) => void) {
+	public modify(key: K, value?: V, extension?: (unsafe: MappedStateHandler<K, V>["_state"]) => void) {
 		// prevent shallow-copy
 		if (this._state.get(key) === value) throw new Error("Shallow-copy is not allowed");
 
-		const callback = new MappedStateCallback<Key, Value>({ key: key, value: value, state: this._state });
+		const callback = new MappedStateCallback<K, V>({ key: key, value: value, state: this._state });
 
-		if (value === null) {
+		if (value === undefined) {
 			this._state.delete(key);
 		}
 		else {
@@ -82,33 +80,57 @@ export abstract class MappedStateHandler<Key, Value> {
 		this._event.dispatchEvent(new CustomEvent("handle", { detail: callback }));
 	}
 	@deprecated()
-	public notify(key: Key, value: Nullable<Value>) {
+	public notify(key: K, value?: V) {
 		//
 		// nested objects may want to share same instance but still informs property changes
 		//
-		const callback = new MappedStateCallback<Key, Value>({ key: key, value: value, state: this._state });
+		const callback = new MappedStateCallback<K, V>({ key: key, value: value, state: this._state });
 
 		print(callback);
 
 		this._event.dispatchEvent(new CustomEvent("handle", { detail: callback }));
 	}
-	public handle(handle: (event: Event & { detail: MappedStateCallback<Key, Value> }) => void) {
+	public handle(handle: (event: Event & { detail: MappedStateCallback<K, V> }) => void) {
 		this._event.addEventListener("handle", handle as EventListener);
 	}
-	public unhandle(handle: (event: Event & { detail: MappedStateCallback<Key, Value> }) => void) {
+	public unhandle(handle: (event: Event & { detail: MappedStateCallback<K, V> }) => void) {
 		this._event.removeEventListener("handle", handle as EventListener);
 	}
 	protected abstract create(): void;
 }
 
-class MappedStateCallback<Key, Value> {
-	public readonly key: Key;
-	public readonly value: Nullable<Value>;
-	public readonly state: Map<Key, Value>;
+class MappedStateCallback<K, V> {
+	public readonly key: K;
+	public readonly value?: V;
+	public readonly state: Map<K, V>;
 
-	constructor(args: MappedStateCallback<Key, Value>) {
+	constructor(args: MappedStateCallback<K, V>) {
 		this.key = args.key;
 		this.value = args.value;
 		this.state = args.state;
 	}
 }
+
+import history from "@/handles/history";
+import bookmark from "@/handles/bookmark";
+import contextmenu from "@/handles/contextmenu";
+
+function structure(namespace: "history"): typeof history;
+function structure(namespace: "bookmark"): typeof bookmark;
+function structure(namespace: "contextmenu"): typeof contextmenu;
+
+function structure(namespace: string) {
+	switch (namespace) {
+		case "history": {
+			return history;
+		}
+		case "bookmark": {
+			return bookmark;
+		}
+		case "contextmenu": {
+			return contextmenu;
+		}
+	}
+}
+
+export default structure;

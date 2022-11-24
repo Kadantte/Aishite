@@ -24,8 +24,8 @@ export abstract class Gallery {
 		this.tags = args.tags;
 		this.date = args.date;
 	}
-	public abstract getURL(): string;
-	public abstract getFiles(): Promise<Array<GalleryFile>>;
+	public abstract URL(): string;
+	public abstract files(): Promise<Array<GalleryFile>>;
 }
 
 export class GalleryFile {

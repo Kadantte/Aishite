@@ -1,17 +1,22 @@
-import CSS from "@/app/common/style";
-import Unit from "@/app/common/unit";
+import Style from "@/app/common/styles";
 import { Props } from "@/app/common/props";
 import { Stateless } from "@/app/common/framework";
 import { Horizontal, Alignment } from "@/app/common/geometry";
 
-interface RowProps extends Props<Children> {
+interface RowProps extends Props.Clear, Props.Style {
+	// optional
 	readonly wrap?: boolean;
-	readonly basis?: Unit;
+	readonly basis?: unit;
 	readonly direction?: Horizontal;
 	readonly alignment?: Alignment;
 }
 
 class Row extends Stateless<RowProps> {
+	protected preCSS(): React.CSSProperties {
+		return {
+			...Style.size({ width: 100.0 + "%", height: 100.0 + "%" })
+		};
+	}
 	protected postCSS(): React.CSSProperties {
 		return {
 			display: "flex",
@@ -21,13 +26,8 @@ class Row extends Stateless<RowProps> {
 			justifyContent: this.props.alignment ?? Alignment.FLEX_START
 		};
 	}
-	protected preCSS(): React.CSSProperties {
-		return {
-			...CSS.Size({ width: Unit(100, "%"), height: Unit(100, "%") })
-		};
-	}
 	protected build() {
-		return (<section id={this.props.id}>{this.props.children}</section>);
+		return (<section id={this.props.id ?? "row"}>{this.props.children}</section>);
 	}
 }
 

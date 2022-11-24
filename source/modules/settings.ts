@@ -26,13 +26,13 @@ class Configuration {
 		pages: Array<{
 			type: string;
 			name: string;
-			args: Record<string, any>;
+			args: Record<string, unknown>;
 		}>;
 	};
 	public readonly override: {
-		fallback: Record<string, any>;
-		browser: Record<string, any>;
-		viewer: Record<string, any>;
+		fallback: Record<string, unknown>;
+		browser: Record<string, unknown>;
+		viewer: Record<string, unknown>;
 	};
 
 	constructor(args: Args<Configuration>) {

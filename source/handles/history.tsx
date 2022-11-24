@@ -1,5 +1,3 @@
-import Layout from "@/app/common/layout";
-
 import Viewer from "@/app/pages/viewer";
 import Browser from "@/app/pages/browser";
 import Fallback from "@/app/pages/fallback";
@@ -8,8 +6,6 @@ import settings from "@/modules/settings";
 
 import { StateHandler } from "@/handles";
 
-const cache = new Map<string, Nullable<React.Component>>();
-
 class History extends StateHandler<HistoryState> {
 	public get state() {
 		return super.state;
@@ -17,10 +13,9 @@ class History extends StateHandler<HistoryState> {
 	public set state(state: History["_state"]) {
 		// assign
 		super.state = state;
-		// update title
-		title();
-		// update settings.json
-		reflect();
+		// update
+		update_title();
+		update_settings();
 	}
 	protected create() {
 		window.addEventListener("keydown", (event) => {
@@ -29,8 +24,8 @@ class History extends StateHandler<HistoryState> {
 				this.close();
 			}
 		});
-		// update title
-		title(this.state.pages[this.state.index])
+		// update
+		update_title(this.state.pages[this.state.index]);
 	}
 	/** Back to initial state. */
 	public reset() {
@@ -40,7 +35,7 @@ class History extends StateHandler<HistoryState> {
 		});
 	}
 	/** Append `page` as well as change `this.state.index`. */
-	public open(title: string, type: string, args: Record<string, any>) {
+	public open(title: string, type: string, args: Record<string, unknown>) {
 		this.state = new HistoryState({
 			index: this.state.pages.length,
 			pages: [...this.state.pages, builder(title, type, args)]
@@ -77,7 +72,7 @@ class History extends StateHandler<HistoryState> {
 		});
 	}
 	/** Replace current `page` with new `page`. */
-	public replace(title: string, type: string, args: Record<string, any>) {
+	public replace(title: string, type: string, args: Record<string, unknown>) {
 		this.state = new HistoryState({
 			index: this.state.index,
 			pages: [...this.state.pages.take(this.state.index), builder(title, type, args), ...this.state.pages.skip(this.state.index + 1)]
@@ -107,82 +102,44 @@ class HistoryState {
 	}
 }
 
-function UUID(): string {
+const cache = new Map<string, Nullable<React.Component>>();
+
+function unique(): string {
 	// cache
-	const unique = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+	const namespace = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
 	// prevent duplication
-	if (cache.has(unique)) {
+	if (cache.has(namespace)) {
 		// recursive
-		return UUID();
+		return unique();
 	}
-	return unique;
+	return namespace;
 }
 
-function args(uuid: string) {
-	// component might be null
-	if (cache.has(uuid)) {
-		// cache
-		const args: Record<string, any> = {};
+function proxy(uuid: string, ref: Nullable<React.Component>) {
+	// skip
+	if (ref === null) return;
 
-		for (const [key, value] of Object.entries(cache.get(uuid)?.props ?? {})) {
-			// skip
-			if (key === "data-key") continue;
-
-			const _value = ((cache.get(uuid)?.state ?? {}) as Record<string, any>)[key];
-
-			if (_value !== undefined && typeof _value === typeof value) {
-				args[key] = _value;
-			}
-			else {
-				args[key] = value;
-			}
-		}
-		return args;
-	}
-	return undefined;
-}
-
-function proxy(ref: Nullable<React.Component>, uuid: string) {
-	// assign
 	cache.set(uuid, ref);
-	// attach
-	if (ref?.componentDidUpdate) {
-		// append
-		ref.componentDidUpdate = inject(ref.componentDidUpdate, () => reflect());
-	}
+
+	if (ref?.componentDidUpdate) ref.componentDidUpdate = inject(ref.componentDidUpdate, () => update_settings());
+	if (ref?.componentWillUnmount) ref.componentWillUnmount = inject(ref.componentWillUnmount, () => cache.delete(uuid));
 }
 
-function title(page: Page = singleton.state.pages[singleton.state.index]) {
-	document.title = `${classname(page.element)} - ${page.title}`;
-}
-
-function reflect() {
-	setTimeout(() => {
-		settings.state = {
-			...settings.state,
-			history: {
-				index: singleton.state.index,
-				pages: singleton.state.pages.map((page) => ({ type: classname(page.element), name: page.title, args: args(page.element.props["data-key"]) ?? page.element.props }))
-			}
-		};
-	});
-}
-
-function builder(title: string, type: string, args: Record<string, any>, uuid: string = UUID()) {
+function builder(title: string, type: string, args: Record<string, unknown>, uuid: string = unique()) {
 	// cache
 	const page = { title: title } as Page;
 
-	switch (type) {
+	switch (type.toUpperCase()) {
 		case "FALLBACK": {
-			page.element = (<Fallback ref={(ref) => proxy(ref, uuid)} key={uuid} data-key={uuid} {...settings.state.override.fallback}/>);
+			page.element = (<Fallback ref={(ref) => proxy(uuid, ref)} key={uuid} data-key={uuid} {...settings.state.override.fallback}></Fallback>);
 			break;
 		}
 		case "BROWSER": {
-			page.element = (<Browser ref={(ref) => proxy(ref, uuid)} key={uuid} data-key={uuid} index={args.index ?? 0} query={args.query ?? "language = \"all\""} {...settings.state.override.browser}/>);
+			page.element = (<Browser ref={(ref) => proxy(uuid, ref)} key={uuid} data-key={uuid} index={args.index as number ?? 0} value={args.value as string ?? "language = \"all\""} {...settings.state.override.browser}></Browser>);
 			break;
 		}
 		case "VIEWER": {
-			page.element = (<Viewer ref={(ref) => proxy(ref, uuid)} key={uuid} data-key={uuid} factor={args.factor ?? Layout.width} gallery={args.gallery ?? 0} {...settings.state.override.viewer}/>);
+			page.element = (<Viewer ref={(ref) => proxy(uuid, ref)} key={uuid} data-key={uuid} width={args.width as number ?? app.min_width} gallery={args.gallery as number ?? 0} {...settings.state.override.viewer}></Viewer>);
 			break;
 		}
 		default: {
@@ -194,7 +151,7 @@ function builder(title: string, type: string, args: Record<string, any>, uuid: s
 }
 
 /** **Webpack** in fact change classes' name thus `constructor.name` isn't static, so this function has born. **tl;dr**: class name anchor. */
-function classname(element: JSX.Element) {
+function type(element: JSX.Element) {
 	switch (element.type) {
 		case Fallback: {
 			return "FALLBACK";
@@ -209,6 +166,50 @@ function classname(element: JSX.Element) {
 			return "UNKNOWN";
 		}
 	}
+}
+
+function args(element: JSX.Element) {
+	// cache
+	const [props, component] = [element.props, cache.get(element.props["data-key"])];
+
+	if (!component) return props;
+
+	const state = component.state as any;
+
+	switch (element.type) {
+		case Fallback: {
+			return {};
+		}
+		case Browser: {
+			return {
+				value: state["search"]["value"] ?? props["value"],
+				index: state["search"]["index"] ?? props["index"]
+			};
+		}
+		case Viewer: {
+			return {
+				width: state["width"] ?? props["width"],
+				gallery: props["gallery"]
+			};
+		}
+		default: {
+			return {};
+		}
+	}
+}
+
+function update_title(page: Page = singleton.state.pages[singleton.state.index]) {
+	document.title = type(page.element) + space + "-" + space + page.title;
+}
+
+function update_settings() {
+	settings.state = {
+		...settings.state,
+		history: {
+			index: singleton.state.index,
+			pages: singleton.state.pages.map((page) => ({ type: type(page.element), name: page.title, args: args(page.element) }))
+		}
+	};
 }
 
 const singleton = new History(

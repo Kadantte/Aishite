@@ -1,7 +1,5 @@
-type Unit = (number | string | "inherit" | "initial" | "unset" | "auto");
-
-function Unit(value: number | string, type: string = "px") {
+function unit(value: unit, type: string = "px") {
 	return typeof value === "string" ? value : value + type;
 }
 
-export default Unit;
+export default unit;

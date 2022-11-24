@@ -1,14 +1,12 @@
-import Unit from "@/app/common/unit";
-
 interface Padding {
-	readonly all?: Unit;
-	readonly top?: Unit;
-	readonly left?: Unit;
-	readonly right?: Unit;
-	readonly bottom?: Unit;
+	readonly all?: unit;
+	readonly top?: unit;
+	readonly left?: unit;
+	readonly right?: unit;
+	readonly bottom?: unit;
 }
 
-function Padding(style: Padding): React.CSSProperties {
+function padding(style: Padding): React.CSSProperties {
 	// check before
 	if ((style.all ?? style.top ?? style.left ?? style.right ?? style.bottom) === undefined) return {};
 
@@ -20,4 +18,4 @@ function Padding(style: Padding): React.CSSProperties {
 	};
 }
 
-export default Padding;
+export default padding;

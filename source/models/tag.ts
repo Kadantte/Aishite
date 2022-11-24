@@ -7,6 +7,6 @@ export class Tag {
 		this.value = args.value;
 	}
 	public toString() {
-		return `${this.namespace} = ${typeof this.value === "number" ? this.value : `"${this.value}"`}`;
+		return `${this.namespace} = ${typeof this.value === "string" ? "\"" + this.value + "\"" : this.value}`;
 	}
 }

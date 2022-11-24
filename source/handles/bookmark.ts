@@ -22,7 +22,7 @@ class Bookmark extends MappedStateHandler<number, boolean> {
 		});
 	}
 	public remove(id: number) {
-		this.modify(id, null, (unsafe) => {
+		this.modify(id, undefined, (unsafe) => {
 			// update
 			storage.change("bookmark", Array.from(super.state.keys()));
 		});

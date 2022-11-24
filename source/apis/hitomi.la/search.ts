@@ -4,7 +4,7 @@ import { Tag } from "@/models/tag";
 import { Pair } from "@/models/pair";
 import { Endian } from "@/models/endian";
 
-import { module as suggest } from "@/apis/hitomi.la/suggest";
+import { suggestJS } from "@/apis/hitomi.la/suggest";
 
 import { Directory, mirror } from "@/apis/hitomi.la/private/version";
 
@@ -28,11 +28,6 @@ enum Symbol {
 	IDENTIFIER,
 	//
 	EOF
-}
-
-enum Channel {
-	PROPERTY,
-	FUNCTION
 }
 
 class Token {
@@ -287,20 +282,20 @@ class Parser {
 			// open
 			if (!this.next().is(Symbol.L_PAREN)) throw Error(`Could not process function call, expected ${Symbol[Symbol.L_PAREN]} but received ${Symbol[this.peek().type]}`);
 
-			const token: Array<Token> = [];
+			const tokens: Array<Token> = [];
 
 			while (true) {
 				// update
-				token.add(this.next());
+				tokens.add(this.next());
 
-				if (token.length === handle.length) break;
+				if (tokens.length === handle.length) break;
 
 				if (!this.next().is(Symbol.COMMA)) throw Error(`Could not process function call, expected ${Symbol[Symbol.COMMA]} but received ${Symbol[this.peek().type]}`);
 			}
 			// close
 			if (!this.next().is(Symbol.R_PAREN)) throw Error(`Could not process function call, expected ${Symbol[Symbol.R_PAREN]} but received ${Symbol[this.peek().type]}`);
 
-			return handle.call(...token);
+			return handle.call(...tokens);
 		}
 		else {
 			throw Error(`Could not process identifier`);
@@ -331,15 +326,15 @@ class _Property {
 class _Function {
 	constructor(
 		private readonly type: Array<Symbol>,
-		private readonly handle: (...token: Array<Token>) => Promise<Array<number>>
+		private readonly handle: (...tokens: Array<Token>) => Promise<Array<number>>
 	) {
 		// TODO: none
 	}
-	public async call(...token: Array<Token>) {
-		for (let index = 0; index < token.length; index++) {
-			if (!token[index].is(this.type[index])) throw Error(`Could not match symbol, expected ${Symbol[this.type[index]]} but received ${Symbol[token[index].type]}`);
+	public async call(...tokens: Array<Token>) {
+		for (let index = 0; index < tokens.length; index++) {
+			if (!tokens[index].is(this.type[index])) throw Error(`Could not match symbol, expected ${Symbol[this.type[index]]} but received ${Symbol[tokens[index].type]}`);
 		}
-		return new Set(await this.handle(...token));
+		return new Set(await this.handle(...tokens));
 	}
 	public get length() {
 		return this.type.length;
@@ -383,7 +378,7 @@ function built_in(namespace: string) {
 		case "title": {
 			return new _Function([Symbol.S_LITERAL], async (token_0) => {
 				try {
-					return unknown_1(await suggest.unknown_5("galleries", suggest.unknown_1(token_0.value as string), await suggest.unknown_3("galleries", 0)));
+					return unknown_1(await suggestJS.unknown_5("galleries", suggestJS.unknown_1(token_0.value as string), await suggestJS.unknown_3("galleries", 0)));
 				}
 				catch {
 					return [];
@@ -422,7 +417,7 @@ async function unknown_1(digits: Pair<number, number>) {
 	// check before request
 	if (!(0 < digits.second && digits.second <= 10000000 * 10)) throw Error();
 
-	const response = await suggest.unknown_4(`https://ltn.hitomi.la/galleriesindex/galleries.${await mirror(Directory.GALLERIES)}.data`, digits.first, digits.first + digits.second - 1);
+	const response = await suggestJS.unknown_4(`https://ltn.hitomi.la/galleriesindex/galleries.${await mirror(Directory.GALLERIES)}.data`, digits.first, digits.first + digits.second - 1);
 
 	const table = new DataView(response.buffer);
 	const length = table.getInt32(0, Endian.BIG);
@@ -433,6 +428,10 @@ async function unknown_1(digits: Pair<number, number>) {
 	return new Array(length).fill(null).map((_, index) => table.getInt32((index + 1) * 4, Endian.BIG));
 }
 
+export function search(value: string) {
+	return (new Parser(value)).parse();
+}
+
 class JavaScriptModule {
 	/** @alias get_galleryids_from_nozomi */
 	public unknown_0(...args: Parameters<typeof unknown_0>) { return unknown_0(...args); }
@@ -440,12 +439,4 @@ class JavaScriptModule {
 	public unknown_1(...args: Parameters<typeof unknown_1>) { return unknown_1(...args); }
 }
 
-export const module = new JavaScriptModule();
-
-const search = {
-	query: (unprocessed: string) => {
-		return (new Parser(unprocessed)).parse();
-	}
-};
-
-export default search;
+export const searchJS = new JavaScriptModule();

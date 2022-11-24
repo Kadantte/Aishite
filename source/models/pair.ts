@@ -5,7 +5,11 @@ export class Pair<T1, T2 = T1> {
 	) {
 		// TODO: none
 	}
-	public toList() {
+	public* [Symbol.iterator]() {
+		yield this.first;
+		yield this.second;
+	}
+	public toList(): [T1, T2] {
 		return [this.first, this.second];
 	}
 	public toString() {

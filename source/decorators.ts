@@ -1,34 +1,64 @@
-// method
-function final() {
+/** Target: `method`. */
+function writable(value: boolean) {
 	return function (target: any, key: string, descriptor: PropertyDescriptor) {
-		descriptor.writable = false;
-		descriptor.configurable = false;
-		
-		print(`The method <${target.constructor.name}> ${key} is now sealed.`);
+		// type checking
+		if (typeof descriptor.value !== "function") throw new Error(`Could not to decorate given method. ${key} is type of ${typeof descriptor.value}.`);
+
+		descriptor.writable = value;
 	};
 }
-// property
-function required(target: any, key: string) {
-	function getter() {
-		return target[key];
-	}
-	function setter(value: unknown) {
-		target[key] = value;
-	}
-	Object.defineProperty(target, key, {
-		get: getter,
-		set: setter,
-		enumerable: true,
-		configurable: true
-	});
+
+/** Target: `method`. */
+function enumerable(value: boolean) {
+	return function (target: any, key: string, descriptor: PropertyDescriptor) {
+		// type checking
+		if (typeof descriptor.value !== "function") throw new Error(`Could not to decorate given method. ${key} is type of ${typeof descriptor.value}.`);
+
+		descriptor.enumerable = value;
+	};
 }
-// method
+
+/** Target: `method`. */
+function configurable(value: boolean) {
+	return function (target: any, key: string, descriptor: PropertyDescriptor) {
+		// type checking
+		if (typeof descriptor.value !== "function") throw new Error(`Could not to decorate given method. ${key} is type of ${typeof descriptor.value}.`);
+
+		descriptor.configurable = value;
+	};
+}
+
+Object.defineProperty(window, "writable", { value: writable });
+Object.defineProperty(window, "enumerable", { value: enumerable });
+Object.defineProperty(window, "configurable", { value: configurable });
+
+/** Target: `method`. */
+function autobind() {
+	return function (target: any, key: string, descriptor: PropertyDescriptor) {
+		// type checking
+		if (typeof descriptor.value !== "function") throw new Error(`Could not to decorate given method. ${key} is type of ${typeof descriptor.value}.`);
+
+		return {
+			get() {
+				const value = descriptor.value.bind(this);
+
+				Object.defineProperty(this, key, { value: value });
+
+				return value;
+			}
+		}
+	};
+}
+
+/** Target: `method`. */
 function deprecated() {
 	return function (target: any, key: string, descriptor: PropertyDescriptor) {
+		// type checking
+		if (typeof descriptor.value !== "function") throw new Error(`Could not to decorate given method. ${key} is type of ${typeof descriptor.value}.`);
+
 		descriptor.value = inject(descriptor.value, () => print(`The method <${target.constructor.name}> ${key} is deprecated.`));
 	};
 }
 
-Object.defineProperty(window, "final", { value: final });
-Object.defineProperty(window, "required", { value: required });
+Object.defineProperty(window, "autobind", { value: autobind });
 Object.defineProperty(window, "deprecated", { value: deprecated });

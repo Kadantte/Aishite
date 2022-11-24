@@ -1,14 +1,12 @@
-import Unit from "@/app/common/unit";
-
 interface Position {
-	readonly all?: Unit;
-	readonly top?: Unit;
-	readonly left?: Unit;
-	readonly right?: Unit;
-	readonly bottom?: Unit;
+	readonly all?: unit;
+	readonly top?: unit;
+	readonly left?: unit;
+	readonly right?: unit;
+	readonly bottom?: unit;
 }
 
-function Position(style: Position): React.CSSProperties {
+function position(style: Position): React.CSSProperties {
 	// check before
 	if ((style.all ?? style.top ?? style.left ?? style.right ?? style.bottom) === undefined) return {};
 
@@ -21,4 +19,4 @@ function Position(style: Position): React.CSSProperties {
 	};
 }
 
-export default Position;
+export default position;

@@ -5,7 +5,7 @@ import node_path from "path";
 
 import { Window } from "@/models/chromium";
 
-let window: Nullable<BrowserWindow> = null;
+let window: BrowserWindow;
 
 const instance = app.requestSingleInstanceLock();
 
@@ -29,8 +29,8 @@ switch (app.isPackaged) {
 		//
 		// hot-reload
 		//
-		node_fs.watch(node_path.resolve(__dirname, "preload.js")).on("change", () => window?.reload());
-		node_fs.watch(node_path.resolve(__dirname, "renderer.js")).on("change", () => window?.reload());
+		node_fs.watch(node_path.resolve(__dirname, "preload.js")).on("change", () => window.reload());
+		node_fs.watch(node_path.resolve(__dirname, "renderer.js")).on("change", () => window.reload());
 		break;
 	}
 }
@@ -45,10 +45,10 @@ app.on("ready", () => {
 
 	class Resolution {
 		public static width(pixels: number = screen.getPrimaryDisplay().workArea.width) {
-			return Math.round((pixels - 30) * 0.3 + 30);
+			return Math.round(pixels * 0.3);
 		}
-		public static height(pixels: number = screen.getPrimaryDisplay().workArea.height + (/* TASKBAR */ 45)) {
-			return Math.round((pixels - (/* TASKBAR */ 45) - 185) * 0.5 + 170);
+		public static height(pixels: number = screen.getPrimaryDisplay().workArea.height) {
+			return Math.round((pixels - 180.0 - (/* GALLERY GAP */ 20.0)) * 0.5 + 180.0);
 		}
 	};
 	//
@@ -94,73 +94,73 @@ app.on("ready", () => {
 	});
 	window.on("unresponsive", () => {
 		// reload
-		window?.reload();
+		window.reload();
 	});
 	window.on("ready-to-show", () => {
 		// display
-		window?.show();
+		window.show();
 	});
 	//
 	// https://github.com/electron/electron/issues/24893#issuecomment-1109262719
 	//
 	window.hookWindowMessage(0x0116, () => {
 		// prevent
-		window?.setEnabled(false);
-		window?.setEnabled(true);
+		window.setEnabled(false);
+		window.setEnabled(true);
 
-		const [position, cursor] = [{ x: window?.getPosition()[0] ?? 0, y: window?.getPosition()[1] ?? 0 } as Electron.Point, screen.getCursorScreenPoint()];
+		const [position, cursor] = [{ x: window.getPosition()[0] ?? 0, y: window.getPosition()[1] ?? 0 } as Electron.Point, screen.getCursorScreenPoint()];
 
-		window?.webContents.send(Window.Event.CONTEXTMENU, { x: cursor.x - position.x, y: cursor.y - position.y });
+		window.webContents.send(Window.Event.CONTEXTMENU, { x: cursor.x - position.x, y: cursor.y - position.y });
 	});
 	//
 	// chromium events
 	//
-	window.on(Window.Event.BLUR, () => window?.webContents.send(Window.Event.BLUR));
-	window.on(Window.Event.FOCUS, () => window?.webContents.send(Window.Event.FOCUS));
-	window.on(Window.Event.CLOSE, () => window?.webContents.send(Window.Event.CLOSE));
-	window.on(Window.Event.MINIMIZE, () => window?.webContents.send(Window.Event.MINIMIZE));
-	window.on(Window.Event.MAXIMIZE, () => window?.webContents.send(Window.Event.MAXIMIZE));
-	window.on(Window.Event.UNMAXIMIZE, () => window?.webContents.send(Window.Event.UNMAXIMIZE));
-	window.on(Window.Event.ENTER_FULL_SCREEN, () => window?.webContents.send(Window.Event.ENTER_FULL_SCREEN));
-	window.on(Window.Event.LEAVE_FULL_SCREEN, () => window?.webContents.send(Window.Event.LEAVE_FULL_SCREEN));
+	window.on(Window.Event.BLUR, () => window.webContents.send(Window.Event.BLUR));
+	window.on(Window.Event.FOCUS, () => window.webContents.send(Window.Event.FOCUS));
+	window.on(Window.Event.CLOSE, () => window.webContents.send(Window.Event.CLOSE));
+	window.on(Window.Event.MINIMIZE, () => window.webContents.send(Window.Event.MINIMIZE));
+	window.on(Window.Event.MAXIMIZE, () => window.webContents.send(Window.Event.MAXIMIZE));
+	window.on(Window.Event.UNMAXIMIZE, () => window.webContents.send(Window.Event.UNMAXIMIZE));
+	window.on(Window.Event.ENTER_FULL_SCREEN, () => window.webContents.send(Window.Event.ENTER_FULL_SCREEN));
+	window.on(Window.Event.LEAVE_FULL_SCREEN, () => window.webContents.send(Window.Event.LEAVE_FULL_SCREEN));
 	//
 	// https://github.com/electron/electron/issues/24759
 	//
-	ipcMain.handle("chromium", async (event, command: string, ...args: Array<any>) => {
+	ipcMain.handle("chromium", async (event, command: string, ...args: Array<unknown>) => {
 		switch (command as Window.Function | Window.Property) {
 			//
 			// Function
 			//
 			case Window.Function.BLUR: {
-				setTimeout(() => window?.blur(), 150);
+				setTimeout(() => window.blur(), 150);
 				break;
 			}
 			case Window.Function.FOCUS: {
-				setTimeout(() => window?.focus(), 150);
+				setTimeout(() => window.focus(), 150);
 				break;
 			}
 			case Window.Function.CLOSE: {
-				window?.destroy();
+				window.destroy();
 				break;
 			}
 			case Window.Function.OPEN_URL: {
-				shell.openExternal(args[0]);
+				shell.openExternal(args[0] as string);
 				break;
 			}
 			case Window.Function.MINIMIZE: {
-				setTimeout(() => window?.minimize(), 150);
+				setTimeout(() => window.minimize(), 150);
 				break;
 			}
 			case Window.Function.MAXIMIZE: {
-				setTimeout(() => window?.maximize(), 150);
+				setTimeout(() => window.maximize(), 150);
 				break;
 			}
 			case Window.Function.UNMAXIMIZE: {
-				setTimeout(() => window?.unmaximize(), 150);
+				setTimeout(() => window.unmaximize(), 150);
 				break;
 			}
 			case Window.Function.FULLSCREEN: {
-				switch (window?.isFullScreen()) {
+				switch (window.isFullScreen()) {
 					case true: {
 						window.setFullScreen(false);
 						break;
@@ -173,7 +173,7 @@ app.on("ready", () => {
 				break;
 			}
 			case Window.Function.DEVELOPMENT: {
-				window?.webContents.toggleDevTools();
+				window.webContents.toggleDevTools();
 				break;
 			}
 			//

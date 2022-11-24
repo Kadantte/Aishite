@@ -1,27 +1,67 @@
-import Page from "@/app/pages";
+import { Props } from "@/app/common/props";
+import { Stateful } from "@/app/common/framework";
 
-import { Clear } from "@/app/common/props";
+import Text from "@/app/layout/text";
+import Center from "@/app/layout/center";
 
-interface FallbackProps extends Clear<undefined> {
-	// TODO: WIP
+import discord from "@/modules/discord";
+
+import structure from "@/handles";
+
+interface FallbackProps extends Props.Clear<undefined> {
+	// TODO: none
 }
 
 interface FallbackState {
-	// TODO: WIP
+	// TODO: none
 }
 
-class Fallback extends Page<FallbackProps, FallbackState> {
+class Fallback extends Stateful<FallbackProps, FallbackState> {
 	protected create() {
-		return ({});
-	}
-	protected postCSS(): React.CSSProperties {
 		return {};
+	}
+	protected events() {
+		return {
+			DID_MOUNT: () => {
+				// initial
+				this.onRender();
+				// @ts-ignore
+				structure("history").handle(this.onRender);
+			},
+			WILL_UNMOUNT: () => {
+				// @ts-ignore
+				structure("history").unhandle(this.onRender);
+			}
+		};
 	}
 	protected preCSS(): React.CSSProperties {
 		return {};
 	}
-	protected build(): Child {
-		throw new Error("Unimplemented");
+	protected postCSS(): React.CSSProperties {
+		return {};
+	}
+	protected build() {
+		return (
+			<Center {...this.props} id={this.props.id ?? "fallback"} x={true} y={true}>
+				<Text>{[{ value: "OPS, SOMETHING WENT WRONG" }]}</Text>
+			</Center>
+		);
+	}
+	protected visible() {
+		return structure("history").state.pages[structure("history").state.index].element.props["data-key"] === (this.props as any)["data-key"];
+	}
+	protected discord() {
+		// skip
+		if (!this.visible()) return;
+		
+		discord.update({ state: "ERROR", details: "something went wrong", partyMax: undefined, partySize: undefined });
+	}
+	@autobind()
+	protected async onRender() {
+		// skip
+		if (!this.visible()) return;
+		// discordRPC
+		this.discord();
 	}
 }
 

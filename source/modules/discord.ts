@@ -136,8 +136,8 @@ const singleton = new Discord(
 		smallImageText: "it's gone...",
 		// buttons
 		primaryButton: {
-			label: "Get Aishite for FREE!",
-			url: "https://github.com/Any-Material/Aishite"
+			label: "Get Daisuki for FREE!",
+			url: "https://github.com/Any-Material/Daisuki"
 		},
 		// time elapsed
 		startTimestamp: Date.now()

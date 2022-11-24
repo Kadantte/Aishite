@@ -1,28 +1,19 @@
-import Unit from "@/app/common/unit";
-import Color from "@/app/common/color";
-import { Clear } from "@/app/common/props";
+import Style from "@/app/common/styles";
+import { Props } from "@/app/common/props";
+import { CSSPlus } from "@/app/common/props";
 import { Stateful } from "@/app/common/framework";
 
-import Size from "@/app/common/style/size";
-import Margin from "@/app/common/style/margin";
-import Padding from "@/app/common/style/padding";
-import Transition from "@/app/common/style/transition";
-
-interface IconProps extends Clear<undefined> {
-	readonly color?: Nullable<React.CSSProperties["fill"]>;
-	readonly width?: Unit
-	readonly height?: Unit;
-	readonly margin?: Margin;
-	readonly padding?: Padding;
-	/** Whether to prevent event triggers from elements underneath. */
+interface IconProps extends Props.Clear<undefined>, Omit<Props.Style, CSSPlus.DECORATION> {
+	// optional
+	readonly color?: React.CSSProperties["fill"];
 	readonly priority?: boolean;
-	readonly transition?: Transition;
+	readonly transition?: Style["transition"];
 	// events
-	readonly onMouseUp?: (callback: Icon["style"]) => void;
-	readonly onMouseDown?: (callback: Icon["style"]) => void;
-	readonly onMouseEnter?: (callback: Icon["style"]) => void;
-	readonly onMouseLeave?: (callback: Icon["style"]) => void;
-	readonly onMouseMove?: (callback: Icon["style"]) => void;
+	readonly onMouseUp?: (setColor: typeof Icon.prototype["setColor"]) => void;
+	readonly onMouseDown?: (setColor: typeof Icon.prototype["setColor"]) => void;
+	readonly onMouseEnter?: (setColor: typeof Icon.prototype["setColor"]) => void;
+	readonly onMouseLeave?: (setColor: typeof Icon.prototype["setColor"]) => void;
+	readonly onMouseMove?: (setColor: typeof Icon.prototype["setColor"]) => void;
 }
 
 interface IconState {
@@ -31,49 +22,48 @@ interface IconState {
 
 abstract class Icon extends Stateful<IconProps, IconState> {
 	protected create() {
-		this.style = this.style.bind(this);
-		
-		return ({ color: null });
-	}
-	protected postCSS(): React.CSSProperties {
 		return {
-			fill: this.state.color ?? this.props.color ?? Color.TEXT_000,
-			background: "unset",
-			backgroundColor: "unset",
-			backgroundImage: "unset"
+			color: undefined 
 		};
+	}
+	protected events() {
+		return {};
 	}
 	protected preCSS(): React.CSSProperties {
 		return {
-			...Size({ width: this.props.width ?? 12.5, height: this.props.height ?? 12.5 }),
-			...Margin(this.props.margin ?? {}),
-			...Padding(this.props.padding ?? {}),
-			...Transition({ ...this.props.transition, property: ["fill"] })
+			...Style.size({ width: 12.5, height: 12.5 })
+		};
+	}
+	protected postCSS(): React.CSSProperties {
+		return {
+			// manually
+			fill: this.state.color ?? this.props.color ?? "#AAAAAA",
+			// automatic
+			...Style.transition({ ...this.props.transition, property: ["fill"] })
 		};
 	}
 	protected override() {
 		return {
-			id: this.props.id,
 			// events
 			onMouseUp: (event: MouseEvent) => {
 				if (this.props.priority) event.stopPropagation();
-				this.props.onMouseUp?.(this.style);
+				this.props.onMouseUp?.(this.setColor);
 			},
 			onMouseDown: (event: MouseEvent) => {
 				if (this.props.priority) event.stopPropagation();
-				this.props.onMouseDown?.(this.style);
+				this.props.onMouseDown?.(this.setColor);
 			},
 			onMouseEnter: (event: MouseEvent) => {
 				if (this.props.priority) event.stopPropagation();
-				this.props.onMouseEnter?.(this.style);
+				this.props.onMouseEnter?.(this.setColor);
 			},
 			onMouseLeave: (event: MouseEvent) => {
 				if (this.props.priority) event.stopPropagation();
-				this.props.onMouseLeave?.(this.style);
+				this.props.onMouseLeave?.(this.setColor);
 			},
 			onMouseMove: (event: MouseEvent) => {
 				if (this.props.priority) event.stopPropagation();
-				this.props.onMouseMove?.(this.style);
+				this.props.onMouseMove?.(this.setColor);
 			},
 			onContextMenu: (event: MouseEvent) => {
 				if (this.props.onMouseUp) event.stopPropagation();
@@ -81,8 +71,9 @@ abstract class Icon extends Stateful<IconProps, IconState> {
 			}
 		};
 	}
-	public style(color: IconState["color"], callback?: () => void) {
-		this.setState((state) => ({ color: color }), () => callback?.());
+	@autobind()
+	protected setColor(color: IconState["color"], callback?: () => void) {
+		this.setState((state) => ({ color: color }), callback);
 	}
 }
 

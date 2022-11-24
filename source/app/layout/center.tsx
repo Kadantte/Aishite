@@ -1,14 +1,19 @@
-import CSS from "@/app/common/style";
-import Unit from "@/app/common/unit";
+import Style from "@/app/common/styles";
 import { Props } from "@/app/common/props";
 import { Stateless } from "@/app/common/framework";
 
-interface CenterProps extends Props<Children> {
+interface CenterProps extends Props.Clear, Props.Style {
+	// required
 	readonly x: boolean;
 	readonly y: boolean;
 }
 
 class Center extends Stateless<CenterProps> {
+	protected preCSS(): React.CSSProperties {
+		return {
+			...Style.size({ width: 100.0 + "%", height: 100.0 + "%" })
+		};
+	}
 	protected postCSS(): React.CSSProperties {
 		return {
 			display: "flex",
@@ -16,13 +21,8 @@ class Center extends Stateless<CenterProps> {
 			justifyContent: this.props.x ? "center" : undefined
 		};
 	}
-	protected preCSS(): React.CSSProperties {
-		return {
-			...CSS.Size({ width: Unit(100, "%"), height: Unit(100, "%") })
-		};
-	}
 	protected build() {
-		return (<section id={this.props.id}>{this.props.children}</section>);
+		return (<section id={this.props.id ?? "center"}>{this.props.children}</section>);
 	}
 }
 

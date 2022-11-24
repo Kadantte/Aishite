@@ -1,28 +1,28 @@
-import { Casacade } from "@/app/common/props";
+import { Props } from "@/app/common/props";
 import { StyleSheet } from "@/app/common/framework";
 
-import contextmenu from "@/handles/contextmenu";
+import structure from "@/handles";
 
-interface ContextMenuProps extends Casacade {
-	readonly items: typeof contextmenu["state"]["items"];
-	/** Whether to prevent event triggers from elements underneath. */
+interface ContextMenuProps extends Props.Casacade {
+	// required
+	readonly items: ReturnType<typeof structure>["state"]["items"];
+	// optional
 	readonly priority?: boolean;
 }
 
 class ContextMenu extends StyleSheet<ContextMenuProps> {
-	protected postCSS(): React.CSSProperties {
+	protected preCSS(): React.CSSProperties {
 		return {};
 	}
-	protected preCSS(): React.CSSProperties {
+	protected postCSS(): React.CSSProperties {
 		return {};
 	}
 	protected override() {
 		return {
-			// events
 			onContextMenu: (event: MouseEvent) => {
 				if (this.props.priority) event.stopPropagation();
-				// open
-				contextmenu.state = { x: event.pageX, y: event.pageY, items: this.props.items };
+				// open contextmenu
+				structure("contextmenu").state = { x: event.pageX, y: event.pageY, items: this.props.items };
 			}
 		};
 	}

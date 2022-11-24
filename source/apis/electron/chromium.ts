@@ -5,7 +5,9 @@ import { Window } from "@/models/chromium";
 const requires = new Set<string>();
 const certification = new Set<string>();
 
-export class Chromium extends EventTarget {
+type EventHandler<T> = (event: Event & { detail: T } ) => void;
+
+class Chromium extends EventTarget {
 	//
 	// Function
 	//
@@ -84,21 +86,35 @@ export class Chromium extends EventTarget {
 	public signal(event: Window.Event, ...args: Array<unknown>) {
 		super.dispatchEvent(new CustomEvent(event, { detail: args }));
 	}
-	public handle(event: Window.Event, handle: (event: Event & { detail: unknown }) => void) {
+	//
+	// mapping
+	//
+	public handle(event: Window.Event.BLUR, handle: EventHandler<void>): void;
+	public handle(event: Window.Event.FOCUS, handle: EventHandler<void>): void;
+	public handle(event: Window.Event.CLOSE, handle: EventHandler<void>): void;
+	public handle(event: Window.Event.MINIMIZE, handle: EventHandler<void>): void;
+	public handle(event: Window.Event.MAXIMIZE, handle: EventHandler<void>): void;
+	public handle(event: Window.Event.UNMAXIMIZE, handle: EventHandler<void>): void;
+	public handle(event: Window.Event.CONTEXTMENU, handle: EventHandler<[{ x: number; y: number; }]>): void;
+	public handle(event: Window.Event.ENTER_FULL_SCREEN, handle: EventHandler<void>): void;
+	public handle(event: Window.Event.LEAVE_FULL_SCREEN, handle: EventHandler<void>): void;
+
+	public handle(event: Window.Event, handle: EventHandler<never>) {
 		super.addEventListener(event, handle as EventListener);
 	}
-	public unhandle(event: Window.Event, handle: (event: Event & { detail: unknown }) => void) {
+	public unhandle(event: Window.Event, handle: EventHandler<never>) {
 		super.removeEventListener(event, handle as EventListener);
 	}
 }
-ipcRenderer.on(Window.Event.CLOSE, (event, ...args) => {
-	chromium.close("renderer");
-});
+
 ipcRenderer.on(Window.Event.BLUR, (event, ...args) => {
 	chromium.signal(Window.Event.BLUR, args);
 });
 ipcRenderer.on(Window.Event.FOCUS, (event, ...args) => {
 	chromium.signal(Window.Event.BLUR, ...args);
+});
+ipcRenderer.on(Window.Event.CLOSE, (event, ...args) => {
+	chromium.close("renderer");
 });
 ipcRenderer.on(Window.Event.MINIMIZE, (event, ...args) => {
 	chromium.signal(Window.Event.MINIMIZE, ...args);
@@ -131,3 +147,5 @@ async function call<T>(command: Window.Function | Window.Property, ...args: Arra
 Object.defineProperty(window, "chromium", {
 	value: new Chromium()
 });
+
+export default Chromium;

@@ -1,19 +1,13 @@
-import React from "react";
-
-import Page from "@/app/pages";
-
-import Unit from "@/app/common/unit";
 import Color from "@/app/common/color";
-import Layout from "@/app/common/layout";
-import { Clear } from "@/app/common/props";
-import { LifeCycle } from "@/app/common/framework";
+import { Props } from "@/app/common/props";
+import { Stateful } from "@/app/common/framework";
 
 import { Pair } from "@/models/pair";
 
 import Text from "@/app/layout/text";
 import Grid from "@/app/layout/grid";
-import Form from "@/app/layout/form";
 import Column from "@/app/layout/column";
+import Element from "@/app/layout/element";
 
 import Scroll from "@/app/layout/casacade/scroll";
 import Spacer from "@/app/layout/casacade/spacer";
@@ -27,46 +21,61 @@ import Gallery from "@/app/pages/browser/gallery";
 
 import discord from "@/modules/discord";
 
-import history from "@/handles/history";
+import structure from "@/handles";
 
-import search from "@/apis/hitomi.la/search";
-import suggest from "@/apis/hitomi.la/suggest";
-import gallery from "@/apis/hitomi.la/gallery";
+import { search } from "@/apis/hitomi.la/search";
+import { suggest } from "@/apis/hitomi.la/suggest";
+import { gallery } from "@/apis/hitomi.la/gallery";
 
-type _Gallery = Await<ReturnType<typeof gallery["get"]>>;
-type _Suggests = Await<ReturnType<typeof suggest["tags"]>>;
-
-interface BrowserProps extends Clear<undefined> {
-	readonly query: string;
+interface BrowserProps extends Props.Clear<undefined> {
+	readonly value: string;
 	readonly index: number;
 }
 
-interface BrowserState extends BrowserProps {
+interface BrowserState {
 	init: boolean;
-	length: number;
-	gallery: Array<_Gallery>;
-	suggests: _Suggests;
+	search: {
+		value: string;
+		index: number;
+	};
+	suggest: {
+		items: Await<ReturnType<typeof suggest>>;
+	};
+	gallery: {
+		value: Array<Await<ReturnType<typeof gallery>>>;
+		length: number;
+	};
 	highlight: string;
-	controller: Reference<HTMLInputElement>;
 }
 
-class Browser extends Page<BrowserProps, BrowserState> {
+class Browser extends Stateful<BrowserProps, BrowserState> {
 	protected create() {
-		// permanent
-		this.handle = this.handle.bind(this);
-
-		return ({ init: false, length: 0, query: this.props.query, index: this.props.index, gallery: [], suggests: [], highlight: "", controller: React.createRef<HTMLInputElement>() });
+		return {
+			init: false,
+			search: {
+				value: this.props.value,
+				index: this.props.index
+			},
+			suggest: {
+				items: []
+			},
+			gallery: {
+				value: [],
+				length: 0
+			},
+			highlight: "???"
+		};
 	}
-	protected events(): LifeCycle<BrowserProps, BrowserState> {
+	protected events() {
 		return {
 			DID_MOUNT: () => {
-				// @ts-ignore
-				this.handle(null);
+				// initial
+				this.onRender();
 
-				history.handle(this.handle);
+				structure("history").handle(this.onRender);
 			},
 			WILL_UNMOUNT: () => {
-				history.unhandle(this.handle);
+				structure("history").unhandle(this.onRender);
 			}
 		};
 	}
@@ -78,229 +87,184 @@ class Browser extends Page<BrowserProps, BrowserState> {
 	}
 	protected build() {
 		return (
-			<Column id="browser">
-				<Spacer>
-					<Scroll x="hidden" y="auto" scrollbar="frame">
-						<section>
-							<Grid.Region gap={{ inner: 15, outer: 15 }} rows={[40, Unit(1.0, "fr")]} columns={[Unit(1.0, "fr")]} template={[["query"], ["collection"]]}>
-								<Grid.Cell id="query">
-									<Dropdown toggle={!this.state.gallery.isEmpty()} index={0} items={this.state.suggests.map((suggestion) => new Pair(suggestion.first.namespace + ":" + suggestion.first.value, suggestion.second.toString()))} value={this.state.query === "language = \"all\"" ? undefined : this.state.query} fallback={this.state.query.isEmpty() ? "language = \"all\"" : this.state.query} highlight={this.state.highlight} controller={this.state.controller}
-										onReset={() => {
-											// expire
-											suggest.outdate();
+			<Column {...this.props} id={this.props.id ?? "browser"}>
+				<Dropdown enable={!this.state.gallery.value.isEmpty()} items={this.state.suggest.items.map((suggestion) => [suggestion.first.namespace + ":" + suggestion.first.value, suggestion.second.toString()])} index={0} value={this.props.value === "language = \"all\"" ? undefined : this.props.value} fallback={this.state.search.value.isEmpty() ? "language = \"all\"" : this.state.search.value} highlight={this.state.highlight} offset={{ margin: { all: 20.0 } }}
+					onReset={() => {
+						suggest("expire");
 
-											history.rename("NEW TAB");
+						structure("history").rename("NEW TAB");
 
-											this.display("language = \"all\"", 0);
-										}}
-										onIndex={(index) => {
-											// cache
-											const element = this.state.controller.current;
-
-											if (element) {
-												element.value = (element.value.trim().replace(/\s*(=|!=)\s*/g, ($0, $1) => $1).split(space).slice(0, -1).join(space).replace(/\s*[&?+-]\s*$/, "") + space + "&" + space + this.state.suggests[index].first).replace(/\s*(=|!=)\s*/g, ($0, $1) => space + $1 + space).replace(/^\s*[&?+-]\s*/, "");
-											}
-										}}
-										onSelect={(text) => {
-											// expire
-											suggest.outdate();
-
-											this.setState((state) => ({ suggests: [] }));
-										}}
-										onSubmit={(text) => {
-											// expire
-											suggest.outdate();
-
-											history.rename("Searching...");
-
-											this.display(text.isEmpty() ? "language = \"all\"" : text, 0, (count) => history.rename(`${count} Results`));
-										}}
-										onChange={(text) => {
-											// expire
-											suggest.outdate();
-
-											if (!this.state.suggests.isEmpty()) this.setState((state) => ({ suggests: [] }));
-
-											this.state.highlight = text.trim().split(space).last ?? "<empty>";
-
-											suggest.tags(this.state.highlight).then((suggestion) => {
-												if (!suggestion.isEmpty()) this.setState((state) => ({ suggests: suggestion }));
-											});
-										}}
-									/>
-								</Grid.Cell>
-								<Grid.Cell id="collection">
-									<Grid.Layout gap={{ inner: 15 }} count={5} minimum={(Layout.width - 30) / 1.5 - 30}>
-										{this.state.gallery.map((_gallery, index) => {
-											return (
-												<ContextMenu key={index} items={[
-													{
-														role: "Copy URL",
-														toggle: true,
-														method: () => {
-															// text/plain
-															navigator.clipboard.writeText(_gallery.getURL());
-														}
-													},
-													"seperator",
-													{
-														role: "Download",
-														toggle: false,
-														method: () => {
-															throw Error("Unimplemented");
-														}
-													},
-													{
-														role: "Bookmark",
-														toggle: false,
-														method: () => {
-															throw Error("Unimplemented");
-														}
-													},
-													"seperator",
-													{
-														role: "Open in Viewer",
-														toggle: true,
-														method: () => {
-															history.open(_gallery.title, "VIEWER", { gallery: _gallery.id });
-														}
-													}]}>
-													<section id="wrapper">
-														<Gallery gallery={_gallery} height={(Layout.height - (185 - 15))}
-															onClick={(tag) => {
-																// cache
-																const element = this.state.controller.current;
-
-																if (element) {
-																	element.value = element.value.includes(tag) ? element.value.replace(tag, "").replace(/\s*[&?+-]\s*[&?+-]\s*/, space + "&" + space).replace(/\s*[&?+-]\s*$/, "") : (element.value + space + "&" + space + tag).replace(/^\s*[&?+-]\s*/, "");
-																}
-															}}
-														/>
-													</section>
-												</ContextMenu>
-											);
-										})}
-									</Grid.Layout>
-								</Grid.Cell>
-							</Grid.Region>
-						</section>
-					</Scroll>
-				</Spacer>
-				<Paging toggle={!this.state.gallery.isEmpty()} index={this.state.index} length={this.state.length} overflow={5} shortcut={new Pair(true, true)} color={Color.DARK_100} height={45} shadow={[{ x: 0, y: 0, blur: 5, spread: 0, color: Color.DARK_100 }]} visible={this.state.length > 1}
-					onPaging={(index) => {
-						// disapprove
-						if (!this.visible()) return false;
-
-						this.display(this.state.query, index);
-						// approve
-						return true;
+						this.browse("language = \"all\"");
 					}}
-					builder={(key, index, indexing, handle) => {
+					onHover={(index) => {
 						// cache
-						const button = (
-							<Button key={key} minimum={{ width: 50 }} margin={{ all: 2.5, top: 7.5, bottom: 7.5 }} padding={{ left: 7.5, right: 7.5 }} corner={{ all: 4.5 }}
-								onMouseDown={(style) => {
-									style(null, () => handle(index));
+						const input = this.node().getElementsByTagName("input").item(0)!;
+
+						input.value = (input.value.trim().replace(/\s*(=|!=)\s*/g, ($0, $1) => $1).split(space).slice(0, -1).join(space).replace(/\s*[&?+-]\s*$/, "") + space + "&" + space + this.state.suggest.items[index].first).replace(/\s*(=|!=)\s*/g, ($0, $1) => space + $1 + space).replace(/^\s*[&?+-]\s*/, "");
+					}}
+					onSelect={(text) => {
+						suggest("expire");
+
+						this.setState((state) => ({ suggest: { items: [] } }));
+					}}
+					onSubmit={(value) => {
+						suggest("expire");
+
+						structure("history").rename("Searching...");
+
+						this.browse(value.isEmpty() ? "language = \"all\"" : value).then((length) => {
+							// rename
+							structure("history").rename(`${length} Results`);
+						});
+					}}
+					onChange={(value) => {
+						suggest("expire");
+
+						if (!this.state.suggest.items.isEmpty()) this.setState((state) => ({ suggest: { items: [] } }));
+
+						this.state.highlight = value.trim().split(space).last ?? "???";
+
+						suggest(this.state.highlight).then((suggestion) => {
+							if (!suggestion.isEmpty()) this.setState((state) => ({ suggest: { items: suggestion } }));
+						});
+					}}
+				/>
+				<Scroll x="hidden" y="auto">
+					<Spacer>
+						<Grid.Layout id="collection" gap={20.0} count={5} width={app.max_width / (5 + 1)} offset={{ margin: { left: 20.0, right: 20.0 } }}>
+							{this.state.gallery.value.map((gallery, index) => {
+								return (
+									<ContextMenu key={index} items={[
+										{
+											role: "Copy URL",
+											toggle: true,
+											method: () => {
+												navigator.clipboard.write([new ClipboardItem({ "text/plain": new Blob([gallery.URL()], { type: "text/plain" }) })]);
+											}
+										},
+										"seperator",
+										{
+											role: "Download",
+											toggle: false,
+											method: () => {
+												throw Error("Unimplemented");
+											}
+										},
+										{
+											role: "Bookmark",
+											toggle: false,
+											method: () => {
+												throw Error("Unimplemented");
+											}
+										},
+										"seperator",
+										{
+											role: "Open in Viewer",
+											toggle: true,
+											method: () => {
+												structure("history").open(gallery.title, "viewer", { gallery: gallery.id });
+											}
+										},
+										{
+											role: "Open in External Browser",
+											toggle: true,
+											method: () => {
+												chromium.open_url(gallery.URL());
+											}
+										}]}>
+										<Element id="wrapper">
+											<Gallery gallery={gallery} constraint={{ height: app.min_height - 180.0 - 0.25 }}
+												onClick={(tag) => {
+													// cache
+													const input = this.node().getElementsByTagName("input").item(0)!;
+
+													input.value = input.value.includes(tag) ? input.value.replace(tag, "").replace(/\s*[&?+-]\s*[&?+-]\s*/, space + "&" + space).replace(/\s*[&?+-]\s*$/, "") : (input.value + space + "&" + space + tag).replace(/^\s*[&?+-]\s*/, "");
+												}}
+											/>
+										</Element>
+									</ContextMenu>
+								);
+							})}
+						</Grid.Layout>
+					</Spacer>
+				</Scroll>
+				<Paging enable={!this.state.gallery.value.isEmpty()} size={5} index={this.state.search.index} length={this.state.gallery.length} constraint={{ height: 60.0 }} flags={{ visible: this.state.gallery.length > 1 }}
+					builder={(key, index, indexing, handle) => {
+						return (
+							<Button key={key} offset={{ margin: { all: 2.5, top: 7.5, bottom: 7.5 }, padding: { left: 7.5, right: 7.5 } }} constraint={{ minimum: { width: 50.0 } }} decoration={{ corner: { all: 5.0 } }}
+								onMouseDown={(setStyle) => {
+									setStyle(undefined);
+
+									handle(index);
 								}}
-								onMouseEnter={(style) => {
-									style({ color: Color.DARK_200 });
+								onMouseEnter={(setStyle) => {
+									setStyle({ decoration: { color: Color.pick(3.0) } });
 								}}
-								onMouseLeave={(style) => {
-									style(null);
+								onMouseLeave={(setStyle) => {
+									setStyle(undefined);
 								}}
-								children={<Text children={[{ text: /^[0-9]$/.test(key) ? (index + 1).toString() : key, color: !this.state.gallery.isEmpty() && this.state.length ? indexing ? Color.RGBA_000 : "inherit" : Color.DARK_500 }]}/>}
+								children={<Text>{[{ value: /^[0-9]$/.test(key) ? (index + 1).toString() : key, color: indexing ? "aquamarine" : undefined }]}</Text>}
 							/>
 						);
+					}}
+					onPaging={(index) => {
+						if (!this.visible()) return false;
 
-						switch (key) {
-							case "2":
-							case "4": {
-								if (this.state.length > 5) {
-									const portal = (
-										<Button key="unique" color={Color.DARK_200} margin={{ all: 2.5, top: 7.5, bottom: 7.5 }} padding={{ left: 4.5, right: 4.5 }} corner={{ all: 4.5 }}
-											children={<Form width={50} align="center" toggle={!this.state.gallery.isEmpty()} fallback="..." onSubmit={(text) => handle(Number(text) - 1)} onChange={(text) => text.isEmpty() ? text : Number(text).clamp(0, this.state.length).toString()} onTyping={(text) => /^(Backspace|ArrowLeft|ArrowRight|[0-9])$/.test(text)}/>}
-										/>
-									);
-									return key === "2" ? <React.Fragment key={key}>{button}{portal}</React.Fragment> : <React.Fragment key={key}>{portal}{button}</React.Fragment>;
-								}
-							}
-							default: {
-								return button;
-							}
-						}
+						this.browse(this.state.search.value, index);
+
+						return true;
 					}}
 				/>
 			</Column>
 		);
 	}
-	protected handle(event: Parameters<Parameters<typeof history["handle"]>[0]>[0]) {
+	protected visible() {
+		return structure("history").state.pages[structure("history").state.index].element.props["data-key"] === (this.props as any)["data-key"];
+	}
+	protected discord() {
 		if (!this.visible()) return;
 
-		if (this.state.init) {
-			// update
-			this.discord(true);
+		if (this.state.gallery.value.isEmpty()) {
+			discord.update({ state: "Browsing", details: "Loading...", partyMax: undefined, partySize: undefined });
 		}
 		else {
-			// update
-			this.discord(false);
-
-			this.state.init = true;
-
-			this.display(this.state.query, this.state.index);
+			discord.update({ state: "Browsing", details: this.state.search.value, partyMax: this.state.gallery.length, partySize: this.state.search.index + 1 });
 		}
 	}
-	protected discord(state: boolean = !this.state.gallery.isEmpty()) {
-		if (!this.visible()) return;
+	protected async browse(value: string, index: number = 0) {
+		// update
+		await this.setState((state) => ({ search: { value: value, index: index }, suggest: { items: [] }, gallery: { value: [], length: this.state.gallery.length }, highlight: "???" }), this.discord);
 
-		switch (state) {
-			case true: {
-				discord.update({
-					state: "Browsing",
-					details: this.state.query,
-					partyMax: this.state.length,
-					partySize: this.state.index + 1
-				});
-				break;
-			}
-			case false: {
-				discord.update({
-					state: "Browsing",
-					details: "Loading...",
-					partyMax: undefined,
-					partySize: undefined
-				});
-				break;
-			}
-		}
-	}
-	protected display(query: string, index: number, callback?: (count: number) => void) {
-		// reset
-		this.setState((state) => ({ query: query, gallery: [], suggests: [], highlight: "" }), () => {
-			// fetch
-			search.query(query).then((response) => {
-				// avoid bottleneck
-				const block = Array<_Gallery>();
-				const array = Array.from(response).skip(index ? index * 25 : 0).take(25);
+		const [_bundle, _galleries] = [Array.from(await search(value)), []];
 
-				for (let _index = 0; _index < array.length; _index++) {
-					// fetch
-					gallery.get(array[_index]).then((_gallery) => {
-						// assign
-						block[_index] = _gallery;
+		const [_offset, _length] = [index * 25, (_bundle.length - index * 25).clamp(0, 25)];
 
-						if (block.length === array.length) {
-							// update
-							this.setState((state) => ({ index: index, gallery: block, length: Math.ceil(response.size / 25) }), () => {
-								// rich
-								this.discord(true);
-								// callback
-								callback?.(response.size);
-							});
-						}
-					}).catch((error) => print(error));
+		for (let _index = 0; _index < _length; _index++) {
+			// bottleneck
+			gallery(_bundle[_index + _offset]).then(async (_gallery) => {
+				// @ts-ignore
+				_galleries[_index] = _gallery;
+
+				if (_galleries.filter((_) => _).length === _length) {
+					// update
+					await this.setState((state) => ({ gallery: { value: _galleries, length: Math.ceil(_bundle.length / 25) } }), this.discord);
+	
+					return _bundle.length;
 				}
 			});
-		});
+		}
+	}
+	@autobind()
+	protected async onRender() {
+		// skip
+		if (!this.visible()) return;
+
+		if (!this.state.init) {
+			// update
+			this.state.init = true;
+
+			this.browse(this.state.search.value, this.state.search.index);
+		}
 	}
 }
 

@@ -10,7 +10,7 @@ const support = {
 	cache: true
 };
 
-let dependency: Nullable<unknown> = null;
+let dependency: unknown;
 
 export function canvas(source: string) {
 	return unknown_0(source);

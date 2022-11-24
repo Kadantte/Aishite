@@ -1,14 +1,12 @@
-import Unit from "@/app/common/unit";
-
 interface Margin {
-	readonly all?: Unit;
-	readonly top?: Unit;
-	readonly left?: Unit;
-	readonly right?: Unit;
-	readonly bottom?: Unit;
+	readonly all?: unit;
+	readonly top?: unit;
+	readonly left?: unit;
+	readonly right?: unit;
+	readonly bottom?: unit;
 }
 
-function Margin(style: Margin): React.CSSProperties {
+function margin(style: Margin): React.CSSProperties {
 	// check before
 	if ((style.all ?? style.top ?? style.left ?? style.right ?? style.bottom) === undefined) return {};
 
@@ -20,4 +18,4 @@ function Margin(style: Margin): React.CSSProperties {
 	};
 }
 
-export default Margin;
+export default margin;

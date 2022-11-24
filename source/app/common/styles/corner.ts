@@ -1,18 +1,16 @@
-import Unit from "@/app/common/unit";
-
 interface Corner {
-	readonly all?: Unit;
+	readonly all?: unit;
 	/** Short for **T**op **L**eft. */
-	readonly TL?: Unit;
+	readonly TL?: unit;
 	/** Short for **T**op **R**ight. */
-	readonly TR?: Unit;
+	readonly TR?: unit;
 	/** Short for **B**oys **L**ove. */
-	readonly BL?: Unit;
+	readonly BL?: unit;
 	/** Short for **B**ottom **R**ight. */
-	readonly BR?: Unit;
+	readonly BR?: unit;
 }
 
-function Corner(style: Corner): React.CSSProperties {
+function corner(style: Corner): React.CSSProperties {
 	// check before
 	if ((style.all ?? style.TL ?? style.TR ?? style.BL ?? style.BR) === undefined) return {};
 
@@ -24,4 +22,4 @@ function Corner(style: Corner): React.CSSProperties {
 	};
 }
 
-export default Corner;
+export default corner;

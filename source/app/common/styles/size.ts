@@ -1,29 +1,25 @@
-import Unit from "@/app/common/unit";
-
-type Type = ("minimum" | "maximum");
-
 interface Size {
-	readonly type?: Type;
-	readonly width?: Unit;
-	readonly height?: Unit;
+	readonly type?: boolean;
+	readonly width?: unit;
+	readonly height?: unit;
 }
 
-function Size(style: Size): React.CSSProperties {
+function size(style: Size): React.CSSProperties {
 	// check before
 	if ((style.width ?? style.height) === undefined) return {};
 
 	switch (style.type) {
-		case "minimum": {
-			return {
-				minWidth: style.width,
-				minHeight: style.height,
-				flexShrink: (style.width ?? style.height) === undefined ? undefined : 0.0
-			};
-		}
-		case "maximum": {
+		case true: {
 			return {
 				maxWidth: style.width,
 				maxHeight: style.height,
+				flexShrink: (style.width ?? style.height) === undefined ? undefined : 0.0
+			};
+		}
+		case false: {
+			return {
+				minWidth: style.width,
+				minHeight: style.height,
 				flexShrink: (style.width ?? style.height) === undefined ? undefined : 0.0
 			};
 		}
@@ -37,4 +33,4 @@ function Size(style: Size): React.CSSProperties {
 	}
 }
 
-export default Size;
+export default size;

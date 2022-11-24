@@ -124,7 +124,7 @@ class Client {
 			// cache
 			const SSL = /^https/.test(args.url);
 
-			const chunks = Array<any>();
+			const chunks = Array<Buffer>();
 			const fragment = (args.url === decodeURI(args.url) ? encodeURI(args.url) : args.url).replace(/https?:\/\//, "").replace(/\s/g, "%20").split("/");
 
 			const host = fragment[0];

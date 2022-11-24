@@ -1,15 +1,11 @@
-import Unit from "@/app/common/unit";
 import Color from "@/app/common/color";
-import { FlipFlop } from "@/app/common/props";
+import { Props } from "@/app/common/props";
 import { Stateful } from "@/app/common/framework";
-
-import { Pair } from "@/models/pair";
 
 import Row from "@/app/layout/row";
 import Text from "@/app/layout/text";
 import Form from "@/app/layout/form";
 import Center from "@/app/layout/center";
-import Element from "@/app/layout/element";
 import Container from "@/app/layout/container";
 
 import Scroll from "@/app/layout/casacade/scroll";
@@ -18,16 +14,17 @@ import Close from "@/app/icons/close";
 
 import Button from "@/app/widgets/button";
 
-interface DropdownProps extends FlipFlop<undefined> {
+interface DropdownProps extends Props.Clear<undefined>, Props.Style, Props.Toggle {
+	// required
+	readonly items: Array<[string, string]>;
+	// optional
 	readonly index?: number;
 	readonly value?: string;
-	readonly items: Array<Pair<string, string>>;
 	readonly fallback?: string;
 	readonly highlight?: string;
-	readonly controller?: Reference<HTMLInputElement>;
 	// events
 	readonly onReset?: () => void;
-	readonly onIndex?: (callback: number) => void;
+	readonly onHover?: (callback: number) => void;
 	readonly onSelect?: (callback: string) => void;
 	readonly onSubmit?: (callback: string) => void;
 	readonly onChange?: (callback: string) => void;
@@ -42,27 +39,37 @@ interface DropdownState {
 
 class Dropdown extends Stateful<DropdownProps, DropdownState> {
 	protected create() {
-		return ({ index: this.props.index ?? NaN, hover: false, focus: false });
+		return {
+			index: this.props.index ?? NaN,
+			hover: false,
+			focus: false
+		};
+	}
+	protected events() {
+		return {};
+	}
+	protected preCSS(): React.CSSProperties {
+		return {
+			// manually
+			overflow: "visible"
+		};
 	}
 	protected postCSS(): React.CSSProperties {
 		return {};
 	}
-	protected preCSS(): React.CSSProperties {
-		return {};
-	}
 	protected build() {
 		return (
-			<Element id="dropdown" custom={{ overflow: "visible" }}>
+			<section id={this.props.id ?? "dropdown"}>
 				{/* FORM */}
-				<Container color={!this.state.hover && !this.state.focus ? Color.DARK_300 : Color.DARK_400} height={40} corner={{ all: 4.5, BL: this.state.focus && !this.props.items.isEmpty() ? 0 : undefined, BR: this.state.focus && !this.props.items.isEmpty() ? 0 : undefined }} shadow={[{ x: 0, y: 0, blur: 5, spread: 0, color: Color.DARK_100 }]}
-					onMouseEnter={(style) => {
+				<Container constraint={{ height: 40.0 }} decoration={{ color: !this.props.enable ? undefined : !this.state.hover && !this.state.focus ? undefined : Color.pick(3.0), border: { all: { width: 1.5, style: "solid", color: !this.props.enable ? Color.pick(3.0) : !this.state.hover && !this.state.focus ? Color.pick(3.0) : Color.pick(5.0) }, bottom: this.state.focus && !this.props.items.isEmpty() ? { color: "transparent" } : undefined }, corner: this.state.focus && !this.props.items.isEmpty() ? { TL: 5.0, TR: 5.0 } : { all: 5.0 }, shadow: !this.props.enable ? undefined : !this.state.hover && !this.state.focus ? undefined : [{ x: 0.0, y: 0.0, blur: 5.0, spread: 0.0, color: Color.pick(1.0) }] }}
+					onMouseEnter={(setStyle) => {
 						this.setState((state) => ({ hover: true }));
 					}}
-					onMouseLeave={(style) => {
+					onMouseLeave={(setStyle) => {
 						this.setState((state) => ({ hover: false }));
 					}}>
 					<Row>
-						<Form toggle={this.props.toggle} value={this.props.value} fallback={this.props.fallback} controller={this.props.controller} margin={{ left: 15, right: 15 }}
+						<Form enable={this.props.enable} value={this.props.value} fallback={this.props.fallback} offset={{ margin: { left: 15.0, right: 15.0 } }}
 							onBlur={() => {
 								this.setState((state) => ({ focus: false }));
 							}}
@@ -72,41 +79,47 @@ class Dropdown extends Stateful<DropdownProps, DropdownState> {
 							onSubmit={(text) => {
 								if (isNaN(this.state.index)) return this.props.onSubmit?.(text);
 								if (this.props.items.isEmpty()) return this.props.onSubmit?.(text);
-								// trigger
-								this.props.onSelect?.(this.props.items[this.state.index].first);
-								// update
+								else this.props.onSelect?.(this.props.items[this.state.index][0]);
+
 								this.setState((state) => ({ index: NaN }));
 							}}
 							onChange={(text) => {
 								this.props.onChange?.(text);
 							}}
 							onTyping={(text) => {
+								if (this.props.items.isEmpty()) return this.props.onTyping?.(text) ?? true;
+
 								switch (text) {
-									case "ArrowUp":
+									case "ArrowUp": {
+										if (isNaN(this.state.index)) this.state.index = 0; else this.state.index--;
+										break;
+									}
 									case "ArrowDown": {
-										if (!this.props.items.isEmpty()) {
-											this.setState((state) => ({ index: isNaN(state.index) ? 0 : (state.index + (text === "ArrowUp" ? -1 : 1)).clamp(0, this.props.items.length - 1) }), () => {
-												// auto-scroll
-												this.node().querySelector("[id=\"items\"]")?.scrollTo({ top: this.state.index * 40 });
-												// event
-												this.props.onIndex?.(this.state.index);
-											});
-										}
+										if (isNaN(this.state.index)) this.state.index = 0; else this.state.index++;
+										break;
 									}
 								}
+								// re-render
+								this.setState((state) => ({ index: state.index.clamp(0, this.props.items.length - 1) }), () => {
+									// auto-scroll
+									this.node().querySelector("[id=\"items\"]")?.scrollTo({ top: this.state.index * 40 });
+									// event
+									this.props.onHover?.(this.state.index);
+								});
+
 								return this.props.onTyping?.(text) ?? true;
 							}}
 						/>
-						<Center x={true} y={true} width={50}>
-							<Close color={Color.DARK_500}
-								onMouseDown={(style) => {
+						<Center x={true} y={true} constraint={{ width: 50.0 }}>
+							<Close color={Color.pick(5.0)}
+								onMouseDown={(setStyle) => {
 									this.props.onReset?.();
 								}}
-								onMouseEnter={(style) => {
-									style(Color.TEXT_000);
+								onMouseEnter={(setStyle) => {
+									setStyle("#AAAAAA");
 								}}
-								onMouseLeave={(style) => {
-									style(null);
+								onMouseLeave={(setStyle) => {
+									setStyle(undefined);
 								}}
 							/>
 						</Center>
@@ -114,24 +127,41 @@ class Dropdown extends Stateful<DropdownProps, DropdownState> {
 				</Container>
 				{/* MENU */}
 				<Scroll x="hidden" y="scroll">
-					<Container id="items" color={Color.DARK_400} top={Unit(100, "%")} width={Unit(100, "%")} maximum={{ height: 40 * 5 }} corner={{ all: 4.5, TL: 0, TR: 0 }} shadow={[{ x: 0, y: 0, blur: 5, spread: 0, color: Color.DARK_100 }]} visible={this.state.focus && !this.props.items.isEmpty()} custom={{ clipPath: "inset(0px -5px -5px -5px)" }}>
+					<Container id="items" position={{ top: 100.0 + "%" }} constraint={{ width: 100.0 + "%", maximum: { height: 40.0 * 5 } }} decoration={{ color: Color.pick(3.0), border: { all: { width: 1.5, style: "solid", color: Color.pick(5.0) }, top: { color: "transparent" } }, corner: { BL: 5.0, BR: 5.0 }, shadow: [{ x: -5.0, y: 0.0, blur: 5.0, spread: -5.0, color: Color.pick(1.0) }, { x: 5.0, y: 0.0, blur: 5.0, spread: -5.0, color: Color.pick(1.0) }, { x: 0.0, y: 5.0, blur: 5.0, spread: -5.0, color: Color.pick(1.0) }] }} flags={{ visible: this.state.focus && !this.props.items.isEmpty() }}>
 						{this.props.items.map((item, index) => {
+							// cache
+							const [buffer, fragment] = [[] as Array<unknown>, this.props.highlight ? item[0].split(this.props.highlight) : [item[0]]];
+
+							for (let index = 0; index < fragment.length; index++) {
+								if (fragment.length > index + 1) {
+									if (fragment[index].isEmpty()) {
+										buffer.add({ value: this.props.highlight as string, color: "violet" });
+									}
+									else {
+										buffer.add({ value: fragment[index] }, { value: this.props.highlight as string, color: "violet" });
+									}
+								}
+								else {
+									buffer.add({ value: fragment[index] });
+								}
+							}
+
 							return (
-								<Button key={index} color={this.state.index === index ? Color.DARK_500 : "inherit"} height={40}
-									onMouseDown={(style) => {
-										this.setState((state) => ({ index: NaN }), () => this.props.onSelect?.(item.first));
+								<Button key={index} offset={{ margin: { all: 5.0 } }} constraint={{ height: 40.0 }} decoration={{ color: this.state.index === index ? Color.pick(4.5) : Color.pick(3.5), corner: { all: 5.0 } }}
+									onMouseDown={(setStyle) => {
+										this.setState((state) => ({ index: NaN }), () => this.props.onSelect?.(item[0]));
 									}}
-									onMouseEnter={(style) => {
-										this.setState((state) => ({ index: index }), () => this.props.onIndex?.(index));
+									onMouseEnter={(setStyle) => {
+										this.setState((state) => ({ index: index }), () => this.props.onHover?.(index));
 									}}>
-									<Text left={15} children={item.first.split(this.props.highlight!).map((text, index, array) => array.length > index + 1 ? text.isEmpty() ? { text: this.props.highlight, color: Color.RGBA_000 } : [{ text: text }, { text: this.props.highlight, color: Color.RGBA_000 }] : { text: text }).flat().map((text) => ({ ...text, size: 13.5 })) as Text["props"]["children"]}/>
-									<Text right={15} children={[{ text: item.second, size: 14.5, color: Color.DARK_000 }]}/>
+									<Text position={{ left: 15.0 }}>{buffer as Text["props"]["children"]}</Text>
+									<Text position={{ right: 15.0 }}>{[{ value: item[1], color: Color.pick(5.0) }]}</Text>
 								</Button>
 							);
 						})}
 					</Container>
 				</Scroll>
-			</Element>
+			</section>
 		);
 	}
 }

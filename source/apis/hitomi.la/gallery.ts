@@ -1,10 +1,10 @@
 import client from "@/modules/node.js/request";
 
 import { Tag } from "@/models/tag";
-import { Gallery, GalleryFile } from "@/models/gallery";
+import { Gallery as G, GalleryFile as GF } from "@/models/gallery";
 
-let gg_js: Nullable<string> = null;
-let common_js: Nullable<string> = null;
+let gg_js: string;
+let common_js: string;
 
 client.GET("https://ltn.hitomi.la/gg.js", "text").then((response) => {
 	// update
@@ -20,29 +20,29 @@ client.GET("https://ltn.hitomi.la/common.js", "text").then((response) => {
 	if (/eval|require/g.test(common_js)) throw Error();
 });
 
-class _Gallery extends Gallery {
+class Gallery extends G {
 	public readonly characters: Array<string>;
 
-	constructor(args: Args<_Gallery>) {
+	constructor(args: Args<Gallery>) {
 		super(args);
 
 		this.characters = args.characters;
 	}
-	public getURL() {
+	public URL() {
 		return `https://hitomi.la/galleries/${this.id}.html`;
 	}
-	public async getFiles(): Promise<Array<_GalleryFile>> {
+	public async files(): Promise<Array<GalleryFile>> {
 		// cache
 		const response = await client.GET(`https://ltn.hitomi.la/galleries/${this.id}.js`, "text");
 
 		const metadata = JSON.parse(response.body.replace(/^var\sgalleryinfo\s=\s/, ""));
 
-		const cache = Array<_GalleryFile>();
+		const cache = Array<GalleryFile>();
 
-		await until(() => !!gg_js && !!common_js);
+		await until(() => gg_js !== undefined && common_js !== undefined);
 
 		for (const file of metadata["files"]) {
-			cache.add(new _GalleryFile({
+			cache.add(new GalleryFile({
 				url: eval(gg_js! + common_js! + "url_from_url_from_hash(this.id, file, \"webp\", undefined, \"a\")"),
 				name: file["name"],
 				width: file["width"],
@@ -53,12 +53,12 @@ class _Gallery extends Gallery {
 	}
 }
 
-class _GalleryFile extends GalleryFile {
+class GalleryFile extends GF {
 	public readonly name: string;
 	public readonly width: number;
 	public readonly height: number;
 
-	constructor(args: Args<_GalleryFile>) {
+	constructor(args: Args<GalleryFile>) {
 		super(args);
 
 		this.name = args.name;
@@ -67,88 +67,56 @@ class _GalleryFile extends GalleryFile {
 	}
 }
 
-async function block(id: number) {
+export async function gallery(id: number) {
 	// cache
 	const response = await client.GET(`https://ltn.hitomi.la/galleryblock/${id}.html`, "text");
 
-	await until(() => !!gg_js && !!common_js);
-
-	let key = "N/A";
-	let index = 0;
+	await until(() => gg_js !== undefined && common_js !== undefined);
 
 	const element = new DOMParser().parseFromString(eval(gg_js! + common_js! + "rewrite_tn_paths(response.body)").replace(/\s\s+/g, "").replace(/\n/g, ""), "text/html");
 
-	const metadata = new Map<string, unknown>(Object.entries({ title: element.querySelector(".lillie a")?.textContent, date: element.querySelector(".date")?.textContent }));
-	
-	for (const children of element.querySelectorAll("td")) {
-		switch (index % 2) {
-			case 0: {
-				// cache
-				key = children.textContent?.toLowerCase()!;
-				// assign key
-				metadata.set(key, "N/A");
-				break;
-			}
-			default: {
-				if (key === "tags") {
-					// cache
-					const value = Array<unknown>();
+	const metadata = new Map<string, unknown>(Object.entries({}));
 
-					for (const node of children.querySelectorAll("a")) {
-						// cache
-						const text = node.textContent!;
-
-						value.add(new Tag({ namespace: text.includes("♂") ? "male" : text.includes("♀") ? "female" : "tag", value: text.replace(/[♂♀]/, "").replace(/\s$/, "").replace(/\s/g, "_") }));
-					}
-					// assign value
-					metadata.set(key, value);
-				}
-				else {
-					// assign value
-					metadata.set(key, children.textContent);
-				}
-				break;
-			}
-		}
-		index++;
-	}
-	// cache
-	const artists = Array<string>();
-
-	for (const children of element.getElementsByClassName("artist-list")) {
-		// assign value
-		artists.add(children.textContent ?? "N/A");
-	}
-	// update
-	metadata.set("artists", artists);
-	
-	// cache
-	const image = Array<string>();
-	
-	for (const source of element.getElementsByClassName("lazyload")) {
-		image.add("https:" + source.getAttribute("data-src"));
+	function property(namespace: string) {
+		return element.querySelector(`*[href*="/${namespace}"]`)?.textContent;
 	}
 
-	// update
-	metadata.set("thumbnail", image);
+	metadata.set("type", property("type"));
 
-	return new _Gallery({
+	metadata.set("title", element.querySelector(".lillie a")?.textContent);
+
+	metadata.set("group", property("group"));
+
+	metadata.set("series", property("series"));
+
+	metadata.set("artists", Array.from(element.getElementsByClassName("artist-list")).map((source) => source.textContent));
+
+	metadata.set("language", property("index"));
+
+	metadata.set("thumbnail", Array.from(element.getElementsByClassName("lazyload")).map((source) => "https:" + source.getAttribute("data-src")));
+
+	metadata.set("characters", property("characters"));
+
+	metadata.set("tags", Array.from(element.querySelectorAll("*[href*=\"/tag/\"]")).map((source) => {
+		// cache
+		const text = source.textContent!;
+
+		return new Tag({ namespace: text.includes("♂") ? "male" : text.includes("♀") ? "female" : "tag", value: text.replace(/[♂♀]/, "").replace(/\s$/, "").replace(/\s/g, "_") });
+	}));
+
+	metadata.set("date", element.getElementsByClassName("date").item(0)?.textContent);
+
+	return new Gallery({
 		id: id,
-		type: metadata.get("type"),
-		title: metadata.get("title"),
-		group: metadata.get("group"),
-		parody: metadata.get("series"),
-		artists: metadata.get("artists"),
-		language: metadata.get("language"),
-		thumbnail: metadata.get("thumbnail"),
-		characters: metadata.get("characters"),
-		tags: metadata.get("tags"),
-		date: metadata.get("date")
-	} as Args<_Gallery>);
+		type: metadata.get("type") as Args<Gallery>["type"],
+		title: metadata.get("title") as Args<Gallery>["title"],
+		group: metadata.get("group") as Args<Gallery>["group"],
+		parody: metadata.get("series") as Args<Gallery>["parody"],
+		artists: metadata.get("artists") as Args<Gallery>["artists"],
+		language: metadata.get("language") as Args<Gallery>["language"],
+		thumbnail: metadata.get("thumbnail") as Args<Gallery>["thumbnail"],
+		characters: metadata.get("characters") as Args<Gallery>["characters"],
+		tags: metadata.get("tags") as Args<Gallery>["tags"],
+		date: metadata.get("date") as Args<Gallery>["type"]
+	});
 }
-
-const gallery = {
-	get: block
-}
-
-export default gallery;
