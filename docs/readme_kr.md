@@ -2,7 +2,7 @@
 	<img width="100px" src="https://github.com/Any-Material/Daisuki/blob/master/docs/images/icon.png?raw=true" align="center" alt="Daisuki"/>
 </div>
 <div align="center">
-	<a href="/docs/readme_kr.md">한국어</a>
+	<a href="https://github.com/Any-Material/Daisuki/blob/master/readme.md">English</a>
 </div>
 <div align="center">
 	<a href="https://github.com/Any-Material/Daisuki/releases">다운로드</a>
