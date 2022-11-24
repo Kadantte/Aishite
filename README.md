@@ -62,7 +62,7 @@ Compute the sum of A and B.
 
 Compute the set of differences between A and B.
 
-___
+#
 
 Below is full list of available **properties**.
 
