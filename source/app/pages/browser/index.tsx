@@ -178,6 +178,8 @@ class Browser extends Stateful<BrowserProps, BrowserState> {
 													// cache
 													const input = this.node().getElementsByTagName("input").item(0)!;
 
+													this.setState((state) => ({ suggest: { items: [] } }));
+
 													input.value = input.value.includes(tag) ? input.value.replace(tag, "").replace(/\s*[&?+-]\s*[&?+-]\s*/, space + "&" + space).replace(/\s*[&?+-]\s*$/, "") : (input.value + space + "&" + space + tag).replace(/^\s*[&?+-]\s*/, "");
 												}}
 											/>
