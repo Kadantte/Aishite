@@ -1,5 +1,5 @@
 <section align="center">
-	<img width="100px" src="https://github.com/Any-Material/Daisuki/docs/images/icon.png" align="center" alt="Daisuki"/>
+	<img width="100px" src="https://github.com/Any-Material/Daisuki/blob/master/docs/images/icon.png?raw=true" align="center" alt="Daisuki"/>
 </section>
 <section align="center">
 	<a href="/docs/readme_kr.md">한국어</a>
