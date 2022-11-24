@@ -62,7 +62,7 @@ A 와 B 의 합집합을 연산합니다.
 
 A 와 B 의 차집합을 연산합니다.
 
-···
+___
 
 다음은 사용 가능한 **속성** 목록입니다.
 
@@ -93,7 +93,7 @@ random(minimum: <정수>, maximum: <정수>)
 language = "english" + title("just some title string") + id = 69
 ```
 
-## Trvia
+## Trivia
 
 - **검색어 처리기**는 괄호의 중첩을 지원합니다.
 

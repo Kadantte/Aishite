@@ -62,7 +62,7 @@ Compute the sum of A and B.
 
 Compute the set of differences between A and B.
 
-···
+___
 
 Below is full list of available **properties**.
 
@@ -92,7 +92,7 @@ Below is a usage example.
 language = "english" + title("just some title string") + id = 69
 ```
 
-## Trvia
+## Trivia
 
 - Nested parentheses is supported.
 
