@@ -81,6 +81,7 @@ class Form extends Stateful<FormProps, FormState> {
 				}}
 				onContextMenu={(event) => {
 					structure("contextmenu").state = {
+						id: "INPUT",
 						x: event.pageX,
 						y: event.pageY,
 						items: [

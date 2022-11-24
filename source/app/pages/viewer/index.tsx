@@ -107,7 +107,7 @@ class Viewer extends Stateful<ViewerProps, ViewerState> {
 		this.discord();
 
 		if (!this.state.init) {
-			// update
+			// silent update
 			this.state.init = true;
 
 			const _gallery = await gallery(this.props.gallery);
@@ -129,7 +129,7 @@ class Viewer extends Stateful<ViewerProps, ViewerState> {
 		// skip
 		if (!this.visible()) return;
 		if (event.key !== "Control") return;
-
+		// silent update
 		this.state.control = false;
 	}
 	@autobind()
@@ -144,7 +144,7 @@ class Viewer extends Stateful<ViewerProps, ViewerState> {
 		// skip
 		if (!this.visible()) return;
 		if (event.key !== "Control") return;
-
+		// silent update
 		this.state.control = true;
 	}
 }

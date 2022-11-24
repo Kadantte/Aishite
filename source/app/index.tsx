@@ -67,6 +67,7 @@ class App extends Stateful<AppProps, AppState> {
 				chromium.handle(Window.Event.UNMAXIMIZE, (event) => this.setState((state) => ({ maximize: false })));
 				chromium.handle(Window.Event.CONTEXTMENU, (event) => {
 					structure("contextmenu").state = {
+						id: "NATIVE",
 						x: event.detail[0].x,
 						y: event.detail[0].y,
 						items: [

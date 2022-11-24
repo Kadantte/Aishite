@@ -13,6 +13,7 @@ class ContextMenu extends StateHandler<ContextMenuState> {
 }
 
 class ContextMenuState {
+	public readonly id: string;
 	public readonly x: number;
 	public readonly y: number;
 	public readonly items: Array<"seperator" | {
@@ -22,6 +23,7 @@ class ContextMenuState {
 	}>;
 
 	constructor(args: Args<ContextMenuState>) {
+		this.id = args.id;
 		this.x = args.x;
 		this.y = args.y;
 		this.items = args.items;
@@ -29,7 +31,7 @@ class ContextMenuState {
 }
 
 const singleton = new ContextMenu(
-	new ContextMenuState({ x: 0, y: 0, items: [] })
+	new ContextMenuState({ id: "???", x: 0, y: 0, items: [] })
 );
 
 export default singleton;

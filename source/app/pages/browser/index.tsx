@@ -121,7 +121,7 @@ class Browser extends Stateful<BrowserProps, BrowserState> {
 						suggest("expire");
 
 						if (!this.state.suggest.items.isEmpty()) this.setState((state) => ({ suggest: { items: [] } }));
-
+						// silent update
 						this.state.highlight = value.trim().split(space).last ?? "???";
 
 						suggest(this.state.highlight).then((suggestion) => {
@@ -260,7 +260,7 @@ class Browser extends Stateful<BrowserProps, BrowserState> {
 		if (!this.visible()) return;
 
 		if (!this.state.init) {
-			// update
+			// silent update
 			this.state.init = true;
 
 			this.browse(this.state.search.value, this.state.search.index);

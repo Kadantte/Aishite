@@ -22,7 +22,7 @@ class ContextMenu extends StyleSheet<ContextMenuProps> {
 			onContextMenu: (event: MouseEvent) => {
 				if (this.props.priority) event.stopPropagation();
 				// open contextmenu
-				structure("contextmenu").state = { x: event.pageX, y: event.pageY, items: this.props.items };
+				structure("contextmenu").state = { id: new Date().toISOString(), x: event.pageX, y: event.pageY, items: this.props.items };
 			}
 		};
 	}
