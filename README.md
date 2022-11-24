@@ -1,17 +1,17 @@
-<section align="center">
+<div align="center">
 	<img width="100px" src="https://github.com/Any-Material/Daisuki/blob/master/docs/images/icon.png?raw=true" align="center" alt="Daisuki"/>
-</section>
-<section align="center">
+</div>
+<div align="center">
 	<a href="/docs/readme_kr.md">한국어</a>
-</section>
-<section align="center">
+</div>
+<div align="center">
 	<a href="https://github.com/Any-Material/Daisuki/releases">Download</a>
 	·
 	<a href="https://github.com/Any-Material/Daisuki/issues/new">Report Bug</a>
-</section>
-<section align="center">
+</div>
+<div align="center">
 	Care to <a href="https://toss.me/Sombian">Support</a> this project?
-</section>
+</div>
 
 # About
 
