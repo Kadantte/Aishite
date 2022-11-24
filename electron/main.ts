@@ -1,4 +1,4 @@
-import { app, shell, session, Menu, ipcMain, BrowserWindow } from "electron";
+import { app, shell, session, Menu, ipcMain, BrowserWindow, net } from "electron";
 
 import node_fs from "fs";
 import node_path from "path";
@@ -85,6 +85,12 @@ app.on("ready", () => {
 		},
 		backgroundColor: "#00000000"
 	});
+	//
+	// debug
+	//
+	function print(...args: Array<unknown>) {
+		window.webContents.send("console", ...args);
+	}
 	//
 	// behaviours
 	//
@@ -187,6 +193,39 @@ app.on("ready", () => {
 			}
 		}
 	});
+	//
+	// check for update
+	//
+	if (app.isPackaged) {
+		// cache
+		const [chunks, request] = [new Array<Buffer>(), net.request({ method: "GET", protocol: "https:", hostname: "api.github.com", path: "repos/Any-Material/Daisuki/releases?per_page=100" })];
+
+		request.setHeader("content-type", "application/json");
+
+		request.on("response", (response) => {
+			response.on("data", (chunk) => {
+				chunks.push(chunk);
+			});
+			response.on("end", () => {
+				// cache
+				const json = JSON.parse(Buffer.concat(chunks).toString());
+	
+				function parse(value: string) {
+					return Number(value.match(/-?\d+/g)?.join(""));
+				}
+				// is there any update available?
+				if (parse(json[0]["tag_name"]) > parse(app.getVersion())) {
+					// yes!
+					shell.openExternal(json[0]["html_url"]).then(() => {
+						// exit
+						window.destroy();
+					});
+				}
+			});
+		});
+		// fire
+		request.end();
+	}
 	//
 	// webpack or ASAR
 	//

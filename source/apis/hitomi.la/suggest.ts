@@ -155,7 +155,7 @@ async function unknown_6(type: string, digits: Pair<number, number>) {
 
 	const binary = new Binary({ offset: 0, buffer: new DataView(response.buffer) });
 
-	const result = Array<Pair<Tag, number>>();
+	const result = new Array<Pair<Tag, number>>();
 
 	const _0 = binary.buffer.getInt32(binary.offset, Endian.BIG);
 	binary.offset += 4;

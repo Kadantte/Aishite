@@ -124,7 +124,7 @@ class Client {
 			// cache
 			const SSL = /^https/.test(args.url);
 
-			const chunks = Array<Buffer>();
+			const chunks = new Array<Buffer>();
 			const fragment = (args.url === decodeURI(args.url) ? encodeURI(args.url) : args.url).replace(/https?:\/\//, "").replace(/\s/g, "%20").split("/");
 
 			const host = fragment[0];
@@ -162,7 +162,7 @@ class Client {
 									return buffer.buffer.slice(buffer.byteOffset, buffer.byteOffset + buffer.byteLength);
 								}
 								case "json": {
-									return buffer.toJSON();
+									return JSON.parse(Buffer.concat(chunks).toString());
 								}
 								case "text": {
 									return buffer.toString();

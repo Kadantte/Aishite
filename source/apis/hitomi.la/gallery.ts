@@ -37,7 +37,7 @@ class Gallery extends G {
 
 		const metadata = JSON.parse(response.body.replace(/^var\sgalleryinfo\s=\s/, ""));
 
-		const cache = Array<GalleryFile>();
+		const cache = new Array<GalleryFile>();
 
 		await until(() => gg_js !== undefined && common_js !== undefined);
 
