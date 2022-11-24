@@ -1,5 +1,5 @@
 <div align="center">
-	<img width="100px" src="https://github.com/Any-Material/Daisuki/blob/master/docs/images/icon.png?raw=true" align="center" alt="Daisuki"/>
+	<img width="250px" src="https://github.com/Any-Material/Daisuki/blob/master/docs/images/icon.png?raw=true" align="center" alt="Daisuki"/>
 </div>
 <div align="center">
 	<a href="https://github.com/Any-Material/Daisuki/blob/master/README.md">English</a>
