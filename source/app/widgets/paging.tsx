@@ -41,7 +41,7 @@ class Paging extends Stateful<PagingProps, PagingState> {
 			}
 		};
 	}
-	static getDerivedStateFromProps(props: PagingProps, state: PagingState) {
+	static getDerivedStateFromProps(props: Paging["props"], state: Paging["state"]) {
 		if (props.index !== undefined && props.index !== state.index) {
 			return {
 				index: props.index

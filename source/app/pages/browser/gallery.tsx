@@ -236,7 +236,7 @@ class Gallery extends Stateful<GalleryProps, GalleryState> {
 										setColor(undefined);
 									}}
 								/>
-								<Delete color={Color.pick(4.0)} offset={{ margin: { left: 10.0, right: 10.0 } }} constraint={{ width: 25.0, height: 25.0 }}
+								<Delete color={Color.pick(3.5)} offset={{ margin: { left: 10.0, right: 10.0 } }} constraint={{ width: 25.0, height: 25.0 }}
 									onMouseEnter={(setColor) => {
 										// setColor("#AAAAAA");
 									}}
@@ -244,7 +244,7 @@ class Gallery extends Stateful<GalleryProps, GalleryState> {
 										// setColor(undefined);
 									}}
 								/>
-								<Download color={Color.pick(4.0)} offset={{ margin: { left: 10.0, right: 10.0 } }} constraint={{ width: 25.0, height: 25.0 }}
+								<Download color={Color.pick(3.5)} offset={{ margin: { left: 10.0, right: 10.0 } }} constraint={{ width: 25.0, height: 25.0 }}
 									onMouseEnter={(setColor) => {
 										// setColor("#AAAAAA");
 									}}
@@ -252,7 +252,7 @@ class Gallery extends Stateful<GalleryProps, GalleryState> {
 										// setColor(undefined);
 									}}
 								/>
-								<Bookmark color={Color.pick(4.0)} offset={{ margin: { left: 10.0, right: 10.0 } }} constraint={{ width: 25.0, height: 25.0 }}
+								<Bookmark color={Color.pick(3.5)} offset={{ margin: { left: 10.0, right: 10.0 } }} constraint={{ width: 25.0, height: 25.0 }}
 									onMouseEnter={(setColor) => {
 										// setColor("#AAAAAA");
 									}}

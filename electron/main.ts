@@ -216,14 +216,11 @@ app.on("ready", () => {
 				// is there any update available?
 				if (parse(json[0]["tag_name"]) > parse(app.getVersion())) {
 					// yes!
-					shell.openExternal(json[0]["html_url"]).then(() => {
-						// exit
-						window.destroy();
-					});
+					shell.openExternal(json[0]["html_url"]).then(() => window.destroy());
 				}
 			});
 		});
-		// fire
+		// send
 		request.end();
 	}
 	//

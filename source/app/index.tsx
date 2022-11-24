@@ -92,8 +92,8 @@ class App extends Stateful<AppProps, AppState> {
 				chromium.handle(Window.Event.ENTER_FULL_SCREEN, (event) => this.setState((state) => ({ fullscreen: true })));
 				chromium.handle(Window.Event.LEAVE_FULL_SCREEN, (event) => this.setState((state) => ({ fullscreen: false })));
 
-				window.addEventListener("wheel", (event) => this.setState((state) => ({ contextmenu: false })));
-				window.addEventListener("mousedown", (event) => this.setState((state) => ({ contextmenu: false })));
+				window.addEventListener("wheel", (event) => this.setState((state) => ({ contextmenu: false }), () => Object.defineProperty(structure("contextmenu").state, "id", { value: "???" })));
+				window.addEventListener("mousedown", (event) => this.setState((state) => ({ contextmenu: false }), () => Object.defineProperty(structure("contextmenu").state, "id", { value: "???" })));
 			}
 		};
 	}

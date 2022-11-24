@@ -100,6 +100,8 @@ class Browser extends Stateful<BrowserProps, BrowserState> {
 						// cache
 						const input = this.node().getElementsByTagName("input").item(0)!;
 
+						if (this.state.suggest.items.isEmpty()) return;
+
 						input.value = (input.value.trim().replace(/\s*(=|!=)\s*/g, ($0, $1) => $1).split(space).slice(0, -1).join(space).replace(/\s*[&?+-]\s*$/, "") + space + "&" + space + this.state.suggest.items[index].first.toString()).replace(/\s*(=|!=)\s*/g, ($0, $1) => space + $1 + space).replace(/^\s*[&?+-]\s*/, "");
 					}}
 					onSelect={(text) => {

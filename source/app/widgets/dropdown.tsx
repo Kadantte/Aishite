@@ -102,7 +102,7 @@ class Dropdown extends Stateful<DropdownProps, DropdownState> {
 								// re-render
 								this.setState((state) => ({ index: state.index.clamp(0, this.props.items.length - 1) }), () => {
 									// auto-scroll
-									this.node().querySelector("[id=\"items\"]")?.scrollTo({ top: this.state.index * 40 });
+									this.node().querySelector("[id=\"items\"]")?.scrollTo({ top: this.state.index * (40.0 + 5.0) });
 									// event
 									this.props.onHover?.(this.state.index);
 								});
