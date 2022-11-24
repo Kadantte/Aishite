@@ -131,7 +131,7 @@ class Browser extends Stateful<BrowserProps, BrowserState> {
 				/>
 				<Scroll x="hidden" y="auto">
 					<Spacer>
-						<Grid.Layout id="collection" gap={20.0} count={5} width={app.max_width / (5 + 1)} offset={{ margin: { left: 20.0, right: 20.0 } }}>
+						<Grid.Layout id="_result" gap={20.0} count={5} width={app.max_width / (5 + 1)} offset={{ margin: { left: 20.0, right: 20.0 } }}>
 							{this.state.gallery.value.map((gallery, index) => {
 								return (
 									<ContextMenu key={index} items={[
@@ -231,29 +231,37 @@ class Browser extends Stateful<BrowserProps, BrowserState> {
 			discord.update({ state: "Browsing", details: this.state.search.value, partyMax: this.state.gallery.length, partySize: this.state.search.index + 1 });
 		}
 	}
-	protected async browse(value: string, index: number = 0) {
-		return new Promise(async (resolve, reject) => {
+	protected async browse(value: string, index: number = 0, length: number = 25) {
+		return new Promise((resolve, reject) => {
 			// update
-			await this.setState((state) => ({ search: { value: value, index: index }, suggest: { items: [] }, gallery: { value: [], length: this.state.gallery.length }, highlight: "???" }), this.discord);
+			this.setState((state) => ({ search: { value: value, index: index }, suggest: { items: [] }, gallery: { value: [], length: this.state.gallery.length }, highlight: "???" }), () => {
+				// rich presence
+				this.discord();
 
-			const [_bundle, _galleries] = [Array.from(await search(value)), []];
+				search(value).then((_bundle) => {
+					// cache
+					const [_result, _galleries] = [Array.from(_bundle), []];
 
-			const [_offset, _length] = [index * 25, (_bundle.length - index * 25).clamp(0, 25)];
+					const [_offset, _length] = [index * length, (_result.length - index * length).clamp(0, length)];
 
-			for (let _index = 0; _index < _length; _index++) {
-				// bottleneck
-				gallery(_bundle[_index + _offset]).then(async (_gallery) => {
-					// @ts-ignore
-					_galleries[_index] = _gallery;
+					// rich presence
+					this.discord();
+					// callback?
+					resolve(_result.length);
 
-					if (_galleries.filter((_) => _).length === _length) {
-						// update
-						await this.setState((state) => ({ gallery: { value: _galleries, length: Math.ceil(_bundle.length / 25) } }), this.discord);
-
-						return resolve(_bundle.length);
-					}
+					this.setState((state) => ({ gallery: { value: [], length: Math.ceil(_result.length / length) } }), () => {
+						for (let _index = 0; _index < _length; _index++) {
+							// bottleneck
+							gallery(_result[_index + _offset]).then(async (_gallery) => {
+								// @ts-ignore
+								_galleries[_index] = _gallery;
+								// update
+								await this.setState((state) => ({ gallery: { value: _galleries, length: this.state.gallery.length } }));
+							});
+						}
+					});
 				});
-			}
+			});
 		});
 	}
 	@autobind()

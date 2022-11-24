@@ -41,6 +41,14 @@ class Paging extends Stateful<PagingProps, PagingState> {
 			}
 		};
 	}
+	static getDerivedStateFromProps(props: PagingProps, state: PagingState) {
+		if (props.index !== undefined && props.index !== state.index) {
+			return {
+				index: props.index
+			};
+		}
+		return null;
+	}
 	protected build() {
 		return (
 			<Row {...this.props} id={this.props.id ?? "paging"} alignment={Alignment.CENTER}>
