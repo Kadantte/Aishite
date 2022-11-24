@@ -10,7 +10,7 @@
 	<a href="https://github.com/Any-Material/Daisuki/issues/new">오류 제보</a>
 </div>
 <div align="center">
-	해당 프로젝트를 <a href="https://toss.me/Sombian">지원</a> 해주실레요?
+	해당 프로젝트를 <a href="https://toss.me/Sombian">지원</a> 해주실래요?
 </div>
 
 # 설명
