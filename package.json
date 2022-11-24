@@ -1,7 +1,7 @@
 {
 	"name": "daisuki",
 	"main": "build/main.js",
-	"version": "2.1.5",
+	"version": "2.1.8",
 	"description": "..?",
 	"scripts": {
 		"serve": "set NODE_ENV=development && node webpack/serve.js",

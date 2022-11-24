@@ -1,4 +1,4 @@
-import { app, shell, session, Menu, ipcMain, BrowserWindow, net } from "electron";
+import { app, net, shell, session, Menu, ipcMain, BrowserWindow } from "electron";
 
 import node_fs from "fs";
 import node_path from "path";
