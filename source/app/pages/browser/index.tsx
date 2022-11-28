@@ -100,7 +100,7 @@ class Browser extends Stateful<BrowserProps, BrowserState> {
 						// cache
 						const input = this.node().getElementsByTagName("input").item(0)!;
 
-						if (this.state.suggest.items.isEmpty()) return;
+						if (!this.state.suggest.items[index]) return;
 
 						input.value = (input.value.trim().replace(/\s*(=|!=)\s*/g, ($0, $1) => $1).split(space).slice(0, -1).join(space).replace(/\s*[&?+-]\s*$/, "") + space + "&" + space + this.state.suggest.items[index].first.toString()).replace(/\s*(=|!=)\s*/g, ($0, $1) => space + $1 + space).replace(/^\s*[&?+-]\s*/, "");
 					}}
@@ -133,7 +133,7 @@ class Browser extends Stateful<BrowserProps, BrowserState> {
 				/>
 				<Scroll x="hidden" y="auto">
 					<Spacer>
-						<Grid.Layout id="_result" gap={20.0} count={5} width={app.max_width / (5 + 1)} offset={{ margin: { left: 20.0, right: 20.0 } }}>
+						<Grid.Layout id="display" gap={20.0} count={5} width={app.max_width / (5 + 1)} offset={{ margin: { left: 20.0, right: 20.0 } }}>
 							{this.state.gallery.value.map((gallery, index) => {
 								return (
 									<ContextMenu key={index} items={[

@@ -51,7 +51,7 @@ namespace CSSProps {
 				...Style.corner(props[CSSPlus.DECORATION].corner ?? {}),
 				...Style.shadow(props[CSSPlus.DECORATION].shadow ?? []),
 				// handfully
-				opacity: props[CSSPlus.DECORATION].opacity ? (props[CSSPlus.DECORATION].opacity.clamp(0, 100) / 100) : undefined
+				opacity: props[CSSPlus.DECORATION].opacity ? (props[CSSPlus.DECORATION].opacity.clamp(0.0, 100.0) / 100.0) : undefined
 			});
 		}
 	

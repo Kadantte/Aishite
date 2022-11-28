@@ -194,7 +194,7 @@ app.on("ready", () => {
 		}
 	});
 	//
-	// check for update
+	// check for an update
 	//
 	if (app.isPackaged) {
 		// cache
