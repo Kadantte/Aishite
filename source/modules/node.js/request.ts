@@ -150,7 +150,7 @@ class Client {
 				}
 				// HANDLE
 				response.on("data", (chunk) => {
-					chunks.add(Buffer.from(chunk));
+					chunks.push(Buffer.from(chunk));
 				});
 				response.on("end", () => {
 					return resolve({

@@ -1,8 +1,8 @@
 {
 	"compilerOptions": {
-		"module": "commonjs",
-		"target": "ESNext",
 		"jsx": "react-jsx",
+		"target": "esnext",
+		"module": "commonjS",
 		"paths": {
 			"@/*": [
 				"./source/*"
@@ -10,9 +10,12 @@
 		},
 		"strict": true,
 		"allowJs": true,
+		"sourceMap": true,
 		"importHelpers": true,
 		"esModuleInterop": true,
 		"resolveJsonModule": true,
+		"moduleResolution": "node",
+		"emitDecoratorMetadata": true,
 		"experimentalDecorators": true
 	},
 	"include": [

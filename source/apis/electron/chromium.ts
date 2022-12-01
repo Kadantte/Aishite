@@ -141,7 +141,7 @@ ipcRenderer.on(Window.Event.LEAVE_FULL_SCREEN, (event, ...args) => {
 async function call<T>(command: Window.Function | Window.Property, ...args: Array<unknown>) {
 	// cache
 	const response = await ipcRenderer.invoke("chromium", command, ...args);
-
+	
 	print({ command: command, response: response });
 
 	return response as T;

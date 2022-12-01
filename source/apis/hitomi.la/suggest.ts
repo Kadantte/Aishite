@@ -74,19 +74,19 @@ function unknown_2(buffer: Uint8Array) {
 		if (offset === 0 || offset > 32) throw new Error();
 
 		binary.offset += 4;
-		bundle.buffer.add(buffer.slice(binary.offset, binary.offset + offset));
+		bundle.buffer.push(buffer.slice(binary.offset, binary.offset + offset));
 		binary.offset += offset;
 	}
 	const _1 = binary.buffer.getInt32(binary.offset, Endian.BIG);
 	binary.offset += 4;
 
 	for (let index = 0; index < _1; index++) {
-		bundle.digits.add(new Pair(binary.buffer.getUint64(binary.offset, Endian.BIG), binary.buffer.getInt32(binary.offset + 8, Endian.BIG)));
+		bundle.digits.push(new Pair(binary.buffer.getUint64(binary.offset, Endian.BIG), binary.buffer.getInt32(binary.offset + 8, Endian.BIG)));
 		binary.offset += 8 + 4;
 	}
 
 	for (let index = 0; index < 17; index++) {
-		bundle.nodes.add(binary.buffer.getUint64(binary.offset, Endian.BIG));
+		bundle.nodes.push(binary.buffer.getUint64(binary.offset, Endian.BIG));
 		binary.offset += 8;
 	}
 	return bundle;
@@ -104,7 +104,7 @@ async function unknown_4(url: string, offset: number, length: number) {
 
 async function unknown_5(type: string, buffer: Uint8Array, bundle: Bundle): Promise<Pair<number, number>> {
 	// check before local functions
-	if (bundle.buffer.isEmpty()) throw Error();
+	if (bundle.buffer.isEmpty) throw Error();
 
 	function mystery_0(first: Uint8Array, second: Uint8Array) {
 		for (let index = 0; index < Math.min(first.length, second.length); index++) {
@@ -127,7 +127,7 @@ async function unknown_5(type: string, buffer: Uint8Array, bundle: Bundle): Prom
 
 			if (fragment.first) return new Pair(fragment.second, index);
 		}
-		if (!bundle.buffer.isEmpty()) return new Pair(fragment.second, bundle.buffer.length);
+		if (!bundle.buffer.isEmpty) return new Pair(fragment.second, bundle.buffer.length);
 
 		return new Pair(true, 0);
 	}
@@ -186,7 +186,7 @@ async function unknown_6(type: string, digits: Pair<number, number>) {
 			binary.offset += 1;
 		}
 
-		result.add(new Pair(new Tag({ namespace: namespace, value: value }), binary.buffer.getUint32(binary.offset, Endian.BIG)));
+		result.push(new Pair(new Tag({ namespace: namespace, value: value }), binary.buffer.getUint32(binary.offset, Endian.BIG)));
 		binary.offset += 4;
 	}
 	

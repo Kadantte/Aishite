@@ -61,7 +61,7 @@ class Dropdown extends Stateful<DropdownProps, DropdownState> {
 		return (
 			<section id={this.props.id ?? "dropdown"}>
 				{/* FORM */}
-				<Container constraint={{ height: 40.0 }} decoration={{ color: !this.props.enable ? undefined : !this.state.hover && !this.state.focus ? undefined : Color.pick(3.0), border: { all: { width: 1.5, style: "solid", color: !this.props.enable ? Color.pick(3.0) : !this.state.hover && !this.state.focus ? Color.pick(3.0) : Color.pick(5.0) }, bottom: this.state.focus && !this.props.items.isEmpty() ? { color: "transparent" } : undefined }, corner: this.state.focus && !this.props.items.isEmpty() ? { TL: 5.0, TR: 5.0 } : { all: 5.0 }, shadow: !this.props.enable ? undefined : !this.state.hover && !this.state.focus ? undefined : [{ x: 0.0, y: 0.0, blur: 5.0, spread: 0.0, color: Color.pick(1.0) }] }}
+				<Container constraint={{ height: 40.0 }} decoration={{ color: !this.props.enable ? undefined : !this.state.hover && !this.state.focus ? undefined : Color.pick(3.0), border: { all: { width: 1.5, style: "solid", color: !this.props.enable ? Color.pick(3.0) : !this.state.hover && !this.state.focus ? Color.pick(3.0) : Color.pick(5.0) }, bottom: this.state.focus && !this.props.items.isEmpty ? { color: "transparent" } : undefined }, corner: this.state.focus && !this.props.items.isEmpty ? { TL: 5.0, TR: 5.0 } : { all: 5.0 }, shadow: !this.props.enable ? undefined : !this.state.hover && !this.state.focus ? undefined : [{ x: 0.0, y: 0.0, blur: 5.0, spread: 0.0, color: Color.pick(1.0) }] }}
 					onMouseEnter={(setStyle) => {
 						this.setState((state) => ({ hover: true }));
 					}}
@@ -78,7 +78,7 @@ class Dropdown extends Stateful<DropdownProps, DropdownState> {
 							}}
 							onSubmit={(text) => {
 								if (isNaN(this.state.index)) return this.props.onSubmit?.(text);
-								if (this.props.items.isEmpty()) return this.props.onSubmit?.(text);
+								if (this.props.items.isEmpty) return this.props.onSubmit?.(text);
 								else this.props.onSelect?.(this.props.items[this.state.index][0]);
 
 								this.setState((state) => ({ index: NaN }));
@@ -87,7 +87,7 @@ class Dropdown extends Stateful<DropdownProps, DropdownState> {
 								this.props.onChange?.(text);
 							}}
 							onTyping={(text) => {
-								if (this.props.items.isEmpty()) return this.props.onTyping?.(text) ?? true;
+								if (this.props.items.isEmpty) return this.props.onTyping?.(text) ?? true;
 
 								switch (text) {
 									case "ArrowUp": {
@@ -127,22 +127,22 @@ class Dropdown extends Stateful<DropdownProps, DropdownState> {
 				</Container>
 				{/* MENU */}
 				<Scroll x="hidden" y="scroll">
-					<Container id="items" position={{ top: 100.0 + "%" }} constraint={{ width: 100.0 + "%", maximum: { height: (40.0 * 5) + (5.0 * 6) } }} decoration={{ color: Color.pick(3.0), border: { all: { width: 1.5, style: "solid", color: Color.pick(5.0) }, top: { color: "transparent" } }, corner: { BL: 5.0, BR: 5.0 }, shadow: [{ x: -5.0, y: 0.0, blur: 5.0, spread: -5.0, color: Color.pick(1.0) }, { x: 5.0, y: 0.0, blur: 5.0, spread: -5.0, color: Color.pick(1.0) }, { x: 0.0, y: 5.0, blur: 5.0, spread: -5.0, color: Color.pick(1.0) }] }} flags={{ visible: this.state.focus && !this.props.items.isEmpty() }}>
+					<Container id="items" position={{ top: 100.0 + "%" }} constraint={{ width: 100.0 + "%", maximum: { height: (40.0 * 5) + (5.0 * 6) } }} decoration={{ color: Color.pick(3.0), border: { all: { width: 1.5, style: "solid", color: Color.pick(5.0) }, top: { color: "transparent" } }, corner: { BL: 5.0, BR: 5.0 }, shadow: [{ x: -5.0, y: 0.0, blur: 5.0, spread: -5.0, color: Color.pick(1.0) }, { x: 5.0, y: 0.0, blur: 5.0, spread: -5.0, color: Color.pick(1.0) }, { x: 0.0, y: 5.0, blur: 5.0, spread: -5.0, color: Color.pick(1.0) }] }} flags={{ visible: this.state.focus && !this.props.items.isEmpty }}>
 						{this.props.items.map((item, index) => {
 							// cache
 							const [buffer, fragment] = [[] as Array<unknown>, this.props.highlight ? item[0].split(this.props.highlight) : [item[0]]];
 
 							for (let index = 0; index < fragment.length; index++) {
 								if (fragment.length > index + 1) {
-									if (fragment[index].isEmpty()) {
-										buffer.add({ value: this.props.highlight as string, color: "aquamarine" });
+									if (fragment[index].isEmpty) {
+										buffer.push({ value: this.props.highlight as string, color: "aquamarine" });
 									}
 									else {
-										buffer.add({ value: fragment[index] }, { value: this.props.highlight as string, color: "aquamarine" });
+										buffer.push({ value: fragment[index] }, { value: this.props.highlight as string, color: "aquamarine" });
 									}
 								}
 								else {
-									buffer.add({ value: fragment[index] });
+									buffer.push({ value: fragment[index] });
 								}
 							}
 

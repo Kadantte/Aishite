@@ -9,15 +9,11 @@ let common_js: string;
 client.GET("https://ltn.hitomi.la/gg.js", "text").then((response) => {
 	// update
 	gg_js = "var\u0020gg;" + response.body.split("\n").filter((section) => !/if\s\([\D\d]+\)\s{\sreturn\s[\d]+;\s}/.test(section)).join("\n");
-
-	if (/eval|require/g.test(gg_js)) throw Error();
 });
 
 client.GET("https://ltn.hitomi.la/common.js", "text").then((response) => {
 	// update
 	common_js = response.body.split("\nfunction\u0020").filter((section) => /^(subdomain_from_url|url_from_url|full_path_from_hash|real_full_path_from_hash|url_from_hash|url_from_url_from_hash|rewrite_tn_paths)/.test(section)).map((section) => "function" + space + section).join("");
-
-	if (/eval|require/g.test(common_js)) throw Error();
 });
 
 class Gallery extends G {
@@ -42,12 +38,7 @@ class Gallery extends G {
 		await until(() => gg_js !== undefined && common_js !== undefined);
 
 		for (const file of metadata["files"]) {
-			cache.add(new GalleryFile({
-				url: eval(gg_js! + common_js! + "url_from_url_from_hash(this.id, file, \"webp\", undefined, \"a\")"),
-				name: file["name"],
-				width: file["width"],
-				height: file["height"]
-			}));
+			cache.push(new GalleryFile({ url: await execute(gg_js + common_js + "url_from_url_from_hash(this.id, file, \"webp\", undefined, \"a\");", { file: file }) as string, name: file["name"], width: file["width"], height: file["height"] }));
 		}
 		return cache;
 	}
@@ -73,7 +64,7 @@ export async function gallery(id: number) {
 
 	await until(() => gg_js !== undefined && common_js !== undefined);
 
-	const element = new DOMParser().parseFromString(eval(gg_js! + common_js! + "rewrite_tn_paths(response.body)").replace(/\s\s+/g, "").replace(/\n/g, ""), "text/html");
+	const element = new DOMParser().parseFromString((await execute(gg_js + common_js + "rewrite_tn_paths(response.body);", { response: response }) as string).replace(/\s\s+/g, "").replace(/\n/g, ""), "text/html");
 
 	const metadata = new Map<string, unknown>(Object.entries({}));
 

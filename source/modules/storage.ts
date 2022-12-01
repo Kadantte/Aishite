@@ -57,7 +57,7 @@ class Storage extends MappedStateHandler<string, StorageState> {
 	public unregister(key: string) {
 		if (!this.state.has(key)) throw Error();
 
-		this.modify(key, null, (unsafe) => filesystem.delete(this.state.get(key)!.path));
+		this.modify(key, undefined, (unsafe) => filesystem.delete(this.state.get(key)!.path));
 	}
 	protected import(path: StorageState["path"], fallback: StorageState["state"] = {}) {
 		try {

@@ -134,7 +134,7 @@ class Gallery extends Stateful<GalleryProps, GalleryState> {
 													</Inline>
 													{/* VALUE */}
 													<Inline flex={true}>
-														{[section.value instanceof Array && section.value.isEmpty() ? ["N/A"] : section.value ?? "N/A"].flat().map((chip, index) => {
+														{[section.value instanceof Array && section.value.isEmpty ? ["N/A"] : section.value ?? "N/A"].flat().map((chip, index) => {
 															// cache
 															const enable = chip !== "N/A" && section.key !== "title" && section.key !== "date";
 

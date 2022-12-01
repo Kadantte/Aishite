@@ -88,7 +88,7 @@ class Browser extends Stateful<BrowserProps, BrowserState> {
 	protected build() {
 		return (
 			<Column {...this.props} id={this.props.id ?? "browser"}>
-				<Dropdown enable={!this.state.gallery.value.isEmpty()} items={this.state.suggest.items.map((suggestion) => [suggestion.first.namespace + ":" + suggestion.first.value, suggestion.second.toString()])} index={0} value={this.props.value === "language = \"all\"" ? undefined : this.props.value} fallback={this.state.search.value.isEmpty() ? "language = \"all\"" : this.state.search.value} highlight={this.state.highlight} offset={{ margin: { all: 20.0 } }}
+				<Dropdown enable={!this.state.gallery.value.isEmpty} items={this.state.suggest.items.map((suggestion) => [suggestion.first.namespace + ":" + suggestion.first.value, suggestion.second.toString()])} index={0} value={this.props.value === "language = \"all\"" ? undefined : this.props.value} fallback={this.state.search.value.isEmpty ? "language = \"all\"" : this.state.search.value} highlight={this.state.highlight} offset={{ margin: { all: 20.0 } }}
 					onReset={() => {
 						suggest("expire");
 
@@ -114,7 +114,7 @@ class Browser extends Stateful<BrowserProps, BrowserState> {
 
 						structure("history").rename("Searching...");
 
-						this.browse(value.isEmpty() ? "language = \"all\"" : value).then((length) => {
+						this.browse(value.isEmpty ? "language = \"all\"" : value).then((length) => {
 							// rename
 							structure("history").rename(`${length} Results`);
 						});
@@ -122,12 +122,12 @@ class Browser extends Stateful<BrowserProps, BrowserState> {
 					onChange={(value) => {
 						suggest("expire");
 
-						if (!this.state.suggest.items.isEmpty()) this.setState((state) => ({ suggest: { items: [] } }));
+						if (!this.state.suggest.items.isEmpty) this.setState((state) => ({ suggest: { items: [] } }));
 						// silent update
 						this.state.highlight = value.trim().split(space).last ?? "???";
 
 						suggest(this.state.highlight).then((suggestion) => {
-							if (!suggestion.isEmpty()) this.setState((state) => ({ suggest: { items: suggestion } }));
+							if (!suggestion.isEmpty) this.setState((state) => ({ suggest: { items: suggestion } }));
 						});
 					}}
 				/>
@@ -192,7 +192,7 @@ class Browser extends Stateful<BrowserProps, BrowserState> {
 						</Grid.Layout>
 					</Spacer>
 				</Scroll>
-				<Paging enable={!this.state.gallery.value.isEmpty()} size={5} index={this.state.search.index} length={this.state.gallery.length} constraint={{ height: 60.0 }} flags={{ visible: this.state.gallery.length > 1 }}
+				<Paging enable={!this.state.gallery.value.isEmpty} size={5} index={this.state.search.index} length={this.state.gallery.length} constraint={{ height: 60.0 }} flags={{ visible: this.state.gallery.length > 1 }}
 					builder={(key, index, indexing, handle) => {
 						return (
 							<Button key={key} offset={{ margin: { all: 2.5, top: 7.5, bottom: 7.5 }, padding: { left: 7.5, right: 7.5 } }} constraint={{ minimum: { width: 50.0 } }} decoration={{ corner: { all: 5.0 } }}
@@ -228,7 +228,7 @@ class Browser extends Stateful<BrowserProps, BrowserState> {
 	protected discord() {
 		if (!this.visible()) return;
 
-		if (this.state.gallery.value.isEmpty()) {
+		if (this.state.gallery.value.isEmpty) {
 			discord.update({ state: "Browsing", details: "Loading...", partyMax: undefined, partySize: undefined });
 		}
 		else {

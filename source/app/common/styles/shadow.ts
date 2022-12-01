@@ -11,7 +11,7 @@ interface Shadow {
 
 function shadow(style: Array<Shadow>): React.CSSProperties {
 	// check before
-	if (style.isEmpty()) return {};
+	if (style.isEmpty) return {};
 
 	return {
 		boxShadow: style.map((args) => compiler(args)).join(comma)

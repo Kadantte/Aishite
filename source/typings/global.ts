@@ -1,3 +1,5 @@
+import "@/prototypes";
+
 import App from "@/apis/electron/app";
 import Chromium from "@/apis/electron/chromium";
 
@@ -8,43 +10,6 @@ declare global {
 
 	const app: App;
 	const chromium: Chromium;
-	// prototypes.ts
-	interface String {
-		isEmpty(): boolean;
-	}
-	interface Number {
-		clamp(minimum: number, maximum: number): number;
-	}
-	interface Set<T> {
-		isEmpty(): boolean;
-	}
-	interface Array<T> {
-		last?: T;
-		first?: T;
-
-		isEmpty(): boolean;
-		
-		skip(count: number): Array<T>;
-		take(count: number): Array<T>;
-
-		add(...args: Array<T>): Array<T>;
-		remove(...args: Array<T>): Array<T>;
-	}
-	interface Buffer {
-		skip(count: number): Buffer;
-		take(count: number): Buffer;
-	}
-	interface ArrayBuffer {
-		skip(count: number): ArrayBuffer;
-		take(count: number): ArrayBuffer;
-	}
-	interface DataView {
-		getUint64(offset: number, endian: boolean): number;
-	}
-	function print(...args: Array<unknown>): void;
-	function until(condition: () => boolean, duration?: number): Promise<void>;
-	
-	function inject(before: Function, after: Function): () => unknown;
 }
 
 export default {}

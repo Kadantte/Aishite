@@ -155,13 +155,13 @@ class Parser {
 	}
 	public async parse() {
 		// empty
-		if (this._tokens.isEmpty()) return this.fallback();
+		if (this._tokens.isEmpty) return this.fallback();
 
 		try {
 			// cache
 			const value = await this.E();
 
-			if (value.isEmpty()) return this.fallback();
+			if (value.isEmpty) return this.fallback();
 
 			return value;
 		}
@@ -286,7 +286,7 @@ class Parser {
 
 			while (true) {
 				// update
-				tokens.add(this.next());
+				tokens.push(this.next());
 
 				if (tokens.length === handle.length) break;
 

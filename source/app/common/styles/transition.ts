@@ -9,7 +9,7 @@ interface Transition {
 
 function transition(style: Args<Transition>): React.CSSProperties {
 	// check before
-	if (style.property?.isEmpty()) return {};
+	if (style.property?.isEmpty) return {};
 
 	return {
 		transitionDelay: unit(style.delay ?? 0, "ms"),
