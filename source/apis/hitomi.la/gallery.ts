@@ -38,7 +38,7 @@ class Gallery extends G {
 		await until(() => gg_js !== undefined && common_js !== undefined);
 
 		for (const file of metadata["files"]) {
-			cache.push(new GalleryFile({ url: await execute(gg_js + common_js + "url_from_url_from_hash(this.id, file, \"webp\", undefined, \"a\");", { file: file }) as string, name: file["name"], width: file["width"], height: file["height"] }));
+			cache.push(new GalleryFile({ url: await execute(gg_js + common_js + "url_from_url_from_hash(id, file, \"webp\", undefined, \"a\");", { id: this.id, file: file }) as string, name: file["name"], width: file["width"], height: file["height"] }));
 		}
 		return cache;
 	}
