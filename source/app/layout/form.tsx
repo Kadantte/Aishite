@@ -1,16 +1,16 @@
-import Style from "@/app/common/styles";
-import { Props } from "@/app/common/props";
-import { Stateful } from "@/app/common/framework";
+import Style from "app/common/styles";
+import { Props } from "app/common/props";
+import { Stateful } from "app/common/framework";
 
-import structure from "@/handles";
+import structure from "handles/index";
 
 interface FormProps extends Props.Clear<undefined>, Props.Style, Props.Toggle {
 	// optional
 	readonly value?: string;
 	readonly fallback?: string;
 	// events
-	readonly onBlur?: () => void;
-	readonly onFocus?: () => void;
+	readonly onBlur?: VoidFunction;
+	readonly onFocus?: VoidFunction;
 	readonly onSubmit?: (callback: string) => void;
 	readonly onChange?: (callback: string) => void;
 	readonly onTyping?: (callback: string) => boolean;
@@ -36,9 +36,9 @@ class Form extends Stateful<FormProps, FormState> {
 				// skip
 				if (this.state.id === "???") return;
 
-				switch (structure("contextmenu").state.id) {
+				switch (structure("ctm").state.id) {
 					case this.state.id: {
-						this.contextmenu(structure("contextmenu").state.x, structure("contextmenu").state.y);
+						this.contextmenu(structure("ctm").state.x, structure("ctm").state.y);
 						break;
 					}
 				}
@@ -97,7 +97,7 @@ class Form extends Stateful<FormProps, FormState> {
 		);
 	}
 	protected contextmenu(x: number, y: number) {
-		structure("contextmenu").state = {
+		structure("ctm").state = {
 			id: this.state.id,
 			x: x,
 			y: y,

@@ -1,11 +1,11 @@
-import { Props } from "@/app/common/props";
-import { Stateful } from "@/app/common/framework";
+import { Props } from "app/common/props";
+import { Stateful } from "app/common/framework";
 
-import Bracket from "@/app/widgets/bracket";
+import Bracket from "app/widgets/bracket";
 
-import Fallback from "@/app/pages/fallback";
+import Fallback from "app/pages/fallback";
 
-import structure from "@/handles";
+import structure from "handles/index";
 
 interface PageViewProps extends Props.Clear<undefined> {
 	// TODO: none
@@ -24,13 +24,13 @@ interface PageViewState {
 class Display extends Stateful<PageViewProps, PageViewState> {
 	protected create() {
 		return {
-			key: structure("history").state.pages[structure("history").state.index].element.key
+			key: structure("tabs").state.pages[structure("tabs").state.index].element.key
 		};
 	}
 	protected events() {
 		return {
 			DID_MOUNT: () => {
-				structure("history").handle((event) => {
+				structure("tabs").handle((event) => {
 					// cache
 					const key = event.detail.post.pages[event.detail.post.index].element.key;
 
@@ -55,9 +55,9 @@ class Display extends Stateful<PageViewProps, PageViewState> {
 	protected build() {
 		return (
 			<>
-				{structure("history").state.pages.map((page, index) => {
+				{structure("tabs").state.pages.map((page, index) => {
 					return (
-						<Bracket key={page.element.key} constraint={{ height: 100.0 + "%" }} flags={{ visible: this.state.key ? this.state.key === page.element.key : structure("history").state.index === index }}
+						<Bracket key={page.element.key} constraint={{ height: 100.0 + "%" }} flags={{ visible: this.state.key ? this.state.key === page.element.key : structure("tabs").state.index === index }}
 							fallback={<Fallback></Fallback>}
 							children={page.element}
 						/>

@@ -1,6 +1,6 @@
 import React from "react";
 
-import CSS from "@/app/common/styles";
+import CSS from "app/common/styles";
 
 export enum CSSPlus {
 	OFFSET = "offset",

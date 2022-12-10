@@ -1,6 +1,6 @@
 import { ipcRenderer } from "electron";
 
-import { Window } from "@/models/chromium";
+import { Window } from "models/chromium";
 
 const requires = new Set<string>();
 const certification = new Set<string>();

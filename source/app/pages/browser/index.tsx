@@ -1,31 +1,29 @@
-import Color from "@/app/common/color";
-import { Props } from "@/app/common/props";
-import { Stateful } from "@/app/common/framework";
+import Color from "app/common/color";
+import { Props } from "app/common/props";
+import { Stateful } from "app/common/framework";
 
-import { Pair } from "@/models/pair";
+import Text from "app/layout/text";
+import Grid from "app/layout/grid";
+import Column from "app/layout/column";
+import Element from "app/layout/element";
 
-import Text from "@/app/layout/text";
-import Grid from "@/app/layout/grid";
-import Column from "@/app/layout/column";
-import Element from "@/app/layout/element";
+import Scroll from "app/layout/casacade/scroll";
+import Spacer from "app/layout/casacade/spacer";
+import ContextMenu from "app/layout/casacade/contextmenu";
 
-import Scroll from "@/app/layout/casacade/scroll";
-import Spacer from "@/app/layout/casacade/spacer";
-import ContextMenu from "@/app/layout/casacade/contextmenu";
+import Button from "app/widgets/button";
+import Paging from "app/widgets/paging";
+import Dropdown from "app/widgets/dropdown";
 
-import Button from "@/app/widgets/button";
-import Paging from "@/app/widgets/paging";
-import Dropdown from "@/app/widgets/dropdown";
+import Gallery from "app/pages/browser/gallery";
 
-import Gallery from "@/app/pages/browser/gallery";
+import discord from "modules/discord";
 
-import discord from "@/modules/discord";
+import structure from "handles/index";
 
-import structure from "@/handles";
-
-import { search } from "@/apis/hitomi.la/search";
-import { suggest } from "@/apis/hitomi.la/suggest";
-import { gallery } from "@/apis/hitomi.la/gallery";
+import { search } from "apis/hitomi.la/search";
+import { suggest } from "apis/hitomi.la/suggest";
+import { gallery } from "apis/hitomi.la/gallery";
 
 interface BrowserProps extends Props.Clear<undefined> {
 	readonly value: string;
@@ -57,10 +55,10 @@ class Browser extends Stateful<BrowserProps, BrowserState> {
 				index: this.props.index
 			},
 			suggest: {
-				items: []
+				items: new Array()
 			},
 			gallery: {
-				value: [],
+				value: new Array(),
 				length: 0
 			},
 			highlight: "???"
@@ -72,10 +70,10 @@ class Browser extends Stateful<BrowserProps, BrowserState> {
 				// initial
 				this.onRender();
 
-				structure("history").handle(this.onRender);
+				structure("tabs").handle(this.onRender);
 			},
 			WILL_UNMOUNT: () => {
-				structure("history").unhandle(this.onRender);
+				structure("tabs").unhandle(this.onRender);
 			}
 		};
 	}
@@ -92,7 +90,7 @@ class Browser extends Stateful<BrowserProps, BrowserState> {
 					onReset={() => {
 						suggest("expire");
 
-						structure("history").rename("NEW TAB");
+						structure("tabs").rename("NEW TAB");
 
 						this.browse("language = \"all\"");
 					}}
@@ -107,22 +105,22 @@ class Browser extends Stateful<BrowserProps, BrowserState> {
 					onSelect={(text) => {
 						suggest("expire");
 
-						this.setState((state) => ({ suggest: { items: [] } }));
+						this.setState((state) => ({ suggest: { items: new Array() } }));
 					}}
 					onSubmit={(value) => {
 						suggest("expire");
 
-						structure("history").rename("Searching...");
+						structure("tabs").rename("Searching...");
 
 						this.browse(value.isEmpty ? "language = \"all\"" : value).then((length) => {
 							// rename
-							structure("history").rename(`${length} Results`);
+							structure("tabs").rename(`${length} Results`);
 						});
 					}}
 					onChange={(value) => {
 						suggest("expire");
 
-						if (!this.state.suggest.items.isEmpty) this.setState((state) => ({ suggest: { items: [] } }));
+						if (!this.state.suggest.items.isEmpty) this.setState((state) => ({ suggest: { items: new Array() } }));
 						// silent update
 						this.state.highlight = value.trim().split(space).last ?? "???";
 
@@ -164,7 +162,7 @@ class Browser extends Stateful<BrowserProps, BrowserState> {
 											role: "Open in Viewer",
 											toggle: true,
 											method: () => {
-												structure("history").open(gallery.title, "viewer", { gallery: gallery.id });
+												structure("tabs").open(gallery.title, "viewer", { gallery: gallery.id });
 											}
 										},
 										{
@@ -180,7 +178,7 @@ class Browser extends Stateful<BrowserProps, BrowserState> {
 													// cache
 													const input = this.node().getElementsByTagName("input").item(0)!;
 
-													this.setState((state) => ({ suggest: { items: [] } }));
+													this.setState((state) => ({ suggest: { items: new Array() } }));
 
 													input.value = input.value.includes(tag) ? input.value.replace(tag, "").replace(/\s*[&?+-]\s*[&?+-]\s*/, space + "&" + space).replace(/\s*[&?+-]\s*$/, "") : (input.value + space + "&" + space + tag).replace(/^\s*[&?+-]\s*/, "");
 												}}
@@ -223,7 +221,7 @@ class Browser extends Stateful<BrowserProps, BrowserState> {
 		);
 	}
 	protected visible() {
-		return structure("history").state.pages[structure("history").state.index].element.props["data-key"] === (this.props as any)["data-key"];
+		return structure("tabs").state.pages[structure("tabs").state.index].element.props["data-key"] === (this.props as any)["data-key"];
 	}
 	protected discord() {
 		if (!this.visible()) return;
@@ -238,13 +236,13 @@ class Browser extends Stateful<BrowserProps, BrowserState> {
 	protected async browse(value: string, index: number = 0, length: number = 25) {
 		return new Promise((resolve, reject) => {
 			// update
-			this.setState((state) => ({ search: { value: value, index: index }, suggest: { items: [] }, gallery: { value: [], length: this.state.gallery.length }, highlight: "???" }), () => {
+			this.setState((state) => ({ search: { value: value, index: index }, suggest: { items: new Array() }, gallery: { value: new Array(), length: this.state.gallery.length }, highlight: "???" }), () => {
 				// rich presence
 				this.discord();
 
 				search(value).then((_bundle) => {
 					// cache
-					const [_result, _galleries] = [Array.from(_bundle), []];
+					const [_result, _galleries] = [Array.from(_bundle), new Array()];
 
 					const [_offset, _length] = [index * length, (_result.length - index * length).clamp(0, length)];
 
@@ -253,7 +251,7 @@ class Browser extends Stateful<BrowserProps, BrowserState> {
 					// callback?
 					resolve(_result.length);
 
-					this.setState((state) => ({ gallery: { value: [], length: Math.ceil(_result.length / length) } }), () => {
+					this.setState((state) => ({ gallery: { value: new Array(), length: Math.ceil(_result.length / length) } }), () => {
 						for (let _index = 0; _index < _length; _index++) {
 							// bottleneck
 							gallery(_result[_index + _offset]).then(async (_gallery) => {

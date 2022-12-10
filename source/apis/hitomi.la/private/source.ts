@@ -1,4 +1,4 @@
-import client from "@/modules/node.js/request";
+import client from "modules/node.js/request";
 
 const sources = {
 	default: "UklGRjIAAABXRUJQVlA4ICYAAACyAgCdASoCAAEALmk0mk0iIiIiIgBoSygABc6zbAAA/v56QAAAAA==",

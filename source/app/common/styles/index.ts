@@ -1,11 +1,11 @@
-import size from "@/app/common/styles/size";
-import border from "@/app/common/styles/border";
-import corner from "@/app/common/styles/corner";
-import shadow from "@/app/common/styles/shadow";
-import margin from "@/app/common/styles/margin";
-import padding from "@/app/common/styles/padding";
-import position from "@/app/common/styles/position";
-import transition from "@/app/common/styles/transition";
+import size from "app/common/styles/size";
+import border from "app/common/styles/border";
+import corner from "app/common/styles/corner";
+import shadow from "app/common/styles/shadow";
+import margin from "app/common/styles/margin";
+import padding from "app/common/styles/padding";
+import position from "app/common/styles/position";
+import transition from "app/common/styles/transition";
 
 interface Style {
 	size: Parameters<typeof size>[0];

@@ -6,6 +6,24 @@
 		"paths": {
 			"@/*": [
 				"./source/*"
+			],
+			"app/*": [
+				"./source/app/*"
+			],
+			"apis/*": [
+				"./source/apis/*"
+			],
+			"assets/*": [
+				"./source/assets/*"
+			],
+			"models/*": [
+				"./source/models/*"
+			],
+			"modules/*": [
+				"./source/modules/*"
+			],
+			"handles/*": [
+				"./source/handles/*"
 			]
 		},
 		"strict": true,

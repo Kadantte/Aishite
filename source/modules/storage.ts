@@ -1,8 +1,8 @@
-import { MappedStateHandler } from "@/handles";
+import { MappedStateHandler } from "handles/index";
 
-import filesystem from "@/modules/node.js/filesystem";
+import filesystem from "modules/node.js/filesystem";
 
-import { Window } from "@/models/chromium";
+import { Window } from "models/chromium";
 
 class StorageState {
 	public readonly path: string;
@@ -79,10 +79,6 @@ const singleton = new Storage(
 		"settings": new StorageState({
 			path: filesystem.combine(__dirname, "..", "settings.json"),
 			state: {}
-		}),
-		"bookmark": new StorageState({
-			path: filesystem.combine(__dirname, "..", "bookmark.json"),
-			state: []
 		})
 	}))
 );

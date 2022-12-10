@@ -1,7 +1,7 @@
-import { Props } from "@/app/common/props";
-import { StyleSheet } from "@/app/common/framework";
+import { Props } from "app/common/props";
+import { StyleSheet } from "app/common/framework";
 
-import structure from "@/handles";
+import structure from "handles/index";
 
 interface ContextMenuProps extends Props.Casacade {
 	// required
@@ -22,7 +22,7 @@ class ContextMenu extends StyleSheet<ContextMenuProps> {
 			onContextMenu: (event: MouseEvent) => {
 				if (this.props.priority) event.stopPropagation();
 				// open contextmenu
-				structure("contextmenu").state = { id: new Date().toISOString(), x: event.pageX, y: event.pageY, items: this.props.items };
+				structure("ctm").state = { id: new Date().toISOString(), x: event.pageX, y: event.pageY, items: this.props.items };
 			}
 		};
 	}

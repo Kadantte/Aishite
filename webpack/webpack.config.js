@@ -1,7 +1,7 @@
 const path = require("path");
 
-function resolve_path() {
-	return path.resolve(__dirname, "..", ...arguments);
+function resolve_path(...args) {
+	return path.resolve(__dirname, "..", ...args);
 }
 
 const boilerplate = {
@@ -18,7 +18,13 @@ const boilerplate = {
 	},
 	resolve: {
 		alias: {
-			"@": resolve_path("source")
+			"@": resolve_path("source"),
+			"app": resolve_path("source", "app"),
+			"apis": resolve_path("source", "apis"),
+			"assets": resolve_path("source", "assets"),
+			"models": resolve_path("source", "models"),
+			"modules": resolve_path("source", "modules"),
+			"handles": resolve_path("source", "handles"),
 		},
 		extensions: [".js", ".jsx", ".ts", ".tsx", ".json"]
 	},
@@ -41,7 +47,7 @@ const boilerplate = {
 		],
 		minimize: true
 	},
-	plugins: []
+	plugins: new Array()
 };
 
 const main = {

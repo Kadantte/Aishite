@@ -1,7 +1,7 @@
-import Style from "@/app/common/styles";
-import { Props } from "@/app/common/props";
-import { Stateless } from "@/app/common/framework";
-import { Vertical, Alignment } from "@/app/common/geometry";
+import Style from "app/common/styles";
+import { Props } from "app/common/props";
+import { Stateless } from "app/common/framework";
+import { Vertical, Alignment } from "app/common/geometry";
 
 interface ColumnProps extends Props.Clear, Props.Style {
 	// optional

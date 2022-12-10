@@ -1,8 +1,8 @@
-import { StateHandler } from "@/handles";
+import { StateHandler } from "handles/index";
 
-import storage from "@/modules/storage";
+import storage from "modules/storage";
 
-import template from "@/assets/settings.json";
+import template from "assets/settings.json";
 
 class Settings extends StateHandler<Configuration> {
 	public get state() {

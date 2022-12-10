@@ -1,7 +1,7 @@
-import Style from "@/app/common/styles";
-import { Props } from "@/app/common/props";
-import { CSSPlus } from "@/app/common/props";
-import { Stateful } from "@/app/common/framework";
+import Style from "app/common/styles";
+import { Props } from "app/common/props";
+import { CSSPlus } from "app/common/props";
+import { Stateful } from "app/common/framework";
 
 interface IconProps extends Props.Clear<undefined>, Omit<Props.Style, CSSPlus.DECORATION> {
 	// optional
@@ -72,7 +72,7 @@ abstract class Icon extends Stateful<IconProps, IconState> {
 		};
 	}
 	@autobind()
-	protected setColor(color: IconState["color"], callback?: () => void) {
+	protected setColor(color: IconState["color"], callback?: VoidFunction) {
 		this.setState((state) => ({ color: color }), callback);
 	}
 }

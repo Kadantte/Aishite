@@ -1,7 +1,7 @@
-import "@/prototypes";
+import "source/prototypes";
 
-import App from "@/apis/electron/app";
-import Chromium from "@/apis/electron/chromium";
+import App from "apis/electron/app";
+import Chromium from "apis/electron/chromium";
 
 declare global {
 	// preload.ts

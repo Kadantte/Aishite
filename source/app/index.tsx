@@ -1,28 +1,28 @@
-import Color from "@/app/common/color";
-import { Props } from "@/app/common/props";
-import { Stateful } from "@/app/common/framework";
+import Color from "app/common/color";
+import { Props } from "app/common/props";
+import { Stateful } from "app/common/framework";
 
-import { Window } from "@/models/chromium";
+import { Window } from "models/chromium";
 
-import Row from "@/app/layout/row";
-import Text from "@/app/layout/text";
-import Center from "@/app/layout/center";
-import Column from "@/app/layout/column";
-import Element from "@/app/layout/element";
-import Container from "@/app/layout/container";
+import Row from "app/layout/row";
+import Text from "app/layout/text";
+import Center from "app/layout/center";
+import Column from "app/layout/column";
+import Element from "app/layout/element";
+import Container from "app/layout/container";
 
-import Spacer from "@/app/layout/casacade/spacer";
+import Spacer from "app/layout/casacade/spacer";
 
-import Button from "@/app/widgets/button";
-import Display from "@/app/widgets/display";
+import Button from "app/widgets/button";
+import Display from "app/widgets/display";
 
-import Plus from "@/app/icons/plus";
-import Close from "@/app/icons/close";
-import Maximize from "@/app/icons/maximize";
-import Minimize from "@/app/icons/minimize";
-import Unmaximize from "@/app/icons/unmaximize";
+import Plus from "app/icons/plus";
+import Close from "app/icons/close";
+import Maximize from "app/icons/maximize";
+import Minimize from "app/icons/minimize";
+import Unmaximize from "app/icons/unmaximize";
 
-import structure from "@/handles";
+import structure from "handles/index";
 
 interface AppProps extends Props.Clear<undefined> {
 	// TODO: none
@@ -50,7 +50,7 @@ class App extends Stateful<AppProps, AppState> {
 				// cache
 				const contextmenu = document.getElementById("contextmenu") as HTMLElement;
 
-				structure("contextmenu").handle((state) => {
+				structure("ctm").handle((state) => {
 					this.setState((state) => ({ contextmenu: true }), () => {
 						// cache
 						const [x, y] = [
@@ -66,7 +66,7 @@ class App extends Stateful<AppProps, AppState> {
 				chromium.handle(Window.Event.MAXIMIZE, (event) => this.setState((state) => ({ maximize: true })));
 				chromium.handle(Window.Event.UNMAXIMIZE, (event) => this.setState((state) => ({ maximize: false })));
 				chromium.handle(Window.Event.CONTEXTMENU, (event) => {
-					structure("contextmenu").state = {
+					structure("ctm").state = {
 						id: "NATIVE",
 						x: event.detail[0].x,
 						y: event.detail[0].y,
@@ -75,7 +75,7 @@ class App extends Stateful<AppProps, AppState> {
 								role: "New Tab",
 								toggle: true,
 								method: () => {
-									structure("history").open("NEW TAB", "BROWSER", {});
+									structure("tabs").open("NEW TAB", "BROWSER", {});
 								}
 							},
 							"seperator",
@@ -83,7 +83,7 @@ class App extends Stateful<AppProps, AppState> {
 								role: "Close All Tabs",
 								toggle: true,
 								method: () => {
-									structure("history").reset();
+									structure("tabs").reset();
 								}
 							},
 						]
@@ -92,8 +92,8 @@ class App extends Stateful<AppProps, AppState> {
 				chromium.handle(Window.Event.ENTER_FULL_SCREEN, (event) => this.setState((state) => ({ fullscreen: true })));
 				chromium.handle(Window.Event.LEAVE_FULL_SCREEN, (event) => this.setState((state) => ({ fullscreen: false })));
 
-				window.addEventListener("wheel", (event) => this.setState((state) => ({ contextmenu: false }), () => Object.defineProperty(structure("contextmenu").state, "id", { value: "???" })));
-				window.addEventListener("mousedown", (event) => this.setState((state) => ({ contextmenu: false }), () => Object.defineProperty(structure("contextmenu").state, "id", { value: "???" })));
+				window.addEventListener("wheel", (event) => this.setState((state) => ({ contextmenu: false }), () => Object.defineProperty(structure("ctm").state, "id", { value: "???" })));
+				window.addEventListener("mousedown", (event) => this.setState((state) => ({ contextmenu: false }), () => Object.defineProperty(structure("ctm").state, "id", { value: "???" })));
 			}
 		};
 	}
@@ -153,8 +153,8 @@ class App extends Stateful<AppProps, AppState> {
 				{/* CONTENT */}
 				<Element id="content" constraint={{ width: 100.0 + "%", height: 100.0 + "%" }} decoration={{ color: Color.pick(2.0) }}><Display></Display></Element>
 				{/* CONTEXTMENU */}
-				<Element id="contextmenu" offset={{ padding: { top: 5.0, bottom: 5.0 } }} position={{ top: structure("contextmenu").state.y, left: structure("contextmenu").state.x }} decoration={{ color: Color.pick(3.0), border: { all: { width: 1.0, style: "solid", color: Color.pick(5.0) } }, corner: { all: 5.0 }, shadow: [{ x: 0.0, y: 0.0, blur: 5.0, spread: 0.0, color: Color.pick(1.0) }] }} flags={{ visible: this.state.contextmenu }}>
-					{structure("contextmenu").state.items.map((element, index) => {
+				<Element id="contextmenu" offset={{ padding: { top: 5.0, bottom: 5.0 } }} position={{ top: structure("ctm").state.y, left: structure("ctm").state.x }} decoration={{ color: Color.pick(3.0), border: { all: { width: 1.0, style: "solid", color: Color.pick(5.0) } }, corner: { all: 5.0 }, shadow: [{ x: 0.0, y: 0.0, blur: 5.0, spread: 0.0, color: Color.pick(1.0) }] }} flags={{ visible: this.state.contextmenu }}>
+					{structure("ctm").state.items.map((element, index) => {
 						switch (element) {
 							case "seperator": {
 								return (
@@ -201,7 +201,7 @@ class Handle {
 	) {
 		this.offset = 0;
 		this.minimum = this.width * this.index * -1;
-		this.maximum = this.width * (structure("history").state.pages.length - this.index - 1);
+		this.maximum = this.width * (structure("tabs").state.pages.length - this.index - 1);
 	}
 	public get top() {
 		return this.element.getBoundingClientRect().top;
@@ -234,12 +234,12 @@ interface ControllerState {
 
 class Controller extends Stateful<ControllerProps, ControllerState> {
 	protected create() {
-		return ({ index: structure("history").state.index, handle: undefined });
+		return ({ index: structure("tabs").state.index, handle: undefined });
 	}
 	protected events() {
 		return {
 			DID_MOUNT: () => {
-				structure("history").handle((event) => {
+				structure("tabs").handle((event) => {
 					// reset
 					this.setState((state) => ({ index: event.detail.post.index, handle: undefined }));
 				});
@@ -251,7 +251,7 @@ class Controller extends Stateful<ControllerProps, ControllerState> {
 				window.addEventListener("mouseup", (event) => {
 					if (this.state.handle) {
 						// undo
-						for (let index = 0; index < structure("history").state.pages.length; index++) {
+						for (let index = 0; index < structure("tabs").state.pages.length; index++) {
 							// cache
 							const children = element.children.item(index) as HTMLElement;
 							// style
@@ -260,9 +260,9 @@ class Controller extends Stateful<ControllerProps, ControllerState> {
 							children.style.setProperty("transform", "unset");
 						}
 
-						if (structure("history").state.index !== this.state.handle.index) {
+						if (structure("tabs").state.index !== this.state.handle.index) {
 							// update
-							structure("history").reorder(this.state.handle.index);
+							structure("tabs").reorder(this.state.handle.index);
 						}
 						else {
 							// reset
@@ -296,7 +296,7 @@ class Controller extends Stateful<ControllerProps, ControllerState> {
 
 						const destination = Math.floor((this.state.handle.left / this.state.handle.width) + 0.5);
 
-						if (this.state.handle.index !== destination && destination >= 0 && destination < structure("history").state.pages.length) {
+						if (this.state.handle.index !== destination && destination >= 0 && destination < structure("tabs").state.pages.length) {
 							// move left
 							if (event.movementX < 0) {
 								if (this.state.index < this.state.handle.index && this.state.handle.index > destination) {
@@ -337,21 +337,21 @@ class Controller extends Stateful<ControllerProps, ControllerState> {
 		return (
 			<Row id="controller">
 				<>
-					{structure("history").state.pages.map((page, index) => {
+					{structure("tabs").state.pages.map((page, index) => {
 						return (
 							<Spacer key={index}>
 								<Container id="handle" constraint={{ minimum: { width: 30.0 }, maximum: { width: 250.0 } }} decoration={{ color: this.state.index === index ? Color.pick(2.0) : Color.pick(0.0), border: { top: { width: 2.5, style: "solid", color: this.state.index === index ? "aquamarine" : undefined }, bottom: { width: 2.5 } } }} flags={{ draggable: false }}
 									onMouseDown={(setStyle) => {
 										// skip
-										if (structure("history").state.index === index) return;
+										if (structure("tabs").state.index === index) return;
 
 										setStyle(undefined);
 
-										structure("history").jump(index);
+										structure("tabs").jump(index);
 									}}
 									onMouseEnter={(setStyle) => {
 										// skip
-										if (structure("history").state.index === index) return;
+										if (structure("tabs").state.index === index) return;
 
 										setStyle({ decoration: { color: Color.pick(1.0), border: { top: { width: 2.5, style: "solid", color: Color.pick(2.0) } } } });
 									}}
@@ -363,7 +363,7 @@ class Controller extends Stateful<ControllerProps, ControllerState> {
 									{/* CLOSE */}
 									<Button id="close" position={{ top: 7.5, left: "auto", right: 5.0, bottom: 7.5 }} constraint={{ width: 19.5, height: 19.5 }} decoration={{ corner: { all: 2.5 } }}
 										onMouseDown={(setStyle) => {
-											structure("history").close(index);
+											structure("tabs").close(index);
 										}}
 										onMouseEnter={(setStyle) => {
 											setStyle({ decoration: { color: this.state.index === index ? Color.pick(4.0) : Color.pick(3.0) } });
@@ -378,9 +378,9 @@ class Controller extends Stateful<ControllerProps, ControllerState> {
 						);
 					})}
 				</>
-				<Button id="open" offset={{ margin: { all: (40.0 - 25.0) / 2 } }} constraint={{ width: 25.0, height: 25.0 }} decoration={{ color: Color.pick(2.0), corner: { all: 2.5 } }} flags={{ draggable: false }}
+				<Button id="open" offset={{ margin: { all: (40.0 - 25.0) * 0.5 } }} constraint={{ width: 25.0, height: 25.0 }} decoration={{ color: Color.pick(2.0), corner: { all: 2.5 } }} flags={{ draggable: false }}
 					onMouseDown={(setStyle) => {
-						structure("history").open("NEW TAB", "browser", {});
+						structure("tabs").open("NEW TAB", "browser", {});
 					}}
 					onMouseEnter={(setStyle) => {
 						setStyle({ decoration: { color: Color.pick(4.0) } });

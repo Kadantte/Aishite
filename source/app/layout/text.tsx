@@ -1,8 +1,8 @@
-import Style from "@/app/common/styles";
-import unit from "@/app/common/unit";
-import { Props } from "@/app/common/props";
-import { CSSPlus } from "@/app/common/props";
-import { Stateless } from "@/app/common/framework";
+import Style from "app/common/styles";
+import unit from "app/common/unit";
+import { Props } from "app/common/props";
+import { CSSPlus } from "app/common/props";
+import { Stateless } from "app/common/framework";
 
 interface StringBuffer {
 	// required

@@ -1,4 +1,4 @@
-import unit from "@/app/common/unit";
+import unit from "app/common/unit";
 
 interface Shadow {
 	readonly inset?: boolean;

@@ -1,7 +1,7 @@
-import Style from "@/app/common/styles";
-import { Props } from "@/app/common/props";
-import { CSSProps } from "@/app/common/framework";
-import { Stateful } from "@/app/common/framework";
+import Style from "app/common/styles";
+import { Props } from "app/common/props";
+import { CSSProps } from "app/common/framework";
+import { Stateful } from "app/common/framework";
 
 interface ContainerProps extends Props.Clear, Props.Style {
 	// optional
@@ -74,7 +74,7 @@ class Container extends Stateful<ContainerProps, ContainerState> {
 		);
 	}
 	@autobind()
-	protected setStyle(decoration: ContainerState["decoration"], callback?: () => void) {
+	protected setStyle(decoration: ContainerState["decoration"], callback?: VoidFunction) {
 		this.setState((state) => ({ decoration: decoration }), callback);
 	}
 }

@@ -3,7 +3,7 @@ import node_tls from "tls";
 import node_http from "http";
 import node_https from "https";
 
-import settings from "@/modules/settings";
+import settings from "modules/settings";
 
 enum Engine {
 	XHR = "xhr",
@@ -47,7 +47,7 @@ class Client {
 		this._agent = new node_https.Agent({});
 
 		Object.defineProperty(this._agent, "createConnection", {
-			value: (options: node_tls.ConnectionOptions, callback: () => void): node_tls.TLSSocket => {
+			value: (options: node_tls.ConnectionOptions, callback: VoidFunction): node_tls.TLSSocket => {
 				return node_tls.connect({ ...options, servername: undefined }, callback);
 			}
 		});

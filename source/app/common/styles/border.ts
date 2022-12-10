@@ -1,4 +1,4 @@
-import unit from "@/app/common/unit";
+import unit from "app/common/unit";
 
 interface Border {
 	readonly width?: unit;

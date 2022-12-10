@@ -1,4 +1,4 @@
-import Container from "@/app/layout/container";
+import Container from "app/layout/container";
 
 class Button extends Container {
 	protected preCSS(): React.CSSProperties {

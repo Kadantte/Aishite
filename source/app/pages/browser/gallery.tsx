@@ -1,32 +1,32 @@
-import Color from "@/app/common/color";
-import { Props } from "@/app/common/props";
-import { Stateful } from "@/app/common/framework";
+import Color from "app/common/color";
+import { Props } from "app/common/props";
+import { Stateful } from "app/common/framework";
 
-import { Tag } from "@/models/tag";
+import { Tag } from "models/tag";
 
-import Text from "@/app/layout/text";
-import Center from "@/app/layout/center";
-import Element from "@/app/layout/element";
-import Container from "@/app/layout/container";
+import Text from "app/layout/text";
+import Center from "app/layout/center";
+import Element from "app/layout/element";
+import Container from "app/layout/container";
 
-import Stack from "@/app/layout/casacade/stack";
-import Scroll from "@/app/layout/casacade/scroll";
-import Inline from "@/app/layout/casacade/inline";
-import Transform from "@/app/layout/casacade/transform";
+import Stack from "app/layout/casacade/stack";
+import Scroll from "app/layout/casacade/scroll";
+import Inline from "app/layout/casacade/inline";
+import Transform from "app/layout/casacade/transform";
 
-import Button from "@/app/widgets/button";
+import Button from "app/widgets/button";
 
-import Read from "@/app/icons/read";
-import Delete from "@/app/icons/delete";
-import Bookmark from "@/app/icons/bookmark";
-import Download from "@/app/icons/download";
-import Discovery from "@/app/icons/info";
+import Read from "app/icons/read";
+import Delete from "app/icons/delete";
+import Bookmark from "app/icons/bookmark";
+import Download from "app/icons/download";
+import Discovery from "app/icons/info";
 
-import structure from "@/handles";
+import structure from "handles/index";
 
-import languages from "@/assets/languages.json";
+import languages from "assets/languages.json";
 
-import { gallery } from "@/apis/hitomi.la/gallery";
+import { gallery } from "apis/hitomi.la/gallery";
 
 const cache = new Map<number, number>();
 
@@ -82,7 +82,7 @@ class Gallery extends Stateful<GalleryProps, GalleryState> {
 						count++;
 					}
 					// update
-					cache.set(height, ((height / count) - 35.0) / 2);
+					cache.set(height, ((height / count) - 35.0) * 0.5);
 				}
 				// update
 				this.setState((state) => ({ offset: cache.get(height)! }));
@@ -227,7 +227,7 @@ class Gallery extends Stateful<GalleryProps, GalleryState> {
 							(<>
 								<Read color={Color.pick(5.0)} offset={{ margin: { left: 10.0, right: 10.0 } }} constraint={{ width: 25.0, height: 25.0 }}
 									onMouseDown={(setColor) => {
-										structure("history").open(this.props.gallery.title, "viewer", { gallery: this.props.gallery.id });
+										structure("tabs").open(this.props.gallery.title, "viewer", { gallery: this.props.gallery.id });
 									}}
 									onMouseEnter={(setColor) => {
 										setColor("#AAAAAA");

@@ -1,6 +1,6 @@
 import React from "react";
 
-import { Props } from "@/app/common/props";
+import { Props } from "app/common/props";
 
 abstract class StyleSheet<P extends Props.Casacade> extends React.PureComponent<P, {}> {
 	constructor(public props: P) {

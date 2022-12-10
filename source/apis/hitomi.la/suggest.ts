@@ -1,12 +1,12 @@
 import { sha256 } from "js-sha256";
 
-import client from "@/modules/node.js/request";
+import client from "modules/node.js/request";
 
-import { Tag } from "@/models/tag";
-import { Pair } from "@/models/pair";
-import { Endian } from "@/models/endian";
+import { Tag } from "models/tag";
+import { Pair } from "models/pair";
+import { Endian } from "models/endian";
 
-import { Directory, mirror } from "@/apis/hitomi.la/private/version";
+import { Directory, mirror } from "apis/hitomi.la/private/version";
 
 let timestamp = 0;
 
@@ -52,7 +52,7 @@ async function unknown_0(value: string) {
 		return result;
 	}
 	catch {
-		return [];
+		return new Array();
 	}
 }
 
@@ -62,7 +62,7 @@ function unknown_1(value: string) {
 
 function unknown_2(buffer: Uint8Array) {
 	const binary = new Binary({ offset: 0, buffer: new DataView(buffer.buffer) });
-	const bundle = new Bundle({ nodes: [], buffer: [], digits: [] });
+	const bundle = new Bundle({ nodes: new Array(), buffer: new Array(), digits: new Array() });
 
 	const _0 = binary.buffer.getInt32(binary.offset, Endian.BIG);
 	binary.offset += 4;
@@ -199,7 +199,7 @@ export async function suggest(value: string) {
 			// outdate
 			timestamp++;
 
-			return new Promise((resolve, reject) => resolve([])) as ReturnType<Await<typeof unknown_0>>;
+			return new Promise((resolve, reject) => resolve(new Array())) as ReturnType<Await<typeof unknown_0>>;
 		}
 		default: {
 			return unknown_0(value.replace(/_/g, space));

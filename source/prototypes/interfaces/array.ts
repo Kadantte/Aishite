@@ -34,7 +34,7 @@ Object.defineProperty(Array.prototype, "skip", {
 Object.defineProperty(Array.prototype, "take", {
 	value(count: number) {
 		if (count <= 0) {
-			return [];
+			return new Array();
 		}
 		else {
 			return this.slice(0, count);

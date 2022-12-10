@@ -1,16 +1,16 @@
-import Viewer from "@/app/pages/viewer";
-import Browser from "@/app/pages/browser";
-import Fallback from "@/app/pages/fallback";
+import Viewer from "app/pages/viewer";
+import Browser from "app/pages/browser";
+import Fallback from "app/pages/fallback";
 
-import settings from "@/modules/settings";
+import settings from "modules/settings";
 
-import { StateHandler } from "@/handles";
+import { StateHandler } from "handles/index";
 
-class History extends StateHandler<HistoryState> {
+class Tabs extends StateHandler<TabsState> {
 	public get state() {
 		return super.state;
 	}
-	public set state(state: History["_state"]) {
+	public set state(state: Tabs["_state"]) {
 		// assign
 		super.state = state;
 		// update
@@ -29,21 +29,21 @@ class History extends StateHandler<HistoryState> {
 	}
 	/** Back to initial state. */
 	public reset() {
-		this.state = new HistoryState({
+		this.state = new TabsState({
 			index: 0,
 			pages: [builder("NEW TAB", "BROWSER", {})]
 		});
 	}
 	/** Append `page` as well as change `this.state.index`. */
 	public open(title: string, type: string, args: Record<string, unknown>) {
-		this.state = new HistoryState({
+		this.state = new TabsState({
 			index: this.state.pages.length,
 			pages: [...this.state.pages, builder(title, type, args)]
 		});
 	}
 	/** Jump to given index. */
 	public jump(index: number) {
-		this.state = new HistoryState({
+		this.state = new TabsState({
 			index: index,
 			pages: this.state.pages
 		});
@@ -56,7 +56,7 @@ class History extends StateHandler<HistoryState> {
 				break;
 			}
 			default: {
-				this.state = new HistoryState({
+				this.state = new TabsState({
 					index: this.state.index,
 					pages: [...this.state.pages.take(index), ...this.state.pages.skip(index + 1)]
 				});
@@ -66,21 +66,21 @@ class History extends StateHandler<HistoryState> {
 	}
 	/** Rename `page` at given index, default to `this.state.index`. */
 	public rename(title: string, index: number = this.state.index) {
-		this.state = new HistoryState({
+		this.state = new TabsState({
 			index: this.state.index,
 			pages: [...this.state.pages.take(index), { ...this.state.pages[index], title: title }, ...this.state.pages.skip(index + 1)]
 		});
 	}
 	/** Replace current `page` with new `page`. */
 	public replace(title: string, type: string, args: Record<string, unknown>) {
-		this.state = new HistoryState({
+		this.state = new TabsState({
 			index: this.state.index,
 			pages: [...this.state.pages.take(this.state.index), builder(title, type, args), ...this.state.pages.skip(this.state.index + 1)]
 		});
 	}
 	/** Reorder array of `page`. */
 	public reorder(destination: number) {
-		this.state = new HistoryState({
+		this.state = new TabsState({
 			index: destination,
 			pages: this.state.pages.map((page, index) => index === this.state.index ? this.state.pages[destination] : index === destination ? this.state.pages[this.state.index] : page)
 		});
@@ -92,11 +92,11 @@ interface Page {
 	element: JSX.Element;
 }
 
-class HistoryState {
+class TabsState {
 	public index: number;
 	public pages: Array<Page>;
 
-	constructor(args: Args<HistoryState>) {
+	constructor(args: Args<TabsState>) {
 		this.index = args.index.clamp(0, args.pages.length - 1);
 		this.pages = args.pages;
 	}
@@ -212,8 +212,8 @@ function update_settings() {
 	};
 }
 
-const singleton = new History(
-	new HistoryState({
+const singleton = new Tabs(
+	new TabsState({
 		index: settings.state.history.index,
 		pages: settings.state.history.pages.map((page) => builder(page.name, page.type, page.args))
 	})

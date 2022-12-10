@@ -1,12 +1,12 @@
-import client from "@/modules/node.js/request";
+import client from "modules/node.js/request";
 
-import { Tag } from "@/models/tag";
-import { Pair } from "@/models/pair";
-import { Endian } from "@/models/endian";
+import { Tag } from "models/tag";
+import { Pair } from "models/pair";
+import { Endian } from "models/endian";
 
-import { suggestJS } from "@/apis/hitomi.la/suggest";
+import { suggestJS } from "apis/hitomi.la/suggest";
 
-import { Directory, mirror } from "@/apis/hitomi.la/private/version";
+import { Directory, mirror } from "apis/hitomi.la/private/version";
 
 enum Symbol {
 	//
@@ -141,7 +141,7 @@ class Parser {
 			// debug
 			print(error);
 			// reset
-			this._tokens = [];
+			this._tokens = new Array();
 		}
 	}
 	protected peek() {
@@ -241,7 +241,7 @@ class Parser {
 	protected async I(): Promise<Set<number>> {
 		const token = this.peek(), handle = built_in(token.value as string);
 
-		if (handle === null) {
+		if (handle === undefined) {
 			throw Error(`Could not find property or function named "${this.peek().value}"`);
 		}
 		else if (handle instanceof _Property) {
@@ -282,7 +282,7 @@ class Parser {
 			// open
 			if (!this.next().is(Symbol.L_PAREN)) throw Error(`Could not process function call, expected ${Symbol[Symbol.L_PAREN]} but received ${Symbol[this.peek().type]}`);
 
-			const tokens: Array<Token> = [];
+			const tokens = new Array();
 
 			while (true) {
 				// update
@@ -381,7 +381,7 @@ function built_in(namespace: string) {
 					return unknown_1(await suggestJS.unknown_5("galleries", suggestJS.unknown_1(token_0.value as string), await suggestJS.unknown_3("galleries", 0)));
 				}
 				catch {
-					return [];
+					return new Array();
 				}
 			});
 		}
@@ -394,7 +394,7 @@ function built_in(namespace: string) {
 			});
 		}
 		default: {
-			return null;
+			return undefined;
 		}
 	}
 }
@@ -407,10 +407,10 @@ async function unknown_0(directory: Nullable<string>, tag: Tag) {
 		case 206: {
 			const binary = new DataView(response.body);
 
-			return new Array(Math.floor(binary.byteLength / 4)).fill(null).map((_, index) => binary.getInt32(index * 4, Endian.BIG));
+			return new Array(Math.floor(binary.byteLength / 4)).fill(true).map((_, index) => binary.getInt32(index * 4, Endian.BIG));
 		}
 	}
-	return [];
+	return new Array();
 }
 
 async function unknown_1(digits: Pair<number, number>) {
@@ -425,7 +425,7 @@ async function unknown_1(digits: Pair<number, number>) {
 	if (!(0 < length && length <= 10000000)) throw Error();
 	if (response.byteLength !== length * 4 + 4) throw Error();
 
-	return new Array(length).fill(null).map((_, index) => table.getInt32((index + 1) * 4, Endian.BIG));
+	return new Array(length).fill(true).map((_, index) => table.getInt32((index + 1) * 4, Endian.BIG));
 }
 
 export function search(value: string) {

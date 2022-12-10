@@ -1,8 +1,8 @@
 import React from "react";
 import ReactDOM from "react-dom";
 
-import { Props } from "@/app/common/props";
-import { CSSProps } from "@/app/common/framework";
+import { Props } from "app/common/props";
+import { CSSProps } from "app/common/framework";
 
 abstract class Stateless<P extends Props.Clear<unknown>> extends React.PureComponent<P, {}> {
 	/** Return value will be applied before `this.props.style`. */

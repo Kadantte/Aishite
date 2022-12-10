@@ -1,12 +1,12 @@
-import { Props } from "@/app/common/props";
-import { Stateful } from "@/app/common/framework";
+import { Props } from "app/common/props";
+import { Stateful } from "app/common/framework";
 
-import Text from "@/app/layout/text";
-import Center from "@/app/layout/center";
+import Text from "app/layout/text";
+import Center from "app/layout/center";
 
-import discord from "@/modules/discord";
+import discord from "modules/discord";
 
-import structure from "@/handles";
+import structure from "handles/index";
 
 interface FallbackProps extends Props.Clear<undefined> {
 	// TODO: none
@@ -26,11 +26,11 @@ class Fallback extends Stateful<FallbackProps, FallbackState> {
 				// initial
 				this.onRender();
 				// @ts-ignore
-				structure("history").handle(this.onRender);
+				structure("tabs").handle(this.onRender);
 			},
 			WILL_UNMOUNT: () => {
 				// @ts-ignore
-				structure("history").unhandle(this.onRender);
+				structure("tabs").unhandle(this.onRender);
 			}
 		};
 	}
@@ -48,7 +48,7 @@ class Fallback extends Stateful<FallbackProps, FallbackState> {
 		);
 	}
 	protected visible() {
-		return structure("history").state.pages[structure("history").state.index].element.props["data-key"] === (this.props as any)["data-key"];
+		return structure("tabs").state.pages[structure("tabs").state.index].element.props["data-key"] === (this.props as any)["data-key"];
 	}
 	protected discord() {
 		// skip

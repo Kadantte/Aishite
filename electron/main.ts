@@ -3,36 +3,27 @@ import { app, net, shell, session, Menu, ipcMain, BrowserWindow } from "electron
 import node_fs from "fs";
 import node_path from "path";
 
-import { Window } from "@/models/chromium";
+import { Window } from "models/chromium";
 
 let window: BrowserWindow;
 
-const instance = app.requestSingleInstanceLock();
+const [instance, shortcut] = [app.requestSingleInstanceLock(), new Array() as Parameters<typeof Menu.buildFromTemplate>[0]];
 
 if (!instance) {
-	//
-	// single instance
-	//
 	app.quit();
 }
 
-const shortcut: Parameters<typeof Menu.buildFromTemplate>[0] = [];
-
-switch (app.isPackaged) {
-	case true: {
-		shortcut.push({ role: "togglefullscreen" });
-		break;
-	}
-	case false: {
-		shortcut.push({ role: "toggleDevTools" });
-		shortcut.push({ role: "togglefullscreen" });
-		//
-		// hot-reload
-		//
-		node_fs.watch(node_path.resolve(__dirname, "preload.js")).on("change", () => window.reload());
-		node_fs.watch(node_path.resolve(__dirname, "renderer.js")).on("change", () => window.reload());
-		break;
-	}
+if (app.isPackaged) {
+	shortcut.push({ role: "togglefullscreen" });
+}
+else {
+	shortcut.push({ role: "toggleDevTools" });
+	shortcut.push({ role: "togglefullscreen" });
+	//
+	// hot-reload
+	//
+	node_fs.watch(node_path.resolve(__dirname, "preload.js")).on("change", () => window.reload());
+	node_fs.watch(node_path.resolve(__dirname, "renderer.js")).on("change", () => window.reload());
 }
 
 Menu.setApplicationMenu(Menu.buildFromTemplate(shortcut));

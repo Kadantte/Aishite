@@ -1,7 +1,7 @@
-import client from "@/modules/node.js/request";
+import client from "modules/node.js/request";
 
-import { Tag } from "@/models/tag";
-import { Gallery as G, GalleryFile as GF } from "@/models/gallery";
+import { Tag } from "models/tag";
+import { Gallery as G, GalleryFile as GF } from "models/gallery";
 
 let gg_js: string;
 let common_js: string;

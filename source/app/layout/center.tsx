@@ -1,6 +1,6 @@
-import Style from "@/app/common/styles";
-import { Props } from "@/app/common/props";
-import { Stateless } from "@/app/common/framework";
+import Style from "app/common/styles";
+import { Props } from "app/common/props";
+import { Stateless } from "app/common/framework";
 
 interface CenterProps extends Props.Clear, Props.Style {
 	// required

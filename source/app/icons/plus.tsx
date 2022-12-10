@@ -1,4 +1,4 @@
-import Icon from "@/app/icons";
+import Icon from "app/icons";
 
 class I_Plus extends Icon {
 	protected build() {

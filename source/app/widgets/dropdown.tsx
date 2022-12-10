@@ -1,18 +1,18 @@
-import Color from "@/app/common/color";
-import { Props } from "@/app/common/props";
-import { Stateful } from "@/app/common/framework";
+import Color from "app/common/color";
+import { Props } from "app/common/props";
+import { Stateful } from "app/common/framework";
 
-import Row from "@/app/layout/row";
-import Text from "@/app/layout/text";
-import Form from "@/app/layout/form";
-import Center from "@/app/layout/center";
-import Container from "@/app/layout/container";
+import Row from "app/layout/row";
+import Text from "app/layout/text";
+import Form from "app/layout/form";
+import Center from "app/layout/center";
+import Container from "app/layout/container";
 
-import Scroll from "@/app/layout/casacade/scroll";
+import Scroll from "app/layout/casacade/scroll";
 
-import Close from "@/app/icons/close";
+import Close from "app/icons/close";
 
-import Button from "@/app/widgets/button";
+import Button from "app/widgets/button";
 
 interface DropdownProps extends Props.Clear<undefined>, Props.Style, Props.Toggle {
 	// required
@@ -23,7 +23,7 @@ interface DropdownProps extends Props.Clear<undefined>, Props.Style, Props.Toggl
 	readonly fallback?: string;
 	readonly highlight?: string;
 	// events
-	readonly onReset?: () => void;
+	readonly onReset?: VoidFunction;
 	readonly onHover?: (callback: number) => void;
 	readonly onSelect?: (callback: string) => void;
 	readonly onSubmit?: (callback: string) => void;
@@ -113,12 +113,21 @@ class Dropdown extends Stateful<DropdownProps, DropdownState> {
 						<Center x={true} y={true} constraint={{ width: 50.0 }}>
 							<Close color={Color.pick(5.0)}
 								onMouseDown={(setStyle) => {
+									// skip
+									if (!this.props.enable) return;
+
 									this.props.onReset?.();
 								}}
 								onMouseEnter={(setStyle) => {
+									// skip
+									if (!this.props.enable) return;
+
 									setStyle("#AAAAAA");
 								}}
 								onMouseLeave={(setStyle) => {
+									// skip
+									if (!this.props.enable) return;
+									
 									setStyle(undefined);
 								}}
 							/>
@@ -130,7 +139,7 @@ class Dropdown extends Stateful<DropdownProps, DropdownState> {
 					<Container id="items" position={{ top: 100.0 + "%" }} constraint={{ width: 100.0 + "%", maximum: { height: (40.0 * 5) + (5.0 * 6) } }} decoration={{ color: Color.pick(3.0), border: { all: { width: 1.5, style: "solid", color: Color.pick(5.0) }, top: { color: "transparent" } }, corner: { BL: 5.0, BR: 5.0 }, shadow: [{ x: -5.0, y: 0.0, blur: 5.0, spread: -5.0, color: Color.pick(1.0) }, { x: 5.0, y: 0.0, blur: 5.0, spread: -5.0, color: Color.pick(1.0) }, { x: 0.0, y: 5.0, blur: 5.0, spread: -5.0, color: Color.pick(1.0) }] }} flags={{ visible: this.state.focus && !this.props.items.isEmpty }}>
 						{this.props.items.map((item, index) => {
 							// cache
-							const [buffer, fragment] = [[] as Array<unknown>, this.props.highlight ? item[0].split(this.props.highlight) : [item[0]]];
+							const [buffer, fragment] = [new Array(), this.props.highlight ? item[0].split(this.props.highlight) : [item[0]]];
 
 							for (let index = 0; index < fragment.length; index++) {
 								if (fragment.length > index + 1) {

@@ -1,7 +1,7 @@
-import { Props } from "@/app/common/props";
-import { Stateful } from "@/app/common/framework";
+import { Props } from "app/common/props";
+import { Stateful } from "app/common/framework";
 
-import structure from "@/handles";
+import structure from "handles/index";
 
 // @see https://stackoverflow.com/questions/9126105/blank-image-encoded-as-data-uri
 const transparent = "data:image/gif;base64,R0lGODlhAQABAAAAACwAAAAAAQABAAA=";
@@ -10,8 +10,8 @@ interface ImageProps extends Props.Clear<undefined>, Props.Style {
 	// required
 	readonly source: string;
 	// events
-	readonly onLoad?: () => void;
-	readonly onError?: () => void;
+	readonly onLoad?: VoidFunction;
+	readonly onError?: VoidFunction;
 }
 
 interface ImageState {
@@ -59,9 +59,9 @@ class Image extends Stateful<ImageProps, ImageState> {
 							// update
 							this.state.loaded = true;
 
-							switch (structure("contextmenu").state.id) {
+							switch (structure("ctm").state.id) {
 								case this.props.source: {
-									this.contextmenu(structure("contextmenu").state.x, structure("contextmenu").state.y);
+									this.contextmenu(structure("ctm").state.x, structure("ctm").state.y);
 									break;
 								}
 							}
@@ -97,7 +97,7 @@ class Image extends Stateful<ImageProps, ImageState> {
 		return canvas;
 	}
 	protected contextmenu(x: number, y: number) {
-		structure("contextmenu").state = {
+		structure("ctm").state = {
 			id: this.props.source,
 			x: x,
 			y: y,

@@ -1,5 +1,5 @@
-import { Props } from "@/app/common/props";
-import { StyleSheet } from "@/app/common/framework";
+import { Props } from "app/common/props";
+import { StyleSheet } from "app/common/framework";
 
 interface ScrollProps extends Props.Casacade {
 	// required

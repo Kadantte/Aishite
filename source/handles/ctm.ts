@@ -1,4 +1,4 @@
-import { StateHandler } from "@/handles";
+import { StateHandler } from "handles/index";
 
 class ContextMenu extends StateHandler<ContextMenuState> {
 	public get state() {
@@ -19,7 +19,7 @@ class ContextMenuState {
 	public readonly items: Array<"seperator" | {
 		role: string;
 		toggle: boolean;
-		method: () => void;
+		method: VoidFunction;
 	}>;
 
 	constructor(args: Args<ContextMenuState>) {
@@ -31,7 +31,7 @@ class ContextMenuState {
 }
 
 const singleton = new ContextMenu(
-	new ContextMenuState({ id: "???", x: 0, y: 0, items: [] })
+	new ContextMenuState({ id: "???", x: 0, y: 0, items: new Array() })
 );
 
 export default singleton;

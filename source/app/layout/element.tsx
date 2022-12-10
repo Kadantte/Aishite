@@ -1,5 +1,5 @@
-import { Props } from "@/app/common/props";
-import { Stateless } from "@/app/common/framework";
+import { Props } from "app/common/props";
+import { Stateless } from "app/common/framework";
 
 interface ElementProps extends Props.Clear, Props.Style {
 	// TODO: none

@@ -111,24 +111,22 @@ class MappedStateCallback<K, V> {
 	}
 }
 
-import history from "@/handles/history";
-import bookmark from "@/handles/bookmark";
-import contextmenu from "@/handles/contextmenu";
+import ctm from "handles/ctm";
+import tabs from "handles/tabs";
 
-function structure(namespace: "history"): typeof history;
-function structure(namespace: "bookmark"): typeof bookmark;
-function structure(namespace: "contextmenu"): typeof contextmenu;
+function structure(namespace: "ctm"): typeof ctm;
+function structure(namespace: "tabs"): typeof tabs;
 
 function structure(namespace: string) {
 	switch (namespace) {
-		case "history": {
-			return history;
+		case "ctm": {
+			return ctm;
 		}
-		case "bookmark": {
-			return bookmark;
+		case "tabs": {
+			return tabs;
 		}
-		case "contextmenu": {
-			return contextmenu;
+		default: {
+			throw new Error();
 		}
 	}
 }

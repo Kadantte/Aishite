@@ -38,7 +38,7 @@ compiler["main"].instance = webpack({
 		...main.plugins,
 		...boilerplate.plugins
 	]
-}, () => { });
+}, () => true);
 
 compiler["preload"].instance = webpack({
 	...preload,
@@ -47,7 +47,7 @@ compiler["preload"].instance = webpack({
 		...preload.plugins,
 		...boilerplate.plugins
 	]
-}, () => { });
+}, () => true);
 
 compiler["renderer"].instance = webpack({
 	...renderer,
@@ -56,7 +56,7 @@ compiler["renderer"].instance = webpack({
 		...renderer.plugins,
 		...boilerplate.plugins
 	]
-}, () => { });
+}, () => true);
 
 compiler["main"].instance.hooks.done.tap("done", () => build("main"));
 

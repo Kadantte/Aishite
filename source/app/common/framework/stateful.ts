@@ -1,13 +1,13 @@
 import React from "react";
 import ReactDOM from "react-dom";
 
-import { Props } from "@/app/common/props";
-import { CSSProps } from "@/app/common/framework";
+import { Props } from "app/common/props";
+import { CSSProps } from "app/common/framework";
 
 interface LifeCycle<P extends Props.Clear<unknown>, S> {
-	readonly DID_MOUNT?: () => void;
-	readonly DID_UPDATE?: () => void;
-	readonly WILL_UNMOUNT?: () => void;
+	readonly DID_MOUNT?: VoidFunction;
+	readonly DID_UPDATE?: VoidFunction;
+	readonly WILL_UNMOUNT?: VoidFunction;
 	readonly SHOULD_UPDATE?: (props: P, state: S, context: unknown) => boolean;
 }
 

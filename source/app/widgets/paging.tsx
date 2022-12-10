@@ -1,9 +1,9 @@
-import { Props } from "@/app/common/props";
-import { Stateful } from "@/app/common/framework";
+import { Props } from "app/common/props";
+import { Stateful } from "app/common/framework";
 
-import Row from "@/app/layout/row";
+import Row from "app/layout/row";
 
-import { Alignment } from "@/app/common/geometry";
+import { Alignment } from "app/common/geometry";
 
 interface PagingProps extends Props.Clear<undefined>, Props.Style, Props.Toggle {
 	// required
@@ -54,7 +54,7 @@ class Paging extends Stateful<PagingProps, PagingState> {
 			<Row {...this.props} id={this.props.id ?? "paging"} alignment={Alignment.CENTER}>
 				<>
 					{this.props.builder("First", 0, false, this.handle)}
-					{new Array(this.props.size.clamp(0, this.props.length)).fill(null).map((_, index) => {
+					{new Array(this.props.size.clamp(0, this.props.length)).fill(true).map((_, index) => {
 						// cache
 						const page = this.offset(index);
 
@@ -66,7 +66,7 @@ class Paging extends Stateful<PagingProps, PagingState> {
 		);
 	}
 	protected offset(value: number) {
-		const breakpoint = Math.floor(this.props.size / 2);
+		const breakpoint = Math.floor(this.props.size * 0.5);
 		const underflow = (this.props.length > this.props.size);
 		const viewport = (this.state.index > breakpoint && underflow) ? Math.abs(this.state.index - breakpoint) : 0;
 		const overflow = (this.props.size + viewport);

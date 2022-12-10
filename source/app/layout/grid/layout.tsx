@@ -1,6 +1,6 @@
-import unit from "@/app/common/unit";
-import { Props } from "@/app/common/props";
-import { Stateless } from "@/app/common/framework";
+import unit from "app/common/unit";
+import { Props } from "app/common/props";
+import { Stateless } from "app/common/framework";
 
 interface LayoutProps extends Props.Clear, Props.Style {
 	// required

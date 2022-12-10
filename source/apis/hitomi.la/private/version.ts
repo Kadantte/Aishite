@@ -1,4 +1,4 @@
-import client from "@/modules/node.js/request";
+import client from "modules/node.js/request";
 
 export enum Directory {
 	TAG = "tag",

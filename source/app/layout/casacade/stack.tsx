@@ -1,6 +1,6 @@
-import Style from "@/app/common/styles";
-import { Props } from "@/app/common/props";
-import { StyleSheet } from "@/app/common/framework";
+import Style from "app/common/styles";
+import { Props } from "app/common/props";
+import { StyleSheet } from "app/common/framework";
 
 interface StackProps extends Props.Casacade {
 	// optional

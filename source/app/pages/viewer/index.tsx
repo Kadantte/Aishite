@@ -1,15 +1,15 @@
-import Style from "@/app/common/styles";
-import Color from "@/app/common/color";
-import { Props } from "@/app/common/props";
-import { Stateful } from "@/app/common/framework";
+import Style from "app/common/styles";
+import Color from "app/common/color";
+import { Props } from "app/common/props";
+import { Stateful } from "app/common/framework";
 
-import Image from "@/app/layout/image";
+import Image from "app/layout/image";
 
-import discord from "@/modules/discord";
+import discord from "modules/discord";
 
-import structure from "@/handles";
+import structure from "handles/index";
 
-import { gallery } from "@/apis/hitomi.la/gallery";
+import { gallery } from "apis/hitomi.la/gallery";
 
 interface ViewerProps extends Props.Clear<undefined> {
 	// required
@@ -33,10 +33,7 @@ class Viewer extends Stateful<ViewerProps, ViewerState> {
 			init: false,
 			width: this.props.width,
 			control: false,
-			gallery: {
-				title: "???",
-				files: []
-			}
+			gallery: { title: "???", files: new Array() }
 		};
 	}
 	protected events() {
@@ -45,7 +42,7 @@ class Viewer extends Stateful<ViewerProps, ViewerState> {
 				// initial
 				this.onRender();
 				// @ts-ignore
-				structure("history").handle(this.onRender);
+				structure("tabs").handle(this.onRender);
 
 				window.addEventListener("wheel", this.onWheel);
 				window.addEventListener("keyup", this.onKeyUp);
@@ -54,7 +51,7 @@ class Viewer extends Stateful<ViewerProps, ViewerState> {
 			},
 			WILL_UNMOUNT: () => {
 				// @ts-ignore
-				structure("history").unhandle(this.onRender);
+				structure("tabs").unhandle(this.onRender);
 
 				window.removeEventListener("wheel", this.onWheel);
 				window.removeEventListener("keyup", this.onKeyUp);
@@ -91,7 +88,7 @@ class Viewer extends Stateful<ViewerProps, ViewerState> {
 		);
 	}
 	protected visible() {
-		return structure("history").state.pages[structure("history").state.index].element.props["data-key"] === (this.props as any)["data-key"];
+		return structure("tabs").state.pages[structure("tabs").state.index].element.props["data-key"] === (this.props as any)["data-key"];
 	}
 	protected discord() {
 		// skip

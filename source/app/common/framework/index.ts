@@ -1,9 +1,9 @@
-import Style from "@/app/common/styles";
-import { Props, CSSPlus, CSSFlag } from "@/app/common/props";
+import Style from "app/common/styles";
+import { Props, CSSPlus, CSSFlag } from "app/common/props";
 
-import Stateful from "@/app/common/framework/stateful";
-import Stateless from "@/app/common/framework/stateless";
-import StyleSheet from "@/app/common/framework/stylesheet";
+import Stateful from "app/common/framework/stateful";
+import Stateless from "app/common/framework/stateless";
+import StyleSheet from "app/common/framework/stylesheet";
 
 namespace CSSProps {
 	export function plus(props: Props.Clear<unknown> & Props.Style) {
@@ -49,7 +49,7 @@ namespace CSSProps {
 				// automatic
 				...Style.border(props[CSSPlus.DECORATION].border ?? {}),
 				...Style.corner(props[CSSPlus.DECORATION].corner ?? {}),
-				...Style.shadow(props[CSSPlus.DECORATION].shadow ?? []),
+				...Style.shadow(props[CSSPlus.DECORATION].shadow ?? new Array()),
 				// handfully
 				opacity: props[CSSPlus.DECORATION].opacity ? (props[CSSPlus.DECORATION].opacity.clamp(0.0, 100.0) / 100.0) : undefined
 			});

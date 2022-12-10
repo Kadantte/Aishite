@@ -1,5 +1,5 @@
-import { Props } from "@/app/common/props";
-import { Stateful } from "@/app/common/framework";
+import { Props } from "app/common/props";
+import { Stateful } from "app/common/framework";
 
 interface BracketProps extends Props.Clear, Props.Style {
 	// required
