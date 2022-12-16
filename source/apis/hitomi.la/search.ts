@@ -4,9 +4,11 @@ import { Tag } from "models/tag";
 import { Pair } from "models/pair";
 import { Endian } from "models/endian";
 
+import options from "handles/options";
+
 import { suggestJS } from "apis/hitomi.la/suggest";
 
-import { Directory, mirror } from "apis/hitomi.la/private/version";
+import { revision } from "apis/hitomi.la/private/version"
 
 enum Symbol {
 	//
@@ -37,6 +39,9 @@ class Token {
 	) { }
 	public is(type: Symbol) {
 		return this.type === type;
+	}
+	public toString() {
+		return this.value ? { type: Symbol[this.type], value: this.value } : { type: Symbol[this.type] };
 	}
 }
 
@@ -84,7 +89,13 @@ class Parser {
 					index += match[0].length;
 					continue;
 				}
-				// string
+				// string (single quotes)
+				if ((match = /^'([^']*)'/.exec(chunk)) !== null) {
+					this._tokens.push(new Token(Symbol.S_LITERAL, String(match[1])));
+					index += match[0].length;
+					continue;
+				}
+				// string (double quotes)
 				if ((match = /^"([^"]*)"/.exec(chunk)) !== null) {
 					this._tokens.push(new Token(Symbol.S_LITERAL, String(match[1])));
 					index += match[0].length;
@@ -123,19 +134,14 @@ class Parser {
 							process(this, Symbol.N_EQUAL);
 							continue;
 						}
-						throw Error(`Could not parse ${unprocessed.at(index)} at position ${index}`);
+						throw new Error(`Could not parse ${unprocessed.at(index)} at position ${index}`);
 					}
 					case space: { index++; continue; }
 				}
-				throw Error(`Could not parse ${unprocessed.at(index)} at position ${index}`);
+				throw new Error(`Could not parse ${unprocessed.at(index)} at position ${index}`);
 			}
 			// close
 			this._tokens.push(new Token(Symbol.EOF));
-
-			// debug
-			for (const token of this._tokens) {
-				print(token.value ? { type: Symbol[token.type], value: token.value } : { type: Symbol[token.type] });
-			}
 		}
 		catch (error) {
 			// debug
@@ -151,7 +157,11 @@ class Parser {
 		// raise
 		this._index++;
 
-		return this.peek();
+		const token = this.peek();
+
+		print(token.toString());
+
+		return token;
 	}
 	public async parse() {
 		// empty
@@ -242,7 +252,7 @@ class Parser {
 		const token = this.peek(), handle = built_in(token.value as string);
 
 		if (handle === undefined) {
-			throw Error(`Could not find property or function named "${this.peek().value}"`);
+			throw new Error(`Could not find property or function named "${this.peek().value}"`);
 		}
 		else if (handle instanceof _Property) {
 			switch (this.next().type) {
@@ -274,13 +284,13 @@ class Parser {
 					return value;
 				}
 				default: {
-					throw Error(`Could not process property comparison, ${Symbol[this.peek().type]} is invalid operator`);
+					throw new Error(`Could not process property comparison, ${Symbol[this.peek().type]} is invalid operator`);
 				}
 			}
 		}
 		else if (handle instanceof _Function) {
 			// open
-			if (!this.next().is(Symbol.L_PAREN)) throw Error(`Could not process function call, expected ${Symbol[Symbol.L_PAREN]} but received ${Symbol[this.peek().type]}`);
+			if (!this.next().is(Symbol.L_PAREN)) throw new Error(`Could not process function call, expected ${Symbol[Symbol.L_PAREN]} but received ${Symbol[this.peek().type]}`);
 
 			const tokens = new Array();
 
@@ -290,15 +300,15 @@ class Parser {
 
 				if (tokens.length === handle.length) break;
 
-				if (!this.next().is(Symbol.COMMA)) throw Error(`Could not process function call, expected ${Symbol[Symbol.COMMA]} but received ${Symbol[this.peek().type]}`);
+				if (!this.next().is(Symbol.COMMA)) throw new Error(`Could not process function call, expected ${Symbol[Symbol.COMMA]} but received ${Symbol[this.peek().type]}`);
 			}
 			// close
-			if (!this.next().is(Symbol.R_PAREN)) throw Error(`Could not process function call, expected ${Symbol[Symbol.R_PAREN]} but received ${Symbol[this.peek().type]}`);
+			if (!this.next().is(Symbol.R_PAREN)) throw new Error(`Could not process function call, expected ${Symbol[Symbol.R_PAREN]} but received ${Symbol[this.peek().type]}`);
 
 			return handle.call(...tokens);
 		}
 		else {
-			throw Error(`Could not process identifier`);
+			throw new Error(`Could not process identifier`);
 		}
 	}
 	protected async fallback(): Promise<Set<number>> {
@@ -317,7 +327,7 @@ class _Property {
 		// TODO: none
 	}
 	public async call(token: Token) {
-		if (!token.is(this.type)) throw Error(`Could not match symbol, expected ${Symbol[this.type]} but received ${Symbol[token.type]}`);
+		if (!token.is(this.type)) throw new Error(`Could not match symbol, expected ${Symbol[this.type]} but received ${Symbol[token.type]}`);
 
 		return new Set(await this.handle(token));
 	}
@@ -332,7 +342,7 @@ class _Function {
 	}
 	public async call(...tokens: Array<Token>) {
 		for (let index = 0; index < tokens.length; index++) {
-			if (!tokens[index].is(this.type[index])) throw Error(`Could not match symbol, expected ${Symbol[this.type[index]]} but received ${Symbol[tokens[index].type]}`);
+			if (!tokens[index].is(this.type[index])) throw new Error(`Could not match symbol, expected ${Symbol[this.type[index]]} but received ${Symbol[tokens[index].type]}`);
 		}
 		return new Set(await this.handle(...tokens));
 	}
@@ -393,6 +403,12 @@ function built_in(namespace: string) {
 				return [Math.floor(Math.random() * (maximum - minimum + 1)) + minimum];
 			});
 		}
+		case "shortcut": {
+			return new _Function([Symbol.S_LITERAL], async (token_0) => {
+				// we can do simple replace calls for better performance too
+				return Array.from(await search(options.state.apis.search.shortcut[token_0.value as string]));
+			});
+		}
 		default: {
 			return undefined;
 		}
@@ -415,21 +431,30 @@ async function unknown_0(directory: Nullable<string>, tag: Tag) {
 
 async function unknown_1(digits: Pair<number, number>) {
 	// check before request
-	if (!(0 < digits.second && digits.second <= 10000000 * 10)) throw Error();
+	if (!(0 < digits.second && digits.second <= 10000000 * 10)) throw new Error();
 
-	const response = await suggestJS.unknown_4(`https://ltn.hitomi.la/galleriesindex/galleries.${await mirror(Directory.GALLERIES)}.data`, digits.first, digits.first + digits.second - 1);
+	const response = await suggestJS.unknown_4(`https://ltn.hitomi.la/galleriesindex/galleries.${await revision("galleries")}.data`, digits.first, digits.first + digits.second - 1);
 
 	const table = new DataView(response.buffer);
 	const length = table.getInt32(0, Endian.BIG);
 
-	if (!(0 < length && length <= 10000000)) throw Error();
-	if (response.byteLength !== length * 4 + 4) throw Error();
+	if (!(0 < length && length <= 10000000)) throw new Error();
+	if (response.byteLength !== length * 4 + 4) throw new Error();
 
 	return new Array(length).fill(true).map((_, index) => table.getInt32((index + 1) * 4, Endian.BIG));
 }
 
-export function search(value: string) {
-	return (new Parser(value)).parse();
+export async function search(value: string) {
+	// debug
+	const timestamp = (new Date().getTime()).toString(36).toUpperCase();
+
+	print(`%cSTART NEW PARSER ${timestamp}`, "color: black; background: aquamarine; font-weight: bold;");
+
+	const response = await (new Parser(value)).parse();
+
+	print(`%cTERMINATE PARSER ${timestamp}`, "color: black; background: darksalmon; font-weight: bold;");
+
+	return response;
 }
 
 class JavaScriptModule {

@@ -36,11 +36,9 @@ class Form extends Stateful<FormProps, FormState> {
 				// skip
 				if (this.state.id === "???") return;
 
-				switch (structure("ctm").state.id) {
-					case this.state.id: {
-						this.contextmenu(structure("ctm").state.x, structure("ctm").state.y);
-						break;
-					}
+				if (structure("ctm").state.id === this.state.id) {
+					// refresh ctm
+					this.contextmenu(structure("ctm").state.x, structure("ctm").state.y);
 				}
 			}
 		};

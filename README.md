@@ -30,76 +30,103 @@ npm run serve
 
 ## Search Syntax
 
-For **property** comparisons, syntax is as followed.
+- **Property Comparison**
 
-```md
-<identifier> = <literal> or <identifier> != <literal>
-```
+	```html
+	<identifier> = <literal> or <identifier> != <literal>
+	```
 
-For **function** calls, syntax is as followed.
+- **Function Call**
 
-```md
-<identifier>(<literal>) or <identifier>(<literal>, ..., <literal>)
-```
+	```html
+	<identifier>(<literal>) or <identifier>(<literal>, ..., <literal>)
+	```
 
-**Literal** can be any of followed.
+- **Literal Value**
 
-```md
-<literal> = <number> or <string> or <boolean>
-```
+	```html
+	<literal> = <number> or <string> or <boolean>
 
-The operator accepts the previous result (hereinafter A) and the result of the next search term (hereinafter B) and then operates as follows:
+	e.g.
 
-### &
+	123
 
-Compute the intersection of A and B.
+	'example'
+	"example"
 
-### +
+	true
+	false
+	```
 
-Compute the sum of A and B.
+- **Operators**
 
-### -
+	The parser accepts the previous result (hereinafter A) and the result of the next search term (hereinafter B) and then operates as follows:
 
-Compute the set of differences between A and B.
+	- **&**
 
-#
+		Compute the intersection of A and B.
 
-Below is full list of available **properties**.
+	- **+**
 
-```md
-id = <number>
-type = <string>
-group = <string>
-series = <string>
-artist = <string>
-male = <string>
-female = <string>
-popular = <string>
-character = <string>
-language = <string>
-```
+		Compute the sum of A and B.
 
-Below is full list of available **functions**.
+	- **-**
 
-```md
-title(value: <string>)
-random(minimum: <number>, maximum: <number>)
-```
+		Compute the set of differences between A and B.
 
-Below is a usage example.
+- **Properties**
 
-```md
-language = "english" + title("just some title string") + id = 69
-```
+	```ts
+	id = <number>
+	type = <string>
+	group = <string>
+	series = <string>
+	artist = <string>
+	male = <string>
+	female = <string>
+	popular = <string>
+	character = <string>
+	language = <string>
+	```
 
-## Trivia
+- **Functions**
 
-- Nested parentheses is supported.
+	```ts
+	title(value: <string>)
+	```
 
-- `<string>` only allows double quotes.
+	Search galleries by given title.
 
-- `<identifier> != <literal>` is a shorthand of `(language = "all" - <identifier> = <literal>)`.
+	*Result is very restricted.*
 
-- `<id> = <number>` only return single element collection, therefore using **&** operator is not encouraged.
+	```ts
+	random(minimum: <number>, maximum: <number>)
+	```
 
-- If **parser** fails under any circumstances or result collection is empty, result of `language = "all"` will return as a fallback.
+	Return a random gallery between range provided.
+
+	*This function was purely made for test purpose.*
+
+	```ts
+	shortcut(value: <string>)
+	```
+
+	Return the result of processing pre-defined string value stored in `settings.json/apis/search/%key%`.
+
+	*This function can lead to infinite recursion and may be resource intensive.*
+
+- **Usage**
+
+	```ts
+	language = "english" + title("just some title string") + id = 69
+	```
+
+- **Trivia**
+
+	+ Nested parentheses is supported.
+
+	+ `<identifier> != <literal>` is a shorthand of `(language = "all" - <identifier> = <literal>)`.
+
+	+ `<id> = <number>` only return single element collection, therefore using **&** operator is not encouraged.
+
+	+ If **parser** fails under any circumstances or result collection is empty, result of `language = "all"` will return as a fallback.

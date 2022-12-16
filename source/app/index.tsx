@@ -29,7 +29,6 @@ interface AppProps extends Props.Clear<undefined> {
 }
 
 interface AppState {
-	tooltip: boolean;
 	maximize: boolean;
 	fullscreen: boolean;
 	contextmenu: boolean;
@@ -38,7 +37,6 @@ interface AppState {
 class App extends Stateful<AppProps, AppState> {
 	protected create() {
 		return {
-			tooltip: false,
 			maximize: false,
 			fullscreen: false,
 			contextmenu: false
@@ -93,6 +91,7 @@ class App extends Stateful<AppProps, AppState> {
 				chromium.handle(Window.Event.LEAVE_FULL_SCREEN, (event) => this.setState((state) => ({ fullscreen: false })));
 
 				window.addEventListener("wheel", (event) => this.setState((state) => ({ contextmenu: false }), () => Object.defineProperty(structure("ctm").state, "id", { value: "???" })));
+				window.addEventListener("keydown", (event) => { if (event.key === "w" && !event.altKey && event.ctrlKey && !event.shiftKey) structure("tabs").close(); });
 				window.addEventListener("mousedown", (event) => this.setState((state) => ({ contextmenu: false }), () => Object.defineProperty(structure("ctm").state, "id", { value: "???" })));
 			}
 		};
@@ -246,7 +245,7 @@ class Controller extends Stateful<ControllerProps, ControllerState> {
 				// cache
 				const element = this.node();
 
-				if (!element) throw Error();
+				if (!element) throw new Error();
 
 				window.addEventListener("mouseup", (event) => {
 					if (this.state.handle) {

@@ -38,37 +38,33 @@ class Image extends Stateful<ImageProps, ImageState> {
 			<img id={this.props.id ?? "image"} src={transparent} draggable={false}
 				onLoad={(event) => {
 					// @ts-ignore
-					switch (event.target.src) {
-						case transparent: {
-							const observer: IntersectionObserver = new IntersectionObserver((entries) => {
-								for (const entry of entries) {
-									if (entry.isIntersecting) {
-										// @ts-ignore
-										event.target.src = this.props.source;
-										// unobserve
-										observer.disconnect();
-										break;
-									}
-								}
-							});
-							// @ts-ignore
-							observer.observe(event.target);
-							break;
-						}
-						default: {
-							// update
-							this.state.loaded = true;
-
-							switch (structure("ctm").state.id) {
-								case this.props.source: {
-									this.contextmenu(structure("ctm").state.x, structure("ctm").state.y);
-									break;
-								}
+					if (event.target.src === transparent) {
+						// dont load unless visible in viewport
+						const observer: IntersectionObserver = new IntersectionObserver((entries) => {
+							for (const entry of entries) {
+								// skip
+								if (!entry.isIntersecting) break;
+								// @ts-ignore
+								event.target.src = this.props.source;
+								// stop
+								observer.disconnect();
 							}
-							this.props.onLoad?.();
-							break;
-						}
+						});
+						// @ts-ignore
+						observer.observe(event.target);
 					}
+					else {
+						// update
+						this.state.loaded = true;
+
+						if (structure("ctm").state.id === this.props.source) {
+							// refresh ctm
+							this.contextmenu(structure("ctm").state.x, structure("ctm").state.y);
+						}
+
+						this.props.onLoad?.();
+					}
+
 				}}
 				onError={(event) => {
 					// @ts-ignore

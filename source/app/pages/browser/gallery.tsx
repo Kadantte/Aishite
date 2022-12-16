@@ -43,13 +43,15 @@ enum Lamperouge {
 
 interface GalleryProps extends Props.Clear<undefined>, Props.Style {
 	// required
-	readonly gallery: Await<ReturnType<typeof gallery>>;
+	readonly gallery: number;
 	// events
 	readonly onClick?: (callback: string) => void;
 }
 
 interface GalleryState {
+	init: boolean;
 	offset: number;
+	gallery: Discard<Await<ReturnType<typeof gallery>>>;
 	foreground: Lelouch;
 	background: Lamperouge;
 }
@@ -57,7 +59,9 @@ interface GalleryState {
 class Gallery extends Stateful<GalleryProps, GalleryState> {
 	protected create() {
 		return {
+			init: false,
 			offset: NaN,
+			gallery: undefined,
 			foreground: Lelouch.TITLE,
 			background: Lamperouge.THUMBNAIL_0
 		};
@@ -72,7 +76,34 @@ class Gallery extends Stateful<GalleryProps, GalleryState> {
 		return {
 			DID_MOUNT: () => {
 				// cache
-				const height = this.node().getBoundingClientRect().height - 160.0;
+				const element = this.node(); const rect = element.getBoundingClientRect();
+
+				const observer: IntersectionObserver = new IntersectionObserver((entries) => {
+					for (const entry of entries) {
+						// skip
+						if (!entry.isIntersecting) break;
+
+						this.setState((state) => ({ init: true }), () => {
+							// fetch
+							gallery(this.props.gallery).then((_gallery) => {
+								// callback hell...
+								this.setState((state) => ({ gallery: _gallery }), () => {
+									// please end this nest
+									if (structure("ctm").state.id === this.props.gallery.toString()) {
+										// refresh ctm
+										this.contextmenu(structure("ctm").state.x, structure("ctm").state.y);
+									}
+								});
+							});
+						});
+						// stop
+						observer.disconnect();
+					}
+				});
+				// start
+				observer.observe(element);
+
+				const height = rect.height - 160.0;
 
 				if (!cache.has(height)) {
 					// cache
@@ -82,16 +113,33 @@ class Gallery extends Stateful<GalleryProps, GalleryState> {
 						count++;
 					}
 					// update
-					cache.set(height, ((height / count) - 35.0) * 0.5);
+					cache.set(rect.height, ((height / count) - 35.0) * 0.5);
 				}
 				// update
-				this.setState((state) => ({ offset: cache.get(height)! }));
+				this.setState((state) => ({ offset: cache.get(rect.height)! }));
 			}
 		};
 	}
 	protected build() {
 		return (
-			<Container {...this.props} id={this.props.id ?? "gallery"} decoration={{ border: { all: { width: 1.5, style: "solid", color: Color.pick(3.0) } }, corner: { all: 10.0 } }}
+			<section id="wrapper"
+				onContextMenu={(event) => {
+					this.contextmenu(event.pageX, event.pageY);
+				}}>
+				{this.state.init ? this.build_1() : this.build_0()}
+			</section>
+		);
+	}
+	protected build_0() {
+		return (
+			<Container {...this.props} id={this.props.id ?? "gallery"} decoration={{ color: Color.pick(2.5), border: { all: { width: 1.5, style: "solid", color: Color.pick(3.0) } }, corner: { all: 10.0 } }}></Container>
+		);
+	}
+	protected build_1() {
+		if (!this.state.gallery) return this.build_0();
+
+		return (
+			<Container {...this.props} id={this.props.id ?? "gallery"} decoration={{ color: Color.pick(2.5), border: { all: { width: 1.5, style: "solid", color: Color.pick(3.0) } }, corner: { all: 10.0 } }}
 				onMouseEnter={(setStyle) => {
 					if (this.state.background === Lamperouge.INFORMATION) return;
 
@@ -108,23 +156,23 @@ class Gallery extends Stateful<GalleryProps, GalleryState> {
 				}}>
 				<Stack>
 					{[
-						(<Element id="thumbnail_0" decoration={{ image: "url(" + this.props.gallery.thumbnail[0] + ")" }}></Element>),
-						(<Element id="thumbnail_1" decoration={{ image: "url(" + this.props.gallery.thumbnail[1] + ")" }}></Element>),
+						(<Element id="thumbnail_0" decoration={{ image: "url(" + this.state.gallery.thumbnail[0] + ")" }}></Element>),
+						(<Element id="thumbnail_1" decoration={{ image: "url(" + this.state.gallery.thumbnail[1] + ")" }}></Element>),
 						(<Element id="information">
 							<Element position={{ all: 25.0, bottom: 100.0 }} decoration={{ color: Color.pick(2.0), corner: { all: 5.0 }, border: { all: { width: 1.5, style: "solid", color: Color.pick(5.0) } } }}>
 								<Scroll x="hidden" y="auto" scrollbar="smooth">
 									<Element position={{ all: 15.0 }}>
 										{isNaN(this.state.offset) ? undefined : [
-											{ key: "id", value: this.props.gallery.id },
-											{ key: "type", value: this.props.gallery.type },
-											{ key: "title", value: this.props.gallery.title },
-											{ key: "language", value: this.props.gallery.language },
-											{ key: "characters", value: this.props.gallery.characters },
-											{ key: "artists", value: this.props.gallery.artists },
-											{ key: "parody", value: this.props.gallery.parody },
-											{ key: "group", value: this.props.gallery.group },
-											{ key: "tags", value: this.props.gallery.tags },
-											{ key: "date", value: this.props.gallery.date }
+											{ key: "id", value: this.state.gallery.id },
+											{ key: "type", value: this.state.gallery.type },
+											{ key: "title", value: this.state.gallery.title },
+											{ key: "language", value: this.state.gallery.language },
+											{ key: "characters", value: this.state.gallery.characters },
+											{ key: "artists", value: this.state.gallery.artists },
+											{ key: "parody", value: this.state.gallery.parody },
+											{ key: "group", value: this.state.gallery.group },
+											{ key: "tags", value: this.state.gallery.tags },
+											{ key: "date", value: this.state.gallery.date }
 										].map((section, index) => {
 											return (
 												<Element key={index} offset={{ padding: { all: this.state.offset, left: 0.0, right: 15.0 } }}>
@@ -218,16 +266,16 @@ class Gallery extends Stateful<GalleryProps, GalleryState> {
 					}}
 					onMouseLeave={(setStyle) => {
 						if (this.state.background === Lamperouge.INFORMATION) return;
-						
+
 						this.setState((state) => ({ foreground: Lelouch.TITLE }));
 					}}>
 					<Stack>
 						{[
-							(<Text id="title" length={90.0 + "%"}>{[{ value: this.props.gallery.title, weight: "bold" }]}</Text>),
+							(<Text id="title" length={90.0 + "%"}>{[{ value: this.state.gallery.title, weight: "bold" }]}</Text>),
 							(<>
 								<Read color={Color.pick(5.0)} offset={{ margin: { left: 10.0, right: 10.0 } }} constraint={{ width: 25.0, height: 25.0 }}
 									onMouseDown={(setColor) => {
-										structure("tabs").open(this.props.gallery.title, "viewer", { gallery: this.props.gallery.id });
+										structure("tabs").open(this.state.gallery!.title, "VIEWER", { gallery: this.state.gallery!.id });
 									}}
 									onMouseEnter={(setColor) => {
 										setColor("#AAAAAA");
@@ -288,6 +336,51 @@ class Gallery extends Stateful<GalleryProps, GalleryState> {
 				</Container>
 			</Container>
 		);
+	}
+	protected contextmenu(x: number, y: number) {
+		structure("ctm").state = {
+			id: this.props.gallery.toString(),
+			x: x,
+			y: y,
+			items: [
+				{
+					role: "Copy URL",
+					toggle: this.state.gallery !== undefined,
+					method: () => {
+						navigator.clipboard.write([new ClipboardItem({ "text/plain": new Blob([this.state.gallery!.URL()], { type: "text/plain" }) })]);
+					}
+				},
+				"seperator",
+				{
+					role: "Download",
+					toggle: false,
+					method: () => {
+						throw new Error("Unimplemented");
+					}
+				},
+				{
+					role: "Bookmark",
+					toggle: false,
+					method: () => {
+						throw new Error("Unimplemented");
+					}
+				},
+				"seperator",
+				{
+					role: "Open in Viewer",
+					toggle: this.state.gallery !== undefined,
+					method: () => {
+						structure("tabs").open(this.state.gallery!.title, "viewer", { gallery: this.state.gallery!.id });
+					}
+				},
+				{
+					role: "Open in External Browser",
+					toggle: this.state.gallery !== undefined,
+					method: () => {
+						chromium.open_url(this.state.gallery!.URL());
+					}
+				}]
+		};
 	}
 }
 

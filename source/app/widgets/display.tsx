@@ -24,7 +24,7 @@ interface PageViewState {
 class Display extends Stateful<PageViewProps, PageViewState> {
 	protected create() {
 		return {
-			key: structure("tabs").state.pages[structure("tabs").state.index].element.key
+			key: structure("tabs").page.element.key
 		};
 	}
 	protected events() {
@@ -40,7 +40,9 @@ class Display extends Stateful<PageViewProps, PageViewState> {
 					// re-render
 					this.setState((state) => ({ key: event.detail.post.pages[event.detail.post.index].element.key }), () => {
 						// reset scroll position
-						document.querySelector("#background > section[style*=\"display: block\"] *[data-scrollbar]")?.scrollTo({ top: 0, behavior: "smooth" });
+						const element = document.querySelector("#bracket:not([style*=\"display: none\"])");
+
+						(element?.querySelector("*[style*=\"overflow: auto\"]") ?? element?.querySelector("*[style*=\"overflow: hidden auto\"]"))?.scrollTo({ top: 0, behavior: "smooth" });
 					});
 				});
 			}

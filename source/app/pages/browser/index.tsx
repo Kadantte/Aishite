@@ -5,11 +5,9 @@ import { Stateful } from "app/common/framework";
 import Text from "app/layout/text";
 import Grid from "app/layout/grid";
 import Column from "app/layout/column";
-import Element from "app/layout/element";
 
 import Scroll from "app/layout/casacade/scroll";
 import Spacer from "app/layout/casacade/spacer";
-import ContextMenu from "app/layout/casacade/contextmenu";
 
 import Button from "app/widgets/button";
 import Paging from "app/widgets/paging";
@@ -23,7 +21,6 @@ import structure from "handles/index";
 
 import { search } from "apis/hitomi.la/search";
 import { suggest } from "apis/hitomi.la/suggest";
-import { gallery } from "apis/hitomi.la/gallery";
 
 interface BrowserProps extends Props.Clear<undefined> {
 	readonly value: string;
@@ -40,7 +37,7 @@ interface BrowserState {
 		items: Await<ReturnType<typeof suggest>>;
 	};
 	gallery: {
-		value: Array<Await<ReturnType<typeof gallery>>>;
+		value: Array<number>;
 		length: number;
 	};
 	highlight: string;
@@ -134,57 +131,16 @@ class Browser extends Stateful<BrowserProps, BrowserState> {
 						<Grid.Layout id="display" gap={20.0} count={5} width={app.max_width / (5 + 1)} offset={{ margin: { left: 20.0, right: 20.0 } }}>
 							{this.state.gallery.value.map((gallery, index) => {
 								return (
-									<ContextMenu key={index} items={[
-										{
-											role: "Copy URL",
-											toggle: true,
-											method: () => {
-												navigator.clipboard.write([new ClipboardItem({ "text/plain": new Blob([gallery.URL()], { type: "text/plain" }) })]);
-											}
-										},
-										"seperator",
-										{
-											role: "Download",
-											toggle: false,
-											method: () => {
-												throw Error("Unimplemented");
-											}
-										},
-										{
-											role: "Bookmark",
-											toggle: false,
-											method: () => {
-												throw Error("Unimplemented");
-											}
-										},
-										"seperator",
-										{
-											role: "Open in Viewer",
-											toggle: true,
-											method: () => {
-												structure("tabs").open(gallery.title, "viewer", { gallery: gallery.id });
-											}
-										},
-										{
-											role: "Open in External Browser",
-											toggle: true,
-											method: () => {
-												chromium.open_url(gallery.URL());
-											}
-										}]}>
-										<Element id="wrapper">
-											<Gallery gallery={gallery} constraint={{ height: app.min_height - 180.0 - 0.25 }}
-												onClick={(tag) => {
-													// cache
-													const input = this.node().getElementsByTagName("input").item(0)!;
+									<Gallery key={index} gallery={gallery} constraint={{ height: app.min_height - 180.0 - 0.25 }}
+										onClick={(tag) => {
+											// cache
+											const input = this.node().getElementsByTagName("input").item(0)!;
 
-													this.setState((state) => ({ suggest: { items: new Array() } }));
+											this.setState((state) => ({ suggest: { items: new Array() } }));
 
-													input.value = input.value.includes(tag) ? input.value.replace(tag, "").replace(/\s*[&?+-]\s*[&?+-]\s*/, space + "&" + space).replace(/\s*[&?+-]\s*$/, "") : (input.value + space + "&" + space + tag).replace(/^\s*[&?+-]\s*/, "");
-												}}
-											/>
-										</Element>
-									</ContextMenu>
+											input.value = input.value.includes(tag) ? input.value.replace(tag, "").replace(/\s*[&?+-]\s*[&?+-]\s*/, space + "&" + space).replace(/\s*[&?+-]\s*$/, "") : (input.value + space + "&" + space + tag).replace(/^\s*[&?+-]\s*/, "");
+										}}
+									/>
 								);
 							})}
 						</Grid.Layout>
@@ -221,7 +177,7 @@ class Browser extends Stateful<BrowserProps, BrowserState> {
 		);
 	}
 	protected visible() {
-		return structure("tabs").state.pages[structure("tabs").state.index].element.props["data-key"] === (this.props as any)["data-key"];
+		return structure("tabs").page.element.props["data-key"] === (this.props as any)["data-key"];
 	}
 	protected discord() {
 		if (!this.visible()) return;
@@ -251,17 +207,7 @@ class Browser extends Stateful<BrowserProps, BrowserState> {
 					// callback?
 					resolve(_result.length);
 
-					this.setState((state) => ({ gallery: { value: new Array(), length: Math.ceil(_result.length / length) } }), () => {
-						for (let _index = 0; _index < _length; _index++) {
-							// bottleneck
-							gallery(_result[_index + _offset]).then(async (_gallery) => {
-								// @ts-ignore
-								_galleries[_index] = _gallery;
-								// update
-								await this.setState((state) => ({ gallery: { value: _galleries, length: this.state.gallery.length } }));
-							});
-						}
-					});
+					this.setState((state) => ({ gallery: { value: _result.skip(_offset).take(_length), length: Math.ceil(_result.length / length) } }));
 				});
 			});
 		});

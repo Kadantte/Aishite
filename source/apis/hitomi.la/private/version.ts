@@ -7,25 +7,19 @@ export enum Directory {
 	NOZOMIURL = "nozomiurl"
 }
 
-let init = false;
-
 const cache = new Map<string, string>();
 
 for (const directory of Object.values(Directory)) {
+	// fetch
 	client.GET(`https://ltn.hitomi.la/${directory}index/version?_=${Date.now()}`, "text").then((response) => {
 		// assign
 		cache.set(directory, response.body);
-
-		if (Array.from(cache.values()).every((element) => element)) {
-			// update
-			init = true;
-		}
 	});
 }
 
-export async function mirror(directory: Directory) {
+export async function revision(directory: string) {
 	// pause
-	await until(() => init);
+	await until(() => Array.from(cache.values()).every((element) => element));
 
 	switch (directory) {
 		case Directory.TAG:
@@ -35,7 +29,7 @@ export async function mirror(directory: Directory) {
 			return cache.get(directory);
 		}
 		default: {
-			throw Error();
+			throw new Error();
 		}
 	}
 }

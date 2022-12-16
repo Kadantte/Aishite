@@ -4,6 +4,6 @@ import App from "app/index";
 
 const element = document.getElementById("root");
 
-if (!element) throw Error();
+if (!element) throw new Error();
 
 ReactDOM.createRoot(element).render(<App></App>);

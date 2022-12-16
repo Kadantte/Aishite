@@ -3,7 +3,7 @@ import node_tls from "tls";
 import node_http from "http";
 import node_https from "https";
 
-import settings from "modules/settings";
+import options from "handles/options";
 
 enum Engine {
 	XHR = "xhr",
@@ -196,19 +196,19 @@ class Client {
 	public async GET(url: RequestOptions["url"], type: "arraybuffer", headers?: RequestOptions["headers"]): Promise<RequestResponse<"arraybuffer">>;
 
 	public async GET(url: RequestOptions["url"], type: RequestOptions["type"], headers: RequestOptions["headers"] = {}) {
-		return this.send(settings.state.app.request.engine as Engine, { url: url, type: type, method: RequestType.GET, headers: headers });
+		return this.send(options.state.app.request.engine as Engine, { url: url, type: type, method: RequestType.GET, headers: headers });
 	}
 	public async PUT(url: RequestOptions["url"], type: RequestOptions["type"], headers: RequestOptions["headers"] = {}) {
-		return this.send(settings.state.app.request.engine as Engine, { url: url, type: type, method: RequestType.GET, headers: headers });
+		return this.send(options.state.app.request.engine as Engine, { url: url, type: type, method: RequestType.GET, headers: headers });
 	}
 	public async POST(url: RequestOptions["url"], type: RequestOptions["type"], headers: RequestOptions["headers"] = {}) {
-		return this.send(settings.state.app.request.engine as Engine, { url: url, type: type, method: RequestType.GET, headers: headers });
+		return this.send(options.state.app.request.engine as Engine, { url: url, type: type, method: RequestType.GET, headers: headers });
 	}
 	public async HEAD(url: RequestOptions["url"], type: RequestOptions["type"], headers: RequestOptions["headers"] = {}) {
-		return this.send(settings.state.app.request.engine as Engine, { url: url, type: type, method: RequestType.GET, headers: headers });
+		return this.send(options.state.app.request.engine as Engine, { url: url, type: type, method: RequestType.GET, headers: headers });
 	}
 	public async DELETE(url: RequestOptions["url"], type: RequestOptions["type"], headers: RequestOptions["headers"] = {}) {
-		return this.send(settings.state.app.request.engine as Engine, { url: url, type: type, method: RequestType.GET, headers: headers });
+		return this.send(options.state.app.request.engine as Engine, { url: url, type: type, method: RequestType.GET, headers: headers });
 	}
 }
 

@@ -44,11 +44,11 @@ async function unknown_0(value: string) {
 
 	try {
 		const bundle = await unknown_3(fragment[0], 0);
-		if (timestamp !== UUID) throw Error();
+		if (timestamp !== UUID) throw new Error();
 		const digits = await unknown_5(fragment[0], unknown_1(fragment[1]), bundle);
-		if (timestamp !== UUID) throw Error();
+		if (timestamp !== UUID) throw new Error();
 		const result = await unknown_6(fragment[0], digits);
-		if (timestamp !== UUID) throw Error();
+		if (timestamp !== UUID) throw new Error();
 		return result;
 	}
 	catch {
@@ -104,7 +104,7 @@ async function unknown_4(url: string, offset: number, length: number) {
 
 async function unknown_5(type: string, buffer: Uint8Array, bundle: Bundle): Promise<Pair<number, number>> {
 	// check before local functions
-	if (bundle.buffer.isEmpty) throw Error();
+	if (bundle.buffer.isEmpty) throw new Error();
 
 	function mystery_0(first: Uint8Array, second: Uint8Array) {
 		for (let index = 0; index < Math.min(first.length, second.length); index++) {
@@ -142,14 +142,14 @@ async function unknown_5(type: string, buffer: Uint8Array, bundle: Bundle): Prom
 	const mystery = mystery_1(buffer, bundle);
 
 	if (mystery.first) return bundle.digits[mystery.second];
-	if (mystery_2(bundle)) throw Error();
-	if (bundle.nodes[mystery.second] === 0) throw Error();
+	if (mystery_2(bundle)) throw new Error();
+	if (bundle.nodes[mystery.second] === 0) throw new Error();
 
 	return unknown_5(type, buffer, await unknown_3(type, bundle.nodes[mystery.second]));
 }
 
 async function unknown_6(type: string, digits: Pair<number, number>) {
-	if (digits.second <= 0 || digits.second > 10000) throw Error();
+	if (digits.second <= 0 || digits.second > 10000) throw new Error();
 
 	const response = await unknown_4(`https://ltn.hitomi.la/tagindex/${type}.${await mirror(Directory.TAG)}.data`, digits.first, digits.first + digits.second - 1);
 
@@ -160,7 +160,7 @@ async function unknown_6(type: string, digits: Pair<number, number>) {
 	const _0 = binary.buffer.getInt32(binary.offset, Endian.BIG);
 	binary.offset += 4;
 
-	if (_0 <= 0 || _0 > 100) throw Error();
+	if (_0 <= 0 || _0 > 100) throw new Error();
 
 	function utf16(value: number) {
 		return value === 32 ? 95 : value;

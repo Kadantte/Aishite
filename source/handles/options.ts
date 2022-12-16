@@ -4,12 +4,12 @@ import storage from "modules/storage";
 
 import template from "assets/settings.json";
 
-class Settings extends StateHandler<Configuration> {
+class Options extends StateHandler<OptionsState> {
 	public get state() {
 		return super.state;
 	}
-	public set state(state: Args<Configuration>) {
-		super.state = new Configuration({ ...state });
+	public set state(state: Args<OptionsState>) {
+		super.state = state;
 		// update
 		storage.change("settings", super.state);
 	}
@@ -19,8 +19,20 @@ class Settings extends StateHandler<Configuration> {
 	}
 }
 
-class Configuration {
-	public readonly app: typeof template["app"];
+class OptionsState {
+	public readonly app: {
+		request: {
+			engine: string;	
+		};
+		requires: Array<string>;
+	};
+	public readonly apis: {
+		search: {
+			shortcut: {
+				[key: string]: string;
+			};
+		};
+	};
 	public readonly history: {
 		index: number;
 		pages: Array<{
@@ -35,16 +47,18 @@ class Configuration {
 		viewer: Record<string, unknown>;
 	};
 
-	constructor(args: Args<Configuration>) {
+	constructor(args: Args<OptionsState>) {
 		this.app = args.app;
+		this.apis = args.apis;
 		this.history = args.history;
 		this.override = args.override;
 	}
 }
 
-const singleton = new Settings(
-	new Configuration({
+const singleton = new Options(
+	new OptionsState({
 		app: (storage.state.get("settings")?.state as typeof template).app ?? template.app,
+		apis: (storage.state.get("settings")?.state as typeof template).apis ?? template.apis,
 		history: (storage.state.get("settings")?.state as typeof template).history ?? template.history,
 		override: (storage.state.get("settings")?.state as typeof template).override ?? template.override
 	})

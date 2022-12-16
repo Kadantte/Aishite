@@ -31,7 +31,7 @@ class Chromium extends EventTarget {
 		// calls [Command] to truly close [BrowserWindow]
 		//
 		if (certification.has(ticket)) {
-			throw Error();
+			throw new Error();
 		}
 		certification.add(ticket);
 

@@ -8,7 +8,7 @@ interface LifeCycle<P extends Props.Clear<unknown>, S> {
 	readonly DID_MOUNT?: VoidFunction;
 	readonly DID_UPDATE?: VoidFunction;
 	readonly WILL_UNMOUNT?: VoidFunction;
-	readonly SHOULD_UPDATE?: (props: P, state: S, context: unknown) => boolean;
+	readonly SHOULD_UPDATE?: (props: Readonly<P>, state: Readonly<S>, context: unknown) => boolean;
 }
 
 abstract class Stateful<P extends Props.Clear<unknown>, S> extends React.Component<P, S> {
@@ -32,13 +32,8 @@ abstract class Stateful<P extends Props.Clear<unknown>, S> extends React.Compone
 		this.events().WILL_UNMOUNT?.();
 	}
 	/** @deprecated */
-	public shouldComponentUpdate(props: P, state: S, context: unknown) {
-		if (this.events().SHOULD_UPDATE) {
-			return this.events().SHOULD_UPDATE!(props, state, context);
-		}
-		else {
-			return true;
-		}
+	public shouldComponentUpdate(props: Readonly<P>, state: Readonly<S>, context: unknown) {
+		return this.events().SHOULD_UPDATE?.(props, state, context) ?? true;
 	}
 	/** Called upon constructor is created. */
 	protected abstract create(): S;

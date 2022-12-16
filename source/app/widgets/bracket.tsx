@@ -33,12 +33,9 @@ class Bracket extends Stateful<BracketProps, BracketState> {
 		return {};
 	}
 	protected build() {
-		if (this.state.error) {
-			return (<section id={this.props.id ?? "bracket"}>{this.props.fallback}</section>);
-		}
-		else {
-			return (<section id={this.props.id ?? "bracket"}>{this.props.children}</section>);
-		}
+		return (
+			<section id={this.props.id ?? "bracket"}>{this.state.error ? this.props.fallback : this.props.children}</section>
+		);
 	}
 }
 

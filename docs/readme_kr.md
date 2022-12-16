@@ -26,81 +26,113 @@ npm install
 npm run serve
 ```
 
+# 후원
+
+새 컴퓨터를 맞추고 싶어요 (1050ti ryzen 1700 사용중)...
+
+[후원](https://toss.me/Sombian) 해주시면 매우 감사하겠습니다 ㅠㅠ
+
 # 사용법
 
 ## 검색 양식
 
-**속성** 비교의 양식은 다음과 같습니다.
+- **속성 비교**
 
-```md
-<식별자> = <값> or <식별자> != <값>
-```
+	```html
+	<식별자> = <값> or <식별자> != <값>
+	```
 
-**함수** 호출의 양식은 다음과 같습니다.
+- **함수 호출**
 
-```md
-<식별자>(<값>, ..., <값>)
-```
+	```html
+	<식별자>(<값_1>, <값_2>, ..., <값_N>)
+	```
 
-**값**은 다음을 허용합니다.
+- **값(literal)**
 
-```md
-<값> = <숫자> or <정수> or <논리형>
-```
+	```html
+	<값> = <숫자> or <정수> or <논리형>
 
-**연산자**는 이전 결과(이하 A)과 다음 검색어의 결과(이하 B)를 받아들인 후 다음과 같이 작동합니다.
+	e.g.
 
-### &
+	123
 
-A 와 B 의 교집합을 연산합니다.
+	'example'
+	"example"
 
-### +
+	true
+	false
+	```
 
-A 와 B 의 합집합을 연산합니다.
+- **연산자**
 
-### -
+	연산자는 이전 결과(이하 A)과 다음 검색어의 결과(이하 B)를 받아들인 후 다음과 같이 작동합니다.
 
-A 와 B 의 차집합을 연산합니다.
+	- **&**
 
-#
+		A 와 B 의 교집합을 연산합니다.
 
-다음은 사용 가능한 **속성** 목록입니다.
+	- **+**
 
-```md
-id = <정수>
-type = <문자열>
-group = <문자열>
-series = <문자열>
-artist = <문자열>
-male = <문자열>
-female = <문자열>
-popular = <문자열>
-character = <문자열>
-language = <문자열>
-```
+		A 와 B 의 합집합을 연산합니다.
 
-다음은 사용 가능한 **함수** 목록입니다.
+	- **-**
 
+		A 와 B 의 차집합을 연산합니다.
 
-```md
-title(value: <문자열>)
-random(minimum: <정수>, maximum: <정수>)
-```
+- **Properties**
 
-다음은 실제 사용 예시입니다.
+	```ts
+	id = <number>
+	type = <string>
+	group = <string>
+	series = <string>
+	artist = <string>
+	male = <string>
+	female = <string>
+	popular = <string>
+	character = <string>
+	language = <string>
+	```
 
-```md
-language = "english" + title("just some title string") + id = 69
-```
+- **Functions**
 
-## Trivia
+	```ts
+	title(value: <string>)
+	```
 
-- **검색어 처리기**는 괄호의 중첩을 지원합니다.
+	주어진 제목으로 갤러리들을 검색합니다.
 
-- **문자열**은 큰따옴표만 지원합니다.
+	*결과가 매우 제한됩니다.*
 
-- `<identifier> != <literal>`(은)는 `(language = "all" - <identifier> = <literal>)`(와)과 같습니다.
+	```ts
+	random(minimum: <number>, maximum: <number>)
+	```
 
-- `id = <정수>`(은)는 항상 원소가 하나만 있는 집합을 반환하기에 **&**(을)를 사용하는 것은 추천하지 않습니다.
+	주어진 범위 내의 무작위 갤러리 한개를 반환합니다.
 
-- 만약 오류가 발생했거나 연산 결과가 공집합일 경우 `language = "all"`의 결과가 반환됩니다.
+	*오로지 시험용으로 만들어진 함수입니다.*
+
+	```ts
+	shortcut(value: <string>)
+	```
+
+	`settings.json/apis/search/%key%` 에 저장된 문자열 값을 처리한 결과를 반환합니다.
+
+	*해당 함수는 무한 재귀 호출의 가능성이 있으며 자원을 많이 소모될 수 있습니다.*
+
+- **Usage**
+
+	```ts
+	language = "english" + title("just some title string") + id = 69
+	```
+
+- **Trivia**
+
+	+ 검색어 처리기는 괄호의 중첩을 지원합니다.
+
+	+ `<identifier> != <literal>`(은)는 `(language = "all" - <identifier> = <literal>)`(와)과 같습니다.
+
+	+ `id = <정수>`(은)는 항상 원소가 하나만 있는 집합을 반환하기에 **&**(을)를 사용하는 것은 추천하지 않습니다.
+
+	+ 만약 처리중 오류가 발생했거나 연산 결과가 공집합일 경우 `language = "all"`의 결과가 반환됩니다.

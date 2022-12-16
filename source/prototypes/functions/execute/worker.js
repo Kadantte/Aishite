@@ -4,7 +4,7 @@ for (const property of ["self", "global", "available", "eval", "console", "onmes
 	available.add(property);
 }
 
-function protect(target, property) {
+function secure(target, property) {
 	// cache
 	const descriptor = Object.getOwnPropertyDescriptor(target, property);
 
@@ -19,15 +19,15 @@ function protect(target, property) {
 }
 
 for (const property of Object.getOwnPropertyNames(global)) {
-	if (!available.has(property)) protect(global, property);
+	if (!available.has(property)) secure(global, property);
 }
 
 for (const property of Object.getOwnPropertyNames(global.__proto__)) {
-	if (!available.has(property)) protect(global.__proto__, property);
+	if (!available.has(property)) secure(global.__proto__, property);
 }
 
 for (const property of ["fetch"]) {
-	protect(global, property); protect(global.__proto__, property);
+	secure(global, property); secure(global.__proto__, property);
 }
 
 global.addEventListener("message", (event) => {

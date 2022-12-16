@@ -4,16 +4,6 @@ import filesystem from "modules/node.js/filesystem";
 
 import { Window } from "models/chromium";
 
-class StorageState {
-	public readonly path: string;
-	public state: unknown;
-
-	constructor(args: Args<StorageState>) {
-		this.path = args.path;
-		this.state = args.state;
-	}
-}
-
 class Storage extends MappedStateHandler<string, StorageState> {
 	public get state() {
 		return super.state;
@@ -45,17 +35,17 @@ class Storage extends MappedStateHandler<string, StorageState> {
 		});
 	}
 	public change(key: string, value: StorageState["state"]) {
-		if (!this.state.has(key)) throw Error();
+		if (!this.state.has(key)) throw new Error();
 
 		this.modify(key, new StorageState({ path: this.state.get(key)!.path, state: value }));
 	}
 	public register(key: string, path: StorageState["path"], fallback: StorageState["state"]) {
-		if (!this.state.has(key)) throw Error();
+		if (!this.state.has(key)) throw new Error();
 
 		this.modify(key, this.import(path, fallback), (unsafe) => this.export(key));
 	}
 	public unregister(key: string) {
-		if (!this.state.has(key)) throw Error();
+		if (!this.state.has(key)) throw new Error();
 
 		this.modify(key, undefined, (unsafe) => filesystem.delete(this.state.get(key)!.path));
 	}
@@ -68,9 +58,19 @@ class Storage extends MappedStateHandler<string, StorageState> {
 		}
 	}
 	protected export(key: string) {
-		if (!this.state.has(key)) throw Error();
+		if (!this.state.has(key)) throw new Error();
 
 		filesystem.write(this.state.get(key)!.path, JSON.stringify(this.state.get(key)!.state));
+	}
+}
+
+class StorageState {
+	public readonly path: string;
+	public state: unknown;
+
+	constructor(args: Args<StorageState>) {
+		this.path = args.path;
+		this.state = args.state;
 	}
 }
 

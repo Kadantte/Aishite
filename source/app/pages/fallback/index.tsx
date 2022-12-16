@@ -48,7 +48,7 @@ class Fallback extends Stateful<FallbackProps, FallbackState> {
 		);
 	}
 	protected visible() {
-		return structure("tabs").state.pages[structure("tabs").state.index].element.props["data-key"] === (this.props as any)["data-key"];
+		return structure("tabs").page.element.props["data-key"] === (this.props as any)["data-key"];
 	}
 	protected discord() {
 		// skip

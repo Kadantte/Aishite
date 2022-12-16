@@ -113,9 +113,11 @@ class MappedStateCallback<K, V> {
 
 import ctm from "handles/ctm";
 import tabs from "handles/tabs";
+// import options from "handles/options";
 
 function structure(namespace: "ctm"): typeof ctm;
 function structure(namespace: "tabs"): typeof tabs;
+// function structure(namespace: "options"): typeof options;
 
 function structure(namespace: string) {
 	switch (namespace) {
@@ -125,6 +127,9 @@ function structure(namespace: string) {
 		case "tabs": {
 			return tabs;
 		}
+		// case "options": {
+		// 	return options;
+		// }
 		default: {
 			throw new Error();
 		}

@@ -7,6 +7,13 @@
 			"storage"
 		]
 	},
+	"apis": {
+		"search": {
+			"shortcut": {
+				"cg": "type = \"gamecg\" + type = \"artistcg\""
+			}
+		}
+	},
 	"history": {
 		"index": 0,
 		"pages": [
