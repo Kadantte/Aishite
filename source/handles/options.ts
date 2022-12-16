@@ -9,7 +9,8 @@ class Options extends StateHandler<OptionsState> {
 		return super.state;
 	}
 	public set state(state: Args<OptionsState>) {
-		super.state = state;
+		// assign
+		super.state = new OptionsState(state);
 		// update
 		storage.change("settings", super.state);
 	}

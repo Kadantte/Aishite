@@ -12,7 +12,7 @@ class Tabs extends StateHandler<TabsState> {
 	}
 	public set state(state: Tabs["_state"]) {
 		// assign
-		super.state = state;
+		super.state = new TabsState(state);
 		// update
 		update_title();
 		update_settings();

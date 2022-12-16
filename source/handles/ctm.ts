@@ -5,7 +5,8 @@ class ContextMenu extends StateHandler<ContextMenuState> {
 		return super.state;
 	}
 	public set state(state: ContextMenu["_state"]) {
-		super.state = state;
+		// assign
+		super.state = new ContextMenuState(state);
 	}
 	protected create() {
 		// TODO: none
