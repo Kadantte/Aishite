@@ -166,6 +166,8 @@ class Browser extends Stateful<BrowserProps, BrowserState> {
 					onPaging={(index) => {
 						// skip
 						if (!this.visible()) return false;
+						// reset scroll position
+						this.node().querySelector("#display")?.scrollTo({ top: 0 });
 						// this.browse(this.state.search.value, index);
 						this.setState((state) => ({ search: { value: this.state.search.value, index: index } }));
 
