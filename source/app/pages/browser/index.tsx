@@ -38,7 +38,6 @@ interface BrowserState {
 	};
 	gallery: {
 		value: Array<number>;
-		length: number;
 	};
 	highlight: string;
 }
@@ -55,8 +54,7 @@ class Browser extends Stateful<BrowserProps, BrowserState> {
 				items: new Array()
 			},
 			gallery: {
-				value: new Array(),
-				length: 0
+				value: new Array()
 			},
 			highlight: "???"
 		};
@@ -129,9 +127,9 @@ class Browser extends Stateful<BrowserProps, BrowserState> {
 				<Scroll x="hidden" y="auto">
 					<Spacer>
 						<Grid.Layout id="display" gap={20.0} count={5} width={app.max_width / (5 + 1)} offset={{ margin: { left: 20.0, right: 20.0 } }}>
-							{this.state.gallery.value.map((gallery, index) => {
+							{this.state.gallery.value.skip(this.state.search.index * 25).take((this.state.gallery.value.length - this.state.search.index * 25).clamp(0, 25)).map((gallery, index) => {
 								return (
-									<Gallery key={index} gallery={gallery} constraint={{ height: app.min_height - 180.0 - 0.25 }}
+									<Gallery key={this.state.search.index * 25 + index} gallery={gallery} constraint={{ height: app.min_height - 180.0 - 0.25 }}
 										onClick={(tag) => {
 											// cache
 											const input = this.node().getElementsByTagName("input").item(0)!;
@@ -146,7 +144,7 @@ class Browser extends Stateful<BrowserProps, BrowserState> {
 						</Grid.Layout>
 					</Spacer>
 				</Scroll>
-				<Paging enable={!this.state.gallery.value.isEmpty} size={5} index={this.state.search.index} length={this.state.gallery.length} constraint={{ height: 60.0 }} flags={{ visible: this.state.gallery.length > 1 }}
+				<Paging enable={!this.state.gallery.value.isEmpty} size={5} index={this.state.search.index} length={Math.ceil(this.state.gallery.value.length / 25)} constraint={{ height: 60.0 }} flags={{ visible: Math.ceil(this.state.gallery.value.length / 25) > 1 }}
 					builder={(key, index, indexing, handle) => {
 						return (
 							<Button key={key} offset={{ margin: { all: 2.5, top: 7.5, bottom: 7.5 }, padding: { left: 7.5, right: 7.5 } }} constraint={{ minimum: { width: 50.0 } }} decoration={{ corner: { all: 5.0 } }}
@@ -166,9 +164,10 @@ class Browser extends Stateful<BrowserProps, BrowserState> {
 						);
 					}}
 					onPaging={(index) => {
+						// skip
 						if (!this.visible()) return false;
-
-						this.browse(this.state.search.value, index);
+						// this.browse(this.state.search.value, index);
+						this.setState((state) => ({ search: { value: this.state.search.value, index: index } }));
 
 						return true;
 					}}
@@ -186,28 +185,25 @@ class Browser extends Stateful<BrowserProps, BrowserState> {
 			discord.update({ state: "Browsing", details: "Loading...", partyMax: undefined, partySize: undefined });
 		}
 		else {
-			discord.update({ state: "Browsing", details: this.state.search.value, partyMax: this.state.gallery.length, partySize: this.state.search.index + 1 });
+			discord.update({ state: "Browsing", details: this.state.search.value, partyMax: Math.ceil(this.state.gallery.value.length / 25), partySize: this.state.search.index + 1 });
 		}
 	}
 	protected async browse(value: string, index: number = 0, length: number = 25) {
 		return new Promise((resolve, reject) => {
 			// update
-			this.setState((state) => ({ search: { value: value, index: index }, suggest: { items: new Array() }, gallery: { value: new Array(), length: this.state.gallery.length }, highlight: "???" }), () => {
+			this.setState((state) => ({ search: { value: value, index: index }, suggest: { items: new Array() }, gallery: { value: new Array() }, highlight: "???" }), () => {
 				// rich presence
 				this.discord();
 
 				search(value).then((_bundle) => {
 					// cache
-					const [_result, _galleries] = [Array.from(_bundle), new Array()];
-
-					const [_offset, _length] = [index * length, (_result.length - index * length).clamp(0, length)];
-
+					const _result = Array.from(_bundle);
 					// rich presence
 					this.discord();
 					// callback?
 					resolve(_result.length);
 
-					this.setState((state) => ({ gallery: { value: _result.skip(_offset).take(_length), length: Math.ceil(_result.length / length) } }));
+					this.setState((state) => ({ gallery: { value: _result } }));
 				});
 			});
 		});
