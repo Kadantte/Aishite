@@ -6,7 +6,7 @@ import { Tag } from "models/tag";
 import { Pair } from "models/pair";
 import { Endian } from "models/endian";
 
-import { Directory, mirror } from "apis/hitomi.la/private/version";
+import { revision } from "apis/hitomi.la/private/version";
 
 let timestamp = 0;
 
@@ -93,9 +93,10 @@ function unknown_2(buffer: Uint8Array) {
 }
 
 async function unknown_3(directory: string, value: number) {
-	const location = directory === "global" ? Directory.TAG : directory as Directory;
+	// cache
+	const path = directory === "global" ? "tag" : directory;
 
-	return unknown_2(await unknown_4(`https://ltn.hitomi.la/${location}index/${directory}.${await mirror(location)}.index`, value, value + 463));
+	return unknown_2(await unknown_4(`https://ltn.hitomi.la/${path}index/${directory}.${await revision(path)}.index`, value, value + 463));
 }
 
 async function unknown_4(url: string, offset: number, length: number) {
@@ -127,7 +128,7 @@ async function unknown_5(type: string, buffer: Uint8Array, bundle: Bundle): Prom
 
 			if (fragment.first) return new Pair(fragment.second, index);
 		}
-		if (!bundle.buffer.isEmpty) return new Pair(fragment.second, bundle.buffer.length);
+		if (bundle.buffer.isNotEmpty) return new Pair(fragment.second, bundle.buffer.length);
 
 		return new Pair(true, 0);
 	}
@@ -151,7 +152,7 @@ async function unknown_5(type: string, buffer: Uint8Array, bundle: Bundle): Prom
 async function unknown_6(type: string, digits: Pair<number, number>) {
 	if (digits.second <= 0 || digits.second > 10000) throw new Error();
 
-	const response = await unknown_4(`https://ltn.hitomi.la/tagindex/${type}.${await mirror(Directory.TAG)}.data`, digits.first, digits.first + digits.second - 1);
+	const response = await unknown_4(`https://ltn.hitomi.la/tagindex/${type}.${await revision("tag")}.data`, digits.first, digits.first + digits.second - 1);
 
 	const binary = new Binary({ offset: 0, buffer: new DataView(response.buffer) });
 

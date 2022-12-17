@@ -182,67 +182,49 @@ class Gallery extends Stateful<GalleryProps, GalleryState> {
 													</Inline>
 													{/* VALUE */}
 													<Inline flex={true}>
-														{[section.value instanceof Array && section.value.isEmpty ? ["N/A"] : section.value ?? "N/A"].flat().map((chip, index) => {
+														{[section.value instanceof Array && section.value.isEmpty ? ["N/A"] : section.value ?? "N/A"].flat().map((value, index) => {
 															// cache
-															const enable = chip !== "N/A" && section.key !== "title" && section.key !== "date";
+															const button = { enable: value !== "N/A" && section.key !== "title" && section.key !== "date", value: value.toString() };
 
+															switch (section.key) {
+																case "type": {
+																	button.value = button.value.replace(/\s/g, "").toLowerCase();
+																	break;
+																}
+																case "language": {
+																	button.value = Object.keys(languages).filter((language) => languages[language as keyof typeof languages] === button.value)[0];
+																	break;
+																}
+																case "characters":
+																case "artists":
+																case "parody":
+																case "group": {
+																	button.value = button.value.replace(/\s/g, "_");
+																	break;
+																}
+															}
+															
 															return (
 																<Button key={index} offset={{ margin: { all: 3.0 }, padding: { all: 2.5, left: 5.0, right: 5.0 } }} constraint={{ maximum: { width: 69.0 + "%" } }} decoration={{ color: Color.pick(3.0), border: { all: { width: 1.5, style: "solid", color: Color.pick(1.5) } }, corner: { all: 2.5 } }}
 																	onMouseDown={(setStyle) => {
 																		// skip
-																		if (!enable) return;
+																		if (!button.enable) return;
 
-																		let callback: Tag;
-
-																		switch (section.key) {
-																			case "id": {
-																				callback = new Tag({ namespace: section.key, value: Number(chip) });
-																				break;
-																			}
-																			case "type": {
-																				callback = new Tag({ namespace: "type", value: chip.toString().replace(/\s/g, "") });
-																				break;
-																			}
-																			case "language": {
-																				callback = new Tag({ namespace: "language", value: Object.keys(languages).filter((tongue) => languages[tongue as keyof typeof languages] === chip)[0] });
-																				break;
-																			}
-																			case "characters": {
-																				callback = new Tag({ namespace: "character", value: chip.toString() });
-																				break;
-																			}
-																			case "artists": {
-																				callback = new Tag({ namespace: "artist", value: chip.toString() });
-																				break;
-																			}
-																			case "parody": {
-																				callback = new Tag({ namespace: "series", value: chip.toString() });
-																				break;
-																			}
-																			case "tags": {
-																				callback = chip as Tag;
-																				break;
-																			}
-																			default: {
-																				callback = new Tag({ namespace: section.key, value: chip.toString() });
-																				break;
-																			}
-																		}
-																		this.props.onClick?.(callback.toString());
+																		this.props.onClick?.((value instanceof Tag ? value : new Tag({ namespace: section.key, value: button.value })).toString());
 																	}}
 																	onMouseEnter={(setStyle) => {
 																		// skip
-																		if (!enable) return;
+																		if (!button.enable) return;
 
 																		setStyle({ decoration: { color: Color.pick(4.5) } });
 																	}}
 																	onMouseLeave={(setStyle) => {
 																		// skip
-																		if (!enable) return;
+																		if (!button.enable) return;
 
 																		setStyle(undefined);
 																	}}
-																	children={<Text length={100.0 + "%"}>{(chip instanceof Tag ? [{ value: chip.namespace, size: 13.5, color: chip.namespace === "male" ? "cyan" : chip.namespace === "female" ? "pink" : "white" }, { value: ":", size: 13.5 }, { value: chip.value, size: 13.5 }] : [{ value: chip.toString(), size: 13.5, color: enable ? undefined : Color.pick(5.0) }])}</Text>}
+																	children={<Text length={100.0 + "%"}>{(value instanceof Tag ? [{ value: value.namespace, color: value.namespace === "male" ? "cyan" : value.namespace === "female" ? "pink" : "white" }, { value: ":" }, { value: value.value }] : [{ value: button.value, color: button.enable ? undefined : Color.pick(5.0) }]).map((text) => ({ ...text, size: 13.5 }))}</Text>}
 																/>
 															);
 														})}

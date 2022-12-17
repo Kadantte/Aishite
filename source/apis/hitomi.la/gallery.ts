@@ -92,7 +92,7 @@ export async function gallery(id: number) {
 		// cache
 		const text = source.textContent!;
 
-		return new Tag({ namespace: text.includes("♂") ? "male" : text.includes("♀") ? "female" : "tag", value: text.replace("♂", "").replace("♂", "").replace(/\s$/, "").replace(/\s/g, "_") });
+		return new Tag({ namespace: text.includes("♂") ? "male" : text.includes("♀") ? "female" : "tag", value: text.replace("♂", "").replace("♀", "").replace(/\s$/, "").replace(/\s/g, "_") });
 	}));
 
 	metadata.set("date", element.getElementsByClassName("date").item(0)?.textContent);

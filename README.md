@@ -39,16 +39,18 @@ npm run serve
 - **Function Call**
 
 	```html
-	<identifier>(<literal>) or <identifier>(<literal>, ..., <literal>)
+	<identifier>(<literal>) or <identifier>(<literal_1st>, <literal_2nd>..., <literal_nth>)
 	```
 
 - **Literal Value**
 
 	```html
 	<literal> = <number> or <string> or <boolean>
-
+	```
+	
 	e.g.
 
+	```html
 	123
 
 	'example'
@@ -129,4 +131,4 @@ npm run serve
 
 	+ `<id> = <number>` only return single element collection, therefore using **&** operator is not encouraged.
 
-	+ If **parser** fails under any circumstances or result collection is empty, result of `language = "all"` will return as a fallback.
+	+ If parser fails under any circumstances or result collection is empty, result of `language = "all"` will return as a fallback.

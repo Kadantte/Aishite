@@ -45,16 +45,18 @@ npm run serve
 - **함수 호출**
 
 	```html
-	<식별자>(<값_1>, <값_2>, ..., <값_N>)
+	<식별자>(<값_1st>, <값_2nd>, ..., <값_nth>)
 	```
 
 - **값(literal)**
 
 	```html
 	<값> = <숫자> or <정수> or <논리형>
+	```
 
 	e.g.
 
+	```html
 	123
 
 	'example'
@@ -80,7 +82,7 @@ npm run serve
 
 		A 와 B 의 차집합을 연산합니다.
 
-- **Properties**
+- **속성**
 
 	```ts
 	id = <number>
@@ -95,7 +97,7 @@ npm run serve
 	language = <string>
 	```
 
-- **Functions**
+- **함수**
 
 	```ts
 	title(value: <string>)
@@ -121,13 +123,13 @@ npm run serve
 
 	*해당 함수는 무한 재귀 호출의 가능성이 있으며 자원이 많이 소모될 수 있습니다.*
 
-- **Usage**
+- **사용법**
 
 	```ts
 	language = "english" + title("just some title string") + id = 69
 	```
 
-- **Trivia**
+- **기타**
 
 	+ 검색어 처리기는 괄호의 중첩을 지원합니다.
 

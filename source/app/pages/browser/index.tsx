@@ -81,7 +81,7 @@ class Browser extends Stateful<BrowserProps, BrowserState> {
 	protected build() {
 		return (
 			<Column {...this.props} id={this.props.id ?? "browser"}>
-				<Dropdown enable={!this.state.gallery.value.isEmpty} items={this.state.suggest.items.map((suggestion) => [suggestion.first.namespace + ":" + suggestion.first.value, suggestion.second.toString()])} index={0} value={this.props.value === "language = \"all\"" ? undefined : this.props.value} fallback={this.state.search.value.isEmpty ? "language = \"all\"" : this.state.search.value} highlight={this.state.highlight} offset={{ margin: { all: 20.0 } }}
+				<Dropdown enable={this.state.gallery.value.isNotEmpty} items={this.state.suggest.items.map((item) => [item.first.namespace + ":" + item.first.value, item.second.toString()])} index={0} value={this.props.value === "language = \"all\"" ? undefined : this.props.value} fallback={this.state.search.value.isEmpty ? "language = \"all\"" : this.state.search.value} highlight={this.state.highlight} offset={{ margin: { all: 20.0 } }}
 					onReset={() => {
 						suggest("expire");
 
@@ -115,12 +115,12 @@ class Browser extends Stateful<BrowserProps, BrowserState> {
 					onChange={(value) => {
 						suggest("expire");
 
-						if (!this.state.suggest.items.isEmpty) this.setState((state) => ({ suggest: { items: new Array() } }));
+						if (this.state.suggest.items.isNotEmpty) this.setState((state) => ({ suggest: { items: new Array() } }));
 						// silent update
 						this.state.highlight = value.trim().split(space).last ?? "???";
 
-						suggest(this.state.highlight).then((suggestion) => {
-							if (!suggestion.isEmpty) this.setState((state) => ({ suggest: { items: suggestion } }));
+						suggest(this.state.highlight).then((items) => {
+							if (items.isNotEmpty) this.setState((state) => ({ suggest: { items: items } }));
 						});
 					}}
 				/>
@@ -144,7 +144,7 @@ class Browser extends Stateful<BrowserProps, BrowserState> {
 						</Grid.Layout>
 					</Spacer>
 				</Scroll>
-				<Paging enable={!this.state.gallery.value.isEmpty} size={5} index={this.state.search.index} length={Math.ceil(this.state.gallery.value.length / 25)} constraint={{ height: 60.0 }} flags={{ visible: Math.ceil(this.state.gallery.value.length / 25) > 1 }}
+				<Paging enable={this.state.gallery.value.isNotEmpty} size={5} index={this.state.search.index} length={Math.ceil(this.state.gallery.value.length / 25)} constraint={{ height: 60.0 }} flags={{ visible: Math.ceil(this.state.gallery.value.length / 25) > 1 }}
 					builder={(key, index, indexing, handle) => {
 						return (
 							<Button key={key} offset={{ margin: { all: 2.5, top: 7.5, bottom: 7.5 }, padding: { left: 7.5, right: 7.5 } }} constraint={{ minimum: { width: 50.0 } }} decoration={{ corner: { all: 5.0 } }}
@@ -190,7 +190,7 @@ class Browser extends Stateful<BrowserProps, BrowserState> {
 			discord.update({ state: "Browsing", details: this.state.search.value, partyMax: Math.ceil(this.state.gallery.value.length / 25), partySize: this.state.search.index + 1 });
 		}
 	}
-	protected async browse(value: string, index: number = 0, length: number = 25) {
+	protected async browse(value: string, index: number = 0) {
 		return new Promise((resolve, reject) => {
 			// update
 			this.setState((state) => ({ search: { value: value, index: index }, suggest: { items: new Array() }, gallery: { value: new Array() }, highlight: "???" }), () => {

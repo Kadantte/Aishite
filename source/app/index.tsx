@@ -379,7 +379,7 @@ class Controller extends Stateful<ControllerProps, ControllerState> {
 				</>
 				<Button id="open" offset={{ margin: { all: (40.0 - 25.0) * 0.5 } }} constraint={{ width: 25.0, height: 25.0 }} decoration={{ color: Color.pick(2.0), corner: { all: 2.5 } }} flags={{ draggable: false }}
 					onMouseDown={(setStyle) => {
-						structure("tabs").open("NEW TAB", "browser", {});
+						structure("tabs").open("NEW TAB", "BROWSER", {});
 					}}
 					onMouseEnter={(setStyle) => {
 						setStyle({ decoration: { color: Color.pick(4.0) } });

@@ -38,8 +38,8 @@ const boilerplate = {
 					},
 					compress: {
 						ecma: 2020,
-						unsafe: true,
-						drop_console: false
+						module: true,
+						unsafe: true
 					}
 				},
 				parallel: true
