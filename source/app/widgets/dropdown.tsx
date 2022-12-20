@@ -139,7 +139,7 @@ class Dropdown extends Stateful<DropdownProps, DropdownState> {
 					<Container id="items" position={{ top: 100.0 + "%" }} constraint={{ width: 100.0 + "%", maximum: { height: (40.0 * 5) + (5.0 * 6) } }} decoration={{ color: Color.pick(3.0), border: { all: { width: 1.5, style: "solid", color: Color.pick(5.0) }, top: { color: "transparent" } }, corner: { BL: 5.0, BR: 5.0 }, shadow: [{ x: -5.0, y: 0.0, blur: 5.0, spread: -5.0, color: Color.pick(1.0) }, { x: 5.0, y: 0.0, blur: 5.0, spread: -5.0, color: Color.pick(1.0) }, { x: 0.0, y: 5.0, blur: 5.0, spread: -5.0, color: Color.pick(1.0) }] }} flags={{ visible: this.state.focus && !this.props.items.isEmpty }}>
 						{this.props.items.map((item, index) => {
 							// cache
-							const [buffer, fragment] = [new Array(), this.props.highlight ? item[0].split(this.props.highlight) : [item[0]]];
+							const [buffer, fragment] = [new Array(), this.props.highlight ? item.first.split(this.props.highlight) : [item.first]];
 
 							for (let index = 0; index < fragment.length; index++) {
 								if (fragment.length > index + 1) {
@@ -158,13 +158,13 @@ class Dropdown extends Stateful<DropdownProps, DropdownState> {
 							return (
 								<Button key={index} offset={{ margin: { all: 5.0 } }} constraint={{ height: 40.0 }} decoration={{ color: this.state.index === index ? Color.pick(4.5) : Color.pick(3.5), corner: { all: 5.0 } }}
 									onMouseDown={(setStyle) => {
-										this.setState((state) => ({ index: NaN }), () => this.props.onSelect?.(item[0]));
+										this.setState((state) => ({ index: NaN }), () => this.props.onSelect?.(item.first));
 									}}
 									onMouseEnter={(setStyle) => {
 										this.setState((state) => ({ index: index }), () => this.props.onHover?.(index));
 									}}>
 									<Text position={{ left: 15.0 }}>{buffer as Text["props"]["children"]}</Text>
-									<Text position={{ right: 15.0 }}>{[{ value: item[1], color: Color.pick(5.0) }]}</Text>
+									<Text position={{ right: 15.0 }}>{[{ value: item.last, color: Color.pick(5.0) }]}</Text>
 								</Button>
 							);
 						})}

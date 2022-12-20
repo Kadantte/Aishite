@@ -23,7 +23,7 @@ interface ViewerState {
 	control: boolean;
 	gallery: {
 		title: string;
-		files: Await<ReturnType<Await<ReturnType<typeof gallery>>["files"]>>;
+		files: Await<ReturnType<gallery["files"]>>;
 	};
 }
 
@@ -102,16 +102,15 @@ class Viewer extends Stateful<ViewerProps, ViewerState> {
 		if (!this.visible()) return;
 		// discordRPC
 		this.discord();
+		
+		if (this.state.init) return;
+		// silent update
+		this.state.init = true;
 
-		if (!this.state.init) {
-			// silent update
-			this.state.init = true;
+		const _gallery = await gallery(this.props.gallery);
+		const _files = await _gallery.files();
 
-			const _gallery = await gallery(this.props.gallery);
-			const _files = await _gallery.files();
-
-			await this.setState((state) => ({ gallery: { title: _gallery.title, files: _files } }));
-		}
+		await this.setState((state) => ({ gallery: { title: _gallery.title, files: _files } }));
 	}
 	@autobind()
 	protected async onWheel(event: WheelEvent) {

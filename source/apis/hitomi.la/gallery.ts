@@ -58,6 +58,8 @@ class GalleryFile extends GF {
 	}
 }
 
+export type gallery = Await<ReturnType<typeof gallery>>;
+
 export async function gallery(id: number) {
 	// cache
 	const response = await client.GET(`https://ltn.hitomi.la/galleryblock/${id}.html`, "text");

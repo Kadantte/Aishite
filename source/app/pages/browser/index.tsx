@@ -34,7 +34,7 @@ interface BrowserState {
 		index: number;
 	};
 	suggest: {
-		items: Await<ReturnType<typeof suggest>>;
+		items: suggest;
 	};
 	gallery: {
 		value: Array<number>;
@@ -194,13 +194,13 @@ class Browser extends Stateful<BrowserProps, BrowserState> {
 		return new Promise((resolve, reject) => {
 			// update
 			this.setState((state) => ({ search: { value: value, index: index }, suggest: { items: new Array() }, gallery: { value: new Array() }, highlight: "???" }), () => {
-				// rich presence
+				// discordRPC
 				this.discord();
 
 				search(value).then((_bundle) => {
 					// cache
 					const _result = Array.from(_bundle);
-					// rich presence
+					// discordRPC
 					this.discord();
 					// callback?
 					resolve(_result.length);
@@ -214,13 +214,14 @@ class Browser extends Stateful<BrowserProps, BrowserState> {
 	protected async onRender() {
 		// skip
 		if (!this.visible()) return;
+		// discordRPC
+		this.discord();
+		
+		if (this.state.init) return;
+		// silent update
+		this.state.init = true;
 
-		if (!this.state.init) {
-			// silent update
-			this.state.init = true;
-
-			this.browse(this.state.search.value, this.state.search.index);
-		}
+		this.browse(this.state.search.value, this.state.search.index);
 	}
 }
 

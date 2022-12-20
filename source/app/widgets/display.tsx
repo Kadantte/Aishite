@@ -33,10 +33,8 @@ class Display extends Stateful<PageViewProps, PageViewState> {
 				structure("tabs").handle((event) => {
 					// cache
 					const key = event.detail.post.pages[event.detail.post.index].element.key;
-
 					// reorder
 					if (this.state.key === key && event.detail.pre.pages.length === event.detail.post.pages.length) return;
-
 					// re-render
 					this.setState((state) => ({ key: event.detail.post.pages[event.detail.post.index].element.key }));
 					
