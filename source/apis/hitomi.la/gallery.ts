@@ -1,22 +1,23 @@
 import client from "modules/node.js/request";
 
 import { Tag } from "models/tag";
-import { Gallery as G, GalleryFile as GF } from "models/gallery";
+import { Gallery as _Gallery } from "models/gallery";
+import { GalleryFile as _GalleryFile } from "models/gallery";
 
-let gg_js: string;
-let common_js: string;
+let ggJS: string;
+let commonJS: string;
 
 client.GET("https://ltn.hitomi.la/gg.js", "text").then((response) => {
 	// update
-	gg_js = "var\u0020gg;" + response.body.split("\n").filter((section) => !/if\s\([\D\d]+\)\s{\sreturn\s[\d]+;\s}/.test(section)).join("\n");
+	ggJS = "var\u0020gg;" + response.body.split("\n").filter((section) => !/if\s\([\D\d]+\)\s{\sreturn\s[\d]+;\s}/.test(section)).join("\n");
 });
 
 client.GET("https://ltn.hitomi.la/common.js", "text").then((response) => {
 	// update
-	common_js = response.body.split("\nfunction\u0020").filter((section) => /^(subdomain_from_url|url_from_url|full_path_from_hash|real_full_path_from_hash|url_from_hash|url_from_url_from_hash|rewrite_tn_paths)/.test(section)).map((section) => "function" + space + section).join("");
+	commonJS = response.body.split("\nfunction\u0020").filter((section) => /^(subdomain_from_url|url_from_url|full_path_from_hash|real_full_path_from_hash|url_from_hash|url_from_url_from_hash|rewrite_tn_paths)/.test(section)).map((section) => "function" + space + section).join("");
 });
 
-class Gallery extends G {
+class Gallery extends _Gallery {
 	public readonly characters: Array<string>;
 
 	constructor(args: Args<Gallery>) {
@@ -35,16 +36,16 @@ class Gallery extends G {
 
 		const cache = new Array<GalleryFile>();
 
-		await until(() => gg_js !== undefined && common_js !== undefined);
+		await until(() => ggJS !== undefined && commonJS !== undefined);
 
 		for (const file of metadata["files"]) {
-			cache.push(new GalleryFile({ url: await execute(gg_js + common_js + "url_from_url_from_hash(id, file, \"webp\", undefined, \"a\");", { id: this.id, file: file }) as string, name: file["name"], width: file["width"], height: file["height"] }));
+			cache.push(new GalleryFile({ url: await execute(ggJS + commonJS + "url_from_url_from_hash(id, file, \"webp\", undefined, \"a\");", { id: this.id, file: file }) as string, name: file["name"], width: file["width"], height: file["height"] }));
 		}
 		return cache;
 	}
 }
 
-class GalleryFile extends GF {
+class GalleryFile extends _GalleryFile {
 	public readonly name: string;
 	public readonly width: number;
 	public readonly height: number;
@@ -64,9 +65,9 @@ export async function gallery(id: number) {
 	// cache
 	const response = await client.GET(`https://ltn.hitomi.la/galleryblock/${id}.html`, "text");
 
-	await until(() => gg_js !== undefined && common_js !== undefined);
+	await until(() => ggJS !== undefined && commonJS !== undefined);
 
-	const element = new DOMParser().parseFromString((await execute(gg_js + common_js + "rewrite_tn_paths(response.body);", { response: response }) as string).replace(/\s\s+/g, "").replace(/\n/g, ""), "text/html");
+	const element = new DOMParser().parseFromString((await execute(ggJS + commonJS + "rewrite_tn_paths(response.body);", { response: response }) as string).replace(/\s\s+/g, "").replace(/\n/g, ""), "text/html");
 
 	const metadata = new Map<string, unknown>(Object.entries({}));
 

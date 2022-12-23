@@ -1,7 +1,52 @@
 const [global, available] = [this, new Set()];
 
-for (const property of ["self", "global", "available", "eval", "console", "onmessage", "postMessage", "Array", "Boolean", "Date", "Function", "Number", "Object", "RegExp", "String", "Error", "EvalError", "RangeError", "ReferenceError", "SyntaxError", "TypeError", "URIError", "decodeURI", "decodeURIComponent", "encodeURI", "encodeURIComponent", "isFinite", "isNaN", "parseFloat", "parseInt", "Infinity", "JSON", "Math", "NaN", "undefined"]) {
-	available.add(property);
+for (const name of [
+	// variables
+	"self",
+	"global",
+	"available",
+	// functions
+	"eval",
+	"console",
+	"onmessage",
+	"postMessage",
+	// classes
+	"Date",
+	"Array",
+	"Object",
+	"Number",
+	"String",
+	"Boolean",
+	"Function",
+	"RegExp",
+	// errors
+	"Error",
+	"URIError",
+	"EvalError",
+	"TypeError",
+	"RangeError",
+	"SyntaxError",
+	"ReferenceError",
+	// URI utils
+	"decodeURI",
+	"decodeURIComponent",
+	"encodeURI",
+	"encodeURIComponent",
+	// type check
+	"isNaN",
+	"isFinite",
+	// type converstion
+	"parseInt",
+	"parseFloat",
+	// libs
+	"Math",
+	"JSON",
+	// values
+	"NaN",
+	"Infinity",
+	"undefined"
+]) {
+	available.add(name);
 }
 
 function secure(target, property) {

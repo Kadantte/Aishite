@@ -1,7 +1,7 @@
 {
 	"name": "daisuki",
 	"main": "build/main.js",
-	"version": "2.2.1",
+	"version": "2.2.2",
 	"description": "thine shine I'll be",
 	"scripts": {
 		"serve": "set NODE_ENV=development && node webpack/serve.js",
@@ -16,7 +16,7 @@
 		"@types/discord-rpc": "4.0.3",
 		"@types/node": "18.11.17",
 		"@types/react": "18.0.26",
-		"@types/react-dom": "18.0.9",
+		"@types/react-dom": "18.0.10",
 		"discord-rpc": "4.0.1",
 		"electron": "22.0.0",
 		"electron-builder": "23.6.0",
