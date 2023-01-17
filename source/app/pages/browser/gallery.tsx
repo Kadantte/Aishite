@@ -51,7 +51,7 @@ interface GalleryProps extends Props.Clear<undefined>, Props.Style {
 interface GalleryState {
 	init: boolean;
 	offset: number;
-	gallery: Discard<Await<ReturnType<typeof gallery>>>;
+	gallery: Unset<Await<ReturnType<typeof gallery>>>;
 	foreground: Lelouch;
 	background: Lamperouge;
 }
@@ -89,10 +89,7 @@ class Gallery extends Stateful<GalleryProps, GalleryState> {
 								// callback hell...
 								this.setState((state) => ({ gallery: _gallery }), () => {
 									// please end this nest
-									if (structure("ctm").state.id === this.props.gallery.toString()) {
-										// refresh ctm
-										this.contextmenu(structure("ctm").state.x, structure("ctm").state.y);
-									}
+									if (structure("ctm").state.id === this.props.gallery.toString()) structure("ctm").refresh();
 								});
 							});
 						});
@@ -120,23 +117,63 @@ class Gallery extends Stateful<GalleryProps, GalleryState> {
 			}
 		};
 	}
+	protected items() {
+		return [
+			{
+				role: "Copy URL", toggle: this.state.gallery !== undefined, method: async () => {
+					if (this.state.gallery === undefined) return;
+
+					navigator.clipboard.write([new ClipboardItem({ "text/plain": new Blob([this.state.gallery.URL()], { type: "text/plain" }) })]);
+				}
+			},
+			"seperator" as "seperator",
+			{
+				role: "Download", toggle: false, method: async () => {
+					throw new Error("Unimplemented");
+				}
+			},
+			{
+				role: "Bookmark", toggle: false, method: async () => {
+					throw new Error("Unimplemented");
+				}
+			},
+			"seperator" as "seperator",
+			{
+				role: "Open in Viewer", toggle: this.state.gallery !== undefined, method: async () => {
+					if (this.state.gallery === undefined) return;
+
+					structure("tabs").open(this.state.gallery.title, "VIEWER", { gallery: this.state.gallery.id });
+				}
+			},
+			{
+				role: "Open in External Browser", toggle: this.state.gallery !== undefined, method: async () => {
+					if (this.state.gallery === undefined) return;
+
+					chromium.open_url(this.state.gallery.URL());
+				}
+			}
+		];
+	}
 	protected build() {
 		return (
 			<section id="wrapper"
 				onContextMenu={(event) => {
-					this.contextmenu(event.pageX, event.pageY);
+					// prevent ctm override
+					event.stopPropagation();
+
+					structure("ctm").render(this.props.gallery.toString(), event.pageX, event.pageY, this.items());
 				}}>
-				{this.state.init ? this.build_1() : this.build_0()}
+				{this.state.init ? this.build_2nd() : this.build_1st()}
 			</section>
 		);
 	}
-	protected build_0() {
+	protected build_1st() {
 		return (
 			<Container {...this.props} id={this.props.id ?? "gallery"} decoration={{ color: Color.pick(2.5), border: { all: { width: 1.5, style: "solid", color: Color.pick(3.0) } }, corner: { all: 10.0 } }}></Container>
 		);
 	}
-	protected build_1() {
-		if (!this.state.gallery) return this.build_0();
+	protected build_2nd() {
+		if (!this.state.gallery) return this.build_1st();
 
 		return (
 			<Container {...this.props} id={this.props.id ?? "gallery"} decoration={{ color: Color.pick(2.5), border: { all: { width: 1.5, style: "solid", color: Color.pick(3.0) } }, corner: { all: 10.0 } }}
@@ -203,14 +240,14 @@ class Gallery extends Stateful<GalleryProps, GalleryState> {
 																	break;
 																}
 															}
-															
+
 															return (
 																<Button key={index} offset={{ margin: { all: 3.0 }, padding: { all: 2.5, left: 5.0, right: 5.0 } }} constraint={{ maximum: { width: 69.0 + "%" } }} decoration={{ color: Color.pick(3.0), border: { all: { width: 1.5, style: "solid", color: Color.pick(1.5) } }, corner: { all: 2.5 } }}
 																	onMouseDown={(setStyle) => {
 																		// skip
 																		if (!button.enable) return;
 
-																		this.props.onClick?.((value instanceof Tag ? value : new Tag({ namespace: section.key, value: button.value })).toString());
+																		this.props.onClick?.((value instanceof Tag ? value : new Tag({ key: section.key, value: button.value })).toString());
 																	}}
 																	onMouseEnter={(setStyle) => {
 																		// skip
@@ -224,7 +261,7 @@ class Gallery extends Stateful<GalleryProps, GalleryState> {
 
 																		setStyle(undefined);
 																	}}
-																	children={<Text length={100.0 + "%"}>{(value instanceof Tag ? [{ value: value.namespace, color: value.namespace === "male" ? "cyan" : value.namespace === "female" ? "pink" : "white" }, { value: ":" }, { value: value.value }] : [{ value: button.value, color: button.enable ? undefined : Color.pick(5.0) }]).map((text) => ({ ...text, size: 13.5 }))}</Text>}
+																	children={<Text length={100.0 + "%"}>{(value instanceof Tag ? [{ value: value.key, color: value.key === "male" ? "cyan" : value.key === "female" ? "pink" : "white" }, { value: ":" }, { value: value.value }] : [{ value: button.value, color: button.enable ? undefined : Color.pick(5.0) }]).map((text) => ({ ...text, size: 13.5 }))}</Text>}
 																/>
 															);
 														})}
@@ -318,51 +355,6 @@ class Gallery extends Stateful<GalleryProps, GalleryState> {
 				</Container>
 			</Container>
 		);
-	}
-	protected contextmenu(x: number, y: number) {
-		structure("ctm").state = {
-			id: this.props.gallery.toString(),
-			x: x,
-			y: y,
-			items: [
-				{
-					role: "Copy URL",
-					toggle: this.state.gallery !== undefined,
-					method: () => {
-						navigator.clipboard.write([new ClipboardItem({ "text/plain": new Blob([this.state.gallery!.URL()], { type: "text/plain" }) })]);
-					}
-				},
-				"seperator",
-				{
-					role: "Download",
-					toggle: false,
-					method: () => {
-						throw new Error("Unimplemented");
-					}
-				},
-				{
-					role: "Bookmark",
-					toggle: false,
-					method: () => {
-						throw new Error("Unimplemented");
-					}
-				},
-				"seperator",
-				{
-					role: "Open in Viewer",
-					toggle: this.state.gallery !== undefined,
-					method: () => {
-						structure("tabs").open(this.state.gallery!.title, "viewer", { gallery: this.state.gallery!.id });
-					}
-				},
-				{
-					role: "Open in External Browser",
-					toggle: this.state.gallery !== undefined,
-					method: () => {
-						chromium.open_url(this.state.gallery!.URL());
-					}
-				}]
-		};
 	}
 }
 

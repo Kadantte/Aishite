@@ -313,7 +313,7 @@ class Parser {
 	}
 	protected async fallback(): Promise<Set<number>> {
 		// cache
-		if (!this._table.has("language==all")) this._table.set("language==all", new Set(await unknown_0(null, new Tag({ namespace: "index", value: "all" }))));
+		if (!this._table.has("language==all")) this._table.set("language==all", new Set(await unknown_0(null, new Tag({ key: "index", value: "all" }))));
 
 		return this._table.get("language==all")!;
 	}
@@ -351,38 +351,38 @@ class _Function {
 	}
 }
 
-function built_in(namespace: string) {
-	switch (namespace) {
+function built_in(key: string) {
+	switch (key) {
 		// property
 		case "id": {
 			return new _Property(Symbol.N_LITERAL, async (token_0) => [token_0.value as number]);
 		}
 		case "male": {
-			return new _Property(Symbol.S_LITERAL, async (token_0) => unknown_0("tag", new Tag({ namespace: "male:" + token_0.value as string, value: "all" })));
+			return new _Property(Symbol.S_LITERAL, async (token_0) => unknown_0("tag", new Tag({ key: "male:" + token_0.value as string, value: "all" })));
 		}
 		case "female": {
-			return new _Property(Symbol.S_LITERAL, async (token_0) => unknown_0("tag", new Tag({ namespace: "female:" + token_0.value as string, value: "all" })));
+			return new _Property(Symbol.S_LITERAL, async (token_0) => unknown_0("tag", new Tag({ key: "female:" + token_0.value as string, value: "all" })));
 		}
 		case "type": {
-			return new _Property(Symbol.S_LITERAL, async (token_0) => unknown_0("type", new Tag({ namespace: token_0.value as string, value: "all" })));
+			return new _Property(Symbol.S_LITERAL, async (token_0) => unknown_0("type", new Tag({ key: token_0.value as string, value: "all" })));
 		}
 		case "group": {
-			return new _Property(Symbol.S_LITERAL, async (token_0) => unknown_0("group", new Tag({ namespace: token_0.value as string, value: "all" })));
+			return new _Property(Symbol.S_LITERAL, async (token_0) => unknown_0("group", new Tag({ key: token_0.value as string, value: "all" })));
 		}
 		case "series": {
-			return new _Property(Symbol.S_LITERAL, async (token_0) => unknown_0("series", new Tag({ namespace: token_0.value as string, value: "all" })));
+			return new _Property(Symbol.S_LITERAL, async (token_0) => unknown_0("series", new Tag({ key: token_0.value as string, value: "all" })));
 		}
 		case "artist": {
-			return new _Property(Symbol.S_LITERAL, async (token_0) => unknown_0("artist", new Tag({ namespace: token_0.value as string, value: "all" })));
+			return new _Property(Symbol.S_LITERAL, async (token_0) => unknown_0("artist", new Tag({ key: token_0.value as string, value: "all" })));
 		}
 		case "popular": {
-			return new _Property(Symbol.S_LITERAL, async (token_0) => unknown_0("popular", new Tag({ namespace: token_0.value as string, value: "all" })));
+			return new _Property(Symbol.S_LITERAL, async (token_0) => unknown_0("popular", new Tag({ key: token_0.value as string, value: "all" })));
 		}
 		case "character": {
-			return new _Property(Symbol.S_LITERAL, async (token_0) => unknown_0("character", new Tag({ namespace: token_0.value as string, value: "all" })));
+			return new _Property(Symbol.S_LITERAL, async (token_0) => unknown_0("character", new Tag({ key: token_0.value as string, value: "all" })));
 		}
 		case "language": {
-			return new _Property(Symbol.S_LITERAL, async (token_0) => unknown_0(null, new Tag({ namespace: "index", value: token_0.value as string })));
+			return new _Property(Symbol.S_LITERAL, async (token_0) => unknown_0(null, new Tag({ key: "index", value: token_0.value as string })));
 		}
 		// function
 		case "title": {
@@ -416,7 +416,7 @@ function built_in(namespace: string) {
 }
 
 async function unknown_0(directory: Nullable<string>, tag: Tag) {
-	const response = await client.GET(`https://${["ltn.hitomi.la", "n", directory, `${tag.namespace.replace(/_/g, space)}-${tag.value.replace(/_/g, space)}`].filter((element) => element).join("/")}.nozomi`, "arraybuffer");
+	const response = await client.GET(`https://${["ltn.hitomi.la", "n", directory, `${tag.key.replace(/_/g, space)}-${tag.value.replace(/_/g, space)}`].filter((element) => element).join("/")}.nozomi`, "arraybuffer");
 
 	switch (response.status.code) {
 		case 200:

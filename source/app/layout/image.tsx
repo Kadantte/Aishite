@@ -33,6 +33,36 @@ class Image extends Stateful<ImageProps, ImageState> {
 	protected postCSS(): React.CSSProperties {
 		return {};
 	}
+	protected items() {
+		return [
+			{
+				role: "Copy", toggle: this.state.loaded, method: async () => {
+					// cache
+					const blob = await new Promise<Blob>((resolve, reject) => this.canvas().toBlob((blob) => resolve(blob!)));
+
+					navigator.clipboard.write([new ClipboardItem({ [blob.type]: blob })]);
+				}
+			},
+			{
+				role: "Copy Link", toggle: true, method: async () => {
+					// clipboard
+					navigator.clipboard.write([new ClipboardItem({ "text/plain": new Blob([this.props.source], { type: "text/plain" }) })]);
+				}
+			},
+			"seperator" as "seperator",
+			{
+				role: "Save image as", toggle: this.state.loaded, method: async () => {
+					// cache
+					const button = document.createElement("a");
+
+					button.href = this.canvas().toDataURL("image/png");
+					button.download = "image.png";
+
+					button.click();
+				}
+			}
+		];
+	}
 	protected build() {
 		return (
 			<img id={this.props.id ?? "image"} src={transparent} draggable={false}
@@ -57,10 +87,7 @@ class Image extends Stateful<ImageProps, ImageState> {
 						// update
 						this.state.loaded = true;
 
-						if (structure("ctm").state.id === this.props.source) {
-							// refresh ctm
-							this.contextmenu(structure("ctm").state.x, structure("ctm").state.y);
-						}
+						if (structure("ctm").state.id === this.props.source) structure("ctm").refresh();
 
 						this.props.onLoad?.();
 					}
@@ -73,7 +100,10 @@ class Image extends Stateful<ImageProps, ImageState> {
 					this.props.onError?.();
 				}}
 				onContextMenu={(event) => {
-					this.contextmenu(event.pageX, event.pageY);
+					// prevent ctm override
+					event.stopPropagation();
+
+					structure("ctm").render(this.props.source, event.pageX, event.pageY, this.items());
 				}}
 			/>
 		);
@@ -91,45 +121,6 @@ class Image extends Stateful<ImageProps, ImageState> {
 		context?.drawImage(image, 0, 0);
 
 		return canvas;
-	}
-	protected contextmenu(x: number, y: number) {
-		structure("ctm").state = {
-			id: this.props.source,
-			x: x,
-			y: y,
-			items: [{
-				role: "Copy",
-				toggle: this.state.loaded,
-				method: async () => {
-					// cache
-					const blob = await new Promise<Blob>((resolve, reject) => this.canvas().toBlob((blob) => resolve(blob!)));
-
-					navigator.clipboard.write([new ClipboardItem({ [blob.type]: blob })]);
-				}
-			},
-			{
-				role: "Copy Link",
-				toggle: true,
-				method: async () => {
-					// clipboard
-					navigator.clipboard.write([new ClipboardItem({ "text/plain": new Blob([this.props.source], { type: "text/plain" }) })]);
-				}
-			},
-				"seperator",
-			{
-				role: "Save image as",
-				toggle: this.state.loaded,
-				method: async () => {
-					// cache
-					const button = document.createElement("a");
-
-					button.href = this.canvas().toDataURL("image/png");
-					button.download = "image.png";
-
-					button.click();
-				}
-			}]
-		};
 	}
 }
 

@@ -81,7 +81,7 @@ class Browser extends Stateful<BrowserProps, BrowserState> {
 	protected build() {
 		return (
 			<Column {...this.props} id={this.props.id ?? "browser"}>
-				<Dropdown enable={this.state.gallery.value.isNotEmpty} items={this.state.suggest.items.map((item) => [item.first.namespace + ":" + item.first.value, item.second.toString()])} index={0} value={this.props.value === "language = \"all\"" ? undefined : this.props.value} fallback={this.state.search.value.isEmpty ? "language = \"all\"" : this.state.search.value} highlight={this.state.highlight} offset={{ margin: { all: 20.0 } }}
+				<Dropdown enable={this.state.gallery.value.isNotEmpty} items={this.state.suggest.items.map((item) => [item.first.key + ":" + item.first.value, item.second.toString()])} index={0} value={this.props.value === "language = \"all\"" ? undefined : this.props.value} fallback={this.state.search.value.isEmpty ? "language = \"all\"" : this.state.search.value} highlight={this.state.highlight} offset={{ margin: { all: 20.0 } }}
 					onReset={() => {
 						suggest("expire");
 

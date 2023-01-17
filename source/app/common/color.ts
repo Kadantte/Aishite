@@ -4,9 +4,9 @@ class Color {
 		public readonly G: number,
 		public readonly B: number
 	) {
-		this.R = R.clamp(0, 255);
-		this.G = G.clamp(0, 255);
-		this.B = B.clamp(0, 255);
+		this.R = Math.round(R.clamp(0, 255));
+		this.G = Math.round(G.clamp(0, 255));
+		this.B = Math.round(B.clamp(0, 255));
 	}
 	public toString() {
 		return "#" + [this.R, this.G, this.B].map((value) => value.toString(16)).join("");
@@ -28,14 +28,28 @@ class Palette {
 		this._minimum = minimum;
 	}
 	public pick(index: number) {
-		if (this._cache.has(index)) return this._cache.get(index)!.toString();
-
-		const color = new Color(Math.round(this._minimum.R + this._R * index), Math.round(this._minimum.G + this._G * index), Math.round(this._minimum.B + this._B * index));
-
-		this._cache.set(index, color);
+		// cache
+		const color = this._cache.get(index) ?? new Color(
+			Math.round(this._minimum.R + this._R * index),
+			Math.round(this._minimum.G + this._G * index),
+			Math.round(this._minimum.B + this._B * index)
+		);
+		
+		if (!this._cache.has(index)) this._cache.set(index, color);
 
 		return color.toString();
 	}
 }
 
-export default new Palette(new Color(0x11, 0x11, 0x11), new Color(0xA0, 0xA0, 0xA0));
+export default new Palette(
+	new Color(
+		0x11,
+		0x11,
+		0x11
+	),
+	new Color(
+		0xA0,
+		0xA0,
+		0xA0
+	)
+);

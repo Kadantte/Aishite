@@ -46,17 +46,17 @@ class App extends Stateful<AppProps, AppState> {
 		return {
 			DID_MOUNT: () => {
 				// cache
-				const contextmenu = document.getElementById("contextmenu") as HTMLElement;
+				const ctm = document.getElementById("contextmenu") as HTMLElement;
 
 				structure("ctm").handle((state) => {
 					this.setState((state) => ({ contextmenu: true }), () => {
 						// cache
 						const [x, y] = [
-							state.detail.post.x + contextmenu.getBoundingClientRect().width >= window.innerWidth,
-							state.detail.post.y + contextmenu.getBoundingClientRect().height >= window.innerHeight
+							state.detail.post.x + ctm.getBoundingClientRect().width >= window.innerWidth,
+							state.detail.post.y + ctm.getBoundingClientRect().height >= window.innerHeight
 						];
 						// update
-						contextmenu.style.setProperty("transform", "translate(" + [x, y].map((toggle) => toggle ? "-100%" : "0%").join(comma) + ")");
+						ctm.style.setProperty("transform", "translate(" + [x, y].map((toggle) => toggle ? "-100%" : "0%").join(comma) + ")");
 					});
 				});
 
@@ -64,35 +64,63 @@ class App extends Stateful<AppProps, AppState> {
 				chromium.handle(Window.Event.MAXIMIZE, (event) => this.setState((state) => ({ maximize: true })));
 				chromium.handle(Window.Event.UNMAXIMIZE, (event) => this.setState((state) => ({ maximize: false })));
 				chromium.handle(Window.Event.CONTEXTMENU, (event) => {
-					structure("ctm").state = {
-						id: "NATIVE",
-						x: event.detail[0].x,
-						y: event.detail[0].y,
-						items: [
+					structure("ctm").render("native", event.detail[0].x, event.detail[0].y,
+						[
 							{
-								role: "New Tab",
-								toggle: true,
-								method: () => {
+								role: "New Tab", toggle: true, method: async () => {
 									structure("tabs").open("NEW TAB", "BROWSER", {});
 								}
 							},
 							"seperator",
 							{
-								role: "Close All Tabs",
-								toggle: true,
-								method: () => {
+								role: "Close All Tabs", toggle: true, method: async () => {
 									structure("tabs").reset();
 								}
-							},
+							}
 						]
-					};
+					);
 				});
 				chromium.handle(Window.Event.ENTER_FULL_SCREEN, (event) => this.setState((state) => ({ fullscreen: true })));
 				chromium.handle(Window.Event.LEAVE_FULL_SCREEN, (event) => this.setState((state) => ({ fullscreen: false })));
 
-				window.addEventListener("wheel", (event) => this.setState((state) => ({ contextmenu: false }), () => Object.defineProperty(structure("ctm").state, "id", { value: "???" })));
-				window.addEventListener("keydown", (event) => { if (event.key === "w" && !event.altKey && event.ctrlKey && !event.shiftKey) structure("tabs").close(); });
-				window.addEventListener("mousedown", (event) => this.setState((state) => ({ contextmenu: false }), () => Object.defineProperty(structure("ctm").state, "id", { value: "???" })));
+				window.addEventListener("wheel", (event) => {
+					this.setState((state) => ({ contextmenu: false }), () => Object.defineProperty(structure("ctm").state, "id", { value: "???" }));
+				});
+				window.addEventListener("keydown", (event) => {
+					if (event.key === "w" && !event.altKey && event.ctrlKey && !event.shiftKey) structure("tabs").close();
+				});
+				window.addEventListener("mousedown", (event) => {
+					this.setState((state) => ({ contextmenu: false }), () => Object.defineProperty(structure("ctm").state, "id", { value: "???" }));
+				});
+
+				let [idle, timeout] = [false, undefined as Unset<NodeJS.Timeout>];
+
+				const start_idle = (duration: number = 2000) => {
+					timeout = setTimeout(() => { idle = true; timeout = undefined; if (!this.state.contextmenu) document.body.style.cursor = "none"; }, duration);
+				}
+
+				window.addEventListener("mousedown", (event) => {
+					if (timeout) {
+						clearTimeout(timeout);
+					}
+					start_idle();
+				});
+				window.addEventListener("mousemove", (event) => {
+					if (timeout) {
+						clearTimeout(timeout);
+					}
+					if (idle) {
+						idle = false;
+						if (!this.state.contextmenu) document.body.style.cursor = "default";
+					}
+					start_idle();
+				});
+				window.addEventListener("contextmenu", (event) => {
+					if (idle) {
+						idle = false;
+						if (this.state.contextmenu) document.body.style.cursor = "default";
+					}
+				});
 			}
 		};
 	}
@@ -233,7 +261,10 @@ interface ControllerState {
 
 class Controller extends Stateful<ControllerProps, ControllerState> {
 	protected create() {
-		return ({ index: structure("tabs").state.index, handle: undefined });
+		return {
+			index: structure("tabs").state.index,
+			handle: undefined
+		};
 	}
 	protected events() {
 		return {
@@ -284,7 +315,7 @@ class Controller extends Stateful<ControllerProps, ControllerState> {
 				window.addEventListener("mousemove", (event) => {
 					if (this.state.handle) {
 						// extra space
-						const margin = 0;
+						const margin = 0.0;
 
 						// x-axis check
 						if (event.clientX < this.state.handle.left - margin) return;

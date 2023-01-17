@@ -7,18 +7,13 @@ import { Window } from "models/chromium";
 
 let window: BrowserWindow;
 
-const [instance, shortcut] = [app.requestSingleInstanceLock(), new Array() as Parameters<typeof Menu.buildFromTemplate>[0]];
+const [instance, shortcut] = [app.requestSingleInstanceLock(), [{ role: "toggleDevTools" }, { role: "togglefullscreen" }] as Parameters<typeof Menu.buildFromTemplate>[0]];
 
 if (!instance) {
 	app.quit();
 }
 
-if (app.isPackaged) {
-	shortcut.push({ role: "togglefullscreen" });
-}
-else {
-	shortcut.push({ role: "toggleDevTools" });
-	shortcut.push({ role: "togglefullscreen" });
+if (!app.isPackaged) {
 	//
 	// hot-reload
 	//
@@ -74,7 +69,7 @@ app.on("ready", () => {
 			// allow webworker interacts with nodejs
 			nodeIntegrationInWorker: true
 		},
-		backgroundColor: "#00000000"
+		backgroundColor: "black"
 	});
 	//
 	// debug

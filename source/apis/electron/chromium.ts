@@ -111,7 +111,7 @@ ipcRenderer.on("console", (event, ...args) => {
 	print(...args);
 });
 ipcRenderer.on(Window.Event.BLUR, (event, ...args) => {
-	chromium.signal(Window.Event.BLUR, args);
+	chromium.signal(Window.Event.BLUR, ...args);
 });
 ipcRenderer.on(Window.Event.FOCUS, (event, ...args) => {
 	chromium.signal(Window.Event.BLUR, ...args);

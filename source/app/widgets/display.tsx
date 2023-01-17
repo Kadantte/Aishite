@@ -24,7 +24,7 @@ interface PageViewState {
 class Display extends Stateful<PageViewProps, PageViewState> {
 	protected create() {
 		return {
-			key: structure("tabs").page.element.key
+			key: structure("tabs").peek().element.key
 		};
 	}
 	protected events() {

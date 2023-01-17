@@ -76,10 +76,7 @@ for (const property of ["fetch"]) {
 }
 
 global.addEventListener("message", (event) => {
-	// cache
-	const { script, variables } = event.data;
-	
-	for (const [key, value] of Object.entries(variables)) {
+	for (const [key, value] of Object.entries(event.data.variables)) {
 		Object.defineProperty(global, key, {
 			get() {
 				return value;
@@ -87,9 +84,8 @@ global.addEventListener("message", (event) => {
 			configurable: true
 		});
 	}
-
 	try {
-		postMessage(eval("\"use strict\";" + script));
+		postMessage(eval("\"use strict\";" + event.data.script));
 	}
 	catch (error) {
 		postMessage(error);

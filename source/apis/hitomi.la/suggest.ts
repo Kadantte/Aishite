@@ -37,7 +37,7 @@ async function unknown_0(value: string) {
 
 	const UUID = timestamp;
 	//
-	// 0: namespace
+	// 0: key 
 	// 1: value
 	//
 	const fragment = value.includes(":") ? value.split(":") : ["global", value];
@@ -169,13 +169,13 @@ async function unknown_6(type: string, digits: Pair<number, number>) {
 
 	for (let index = 0; index < _0; index++) {
 		// cache
-		let namespace = "", value = "";
+		let key = "", value = "";
 
 		const _1 = binary.buffer.getInt32(binary.offset, Endian.BIG);
 		binary.offset += 4;
 
 		for (let _index = 0; _index < _1; _index++) {
-			namespace += String.fromCharCode(binary.buffer.getUint8(binary.offset));
+			key += String.fromCharCode(binary.buffer.getUint8(binary.offset));
 			binary.offset += 1;
 		}
 
@@ -187,7 +187,7 @@ async function unknown_6(type: string, digits: Pair<number, number>) {
 			binary.offset += 1;
 		}
 
-		result.push(new Pair(new Tag({ namespace: namespace, value: value }), binary.buffer.getUint32(binary.offset, Endian.BIG)));
+		result.push(new Pair(new Tag({ key: key, value: value }), binary.buffer.getUint32(binary.offset, Endian.BIG)));
 		binary.offset += 4;
 	}
 	

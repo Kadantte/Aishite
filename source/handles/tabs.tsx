@@ -10,7 +10,7 @@ class Tabs extends StateHandler<TabsState> {
 	public get state() {
 		return super.state;
 	}
-	public set state(state: Tabs["_state"]) {
+	protected set state(state: Tabs["_state"]) {
 		// assign
 		super.state = new TabsState(state);
 		// update
@@ -19,9 +19,9 @@ class Tabs extends StateHandler<TabsState> {
 	}
 	protected create() {
 		// update
-		update_title(this.page);
+		update_title(this.peek());
 	}
-	public get page() {
+	public peek() {
 		return this.state.pages[this.state.index];
 	}
 	/** Back to initial state. */
@@ -103,13 +103,13 @@ const cache = new Map<string, Nullable<React.Component>>();
 
 function unique(): string {
 	// cache
-	const namespace = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+	const key = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
 	// prevent duplication
-	if (cache.has(namespace)) {
+	if (cache.has(key)) {
 		// recursive
 		return unique();
 	}
-	return namespace;
+	return key;
 }
 
 function proxy(uuid: string, ref: Nullable<React.Component>) {
@@ -128,15 +128,15 @@ function builder(title: string, type: string, args: Record<string, unknown>, uui
 
 	switch (type.toUpperCase()) {
 		case "FALLBACK": {
-			page.element = (<Fallback ref={(ref) => proxy(uuid, ref)} key={uuid} data-key={uuid} {...options.state.override.fallback}></Fallback>);
+			page.element = (<Fallback ref={(ref) => proxy(uuid, ref)} key={uuid} data-key={uuid} {...options.state.override["fallback"]}></Fallback>);
 			break;
 		}
 		case "BROWSER": {
-			page.element = (<Browser ref={(ref) => proxy(uuid, ref)} key={uuid} data-key={uuid} index={args.index as number ?? 0} value={args.value as string ?? "language = \"all\""} {...options.state.override.browser}></Browser>);
+			page.element = (<Browser ref={(ref) => proxy(uuid, ref)} key={uuid} data-key={uuid} index={args.index as number ?? 0} value={args.value as string ?? "language = \"all\""} {...options.state.override["browser"]}></Browser>);
 			break;
 		}
 		case "VIEWER": {
-			page.element = (<Viewer ref={(ref) => proxy(uuid, ref)} key={uuid} data-key={uuid} width={args.width as number ?? app.min_width} gallery={args.gallery as number ?? 0} {...options.state.override.viewer}></Viewer>);
+			page.element = (<Viewer ref={(ref) => proxy(uuid, ref)} key={uuid} data-key={uuid} width={args.width as number ?? app.min_width} gallery={args.gallery as number ?? 0} {...options.state.override["viewer"]}></Viewer>);
 			break;
 		}
 		default: {
@@ -178,10 +178,10 @@ function args(element: JSX.Element) {
 			return {};
 		}
 		case Browser: {
-			return { value: state["search"]["value"] ?? props["value"], index: state["search"]["index"] ?? props["index"] };
+			return { value: state.search.value ?? props.value, index: state.search.index ?? props.index };
 		}
 		case Viewer: {
-			return { width: state["width"] ?? props["width"], gallery: props["gallery"] };
+			return { width: state.width ?? props.width, gallery: props.gallery };
 		}
 		default: {
 			return {};
@@ -194,13 +194,10 @@ function update_title(page: Page = singleton.state.pages[singleton.state.index])
 }
 
 function update_settings() {
-	options.state = {
-		...options.state,
-		history: {
-			index: singleton.state.index,
-			pages: singleton.state.pages.map((page) => ({ type: type(page.element), name: page.title, args: args(page.element) }))
-		}
-	};
+	options.modify("history", {
+		index: singleton.state.index,
+		pages: singleton.state.pages.map((page) => ({ type: type(page.element), name: page.title, args: args(page.element) }))
+	});
 }
 
 const singleton = new Tabs(

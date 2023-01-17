@@ -115,12 +115,12 @@ import ctm from "handles/ctm";
 import tabs from "handles/tabs";
 // import options from "handles/options";
 
-function structure(namespace: "ctm"): typeof ctm;
-function structure(namespace: "tabs"): typeof tabs;
-// function structure(namespace: "options"): typeof options;
+function structure(key: "ctm"): typeof ctm;
+function structure(key: "tabs"): typeof tabs;
+// function structure(key: "options"): typeof options;
 
-function structure(namespace: string) {
-	switch (namespace) {
+function structure(key: string) {
+	switch (key) {
 		case "ctm": {
 			return ctm;
 		}

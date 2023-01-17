@@ -8,12 +8,7 @@ class Storage extends MappedStateHandler<string, StorageState> {
 	public get state() {
 		return super.state;
 	}
-	/**
-	 * Getter and Setter must share the same accessibility.
-	 * But since Getter is public, so do the setter must be,
-	 * and to prevent bulk define, this method will always throw an error.
-	 */
-	public set state(state: Storage["_state"]) {
+	protected set state(state: Storage["_state"]) {
 		throw new Error("Bulk define storage may cause unwanted side effects");
 	}
 	protected create() {

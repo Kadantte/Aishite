@@ -16,7 +16,7 @@ export enum CSSFlag {
 
 export namespace Props {
 	export interface Clear<C = JSX.Element | Array<JSX.Element>> { 
-		// namespace
+		// key
 		readonly id?: string;
 		// optional
 		readonly flags?: {

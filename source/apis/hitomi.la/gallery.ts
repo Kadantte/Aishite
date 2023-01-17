@@ -39,7 +39,7 @@ class Gallery extends _Gallery {
 		await until(() => ggJS !== undefined && commonJS !== undefined);
 
 		for (const file of metadata["files"]) {
-			cache.push(new GalleryFile({ url: await execute(ggJS + commonJS + "url_from_url_from_hash(id, file, \"webp\", undefined, \"a\");", { id: this.id, file: file }) as string, name: file["name"], width: file["width"], height: file["height"] }));
+			cache.push(new GalleryFile({ url: await execute(ggJS + commonJS + "url_from_url_from_hash(id, file, file[\"hasavif\"] ? \"avif\" : \"webp\", undefined, \"a\");", { id: this.id, file: file }) as string, name: file["name"], width: file["width"], height: file["height"] }));
 		}
 		return cache;
 	}
@@ -71,8 +71,8 @@ export async function gallery(id: number) {
 
 	const metadata = new Map<string, unknown>(Object.entries({}));
 
-	function property(namespace: string) {
-		return element.querySelector(`*[href*="/${namespace}"]`)?.textContent;
+	function property(key: string) {
+		return element.querySelector(`*[href*="/${key}"]`)?.textContent;
 	}
 
 	metadata.set("type", property("type"));
@@ -95,7 +95,7 @@ export async function gallery(id: number) {
 		// cache
 		const text = source.textContent!;
 
-		return new Tag({ namespace: text.includes("♂") ? "male" : text.includes("♀") ? "female" : "tag", value: text.replace("♂", "").replace("♀", "").replace(/\s$/, "").replace(/\s/g, "_") });
+		return new Tag({ key: text.includes("♂") ? "male" : text.includes("♀") ? "female" : "tag", value: text.replace("♂", "").replace("♀", "").replace(/\s$/, "").replace(/\s/g, "_") });
 	}));
 
 	metadata.set("date", element.getElementsByClassName("date").item(0)?.textContent);

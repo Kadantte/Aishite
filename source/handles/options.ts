@@ -8,7 +8,7 @@ class Options extends StateHandler<OptionsState> {
 	public get state() {
 		return super.state;
 	}
-	public set state(state: Args<OptionsState>) {
+	protected set state(state: Args<OptionsState>) {
 		// assign
 		super.state = new OptionsState(state);
 		// update
@@ -17,6 +17,13 @@ class Options extends StateHandler<OptionsState> {
 	protected create() {
 		// important
 		chromium.requires(this.state.app.requires);
+	}
+	public modify(key: "app", value: Options["_state"]["app"]): void;
+	public modify(key: "apis", value: Options["_state"]["apis"]): void;
+	public modify(key: "history", value: Options["_state"]["history"]): void;
+
+	public modify(key: keyof Options["_state"], value: Options["_state"][keyof Options["_state"]]) {
+		this.state = { ...this.state, [key]: value };
 	}
 }
 

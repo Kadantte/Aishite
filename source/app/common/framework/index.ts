@@ -16,13 +16,11 @@ namespace CSSProps {
 				...Style.padding(props[CSSPlus.OFFSET].padding ?? {})
 			});
 		}
-	
 		if (props[CSSPlus.POSITION]) {
 			Object.assign(data, {
 				...Style.position(props[CSSPlus.POSITION] ?? {})
 			});
 		}
-	
 		if (props[CSSPlus.CONSTRAINT]) {
 			Object.assign(data, {
 				...Style.size({
@@ -40,7 +38,6 @@ namespace CSSProps {
 				}),
 			});
 		}
-	
 		if (props[CSSPlus.DECORATION]) {
 			Object.assign(data, {
 				// handfully
@@ -51,10 +48,9 @@ namespace CSSProps {
 				...Style.corner(props[CSSPlus.DECORATION].corner ?? {}),
 				...Style.shadow(props[CSSPlus.DECORATION].shadow ?? new Array()),
 				// handfully
-				opacity: props[CSSPlus.DECORATION].opacity ? (props[CSSPlus.DECORATION].opacity.clamp(0.0, 100.0) / 100.0) : undefined
+				opacity: props[CSSPlus.DECORATION].opacity !== undefined ? (props[CSSPlus.DECORATION].opacity.clamp(0.0, 100.0) / 100.0) : undefined
 			});
 		}
-	
 		return data;
 	}
 	
@@ -67,13 +63,11 @@ namespace CSSProps {
 				display: "none"
 			});
 		}
-	
 		if (props.flags?.[CSSFlag.DRAGGABLE] !== undefined) {
 			Object.assign(data, {
 				WebkitAppRegion: props.flags[CSSFlag.DRAGGABLE] ? "drag" : "no-drag"
 			});
 		}
-	
 		return data;
 	}
 }

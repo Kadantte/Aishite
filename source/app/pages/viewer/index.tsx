@@ -76,9 +76,41 @@ class Viewer extends Stateful<ViewerProps, ViewerState> {
 			"data-scrollbar": "square"
 		};
 	}
+	protected items() {
+		return [
+			{
+				role: "Copy URL", toggle: true, method: async () => {
+					navigator.clipboard.write([new ClipboardItem({ "text/plain": new Blob([(await gallery(this.props.gallery)).URL()], { type: "text/plain" }) })]);
+				}
+			},
+			"seperator" as "seperator",
+			{
+				role: "Download", toggle: false, method: async () => {
+					throw new Error("Unimplemented");
+				}
+			},
+			{
+				role: "Bookmark", toggle: false, method: async () => {
+					throw new Error("Unimplemented");
+				}
+			},
+			"seperator" as "seperator",
+			{
+				role: "Open in External Browser", toggle: true, method: async () => {
+					chromium.open_url((await gallery(this.props.gallery)).URL());
+				}
+			}
+		];
+	}
 	protected build() {
 		return (
-			<section id={this.props.id ?? "viewer"}>
+			<section id={this.props.id ?? "viewer"}
+				onContextMenu={(event) => {
+					// prevent ctm override
+					event.stopPropagation();
+
+					structure("ctm").render(this.props.gallery.toString(), event.pageX, event.pageY, this.items());
+				}}>
 				{this.state.gallery.files.map((file, index) => {
 					return (
 						<Image key={index} source={file.url} offset={{ margin: { all: "auto" } }} constraint={{ width: this.state.width, height: file.height / (file.width / window.innerWidth.clamp(0, this.state.width)), minimum: { width: app.min_width * 0.75 }, maximum: { width: 100.0 + "%" } }} decoration={{ color: Color.pick(3.0), shadow: [{ x: -4.5, y: 0, blur: 4.5, spread: -4.5, color: Color.pick(1.0) }, { x: 4.5, y: 0, blur: 4.5, spread: -4.5, color: Color.pick(1.0) }] }}></Image>
@@ -102,7 +134,7 @@ class Viewer extends Stateful<ViewerProps, ViewerState> {
 		if (!this.visible()) return;
 		// discordRPC
 		this.discord();
-		
+
 		if (this.state.init) return;
 		// silent update
 		this.state.init = true;

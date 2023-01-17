@@ -70,7 +70,7 @@ abstract class Stateful<P extends Props.Clear<unknown>, S> extends React.Compone
 			hidden: undefined
 		});
 	}
-	public node<T extends Element = HTMLElement>() {
+	protected node<T extends Element = HTMLElement>() {
 		return ReactDOM.findDOMNode(this as React.Component) as T;
 	}
 }
