@@ -23,13 +23,11 @@ class Fallback extends Stateful<FallbackProps, FallbackState> {
 	protected events() {
 		return {
 			DID_MOUNT: () => {
-				// initial
 				this.onRender();
-				// @ts-ignore
+
 				structure("tabs").handle(this.onRender);
 			},
 			WILL_UNMOUNT: () => {
-				// @ts-ignore
 				structure("tabs").unhandle(this.onRender);
 			}
 		};
@@ -48,19 +46,17 @@ class Fallback extends Stateful<FallbackProps, FallbackState> {
 		);
 	}
 	protected visible() {
-		return structure("tabs").page.element.props["data-key"] === (this.props as any)["data-key"];
+		return structure("tabs").peek().element.props["data-key"] === (this.props as typeof this.props & { "data-key": string })["data-key"];
 	}
 	protected discord() {
-		// skip
 		if (!this.visible()) return;
 		
 		discord.update({ state: "ERROR", details: "something went wrong", partyMax: undefined, partySize: undefined });
 	}
 	@autobind()
 	protected async onRender() {
-		// skip
 		if (!this.visible()) return;
-		// discordRPC
+
 		this.discord();
 	}
 }

@@ -2,7 +2,7 @@ import React from "react";
 
 import { Props } from "app/common/props";
 
-abstract class StyleSheet<P extends Props.Casacade> extends React.PureComponent<P, {}> {
+abstract class StyleSheet<P extends Props.Casacade> extends React.PureComponent<P, object> {
 	constructor(public props: P) {
 		super(props);
 	}

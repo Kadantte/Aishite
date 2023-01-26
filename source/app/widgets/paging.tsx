@@ -53,14 +53,13 @@ class Paging extends Stateful<PagingProps, PagingState> {
 		return (
 			<Row {...this.props} id={this.props.id ?? "paging"} alignment={Alignment.CENTER}>
 				<>
-					{this.props.builder("First", 0, false, this.handle)}
+					{this.props.builder("First", Number.MIN_SAFE_INTEGER, false, this.handle)}
 					{new Array(this.props.size.clamp(0, this.props.length)).fill(true).map((_, index) => {
-						// cache
-						const page = this.offset(index);
+						const target = this.offset(index);
 
-						return this.props.builder?.((index + 1).toString(), page, this.state.index === page, this.handle);
+						return this.props.builder?.((index + 1).toString(), target, this.state.index === target, this.handle);
 					})}
-					{this.props.builder("Last", Infinity, false, this.handle)}
+					{this.props.builder("Last", Number.MAX_SAFE_INTEGER, false, this.handle)}
 				</>
 			</Row>
 		);

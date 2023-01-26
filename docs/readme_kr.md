@@ -15,6 +15,8 @@
 
 # 설명
 
+[![Downloads](https://img.shields.io/github/downloads/Any-Material/Aishite/total.svg)](https://github.com/Any-Material/Aishite/releases)
+
 `Daisuki`(은)는 [hitomi.la](https://hitomi.la)(을)를 위한 경량 데스크탑 프로그램입니다.
 
 # 설치

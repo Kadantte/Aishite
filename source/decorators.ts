@@ -46,7 +46,7 @@ function autobind() {
 
 				return value;
 			}
-		}
+		};
 	};
 }
 

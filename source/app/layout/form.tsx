@@ -49,45 +49,38 @@ class Form extends Stateful<FormProps, FormState> {
 		return [
 			{
 				role: "Cut", toggle: this.props.enable && this.state.highlight, method: async () => {
-					// clipboard
-					navigator.clipboard.write([new ClipboardItem({ "text/plain": new Blob([window.getSelection()!.toString()], { type: "text/plain" }) })]);
-					// cache
 					const element = this.node<HTMLInputElement>();
-					// modify
-					element.value = element.value.substring(0, element.selectionStart!) + element.value.substring(element.selectionEnd!, element.value.length);
+
+					navigator.clipboard.write([new ClipboardItem({ "text/plain": new Blob([window.getSelection()?.toString() ?? ""], { type: "text/plain" }) })]);
+
+					element.value = element.value.substring(0, element.selectionStart ?? 0) + element.value.substring(element.selectionEnd ?? 0, element.value.length);
 				}
 			},
 			{
 				role: "Copy", toggle: this.props.enable && this.state.highlight, method: async () => {
-					// clipboard
-					navigator.clipboard.write([new ClipboardItem({ "text/plain": new Blob([window.getSelection()!.toString()], { type: "text/plain" }) })]);
+					navigator.clipboard.write([new ClipboardItem({ "text/plain": new Blob([window.getSelection()?.toString() ?? ""], { type: "text/plain" }) })]);
 				}
 			},
 			{
 				role: "Paste", toggle: this.props.enable, method: async () => {
-					// cache
 					const element = this.node<HTMLInputElement>();
-					// modify
-					element.value = element.value.substring(0, element.selectionStart!) + await navigator.clipboard.readText() + element.value.substring(element.selectionEnd!, element.value.length);
+
+					element.value = element.value.substring(0, element.selectionStart ?? 0) + await navigator.clipboard.readText() + element.value.substring(element.selectionEnd ?? 0, element.value.length);
 				}
 			},
 			{
 				role: "Delete", toggle: this.props.enable && this.state.highlight, method: async () => {
-					// cache
 					const element = this.node<HTMLInputElement>();
-					// modify
-					element.value = element.value.substring(0, element.selectionStart!) + element.value.substring(element.selectionEnd!, element.value.length);
+
+					element.value = element.value.substring(0, element.selectionStart ?? 0) + element.value.substring(element.selectionEnd ?? 0, element.value.length);
 				}
 			},
 			{
 				role: "Select All", toggle: this.props.enable, method: async () => {
-					// cache
 					const element = this.node<HTMLInputElement>();
 
 					setTimeout(() => {
-						// focus
 						element.focus();
-						// select
 						element.select();
 					});
 				}

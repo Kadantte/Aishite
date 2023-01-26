@@ -33,15 +33,14 @@ class Viewer extends Stateful<ViewerProps, ViewerState> {
 			init: false,
 			width: this.props.width,
 			control: false,
-			gallery: { title: "???", files: new Array() }
+			gallery: { title: "???", files: [] }
 		};
 	}
 	protected events() {
 		return {
 			DID_MOUNT: () => {
-				// initial
 				this.onRender();
-				// @ts-ignore
+
 				structure("tabs").handle(this.onRender);
 
 				window.addEventListener("wheel", this.onWheel);
@@ -50,7 +49,6 @@ class Viewer extends Stateful<ViewerProps, ViewerState> {
 				window.addEventListener("keydown", this.onKeyDown);
 			},
 			WILL_UNMOUNT: () => {
-				// @ts-ignore
 				structure("tabs").unhandle(this.onRender);
 
 				window.removeEventListener("wheel", this.onWheel);
@@ -83,7 +81,7 @@ class Viewer extends Stateful<ViewerProps, ViewerState> {
 					navigator.clipboard.write([new ClipboardItem({ "text/plain": new Blob([(await gallery(this.props.gallery)).URL()], { type: "text/plain" }) })]);
 				}
 			},
-			"seperator" as "seperator",
+			"seperator" as const,
 			{
 				role: "Download", toggle: false, method: async () => {
 					throw new Error("Unimplemented");
@@ -94,7 +92,7 @@ class Viewer extends Stateful<ViewerProps, ViewerState> {
 					throw new Error("Unimplemented");
 				}
 			},
-			"seperator" as "seperator",
+			"seperator" as const,
 			{
 				role: "Open in External Browser", toggle: true, method: async () => {
 					chromium.open_url((await gallery(this.props.gallery)).URL());
@@ -120,23 +118,21 @@ class Viewer extends Stateful<ViewerProps, ViewerState> {
 		);
 	}
 	protected visible() {
-		return structure("tabs").page.element.props["data-key"] === (this.props as any)["data-key"];
+		return structure("tabs").peek().element.props["data-key"] === (this.props as typeof this.props & { "data-key": string })["data-key"];
 	}
 	protected discord() {
-		// skip
 		if (!this.visible()) return;
 
 		discord.update({ state: "Reading (" + this.props.gallery + ")", details: this.state.gallery.title, partyMax: undefined, partySize: undefined });
 	}
 	@autobind()
 	protected async onRender() {
-		// skip
 		if (!this.visible()) return;
-		// discordRPC
+
 		this.discord();
 
 		if (this.state.init) return;
-		// silent update
+
 		this.state.init = true;
 
 		const _gallery = await gallery(this.props.gallery);
@@ -146,7 +142,6 @@ class Viewer extends Stateful<ViewerProps, ViewerState> {
 	}
 	@autobind()
 	protected async onWheel(event: WheelEvent) {
-		// skip
 		if (!this.visible()) return;
 		if (!this.state.control) return;
 
@@ -154,25 +149,22 @@ class Viewer extends Stateful<ViewerProps, ViewerState> {
 	}
 	@autobind()
 	protected async onKeyUp(event: KeyboardEvent) {
-		// skip
 		if (!this.visible()) return;
 		if (event.key !== "Control") return;
-		// silent update
+
 		this.state.control = false;
 	}
 	@autobind()
 	protected async onResize(event: UIEvent) {
-		// skip
 		if (!this.visible()) return;
-		// re-render
+
 		this.setState((state) => ({}));
 	}
 	@autobind()
 	protected async onKeyDown(event: KeyboardEvent) {
-		// skip
 		if (!this.visible()) return;
 		if (event.key !== "Control") return;
-		// silent update
+
 		this.state.control = true;
 	}
 }

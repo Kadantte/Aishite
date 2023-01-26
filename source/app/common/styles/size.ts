@@ -5,7 +5,6 @@ interface Size {
 }
 
 function size(style: Size): React.CSSProperties {
-	// check before
 	if ((style.width ?? style.height) === undefined) return {};
 
 	switch (style.type) {

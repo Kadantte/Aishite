@@ -7,7 +7,6 @@ import StyleSheet from "app/common/framework/stylesheet";
 
 namespace CSSProps {
 	export function plus(props: Props.Clear<unknown> & Props.Style) {
-		// cache
 		const data: React.CSSProperties = {};
 	
 		if (props[CSSPlus.OFFSET]) {
@@ -46,16 +45,14 @@ namespace CSSProps {
 				// automatic
 				...Style.border(props[CSSPlus.DECORATION].border ?? {}),
 				...Style.corner(props[CSSPlus.DECORATION].corner ?? {}),
-				...Style.shadow(props[CSSPlus.DECORATION].shadow ?? new Array()),
+				...Style.shadow(props[CSSPlus.DECORATION].shadow ?? []),
 				// handfully
 				opacity: props[CSSPlus.DECORATION].opacity !== undefined ? (props[CSSPlus.DECORATION].opacity.clamp(0.0, 100.0) / 100.0) : undefined
 			});
 		}
 		return data;
 	}
-	
 	export function flag(props: Props.Clear<unknown> & Props.Style) {
-		// cache
 		const data: React.CSSProperties = {};
 	
 		if (props.flags?.[CSSFlag.VISIBLE] === false) {

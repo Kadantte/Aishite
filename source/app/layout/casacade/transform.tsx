@@ -17,7 +17,7 @@ class Transform extends StyleSheet<TransformProps> {
 	protected postCSS(): React.CSSProperties {
 		return {
 			// manually
-			transform: [scale(...this.props.scale ?? new Array()), rotate(...this.props.rotate ?? new Array()), translate(...this.props.translate ?? new Array())].join(space),
+			transform: [scale(...this.props.scale ?? []), rotate(...this.props.rotate ?? []), translate(...this.props.translate ?? [])].join(space),
 			// automatic
 			...Style.transition({ ...this.props.transition, property: ["transform"] })
 		};

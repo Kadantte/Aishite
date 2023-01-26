@@ -95,7 +95,7 @@ class Discord {
 					// update
 					this._connection = false;
 					// recreate
-					this.create()
+					this.create();
 					// reconnect
 					this.connect();
 				});
@@ -104,7 +104,7 @@ class Discord {
 			this.connect();
 		});
 	}
-	public update(activity: Args<RichPresence> = this._activity, override: boolean = false) {
+	public update(activity: Args<RichPresence> = this._activity, override = false) {
 		// conditional override
 		this._activity = new RichPresence(override ? activity : { ...this._activity, ...activity });
 		// @ts-ignore

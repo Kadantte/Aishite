@@ -15,6 +15,8 @@
 
 # About
 
+[![Downloads](https://img.shields.io/github/downloads/Any-Material/Aishite/total.svg)](https://github.com/Any-Material/Aishite/releases)
+
 `Daisuki` is a fully secure, and light-weight desktop application for [hitomi.la](https://hitomi.la)  
 
 # Installation

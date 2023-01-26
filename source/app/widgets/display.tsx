@@ -31,19 +31,11 @@ class Display extends Stateful<PageViewProps, PageViewState> {
 		return {
 			DID_MOUNT: () => {
 				structure("tabs").handle((event) => {
-					// cache
 					const key = event.detail.post.pages[event.detail.post.index].element.key;
-					// reorder
+					// skip reorder
 					if (this.state.key === key && event.detail.pre.pages.length === event.detail.post.pages.length) return;
 					// re-render
 					this.setState((state) => ({ key: event.detail.post.pages[event.detail.post.index].element.key }));
-					
-					// this.setState((state) => ({ key: event.detail.post.pages[event.detail.post.index].element.key }), () => {
-					// 	// reset scroll position
-					// 	const element = document.querySelector("#bracket:not([style*=\"display: none\"])");
-
-					// 	(element?.querySelector("*[style*=\"overflow: auto\"]") ?? element?.querySelector("*[style*=\"overflow: hidden auto\"]"))?.scrollTo({ top: 0, behavior: "smooth" });
-					// });
 				});
 			}
 		};
@@ -61,6 +53,7 @@ class Display extends Stateful<PageViewProps, PageViewState> {
 					return (
 						<Bracket key={page.element.key} constraint={{ height: 100.0 + "%" }} flags={{ visible: this.state.key ? this.state.key === page.element.key : structure("tabs").state.index === index }}
 							fallback={<Fallback></Fallback>}
+							// eslint-disable-next-line react/no-children-prop
 							children={page.element}
 						/>
 					);

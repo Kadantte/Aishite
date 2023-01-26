@@ -10,15 +10,10 @@ export enum Directory {
 const cache = new Map<string, string>();
 
 for (const directory of Object.values(Directory)) {
-	// fetch
-	client.GET(`https://ltn.hitomi.la/${directory}index/version?_=${Date.now()}`, "text").then((response) => {
-		// assign
-		cache.set(directory, response.body);
-	});
+	client.GET(`https://ltn.hitomi.la/${directory}index/version?_=${Date.now()}`, "text").then((response) => cache.set(directory, response.body));
 }
 
 export async function revision(directory: string) {
-	// pause
 	await until(() => Array.from(cache.values()).every((element) => element));
 
 	switch (directory) {

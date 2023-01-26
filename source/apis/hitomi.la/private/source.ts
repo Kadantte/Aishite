@@ -20,17 +20,16 @@ export function canvas(source: string) {
  * @see decode_webp
  */
 async function unknown_0(source: string) {
-	return new Promise<string>(async (resolve, reject) => {
-		if (await unknown_1()) return resolve(source);
-		const buffer = await unknown_2(source);
-		const canvas = document.createElement("canvas");
-		// @ts-ignore
-		dependency.setCanvas(canvas);
-		// @ts-ignore
-		dependency.webpToSdl(buffer, buffer.length);
+	if (await unknown_1()) return source;
 	
-		return canvas.toDataURL();
-	});
+	const buffer = await unknown_2(source);
+	const canvas = document.createElement("canvas");
+	// @ts-ignore
+	dependency.setCanvas(canvas);
+	// @ts-ignore
+	dependency.webpToSdl(buffer, buffer.length);
+
+	return canvas.toDataURL();
 }
 /**
  * @alias decode_webp.js
@@ -50,7 +49,6 @@ async function unknown_1() {
 			image.src = "data:image/webp;base64," + source;
 		});
 	}
-	// update
 	support.cache = (await Promise.all(Object.keys(sources).map((key) => mystery_0(sources[key as keyof typeof sources])))).every((test) => test);
 
 	if (!support.cache) {
@@ -59,7 +57,6 @@ async function unknown_1() {
 		// @ts-ignore
 		dependency.Module.doNotCaptureKeyboard = true;
 	}
-	// update
 	support.test = true;
 
 	return support.cache;

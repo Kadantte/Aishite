@@ -7,7 +7,6 @@ interface Border {
 }
 
 function border(style: { all?: Border, top?: Border, left?: Border, right?: Border, bottom?: Border }): React.CSSProperties {
-	// check before
 	if ((style.all ?? style.top ?? style.left ?? style.right ?? style.bottom) === undefined) return {};
 
 	return {
@@ -20,7 +19,6 @@ function border(style: { all?: Border, top?: Border, left?: Border, right?: Bord
 }
 
 function compiler(style: Border) {
-	// check-before
 	if ((style.width ?? style.style ?? style.color) === undefined) return undefined;
 
 	return [unit(style.width ?? 0), style.style ?? "hidden", style.color ?? "transparent"].join(space);

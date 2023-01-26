@@ -4,9 +4,9 @@ import { Stateless } from "app/common/framework";
 
 interface RegionProps extends Props.Clear, Props.Style {
 	// required
-	readonly rows: Array<unit>;
-	readonly columns: Array<unit>;
-	readonly template: Array<Array<String>>;
+	readonly rows: unit[];
+	readonly columns: unit[];
+	readonly template: string[][];
 	// optional
 	readonly gap?: unit;
 }

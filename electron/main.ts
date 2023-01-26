@@ -14,9 +14,6 @@ if (!instance) {
 }
 
 if (!app.isPackaged) {
-	//
-	// hot-reload
-	//
 	node_fs.watch(node_path.resolve(__dirname, "preload.js")).on("change", () => window.reload());
 	node_fs.watch(node_path.resolve(__dirname, "renderer.js")).on("change", () => window.reload());
 }
@@ -24,9 +21,7 @@ if (!app.isPackaged) {
 Menu.setApplicationMenu(Menu.buildFromTemplate(shortcut));
 
 app.on("ready", () => {
-	//
-	// cannot require until app is ready
-	//
+	// eslint-disable-next-line @typescript-eslint/no-var-requires
 	const { screen } = require("electron");
 
 	class Resolution {
@@ -36,21 +31,12 @@ app.on("ready", () => {
 		public static height(pixels: number = screen.getPrimaryDisplay().workArea.height) {
 			return Math.round((pixels - 180.0 - (/* GALLERY GAP */ 20.0)) * 0.5 + 180.0);
 		}
-	};
-	//
-	// bypass cross-origin policy
-	//
+	}
+
 	session.defaultSession.webRequest.onBeforeSendHeaders({ urls: ["*://*.hitomi.la/*"] }, (details, callback) => callback({
-		requestHeaders: {
-			// inherit
-			...details.requestHeaders,
-			// override
-			referer: "https://hitomi.la"
-		}
+		requestHeaders: { ...details.requestHeaders, referer: "https://hitomi.la" }
 	}));
-	//
-	// window instance
-	//
+
 	window = new BrowserWindow({
 		icon: "source/assets/icon.ico",
 		show: false,
@@ -60,43 +46,34 @@ app.on("ready", () => {
 		minWidth: Resolution.width(),
 		minHeight: Resolution.height(),
 		webPreferences: {
-			// webpack or ASAR
 			preload: node_path.resolve(__dirname, "preload.js"),
-			// allow renderer interacts with nodejs
 			nodeIntegration: true,
-			// isolate preload
 			contextIsolation: false,
-			// allow webworker interacts with nodejs
 			nodeIntegrationInWorker: true
 		},
 		backgroundColor: "black"
 	});
-	//
-	// debug
-	//
+
 	function print(...args: Array<unknown>) {
 		window.webContents.send("console", ...args);
 	}
+
 	//
 	// behaviours
 	//
 	window.on("close", (event) => {
-		// prevent
 		event.preventDefault();
 	});
 	window.on("unresponsive", () => {
-		// reload
 		window.reload();
 	});
 	window.on("ready-to-show", () => {
-		// display
 		window.show();
 	});
-	//
+	///
 	// https://github.com/electron/electron/issues/24893#issuecomment-1109262719
 	//
 	window.hookWindowMessage(0x0116, () => {
-		// prevent
 		window.setEnabled(false);
 		window.setEnabled(true);
 
@@ -105,7 +82,7 @@ app.on("ready", () => {
 		window.webContents.send(Window.Event.CONTEXTMENU, { x: cursor.x - position.x, y: cursor.y - position.y });
 	});
 	//
-	// chromium events
+	// events
 	//
 	window.on(Window.Event.BLUR, () => window.webContents.send(Window.Event.BLUR));
 	window.on(Window.Event.FOCUS, () => window.webContents.send(Window.Event.FOCUS));
@@ -121,7 +98,7 @@ app.on("ready", () => {
 	ipcMain.handle("chromium", async (event, command: string, ...args: Array<unknown>) => {
 		switch (command as Window.Function | Window.Property) {
 			//
-			// Function
+			// function
 			//
 			case Window.Function.BLUR: {
 				setTimeout(() => window.blur(), 150);
@@ -169,7 +146,7 @@ app.on("ready", () => {
 				break;
 			}
 			//
-			// Property
+			// property
 			//
 			case Window.Property.VERSION: {
 				return app.getVersion();
@@ -183,7 +160,6 @@ app.on("ready", () => {
 	// check for an update
 	//
 	if (app.isPackaged) {
-		// cache
 		const [chunks, request] = [new Array<Buffer>(), net.request({ method: "GET", protocol: "https:", hostname: "api.github.com", path: "repos/Any-Material/Daisuki/releases?per_page=100" })];
 
 		request.setHeader("content-type", "application/json");
@@ -193,24 +169,21 @@ app.on("ready", () => {
 				chunks.push(chunk);
 			});
 			response.on("end", () => {
-				// cache
 				const json = JSON.parse(Buffer.concat(chunks).toString());
-	
+
 				function parse(value: string) {
 					return Number(value.match(/-?\d+/g)?.join(""));
 				}
-				// is there any update available?
 				if (parse(json[0]["tag_name"]) > parse(app.getVersion())) {
 					// yes!
 					shell.openExternal(json[0]["html_url"]).then(() => window.destroy());
 				}
 			});
 		});
-		// send
 		request.end();
 	}
 	//
 	// webpack or ASAR
 	//
-	window.loadFile(node_path.resolve(__dirname, "index.html"));
+	window.loadFile(node_path.resolve(__dirname, "index.html")).then(() => print("main.ts"));
 });

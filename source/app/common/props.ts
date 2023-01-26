@@ -1,5 +1,3 @@
-import React from "react";
-
 import CSS from "app/common/styles";
 
 export enum CSSPlus {
@@ -26,6 +24,7 @@ export namespace Props {
 		// dont tell anyone...
 		readonly hidden?: {
 			[key: string]: unknown;
+			style?: React.CSSProperties;
 		};
 		readonly children?: C;
 	}

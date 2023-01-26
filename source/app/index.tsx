@@ -45,17 +45,14 @@ class App extends Stateful<AppProps, AppState> {
 	protected events() {
 		return {
 			DID_MOUNT: () => {
-				// cache
 				const ctm = document.getElementById("contextmenu") as HTMLElement;
 
 				structure("ctm").handle((state) => {
 					this.setState((state) => ({ contextmenu: true }), () => {
-						// cache
 						const [x, y] = [
 							state.detail.post.x + ctm.getBoundingClientRect().width >= window.innerWidth,
 							state.detail.post.y + ctm.getBoundingClientRect().height >= window.innerHeight
 						];
-						// update
 						ctm.style.setProperty("transform", "translate(" + [x, y].map((toggle) => toggle ? "-100%" : "0%").join(comma) + ")");
 					});
 				});
@@ -86,18 +83,15 @@ class App extends Stateful<AppProps, AppState> {
 				window.addEventListener("wheel", (event) => {
 					this.setState((state) => ({ contextmenu: false }), () => Object.defineProperty(structure("ctm").state, "id", { value: "???" }));
 				});
-				window.addEventListener("keydown", (event) => {
-					if (event.key === "w" && !event.altKey && event.ctrlKey && !event.shiftKey) structure("tabs").close();
-				});
 				window.addEventListener("mousedown", (event) => {
 					this.setState((state) => ({ contextmenu: false }), () => Object.defineProperty(structure("ctm").state, "id", { value: "???" }));
 				});
 
-				let [idle, timeout] = [false, undefined as Unset<NodeJS.Timeout>];
+				let [idle, timeout] = [false, undefined as NodeJS.Timeout | undefined];
 
-				const start_idle = (duration: number = 2000) => {
+				const start_idle = (duration = 2000) => {
 					timeout = setTimeout(() => { idle = true; timeout = undefined; if (!this.state.contextmenu) document.body.style.cursor = "none"; }, duration);
-				}
+				};
 
 				window.addEventListener("mousedown", (event) => {
 					if (timeout) {
@@ -149,9 +143,9 @@ class App extends Stateful<AppProps, AppState> {
 						}}
 						onMouseLeave={(setStyle) => {
 							setStyle(undefined);
-						}}
-						children={<Minimize></Minimize>}
-					/>
+						}}>
+						<Minimize></Minimize>
+					</Button>
 					<Button id="maximize" constraint={{ width: 50.0 }} flags={{ draggable: false }}
 						onMouseDown={(setStyle) => {
 							this.state.maximize ? chromium.unmaximize() : chromium.maximize();
@@ -161,9 +155,9 @@ class App extends Stateful<AppProps, AppState> {
 						}}
 						onMouseLeave={(setStyle) => {
 							setStyle(undefined);
-						}}
-						children={this.state.maximize ? <Unmaximize></Unmaximize> : <Maximize></Maximize>}
-					/>
+						}}>
+						{this.state.maximize ? <Unmaximize></Unmaximize> : <Maximize></Maximize>}
+					</Button>
 					<Button id="close" constraint={{ width: 50.0 }} flags={{ draggable: false }}
 						onMouseDown={(setStyle) => {
 							chromium.close("titlebar");
@@ -173,9 +167,9 @@ class App extends Stateful<AppProps, AppState> {
 						}}
 						onMouseLeave={(setStyle) => {
 							setStyle(undefined);
-						}}
-						children={<Close></Close>}
-					/>
+						}}>
+						<Close></Close>
+					</Button>
 				</Row>
 				{/* CONTENT */}
 				<Element id="content" constraint={{ width: 100.0 + "%", height: 100.0 + "%" }} decoration={{ color: Color.pick(2.0) }}><Display></Display></Element>
@@ -192,9 +186,8 @@ class App extends Stateful<AppProps, AppState> {
 								return (
 									<Container key={index} priority={true} offset={{ padding: { left: 10.0, right: 25.0 } }} constraint={{ height: 35.0 }}
 										onMouseDown={(setStyle) => {
-											// skip
 											if (!element.toggle) return;
-											// update
+											
 											this.setState((state) => ({ contextmenu: false }), element.method);
 										}}
 										onMouseEnter={(setStyle) => {
@@ -269,22 +262,18 @@ class Controller extends Stateful<ControllerProps, ControllerState> {
 	protected events() {
 		return {
 			DID_MOUNT: () => {
-				structure("tabs").handle((event) => {
-					// reset
-					this.setState((state) => ({ index: event.detail.post.index, handle: undefined }));
-				});
-				// cache
 				const element = this.node();
 
 				if (!element) throw new Error();
 
+				structure("tabs").handle((event) => {
+					this.setState((state) => ({ index: event.detail.post.index, handle: undefined }));
+				});
 				window.addEventListener("mouseup", (event) => {
 					if (this.state.handle) {
-						// undo
 						for (let index = 0; index < structure("tabs").state.pages.length; index++) {
-							// cache
 							const children = element.children.item(index) as HTMLElement;
-							// style
+							
 							children.style.setProperty("left", "unset");
 							children.style.setProperty("z-index", "unset");
 							children.style.setProperty("transform", "unset");
@@ -302,9 +291,8 @@ class Controller extends Stateful<ControllerProps, ControllerState> {
 				});
 				window.addEventListener("mousedown", (event) => {
 					if (!this.state.handle && (event.target as HTMLElement).id === "handle") {
-						// cache
 						const children = event.target as HTMLElement;
-						// style
+
 						children.style.setProperty("left", "unset");
 						children.style.setProperty("z-index", "6974");
 						children.style.setProperty("transform", "unset");
@@ -372,7 +360,6 @@ class Controller extends Stateful<ControllerProps, ControllerState> {
 							<Spacer key={index}>
 								<Container id="handle" constraint={{ minimum: { width: 30.0 }, maximum: { width: 250.0 } }} decoration={{ color: this.state.index === index ? Color.pick(2.0) : Color.pick(0.0), border: { top: { width: 2.5, style: "solid", color: this.state.index === index ? "aquamarine" : undefined }, bottom: { width: 2.5 } } }} flags={{ draggable: false }}
 									onMouseDown={(setStyle) => {
-										// skip
 										if (structure("tabs").state.index === index) return;
 
 										setStyle(undefined);
@@ -380,7 +367,6 @@ class Controller extends Stateful<ControllerProps, ControllerState> {
 										structure("tabs").jump(index);
 									}}
 									onMouseEnter={(setStyle) => {
-										// skip
 										if (structure("tabs").state.index === index) return;
 
 										setStyle({ decoration: { color: Color.pick(1.0), border: { top: { width: 2.5, style: "solid", color: Color.pick(2.0) } } } });
@@ -400,9 +386,9 @@ class Controller extends Stateful<ControllerProps, ControllerState> {
 										}}
 										onMouseLeave={(setStyle) => {
 											setStyle(undefined);
-										}}
-										children={<Close color={this.state.index === index ? undefined : Color.pick(5.0)}></Close>}
-									/>
+										}}>
+										<Close color={this.state.index === index ? undefined : Color.pick(5.0)}></Close>
+									</Button>
 								</Container>
 							</Spacer>
 						);
@@ -417,9 +403,9 @@ class Controller extends Stateful<ControllerProps, ControllerState> {
 					}}
 					onMouseLeave={(setStyle) => {
 						setStyle(undefined);
-					}}
-					children={<Plus></Plus>}
-				/>
+					}}>
+					<Plus></Plus>
+				</Button>
 			</Row>
 		);
 	}

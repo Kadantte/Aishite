@@ -14,28 +14,26 @@ class Color {
 }
 
 class Palette {
-	private readonly _cache: Map<number, Color>;
+	private readonly _cache: Record<number, Color>;
 	private readonly _R: number;
 	private readonly _G: number;
 	private readonly _B: number;
 	private readonly _minimum: Color;
 
 	constructor(minimum: Color, maximum: Color) {
-		this._cache = new Map();
+		this._cache = {};
 		this._R = (maximum.R - minimum.R) / 10;
 		this._G = (maximum.G - minimum.G) / 10;
 		this._B = (maximum.B - minimum.B) / 10;
 		this._minimum = minimum;
 	}
 	public pick(index: number) {
-		// cache
-		const color = this._cache.get(index) ?? new Color(
+		const color = this._cache[index] ?? new Color(
 			Math.round(this._minimum.R + this._R * index),
 			Math.round(this._minimum.G + this._G * index),
 			Math.round(this._minimum.B + this._B * index)
 		);
-		
-		if (!this._cache.has(index)) this._cache.set(index, color);
+		if (!this._cache[index]) this._cache[index] = color;
 
 		return color.toString();
 	}

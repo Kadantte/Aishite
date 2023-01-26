@@ -4,7 +4,7 @@ import ReactDOM from "react-dom";
 import { Props } from "app/common/props";
 import { CSSProps } from "app/common/framework";
 
-abstract class Stateless<P extends Props.Clear<unknown>> extends React.PureComponent<P, {}> {
+abstract class Stateless<P extends Props.Clear<unknown>> extends React.PureComponent<P, object> {
 	/** Return value will be applied before `this.props.style`. */
 	protected abstract preCSS(): React.CSSProperties;
 	/** Return value will be applied after `this.props.style`. */
@@ -26,7 +26,6 @@ abstract class Stateless<P extends Props.Clear<unknown>> extends React.PureCompo
 			// decoration
 			style: {
 				...this.preCSS(),
-				// @ts-ignore
 				...this.props.hidden?.style,
 				...CSSProps.plus(this.props),
 				...this.postCSS(),

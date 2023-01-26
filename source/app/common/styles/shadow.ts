@@ -10,7 +10,6 @@ interface Shadow {
 }
 
 function shadow(style: Array<Shadow>): React.CSSProperties {
-	// check before
 	if (style.isEmpty) return {};
 
 	return {
@@ -19,7 +18,6 @@ function shadow(style: Array<Shadow>): React.CSSProperties {
 }
 
 function compiler(style: Shadow) {
-	// cache
 	const shadow = [unit(style.x ?? 0), unit(style.y ?? 0), unit(style.blur ?? 0), unit(style.spread ?? 0), style.color];
 
 	return (style.inset ? ["inset", ...shadow] : shadow).join(space);

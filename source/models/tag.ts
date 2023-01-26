@@ -1,6 +1,6 @@
 export class Tag {
 	readonly key: string;
-	readonly value: any;
+	readonly value: string;
 
 	constructor(args: Args<Tag>) {
 		this.key = args.key;

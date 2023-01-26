@@ -1,4 +1,4 @@
-function unit(value: unit, type: string = "px") {
+function unit(value: unit, type = "px") {
 	return typeof value === "string" ? value : value + type;
 }
 

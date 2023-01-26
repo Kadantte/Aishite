@@ -37,22 +37,19 @@ class Image extends Stateful<ImageProps, ImageState> {
 		return [
 			{
 				role: "Copy", toggle: this.state.loaded, method: async () => {
-					// cache
-					const blob = await new Promise<Blob>((resolve, reject) => this.canvas().toBlob((blob) => resolve(blob!)));
+					const blob = await new Promise<Blob>((resolve, reject) => this.canvas().toBlob((blob) => resolve(blob as Blob)));
 
 					navigator.clipboard.write([new ClipboardItem({ [blob.type]: blob })]);
 				}
 			},
 			{
 				role: "Copy Link", toggle: true, method: async () => {
-					// clipboard
 					navigator.clipboard.write([new ClipboardItem({ "text/plain": new Blob([this.props.source], { type: "text/plain" }) })]);
 				}
 			},
-			"seperator" as "seperator",
+			"seperator" as const,
 			{
 				role: "Save image as", toggle: this.state.loaded, method: async () => {
-					// cache
 					const button = document.createElement("a");
 
 					button.href = this.canvas().toDataURL("image/png");
@@ -84,7 +81,6 @@ class Image extends Stateful<ImageProps, ImageState> {
 						observer.observe(event.target);
 					}
 					else {
-						// update
 						this.state.loaded = true;
 
 						if (structure("ctm").state.id === this.props.source) structure("ctm").refresh();

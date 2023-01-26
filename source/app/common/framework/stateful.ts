@@ -60,7 +60,6 @@ abstract class Stateful<P extends Props.Clear<unknown>, S> extends React.Compone
 			// decoration
 			style: {
 				...this.preCSS(),
-				// @ts-ignore
 				...this.props.hidden?.style,
 				...CSSProps.plus(this.props),
 				...this.postCSS(),

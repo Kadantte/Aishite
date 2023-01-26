@@ -34,7 +34,7 @@ class ContextMenuState {
 }
 
 const singleton = new ContextMenu(
-	new ContextMenuState({ id: "???", x: 0, y: 0, items: new Array() })
+	new ContextMenuState({ id: "???", x: 0, y: 0, items: [] })
 );
 
 export default singleton;

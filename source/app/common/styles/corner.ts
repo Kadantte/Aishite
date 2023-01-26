@@ -11,7 +11,6 @@ interface Corner {
 }
 
 function corner(style: Corner): React.CSSProperties {
-	// check before
 	if ((style.all ?? style.TL ?? style.TR ?? style.BL ?? style.BR) === undefined) return {};
 
 	return {

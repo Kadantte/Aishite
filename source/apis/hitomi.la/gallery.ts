@@ -8,12 +8,10 @@ let ggJS: string;
 let commonJS: string;
 
 client.GET("https://ltn.hitomi.la/gg.js", "text").then((response) => {
-	// update
 	ggJS = "var\u0020gg;" + response.body.split("\n").filter((section) => !/if\s\([\D\d]+\)\s{\sreturn\s[\d]+;\s}/.test(section)).join("\n");
 });
 
 client.GET("https://ltn.hitomi.la/common.js", "text").then((response) => {
-	// update
 	commonJS = response.body.split("\nfunction\u0020").filter((section) => /^(subdomain_from_url|url_from_url|full_path_from_hash|real_full_path_from_hash|url_from_hash|url_from_url_from_hash|rewrite_tn_paths)/.test(section)).map((section) => "function" + space + section).join("");
 });
 
@@ -29,7 +27,6 @@ class Gallery extends _Gallery {
 		return `https://hitomi.la/galleries/${this.id}.html`;
 	}
 	public async files(): Promise<Array<GalleryFile>> {
-		// cache
 		const response = await client.GET(`https://ltn.hitomi.la/galleries/${this.id}.js`, "text");
 
 		const metadata = JSON.parse(response.body.replace(/^var\sgalleryinfo\s=\s/, ""));
@@ -62,55 +59,32 @@ class GalleryFile extends _GalleryFile {
 export type gallery = Await<ReturnType<typeof gallery>>;
 
 export async function gallery(id: number) {
-	// cache
 	const response = await client.GET(`https://ltn.hitomi.la/galleryblock/${id}.html`, "text");
 
 	await until(() => ggJS !== undefined && commonJS !== undefined);
 
-	const element = new DOMParser().parseFromString((await execute(ggJS + commonJS + "rewrite_tn_paths(response.body);", { response: response }) as string).replace(/\s\s+/g, "").replace(/\n/g, ""), "text/html");
+	const [element, metadata] = [new DOMParser().parseFromString((await execute(ggJS + commonJS + "rewrite_tn_paths(response.body);", { response: response }) as string).replace(/\s\s+/g, "").replace(/\n/g, ""), "text/html"), {} as Record<keyof Gallery, unknown>];
 
-	const metadata = new Map<string, unknown>(Object.entries({}));
-
-	function property(key: string) {
+	function get(key: string) {
 		return element.querySelector(`*[href*="/${key}"]`)?.textContent;
 	}
 
-	metadata.set("type", property("type"));
+	metadata.id = id;
+	metadata.type = get("type");
+	metadata.title = element.querySelector(".lillie a")?.textContent ?? "N/A";
+	metadata.group = get("group");
+	metadata.parody = get("series");
+	metadata.artists = Array.from(element.getElementsByClassName("artist-list")).map((source) => source.textContent);
+	metadata.language = get("index");
+	metadata.thumbnail = Array.from(element.getElementsByClassName("lazyload")).map((source) => "https:" + source.getAttribute("data-src"));
+	metadata.characters = get("characters");
+	metadata.tags = Array.from(element.querySelectorAll("*[href*=\"/tag/\"]")).map((source) => {
+		// can this be null..?
+		if (!source.textContent) throw new Error();
 
-	metadata.set("title", element.querySelector(".lillie a")?.textContent);
-
-	metadata.set("group", property("group"));
-
-	metadata.set("series", property("series"));
-
-	metadata.set("artists", Array.from(element.getElementsByClassName("artist-list")).map((source) => source.textContent));
-
-	metadata.set("language", property("index"));
-
-	metadata.set("thumbnail", Array.from(element.getElementsByClassName("lazyload")).map((source) => "https:" + source.getAttribute("data-src")));
-
-	metadata.set("characters", property("characters"));
-
-	metadata.set("tags", Array.from(element.querySelectorAll("*[href*=\"/tag/\"]")).map((source) => {
-		// cache
-		const text = source.textContent!;
-
-		return new Tag({ key: text.includes("♂") ? "male" : text.includes("♀") ? "female" : "tag", value: text.replace("♂", "").replace("♀", "").replace(/\s$/, "").replace(/\s/g, "_") });
-	}));
-
-	metadata.set("date", element.getElementsByClassName("date").item(0)?.textContent);
-
-	return new Gallery({
-		id: id,
-		type: metadata.get("type") as Args<Gallery>["type"],
-		title: metadata.get("title") as Args<Gallery>["title"],
-		group: metadata.get("group") as Args<Gallery>["group"],
-		parody: metadata.get("series") as Args<Gallery>["parody"],
-		artists: metadata.get("artists") as Args<Gallery>["artists"],
-		language: metadata.get("language") as Args<Gallery>["language"],
-		thumbnail: metadata.get("thumbnail") as Args<Gallery>["thumbnail"],
-		characters: metadata.get("characters") as Args<Gallery>["characters"],
-		tags: metadata.get("tags") as Args<Gallery>["tags"],
-		date: metadata.get("date") as Args<Gallery>["type"]
+		return new Tag({ key: source.textContent.includes("♂") ? "male" : source.textContent.includes("♀") ? "female" : "tag", value: source.textContent.replace("♂", "").replace("♀", "").replace(/\s$/, "").replace(/\s/g, "_") });
 	});
+	metadata.date = element.getElementsByClassName("date").item(0)?.textContent ?? "N/A";
+
+	return new Gallery(metadata as Gallery);
 }

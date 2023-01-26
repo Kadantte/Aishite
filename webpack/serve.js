@@ -1,78 +1,66 @@
-const webpack = require("webpack");
-const { main, preload, renderer } = require("./webpack.config");
+/* eslint-disable @typescript-eslint/no-var-requires */
 
-var reload = 0;
+const webpack = require("webpack");
+const { init, main, preload, renderer } = require("./webpack.config.js");
+
+let reload = 0;
 
 const compiler = {
-	main: {
-		state: false,
+	"main": {
+		ready: 0,
 		instance: undefined
 	},
-	preload: {
-		state: false,
+	"preload": {
+		ready: 0,
 		instance: undefined
 	},
-	renderer: {
-		state: false,
+	"renderer": {
+		ready: 0,
 		instance: undefined
 	}
 };
 
-const boilerplate = {
-	mode: "development",
-	watch: true,
-	plugins: [
-		new webpack.DefinePlugin({
-			"process.env": {
-				"NODE_ENV": JSON.stringify("development")
-			}
-		})
-	],
-	devtool: "eval-cheap-module-source-map"
-};
+function bundle(key) {
+	// update
+	compiler[key].ready++;
 
-compiler["main"].instance = webpack({
-	...main,
-	...boilerplate,
-	plugins: [
-		...main.plugins,
-		...boilerplate.plugins
-	]
-}, () => true);
+	console.log(`${"\x1b[31m"}${key}${"\x1b[0m"} is bundled for ${compiler[key].ready} time(s)`);
 
-compiler["preload"].instance = webpack({
-	...preload,
-	...boilerplate,
-	plugins: [
-		...preload.plugins,
-		...boilerplate.plugins
-	]
-}, () => true);
+	if (reload > 0) return;
 
-compiler["renderer"].instance = webpack({
-	...renderer,
-	...boilerplate,
-	plugins: [
-		...renderer.plugins,
-		...boilerplate.plugins
-	]
-}, () => true);
+	if (!Object.values(compiler).every((instance) => instance.ready)) return;
 
-compiler["main"].instance.hooks.done.tap("done", () => build("main"));
+	const electron = require("child_process").spawn("npx.cmd", ["electron", "."], { args: ["--colors", "--inspect=5858"], stdio: [process.stdin, process.stdout, "pipe"] });
 
-compiler["preload"].instance.hooks.done.tap("done", () => build("preload"));
+	electron.on("close", () => process.exit());
 
-compiler["renderer"].instance.hooks.done.tap("done", () => build("renderer"));
-
-function build(section) {
-	// update state
-	compiler[section].state = true;
-	// all-ready
-	if (!reload && Object.values(compiler).every((instance) => instance.state)) {
-		const electron = require("child_process").spawn("npx.cmd", ["electron", "."], { args: ["--colors", "--inspect=5858"], stdio: [process.stdin, process.stdout, "pipe"] });
-
-		electron.on("close", () => process.exit());
-		
-		reload++;
-	}
+	reload++;
 }
+
+function instance(data) {
+	return webpack({
+		...data,
+		mode: "development",
+		watch: true,
+		plugins: [
+			new webpack.DefinePlugin({
+				"process.env": {
+					"NODE_ENV": JSON.stringify("development")
+				}
+			})
+		],
+		devtool: "eval-cheap-module-source-map"
+	}, () => {
+		// TODO: none
+	});
+}
+
+init().then(() => {
+	compiler["main"].instance = instance(main());
+	compiler["preload"].instance = instance(preload());
+	compiler["renderer"].instance = instance(renderer());
+	
+	compiler["main"].instance.hooks.done.tap("done", () => bundle("main"));
+	compiler["preload"].instance.hooks.done.tap("done", () => bundle("preload"));
+	compiler["renderer"].instance.hooks.done.tap("done", () => bundle("renderer"));
+});

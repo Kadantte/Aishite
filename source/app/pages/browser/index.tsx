@@ -51,10 +51,10 @@ class Browser extends Stateful<BrowserProps, BrowserState> {
 				index: this.props.index
 			},
 			suggest: {
-				items: new Array()
+				items: []
 			},
 			gallery: {
-				value: new Array()
+				value: []
 			},
 			highlight: "???"
 		};
@@ -62,7 +62,6 @@ class Browser extends Stateful<BrowserProps, BrowserState> {
 	protected events() {
 		return {
 			DID_MOUNT: () => {
-				// initial
 				this.onRender();
 
 				structure("tabs").handle(this.onRender);
@@ -90,17 +89,17 @@ class Browser extends Stateful<BrowserProps, BrowserState> {
 						this.browse("language = \"all\"");
 					}}
 					onHover={(index) => {
-						// cache
-						const input = this.node().getElementsByTagName("input").item(0)!;
+						const element = this.node().getElementsByTagName("input").item(0);
 
+						if (!element) return;
 						if (!this.state.suggest.items[index]) return;
 
-						input.value = (input.value.trim().replace(/\s*(=|!=)\s*/g, ($0, $1) => $1).split(space).slice(0, -1).join(space).replace(/\s*[&?+-]\s*$/, "") + space + "&" + space + this.state.suggest.items[index].first.toString()).replace(/\s*(=|!=)\s*/g, ($0, $1) => space + $1 + space).replace(/^\s*[&?+-]\s*/, "");
+						element.value = (element.value.trim().replace(/\s*(=|!=)\s*/g, ($0, $1) => $1).split(space).slice(0, -1).join(space).replace(/\s*[&?+-]\s*$/, "") + space + "&" + space + this.state.suggest.items[index].first.toString()).replace(/\s*(=|!=)\s*/g, ($0, $1) => space + $1 + space).replace(/^\s*[&?+-]\s*/, "");
 					}}
-					onSelect={(text) => {
+					onSelect={(value) => {
 						suggest("expire");
 
-						this.setState((state) => ({ suggest: { items: new Array() } }));
+						this.setState((state) => ({ suggest: { items: [] } }));
 					}}
 					onSubmit={(value) => {
 						suggest("expire");
@@ -115,11 +114,11 @@ class Browser extends Stateful<BrowserProps, BrowserState> {
 					onChange={(value) => {
 						suggest("expire");
 
-						if (this.state.suggest.items.isNotEmpty) this.setState((state) => ({ suggest: { items: new Array() } }));
-						// silent update
-						this.state.highlight = value.trim().split(space).last ?? "???";
-
 						suggest(this.state.highlight).then((items) => {
+							if (this.state.suggest.items.isNotEmpty) this.setState((state) => ({ suggest: { items: [] } }));
+
+							this.state.highlight = value.trim().split(space).last ?? "???";
+
 							if (items.isNotEmpty) this.setState((state) => ({ suggest: { items: items } }));
 						});
 					}}
@@ -131,12 +130,13 @@ class Browser extends Stateful<BrowserProps, BrowserState> {
 								return (
 									<Gallery key={gallery} gallery={gallery} constraint={{ height: app.min_height - 180.0 - 0.25 }}
 										onClick={(tag) => {
-											// cache
-											const input = this.node().getElementsByTagName("input").item(0)!;
+											const element = this.node().getElementsByTagName("input").item(0);
 
-											this.setState((state) => ({ suggest: { items: new Array() } }));
+											this.setState((state) => ({ suggest: { items: [] } }));
 
-											input.value = input.value.includes(tag) ? input.value.replace(tag, "").replace(/\s*[&?+-]\s*[&?+-]\s*/, space + "&" + space).replace(/\s*[&?+-]\s*$/, "") : (input.value + space + "&" + space + tag).replace(/^\s*[&?+-]\s*/, "");
+											if (!element) return;
+
+											element.value = element.value.includes(tag) ? element.value.replace(tag, "").replace(/\s*[&?+-]\s*[&?+-]\s*/, space + "&" + space).replace(/\s*[&?+-]\s*$/, "") : (element.value + space + "&" + space + tag).replace(/^\s*[&?+-]\s*/, "");
 										}}
 									/>
 								);
@@ -158,13 +158,12 @@ class Browser extends Stateful<BrowserProps, BrowserState> {
 								}}
 								onMouseLeave={(setStyle) => {
 									setStyle(undefined);
-								}}
-								children={<Text>{[{ value: /^[0-9]$/.test(key) ? (index + 1).toString() : key, color: indexing ? "aquamarine" : undefined }]}</Text>}
-							/>
+								}}>
+								<Text>{[{ value: /^[0-9]$/.test(key) ? (index + 1).toString() : key, color: indexing ? "aquamarine" : undefined }]}</Text>
+							</Button>
 						);
 					}}
 					onPaging={(index) => {
-						// skip
 						if (!this.visible()) return false;
 						// reset scroll position
 						this.node().querySelector("#display")?.scrollTo({ top: 0 });
@@ -178,7 +177,7 @@ class Browser extends Stateful<BrowserProps, BrowserState> {
 		);
 	}
 	protected visible() {
-		return structure("tabs").page.element.props["data-key"] === (this.props as any)["data-key"];
+		return structure("tabs").peek().element.props["data-key"] === (this.props as typeof this.props & { "data-key": string })["data-key"];
 	}
 	protected discord() {
 		if (!this.visible()) return;
@@ -190,35 +189,30 @@ class Browser extends Stateful<BrowserProps, BrowserState> {
 			discord.update({ state: "Browsing", details: this.state.search.value, partyMax: Math.ceil(this.state.gallery.value.length / 25), partySize: this.state.search.index + 1 });
 		}
 	}
-	protected async browse(value: string, index: number = 0) {
+	protected async browse(value: string, index = 0) {
 		return new Promise((resolve, reject) => {
-			// update
-			this.setState((state) => ({ search: { value: value, index: index }, suggest: { items: new Array() }, gallery: { value: new Array() }, highlight: "???" }), () => {
-				// discordRPC
+			this.setState((state) => ({ search: { value: value, index: index }, suggest: { items: [] }, gallery: { value: [] }, highlight: "???" }), () => {
+
 				this.discord();
 
 				search(value).then((_bundle) => {
-					// cache
 					const _result = Array.from(_bundle);
-					// discordRPC
-					this.discord();
-					// callback?
-					resolve(_result.length);
 
-					this.setState((state) => ({ gallery: { value: _result } }));
+					this.discord();
+
+					this.setState((state) => ({ gallery: { value: _result } }), () => resolve(_result.length));
 				});
 			});
 		});
 	}
 	@autobind()
 	protected async onRender() {
-		// skip
 		if (!this.visible()) return;
-		// discordRPC
+
 		this.discord();
 		
 		if (this.state.init) return;
-		// silent update
+		
 		this.state.init = true;
 
 		this.browse(this.state.search.value, this.state.search.index);

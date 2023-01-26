@@ -17,7 +17,7 @@ Object.defineProperty(Buffer.prototype, "skip", {
 Object.defineProperty(Buffer.prototype, "take", {
 	value(count: number) {
 		if (count <= 0) {
-			return new Array();
+			return [];
 		}
 		else {
 			return this.slice(0, count);

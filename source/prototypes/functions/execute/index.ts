@@ -5,8 +5,8 @@ import workerJS from "file-loader?name=[name].js!@/prototypes/functions/execute/
  */
 export function _execute(script: string, variables: { [key: string]: unknown; } = {}) {
 	return new Promise((resolve, reject) => {
-		// cache
-		let timeout: NodeJS.Timeout
+		// eslint-disable-next-line prefer-const
+		let timeout: NodeJS.Timeout;
 
 		const worker = new Worker(workerJS);
 

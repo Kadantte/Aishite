@@ -32,27 +32,24 @@ class Bundle {
 	}
 }
 
-async function unknown_0(value: string) {
+async function unknown_0(unprocessed: string) {
 	timestamp++;
 
 	const UUID = timestamp;
-	//
-	// 0: key 
-	// 1: value
-	//
-	const fragment = value.includes(":") ? value.split(":") : ["global", value];
+
+	const [key, value] = unprocessed.includes(":") ? unprocessed.split(":") : ["global", unprocessed];
 
 	try {
-		const bundle = await unknown_3(fragment[0], 0);
+		const bundle = await unknown_3(key, 0);
 		if (timestamp !== UUID) throw new Error();
-		const digits = await unknown_5(fragment[0], unknown_1(fragment[1]), bundle);
+		const digits = await unknown_5(key, unknown_1(value), bundle);
 		if (timestamp !== UUID) throw new Error();
-		const result = await unknown_6(fragment[0], digits);
+		const result = await unknown_6(key, digits);
 		if (timestamp !== UUID) throw new Error();
 		return result;
 	}
 	catch {
-		return new Array() as Await<ReturnType<typeof unknown_6>>;
+		return [] as Await<ReturnType<typeof unknown_6>>;
 	}
 }
 
@@ -61,14 +58,12 @@ function unknown_1(value: string) {
 }
 
 function unknown_2(buffer: Uint8Array) {
-	const binary = new Binary({ offset: 0, buffer: new DataView(buffer.buffer) });
-	const bundle = new Bundle({ nodes: new Array(), buffer: new Array(), digits: new Array() });
+	const [binary, bundle] = [new Binary({ offset: 0, buffer: new DataView(buffer.buffer) }), new Bundle({ nodes: [], buffer: [], digits: [] })];
 
 	const _0 = binary.buffer.getInt32(binary.offset, Endian.BIG);
 	binary.offset += 4;
 
 	for (let index = 0; index < _0; index++) {
-		// cache
 		const offset = binary.buffer.getInt32(binary.offset, Endian.BIG);
 
 		if (offset === 0 || offset > 32) throw new Error();
@@ -93,7 +88,6 @@ function unknown_2(buffer: Uint8Array) {
 }
 
 async function unknown_3(directory: string, value: number) {
-	// cache
 	const path = directory === "global" ? "tag" : directory;
 
 	return unknown_2(await unknown_4(`https://ltn.hitomi.la/${path}index/${directory}.${await revision(path)}.index`, value, value + 463));
@@ -104,7 +98,6 @@ async function unknown_4(url: string, offset: number, length: number) {
 }
 
 async function unknown_5(type: string, buffer: Uint8Array, bundle: Bundle): Promise<Pair<number, number>> {
-	// check before local functions
 	if (bundle.buffer.isEmpty) throw new Error();
 
 	function mystery_0(first: Uint8Array, second: Uint8Array) {
@@ -118,12 +111,10 @@ async function unknown_5(type: string, buffer: Uint8Array, bundle: Bundle): Prom
 		}
 		return new Pair(true, true);
 	}
-
 	function mystery_1(buffer: Uint8Array, bundle: Bundle) {
 		let fragment = new Pair(true, false);
 
 		for (let index = 0; index < bundle.buffer.length; index++) {
-			// update
 			fragment = mystery_0(buffer, bundle.buffer[index]);
 
 			if (fragment.first) return new Pair(fragment.second, index);
@@ -132,14 +123,12 @@ async function unknown_5(type: string, buffer: Uint8Array, bundle: Bundle): Prom
 
 		return new Pair(true, 0);
 	}
-
 	function mystery_2(bundle: Bundle) {
 		for (let index = 0; index< bundle.nodes.length; index++) {
 			if (bundle.nodes[index] > 0) return false;
 		}
 		return true;
 	}
-	// cache
 	const mystery = mystery_1(buffer, bundle);
 
 	if (mystery.first) return bundle.digits[mystery.second];
@@ -168,8 +157,7 @@ async function unknown_6(type: string, digits: Pair<number, number>) {
 	}
 
 	for (let index = 0; index < _0; index++) {
-		// cache
-		let key = "", value = "";
+		let [key, value] = ["", ""];
 
 		const _1 = binary.buffer.getInt32(binary.offset, Endian.BIG);
 		binary.offset += 4;
@@ -202,7 +190,7 @@ export async function suggest(value: string) {
 			// outdate
 			timestamp++;
 
-			return new Promise((resolve, reject) => resolve(new Array())) as ReturnType<Await<typeof unknown_0>>;
+			return new Promise((resolve, reject) => resolve([])) as ReturnType<Await<typeof unknown_0>>;
 		}
 		default: {
 			return unknown_0(value.replace(/_/g, space));

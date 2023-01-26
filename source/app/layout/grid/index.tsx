@@ -6,4 +6,4 @@ export default {
 	Cell: Cell,
 	Layout: Layout,
 	Region: Region
-}
+};

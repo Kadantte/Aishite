@@ -12,7 +12,6 @@ interface BracketState {
 }
 
 class Bracket extends Stateful<BracketProps, BracketState> {
-	// UWU...
 	static getDerivedStateFromError() {
 		return {
 			error: true

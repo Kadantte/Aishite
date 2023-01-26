@@ -20,6 +20,10 @@ class Tabs extends StateHandler<TabsState> {
 	protected create() {
 		// update
 		update_title(this.peek());
+
+		window.addEventListener("keydown", (event) => {
+			if (event.key === "w" && !event.altKey && event.ctrlKey && !event.shiftKey) this.close();
+		});
 	}
 	public peek() {
 		return this.state.pages[this.state.index];

@@ -28,8 +28,6 @@ import languages from "assets/languages.json";
 
 import { gallery } from "apis/hitomi.la/gallery";
 
-const cache = new Map<number, number>();
-
 enum Lelouch {
 	TITLE,
 	TOOLS
@@ -51,12 +49,15 @@ interface GalleryProps extends Props.Clear<undefined>, Props.Style {
 interface GalleryState {
 	init: boolean;
 	offset: number;
-	gallery: Unset<Await<ReturnType<typeof gallery>>>;
+	gallery?: gallery;
 	foreground: Lelouch;
 	background: Lamperouge;
 }
 
 class Gallery extends Stateful<GalleryProps, GalleryState> {
+	// cache
+	protected static height: Record<number, number> = {};
+
 	protected create() {
 		return {
 			init: false,
@@ -75,45 +76,34 @@ class Gallery extends Stateful<GalleryProps, GalleryState> {
 	protected events() {
 		return {
 			DID_MOUNT: () => {
-				// cache
-				const element = this.node(); const rect = element.getBoundingClientRect();
+				const [element, height] = [this.node(), this.node().getBoundingClientRect().height - 160.0];
 
 				const observer: IntersectionObserver = new IntersectionObserver((entries) => {
 					for (const entry of entries) {
-						// skip
 						if (!entry.isIntersecting) break;
 
-						this.setState((state) => ({ init: true }), () => {
-							// fetch
-							gallery(this.props.gallery).then((_gallery) => {
-								// callback hell...
-								this.setState((state) => ({ gallery: _gallery }), () => {
-									// please end this nest
-									if (structure("ctm").state.id === this.props.gallery.toString()) structure("ctm").refresh();
-								});
+						this.state.init = true;
+
+						gallery(this.props.gallery).then((_gallery) => {
+							this.setState((state) => ({ gallery: _gallery }), () => {
+								if (structure("ctm").state.id === this.props.gallery.toString()) structure("ctm").refresh();
 							});
 						});
-						// stop
 						observer.disconnect();
 					}
 				});
-				// start
 				observer.observe(element);
 
-				const height = rect.height - 160.0;
-
-				if (!cache.has(height)) {
+				if (!Gallery.height[height]) {
 					// cache
-					let count = 0;
+					let rows = 0;
 					// max-height
-					while (height / count >= 60.0) {
-						count++;
+					while (height / rows >= 60.0) {
+						rows++;
 					}
-					// update
-					cache.set(rect.height, ((height / count) - 35.0) * 0.5);
+					Gallery.height[height] = ((height / rows) - 35.0) * 0.5;
 				}
-				// update
-				this.setState((state) => ({ offset: cache.get(rect.height)! }));
+				this.setState((state) => ({ offset: Gallery.height[height] }));
 			}
 		};
 	}
@@ -126,7 +116,7 @@ class Gallery extends Stateful<GalleryProps, GalleryState> {
 					navigator.clipboard.write([new ClipboardItem({ "text/plain": new Blob([this.state.gallery.URL()], { type: "text/plain" }) })]);
 				}
 			},
-			"seperator" as "seperator",
+			"seperator" as const,
 			{
 				role: "Download", toggle: false, method: async () => {
 					throw new Error("Unimplemented");
@@ -137,7 +127,7 @@ class Gallery extends Stateful<GalleryProps, GalleryState> {
 					throw new Error("Unimplemented");
 				}
 			},
-			"seperator" as "seperator",
+			"seperator" as const,
 			{
 				role: "Open in Viewer", toggle: this.state.gallery !== undefined, method: async () => {
 					if (this.state.gallery === undefined) return;
@@ -193,9 +183,9 @@ class Gallery extends Stateful<GalleryProps, GalleryState> {
 				}}>
 				<Stack>
 					{[
-						(<Element id="thumbnail_0" decoration={{ image: "url(" + this.state.gallery.thumbnail[0] + ")" }}></Element>),
-						(<Element id="thumbnail_1" decoration={{ image: "url(" + this.state.gallery.thumbnail[1] + ")" }}></Element>),
-						(<Element id="information">
+						(<Element key="A" id="thumbnail_0" decoration={{ image: "url(" + this.state.gallery.thumbnail[0] + ")" }}></Element>),
+						(<Element key="B" id="thumbnail_1" decoration={{ image: "url(" + this.state.gallery.thumbnail[1] + ")" }}></Element>),
+						(<Element key="C" id="information">
 							<Element position={{ all: 25.0, bottom: 100.0 }} decoration={{ color: Color.pick(2.0), corner: { all: 5.0 }, border: { all: { width: 1.5, style: "solid", color: Color.pick(5.0) } } }}>
 								<Scroll x="hidden" y="auto" scrollbar="smooth">
 									<Element position={{ all: 15.0 }}>
@@ -220,7 +210,6 @@ class Gallery extends Stateful<GalleryProps, GalleryState> {
 													{/* VALUE */}
 													<Inline flex={true}>
 														{[section.value instanceof Array && section.value.isEmpty ? ["N/A"] : section.value ?? "N/A"].flat().map((value, index) => {
-															// cache
 															const button = { enable: value !== "N/A" && section.key !== "title" && section.key !== "date", value: value.toString() };
 
 															switch (section.key) {
@@ -244,25 +233,22 @@ class Gallery extends Stateful<GalleryProps, GalleryState> {
 															return (
 																<Button key={index} offset={{ margin: { all: 3.0 }, padding: { all: 2.5, left: 5.0, right: 5.0 } }} constraint={{ maximum: { width: 69.0 + "%" } }} decoration={{ color: Color.pick(3.0), border: { all: { width: 1.5, style: "solid", color: Color.pick(1.5) } }, corner: { all: 2.5 } }}
 																	onMouseDown={(setStyle) => {
-																		// skip
 																		if (!button.enable) return;
 
 																		this.props.onClick?.((value instanceof Tag ? value : new Tag({ key: section.key, value: button.value })).toString());
 																	}}
 																	onMouseEnter={(setStyle) => {
-																		// skip
 																		if (!button.enable) return;
 
 																		setStyle({ decoration: { color: Color.pick(4.5) } });
 																	}}
 																	onMouseLeave={(setStyle) => {
-																		// skip
 																		if (!button.enable) return;
 
 																		setStyle(undefined);
-																	}}
-																	children={<Text length={100.0 + "%"}>{(value instanceof Tag ? [{ value: value.key, color: value.key === "male" ? "cyan" : value.key === "female" ? "pink" : "white" }, { value: ":" }, { value: value.value }] : [{ value: button.value, color: button.enable ? undefined : Color.pick(5.0) }]).map((text) => ({ ...text, size: 13.5 }))}</Text>}
-																/>
+																	}}>
+																	<Text length={100.0 + "%"}>{(value instanceof Tag ? [{ value: value.key, color: value.key === "male" ? "cyan" : value.key === "female" ? "pink" : "white" }, { value: ":" }, { value: value.value }] : [{ value: button.value, color: button.enable ? undefined : Color.pick(5.0) }]).map((text) => ({ ...text, size: 13.5 }))}</Text>
+																</Button>
 															);
 														})}
 													</Inline>
@@ -290,11 +276,13 @@ class Gallery extends Stateful<GalleryProps, GalleryState> {
 					}}>
 					<Stack>
 						{[
-							(<Text id="title" length={90.0 + "%"}>{[{ value: this.state.gallery.title, weight: "bold" }]}</Text>),
+							(<Text key="A" id="title" length={90.0 + "%"}>{[{ value: this.state.gallery.title, weight: "bold" }]}</Text>),
 							(<>
 								<Read color={Color.pick(5.0)} offset={{ margin: { left: 10.0, right: 10.0 } }} constraint={{ width: 25.0, height: 25.0 }}
 									onMouseDown={(setColor) => {
-										structure("tabs").open(this.state.gallery!.title, "VIEWER", { gallery: this.state.gallery!.id });
+										if (!this.state.gallery) return;
+
+										structure("tabs").open(this.state.gallery.title, "VIEWER", { gallery: this.state.gallery.id });
 									}}
 									onMouseEnter={(setColor) => {
 										setColor("#AAAAAA");

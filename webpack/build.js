@@ -1,105 +1,80 @@
-const node_fs = require("fs");
+/* eslint-disable @typescript-eslint/no-var-requires */
+
 const webpack = require("webpack");
-const package = require("../package");
 const builder = require("electron-builder");
-const { main, preload, renderer } = require("./webpack.config");
+const { init, main, preload, renderer } = require("./webpack.config.js");
 
 const compiler = {
-	main: {
-		state: false,
+	"main": {
+		ready: 0,
 		instance: undefined
 	},
-	preload: {
-		state: false,
+	"preload": {
+		ready: 0,
 		instance: undefined
 	},
-	renderer: {
-		state: false,
+	"renderer": {
+		ready: 0,
 		instance: undefined
 	}
 };
-const boilerplate = {
-	mode: "development",
-	watch: false,
-	plugins: [
-		new webpack.DefinePlugin({
-			"process.env": {
-				"NODE_ENV": JSON.stringify("production")
-			}
-		})
-	],
-	devtool: "inline-nosources-cheap-module-source-map"
-};
 
-compiler["main"].instance = webpack({
-	...main,
-	...boilerplate,
-	plugins: [
-		...main.plugins,
-		...boilerplate.plugins
-	]
-}, () => true);
+function bundle(key) {
+	// update
+	compiler[key].ready++;
 
-compiler["preload"].instance = webpack({
-	...preload,
-	...boilerplate,
-	plugins: [
-		...preload.plugins,
-		...boilerplate.plugins
-	]
-}, () => true);
+	console.log(`\x1b[31m${key}\x1b[0m is bundled`);
 
-compiler["renderer"].instance = webpack({
-	...renderer,
-	...boilerplate,
-	plugins: [
-		...renderer.plugins,
-		...boilerplate.plugins
-	]
-}, () => true);
+	if (!Object.values(compiler).every((instance) => instance.ready)) return;
 
-compiler["main"].instance.hooks.done.tap("done", () => build("main"));
-
-compiler["preload"].instance.hooks.done.tap("done", () => build("preload"));
-
-compiler["renderer"].instance.hooks.done.tap("done", () => build("renderer"));
-
-function build(section) {
-	// update state
-	compiler[section].state = true;
-	// close compiler
-	compiler[section].instance.close(() => {
-		// all-ready
-		if (Object.values(compiler).every((instance) => instance.state)) {
-			node_fs.writeFile("./build/package.json",
-				JSON.stringify({
-					name: package.name,
-					main: package.main,
-					version: package.version,
-					description: package.description
-				}), { }, () => {
-					builder.build({
-						targets: builder.Platform.WINDOWS.createTarget("zip"),
-						config: {
-							nsis: {
-								oneClick: false,
-								perMachine: true,
-								installerIcon: "../source/assets/icon.ico",
-								uninstallerIcon: "../source/assets/icon.ico"
-							},
-							files: [
-								"build/*.js",
-								"build/*.json",
-								"build/*.html",
-							],
-							directories: {
-								output: "releases"
-							},
-							icon: "../source/assets/icon.ico"
-						}
-					});
-				}
-			);
+	builder.build({
+		targets: builder.Platform.WINDOWS.createTarget("zip"),
+		config: {
+			nsis: {
+				oneClick: false,
+				perMachine: true,
+				installerIcon: "../source/assets/icon.ico",
+				uninstallerIcon: "../source/assets/icon.ico"
+			},
+			files: [
+				"build/*.js",
+				"build/*.json",
+				"build/*.html",
+			],
+			directories: {
+				output: "releases"
+			},
+			icon: "../source/assets/icon.ico"
 		}
 	});
+
+	Object.values(compiler).every((instance) => instance.close());
 }
+
+function instance(data) {
+	return webpack({
+		...data,
+		mode: "development",
+		watch: false,
+		plugins: [
+			new webpack.DefinePlugin({
+				"process.env": {
+					"NODE_ENV": JSON.stringify("production")
+				}
+			})
+		],
+		devtool: "inline-nosources-cheap-module-source-map"
+	}, () => {
+		// TODO: none
+	});
+}
+
+init().then(() => {
+	compiler["main"].instance = instance(main());
+	compiler["preload"].instance = instance(preload());
+	compiler["renderer"].instance = instance(renderer());
+	
+	compiler["main"].instance.hooks.done.tap("done", () => bundle("main"));
+	compiler["preload"].instance.hooks.done.tap("done", () => bundle("preload"));
+	compiler["renderer"].instance.hooks.done.tap("done", () => bundle("renderer"));
+});
