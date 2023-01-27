@@ -30,7 +30,7 @@ npm run serve
 
 # 후원
 
-[바로가기](https://github.com/Any-Material/Daisuki/docs/donation.md)
+[바로가기](https://github.com/Any-Material/Daisuki/blob/master/docs/donation.md)
 
 # 사용법
 
