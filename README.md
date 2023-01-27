@@ -10,7 +10,7 @@
 	<a href="https://github.com/Any-Material/Daisuki/issues/new">Report Bug</a>
 </div>
 <div align="center">
-	Care to <a href="https://www.buymeacoffee.com/Sombian">Support</a> this project?
+	Care to <a href="/docs/donation.md">Support</a> this project?
 </div>
 
 # About
