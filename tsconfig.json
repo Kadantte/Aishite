@@ -2,7 +2,7 @@
 	"compilerOptions": {
 		"jsx": "react-jsx",
 		"target": "esnext",
-		"module": "commonjS",
+		"module": "commonJS",
 		"paths": {
 			"@/*": [
 				"./source/*"

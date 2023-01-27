@@ -10,7 +10,7 @@
 	<a href="https://github.com/Any-Material/Daisuki/issues/new">오류 제보</a>
 </div>
 <div align="center">
-	해당 프로젝트를 <a href="https://toss.me/Sombian">지원</a> 해주실래요?
+	해당 프로젝트를 <a href="https://www.buymeacoffee.com/Sombian">지원</a> 해주실래요?
 </div>
 
 # 설명
@@ -32,7 +32,7 @@ npm run serve
 
 새 컴퓨터를 맞추고 싶어요 (1050ti ryzen 1700 사용중)...
 
-[후원](https://toss.me/Sombian) 해주시면 매우 감사하겠습니다 ㅠㅠ
+[후원](https://www.buymeacoffee.com/Sombian) 해주시면 매우 감사하겠습니다 ㅠㅠ
 
 # 사용법
 
