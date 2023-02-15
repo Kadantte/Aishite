@@ -87,34 +87,34 @@ class App extends Stateful<AppProps, AppState> {
 					this.setState((state) => ({ contextmenu: false }), () => Object.defineProperty(structure("ctm").state, "id", { value: "???" }));
 				});
 
-				let [idle, timeout] = [false, undefined as NodeJS.Timeout | undefined];
+				// let [idle, timeout] = [false, undefined as NodeJS.Timeout | undefined];
 
-				const start_idle = (duration = 2000) => {
-					timeout = setTimeout(() => { idle = true; timeout = undefined; if (!this.state.contextmenu) document.body.style.cursor = "none"; }, duration);
-				};
+				// const start_idle = (duration = 2000) => {
+				// 	timeout = setTimeout(() => { idle = true; timeout = undefined; if (!this.state.contextmenu) document.body.style.cursor = "none"; }, duration);
+				// };
 
-				window.addEventListener("mousedown", (event) => {
-					if (timeout) {
-						clearTimeout(timeout);
-					}
-					start_idle();
-				});
-				window.addEventListener("mousemove", (event) => {
-					if (timeout) {
-						clearTimeout(timeout);
-					}
-					if (idle) {
-						idle = false;
-						if (!this.state.contextmenu) document.body.style.cursor = "default";
-					}
-					start_idle();
-				});
-				window.addEventListener("contextmenu", (event) => {
-					if (idle) {
-						idle = false;
-						if (this.state.contextmenu) document.body.style.cursor = "default";
-					}
-				});
+				// window.addEventListener("mousedown", (event) => {
+				// 	if (timeout) {
+				// 		clearTimeout(timeout);
+				// 	}
+				// 	start_idle();
+				// });
+				// window.addEventListener("mousemove", (event) => {
+				// 	if (timeout) {
+				// 		clearTimeout(timeout);
+				// 	}
+				// 	if (idle) {
+				// 		idle = false;
+				// 		if (!this.state.contextmenu) document.body.style.cursor = "default";
+				// 	}
+				// 	start_idle();
+				// });
+				// window.addEventListener("contextmenu", (event) => {
+				// 	if (idle) {
+				// 		idle = false;
+				// 		if (this.state.contextmenu) document.body.style.cursor = "default";
+				// 	}
+				// });
 			}
 		};
 	}

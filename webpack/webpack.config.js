@@ -79,7 +79,6 @@ function main() {
 		...settings.output,
 		filename: "main.js"
 	};
-
 	return settings;
 }
 
@@ -92,7 +91,6 @@ function preload() {
 		...settings.output,
 		filename: "preload.js"
 	};
-
 	return settings;
 }
 
@@ -105,7 +103,6 @@ function renderer() {
 		...settings.output,
 		filename: "renderer.js"
 	};
-
 	return settings;
 }
 

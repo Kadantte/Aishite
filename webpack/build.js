@@ -23,7 +23,7 @@ function bundle(key) {
 	// update
 	compiler[key].ready++;
 
-	console.log(`\x1b[31m${key}\x1b[0m is bundled`);
+	console.log(`${"\x1b[31m"}${key}${"\x1b[0m"} is bundled`);
 
 	if (!Object.values(compiler).every((instance) => instance.ready)) return;
 

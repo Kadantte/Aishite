@@ -57,7 +57,6 @@ app.on("ready", () => {
 	function print(...args: Array<unknown>) {
 		window.webContents.send("console", ...args);
 	}
-
 	//
 	// behaviours
 	//
