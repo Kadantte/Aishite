@@ -100,15 +100,15 @@ app.on("ready", () => {
 			// function
 			//
 			case Window.Function.BLUR: {
-				setTimeout(() => window.blur(), 150);
+				setTimeout(() => window.blur(), 100);
 				break;
 			}
 			case Window.Function.FOCUS: {
-				setTimeout(() => window.focus(), 150);
+				setTimeout(() => window.focus(), 100);
 				break;
 			}
 			case Window.Function.CLOSE: {
-				window.destroy();
+				setTimeout(() => window.destroy(), 100);
 				break;
 			}
 			case Window.Function.OPEN_URL: {
@@ -116,19 +116,19 @@ app.on("ready", () => {
 				break;
 			}
 			case Window.Function.MINIMIZE: {
-				setTimeout(() => window.minimize(), 150);
+				setTimeout(() => window.minimize(), 100);
 				break;
 			}
 			case Window.Function.MAXIMIZE: {
-				setTimeout(() => window.maximize(), 150);
+				setTimeout(() => window.maximize(), 100);
 				break;
 			}
 			case Window.Function.UNMAXIMIZE: {
-				setTimeout(() => window.unmaximize(), 150);
+				setTimeout(() => window.unmaximize(), 100);
 				break;
 			}
 			case Window.Function.FULLSCREEN: {
-				switch (window.isFullScreen()) {
+				switch (args[0] as boolean ?? window.isFullScreen()) {
 					case true: {
 						window.setFullScreen(false);
 						break;

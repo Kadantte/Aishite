@@ -235,7 +235,7 @@ class Gallery extends Stateful<GalleryProps, GalleryState> {
 																	onMouseDown={(setStyle) => {
 																		if (!button.enable) return;
 
-																		this.props.onClick?.((value instanceof Tag ? value : new Tag({ key: section.key, value: button.value })).toString());
+																		this.props.onClick?.((value instanceof Tag ? value : new Tag({ key: section.key === "characters" ? "character" : section.key === "artists" ? "artist" : section.key === "parody" ? "series" : section.key, value: button.value })).toString());
 																	}}
 																	onMouseEnter={(setStyle) => {
 																		if (!button.enable) return;
