@@ -28,28 +28,28 @@ class Tabs extends StateHandler<TabsState> {
 	public peek() {
 		return this.state.pages[this.state.index];
 	}
-	/** Back to initial state. */
+	/** back to initial state. */
 	public reset() {
 		this.state = {
 			index: 0,
 			pages: [builder("NEW TAB", "BROWSER", {})]
 		};
 	}
-	/** Append `page` as well as change `this.state.index`. */
+	/** append `page` as well as change `this.state.index`. */
 	public open(title: string, type: string, args: Record<string, unknown>) {
 		this.state = {
 			index: this.state.pages.length,
 			pages: [...this.state.pages, builder(title, type, args)]
 		};
 	}
-	/** Jump to given index. */
+	/** jump to given index. */
 	public jump(index: number) {
 		this.state = {
 			index: index,
 			pages: this.state.pages
 		};
 	}
-	/** Close `page` at given index, default to `this.state.index`. */
+	/** close `page` at given index, default to `this.state.index`. */
 	public close(index: number = this.state.index) {
 		switch (this.state.pages.length) {
 			case 1: {
@@ -65,25 +65,30 @@ class Tabs extends StateHandler<TabsState> {
 			}
 		}
 	}
-	/** Rename `page` at given index, default to `this.state.index`. */
+	/** rename `page` at given index, default to `this.state.index`. */
 	public rename(title: string, index: number = this.state.index) {
 		this.state = {
 			index: this.state.index,
 			pages: [...this.state.pages.take(index), { ...this.state.pages[index], title: title }, ...this.state.pages.skip(index + 1)]
 		};
 	}
-	/** Replace current `page` with new `page`. */
+	/** replace current `page` with new `page`. */
 	public replace(title: string, type: string, args: Record<string, unknown>) {
 		this.state = {
 			index: this.state.index,
 			pages: [...this.state.pages.take(this.state.index), builder(title, type, args), ...this.state.pages.skip(this.state.index + 1)]
 		};
 	}
-	/** Reorder array of `page`. */
+	/** reorder array of `page`. */
 	public reorder(destination: number) {
+		if (this.state.index === destination) {
+			return; // no need to reorder, return the existing state
+		}
+		const [element, shifted] = [this.state.pages[this.state.index], [...this.state.pages.slice(0, this.state.index), ...this.state.pages.slice(this.state.index + 1)]];
+		
 		this.state = {
 			index: destination,
-			pages: this.state.pages.map((page, index) => index === this.state.index ? this.state.pages[destination] : index === destination ? this.state.pages[this.state.index] : page)
+			pages: [...shifted.slice(0, destination), element, ...shifted.slice(destination)]
 		};
 	}
 }
@@ -140,7 +145,7 @@ function builder(title: string, type: string, args: Record<string, unknown>, uui
 			break;
 		}
 		case "VIEWER": {
-			page.element = (<Viewer ref={(ref) => proxy(uuid, ref)} key={uuid} data-key={uuid} width={args.width as number ?? app.min_width} gallery={args.gallery as number ?? 0} {...options.state.override["viewer"]}></Viewer>);
+			page.element = (<Viewer ref={(ref) => proxy(uuid, ref)} key={uuid} data-key={uuid} width={args.width as number ?? resolution.width.minimum} gallery={args.gallery as number ?? 0} {...options.state.override["viewer"]}></Viewer>);
 			break;
 		}
 		default: {
@@ -151,7 +156,7 @@ function builder(title: string, type: string, args: Record<string, unknown>, uui
 	return page;
 }
 
-/** **Webpack** in fact change classes' name thus `constructor.name` isn't static, so this function has born. **tl;dr**: class name anchor. */
+/** **webpack** in fact change classes' name thus `constructor.name` isn't static, so this function has born. **tl;dr**: class name anchor. */
 function type(element: JSX.Element) {
 	switch (element.type) {
 		case Fallback: {

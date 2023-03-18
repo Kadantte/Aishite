@@ -60,8 +60,8 @@ class Chromium extends EventTarget {
 	public [Window.Function.UNMAXIMIZE]() {
 		return call<void>(Window.Function.UNMAXIMIZE);
 	}
-	public [Window.Function.FULLSCREEN]() {
-		return call<void>(Window.Function.FULLSCREEN);
+	public [Window.Function.FULLSCREEN](value?: boolean) {
+		return call<void>(Window.Function.FULLSCREEN, value);
 	}
 	public [Window.Function.DEVELOPMENT]() {
 		return call<void>(Window.Function.DEVELOPMENT);

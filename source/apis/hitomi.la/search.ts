@@ -441,8 +441,6 @@ async function unknown_1(digits: Pair<number, number>) {
 	return new Array(length).fill(true).map((_, index) => table.getInt32((index + 1) * 4, Endian.BIG));
 }
 
-export type search = Await<ReturnType<typeof search>>;
-
 export async function search(value: string) {
 	// debug
 	const timestamp = (new Date().getTime()).toString(36).toUpperCase();

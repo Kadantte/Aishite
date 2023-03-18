@@ -5,17 +5,17 @@ import { Props } from "app/common/props";
 import { CSSProps } from "app/common/framework";
 
 abstract class Stateless<P extends Props.Clear<unknown>> extends React.PureComponent<P, object> {
-	/** Return value will be applied before `this.props.style`. */
+	/** return value will be applied before `this.props.style`. */
 	protected abstract preCSS(): React.CSSProperties;
-	/** Return value will be applied after `this.props.style`. */
+	/** return value will be applied after `this.props.style`. */
 	protected abstract postCSS(): React.CSSProperties;
-	/** **UNSAFE**: Directly pass `HTMLElement` attributes to children. */
+	/** **UNSAFE**: directly pass `HTMLElement` attributes to children. */
 	protected override(): Record<string, unknown> {
 		return {};
 	}
-	/** This is a wrapper to inheirt `this.props.style` automation. */
+	/** this is a wrapper to inheirt `this.props.style` automation. */
 	protected abstract build(): JSX.Element;
-	/** Consider using `this.build` instead. */
+	/** consider using `this.build` instead. */
 	@writable(false)
 	@configurable(false)
 	public render() {

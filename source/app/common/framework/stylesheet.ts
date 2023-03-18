@@ -6,11 +6,11 @@ abstract class StyleSheet<P extends Props.Casacade> extends React.PureComponent<
 	constructor(public props: P) {
 		super(props);
 	}
-	/** Return value will be applied before `this.props.style`. */
+	/** return value will be applied before `this.props.style`. */
 	protected abstract preCSS(): React.CSSProperties;
-	/** Return value will be applied after `this.props.style`. */
+	/** return value will be applied after `this.props.style`. */
 	protected abstract postCSS(): React.CSSProperties;
-	/** **UNSAFE**: Directly pass `HTMLElement` attributes to children. */
+	/** **UNSAFE**: directly pass `HTMLElement` attributes to children. */
 	protected override(): Record<string, unknown> {
 		return {};
 	}

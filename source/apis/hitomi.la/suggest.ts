@@ -182,8 +182,6 @@ async function unknown_6(type: string, digits: Pair<number, number>) {
 	return result;
 }
 
-export type suggest = Await<ReturnType<typeof suggest>>;
-
 export async function suggest(value: string) {
 	switch (value) {
 		case "expire": {

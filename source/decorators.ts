@@ -1,4 +1,4 @@
-/** Target: `method`. */
+/** target: `method`. */
 function writable(value: boolean) {
 	return function (target: any, key: string, descriptor: PropertyDescriptor) {
 		// type checking
@@ -8,7 +8,7 @@ function writable(value: boolean) {
 	};
 }
 
-/** Target: `method`. */
+/** target: `method`. */
 function enumerable(value: boolean) {
 	return function (target: any, key: string, descriptor: PropertyDescriptor) {
 		// type checking
@@ -18,7 +18,7 @@ function enumerable(value: boolean) {
 	};
 }
 
-/** Target: `method`. */
+/** target: `method`. */
 function configurable(value: boolean) {
 	return function (target: any, key: string, descriptor: PropertyDescriptor) {
 		// type checking
@@ -32,7 +32,7 @@ Object.defineProperty(window, "writable", { value: writable });
 Object.defineProperty(window, "enumerable", { value: enumerable });
 Object.defineProperty(window, "configurable", { value: configurable });
 
-/** Target: `method`. */
+/** target: `method`. */
 function autobind() {
 	return function (target: any, key: string, descriptor: PropertyDescriptor) {
 		// type checking
@@ -50,7 +50,7 @@ function autobind() {
 	};
 }
 
-/** Target: `method`. */
+/** target: `method`. */
 function deprecated() {
 	return function (target: any, key: string, descriptor: PropertyDescriptor) {
 		// type checking

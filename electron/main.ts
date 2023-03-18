@@ -95,20 +95,23 @@ app.on("ready", () => {
 	// https://github.com/electron/electron/issues/24759
 	//
 	ipcMain.handle("chromium", async (event, command: string, ...args: Array<unknown>) => {
+		// cache
+		const delay = 125;
+
 		switch (command as Window.Function | Window.Property) {
 			//
 			// function
 			//
 			case Window.Function.BLUR: {
-				setTimeout(() => window.blur(), 100);
+				setTimeout(() => window.blur(), delay);
 				break;
 			}
 			case Window.Function.FOCUS: {
-				setTimeout(() => window.focus(), 100);
+				setTimeout(() => window.focus(), delay);
 				break;
 			}
 			case Window.Function.CLOSE: {
-				setTimeout(() => window.destroy(), 100);
+				setTimeout(() => window.destroy(), delay);
 				break;
 			}
 			case Window.Function.OPEN_URL: {
@@ -116,15 +119,15 @@ app.on("ready", () => {
 				break;
 			}
 			case Window.Function.MINIMIZE: {
-				setTimeout(() => window.minimize(), 100);
+				setTimeout(() => window.minimize(), delay);
 				break;
 			}
 			case Window.Function.MAXIMIZE: {
-				setTimeout(() => window.maximize(), 100);
+				setTimeout(() => window.maximize(), delay);
 				break;
 			}
 			case Window.Function.UNMAXIMIZE: {
-				setTimeout(() => window.unmaximize(), 100);
+				setTimeout(() => window.unmaximize(), delay);
 				break;
 			}
 			case Window.Function.FULLSCREEN: {

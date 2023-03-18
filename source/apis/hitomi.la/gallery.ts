@@ -56,8 +56,6 @@ class GalleryFile extends _GalleryFile {
 	}
 }
 
-export type gallery = Await<ReturnType<typeof gallery>>;
-
 export async function gallery(id: number) {
 	const response = await client.GET(`https://ltn.hitomi.la/galleryblock/${id}.html`, "text");
 

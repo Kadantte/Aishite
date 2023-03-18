@@ -1,8 +1,8 @@
 import "@/prototypes";
 import "@/decorators";
 
-import "apis/electron/app";
 import "apis/electron/chromium";
+import "@/apis/electron/resolution";
 
 Object.defineProperty(window, "space", {
 	value: "\u0020"

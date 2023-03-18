@@ -49,7 +49,7 @@ interface GalleryProps extends Props.Clear<undefined>, Props.Style {
 interface GalleryState {
 	init: boolean;
 	offset: number;
-	gallery?: gallery;
+	gallery?: Await<ReturnType<typeof gallery>>;
 	foreground: Lelouch;
 	background: Lamperouge;
 }

@@ -35,21 +35,21 @@ abstract class Stateful<P extends Props.Clear<unknown>, S> extends React.Compone
 	public shouldComponentUpdate(props: Readonly<P>, state: Readonly<S>, context: unknown) {
 		return this.events().SHOULD_UPDATE?.(props, state, context) ?? true;
 	}
-	/** Called upon constructor is created. */
+	/** called upon constructor is created. */
 	protected abstract create(): S;
-	/** Event management. */
+	/** event management. */
 	protected abstract events(): LifeCycle<P, S>;
-	/** Return value will be applied before `this.props.style`. */
+	/** return value will be applied before `this.props.style`. */
 	protected abstract preCSS(): React.CSSProperties;
-	/** Return value will be applied after `this.props.style`. */
+	/** return value will be applied after `this.props.style`. */
 	protected abstract postCSS(): React.CSSProperties;
-	/** **UNSAFE**: Directly pass `HTMLElement` attributes to children. */
+	/** **UNSAFE**: directly pass `HTMLElement` attributes to children. */
 	protected override(): Record<string, unknown> {
 		return {};
 	}
-	/** This is a wrapper to inheirt `this.props.style` automation. */
+	/** this is a wrapper to inheirt `this.props.style` automation. */
 	protected abstract build(): JSX.Element;
-	/** Consider using `this.build` instead. */
+	/** consider using `this.build` instead. */
 	@writable(false)
 	@configurable(false)
 	public render() {

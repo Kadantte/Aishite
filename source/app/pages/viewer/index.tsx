@@ -23,7 +23,7 @@ interface ViewerState {
 	control: boolean;
 	gallery: {
 		title: string;
-		files: Await<ReturnType<gallery["files"]>>;
+		files: Await<ReturnType<Await<ReturnType<typeof gallery>>["files"]>>;
 	};
 }
 
@@ -111,7 +111,7 @@ class Viewer extends Stateful<ViewerProps, ViewerState> {
 				}}>
 				{this.state.gallery.files.map((file, index) => {
 					return (
-						<Image key={index} source={file.url} offset={{ margin: { all: "auto" } }} constraint={{ width: this.state.width, height: file.height / (file.width / window.innerWidth.clamp(0, this.state.width)), minimum: { width: app.min_width * 0.75 }, maximum: { width: 100.0 + "%" } }} decoration={{ color: Color.pick(3.0), shadow: [{ x: -4.5, y: 0, blur: 4.5, spread: -4.5, color: Color.pick(1.0) }, { x: 4.5, y: 0, blur: 4.5, spread: -4.5, color: Color.pick(1.0) }] }}></Image>
+						<Image key={index} source={file.url} offset={{ margin: { all: "auto" } }} constraint={{ width: this.state.width, height: file.height / (file.width / resolution.width.value.clamp(0, this.state.width)), minimum: { width: resolution.width.minimum * 0.75 }, maximum: { width: 100.0 + "%" } }} decoration={{ color: Color.pick(3.0), shadow: [{ x: -4.5, y: 0, blur: 4.5, spread: -4.5, color: Color.pick(1.0) }, { x: 4.5, y: 0, blur: 4.5, spread: -4.5, color: Color.pick(1.0) }] }}></Image>
 					);
 				})}
 			</section>
@@ -145,7 +145,7 @@ class Viewer extends Stateful<ViewerProps, ViewerState> {
 		if (!this.visible()) return;
 		if (!this.state.control) return;
 
-		await this.setState((state) => ({ width: (state.width - event.deltaY).clamp(app.min_width * 0.75, window.innerWidth) }));
+		await this.setState((state) => ({ width: (state.width - event.deltaY).clamp(resolution.width.minimum * 0.75, resolution.width.value) }));
 	}
 	@autobind()
 	protected async onKeyUp(event: KeyboardEvent) {

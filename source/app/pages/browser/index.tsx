@@ -34,7 +34,7 @@ interface BrowserState {
 		index: number;
 	};
 	suggest: {
-		items: suggest;
+		items: Await<ReturnType<typeof suggest>>;
 	};
 	gallery: {
 		value: Array<number>;
@@ -125,10 +125,10 @@ class Browser extends Stateful<BrowserProps, BrowserState> {
 				/>
 				<Scroll x="hidden" y="auto">
 					<Spacer>
-						<Grid.Layout id="display" gap={20.0} count={5} width={app.max_width / (5 + 1)} offset={{ margin: { left: 20.0, right: 20.0 } }}>
+						<Grid.Layout id="display" gap={20.0} count={5} width={resolution.width.maximum / (5 + 1)} offset={{ margin: { left: 20.0, right: 20.0 } }}>
 							{this.state.gallery.value.skip(this.state.search.index * 25).take((this.state.gallery.value.length - this.state.search.index * 25).clamp(0, 25)).map((gallery) => {
 								return (
-									<Gallery key={gallery} gallery={gallery} constraint={{ height: app.min_height - 180.0 - 0.25 }}
+									<Gallery key={gallery} gallery={gallery} constraint={{ height: resolution.height.minimum - 180.0 - 0.25 }}
 										onClick={(tag) => {
 											const element = this.node().getElementsByTagName("input").item(0);
 

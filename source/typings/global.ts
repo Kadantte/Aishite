@@ -1,15 +1,15 @@
 import "source/prototypes";
 
-import App from "apis/electron/app";
 import Chromium from "apis/electron/chromium";
+import Resolution from "apis/electron/resolution";
 
 declare global {
 	// preload.ts
 	const space: "\u0020";
 	const comma: "\u002C";
 
-	const app: App;
 	const chromium: Chromium;
+	const resolution: Resolution;
 }
 
-export default {}
+export default {};

@@ -1,12 +1,12 @@
 interface Corner {
 	readonly all?: unit;
-	/** Short for **T**op **L**eft. */
+	/** short for **T**op **L**eft. */
 	readonly TL?: unit;
-	/** Short for **T**op **R**ight. */
+	/** short for **T**op **R**ight. */
 	readonly TR?: unit;
-	/** Short for **B**oys **L**ove. */
+	/** short for **B**oys **L**ove. */
 	readonly BL?: unit;
-	/** Short for **B**ottom **R**ight. */
+	/** short for **B**ottom **R**ight. */
 	readonly BR?: unit;
 }
 
