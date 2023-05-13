@@ -5,6 +5,7 @@ import Stateful from "app/common/framework/stateful";
 import Stateless from "app/common/framework/stateless";
 import StyleSheet from "app/common/framework/stylesheet";
 
+// eslint-disable-next-line @typescript-eslint/no-namespace
 namespace CSSProps {
 	export function plus(props: Props.Clear<unknown> & Props.Style) {
 		const data: React.CSSProperties = {};

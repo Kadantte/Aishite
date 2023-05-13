@@ -70,6 +70,7 @@ abstract class Stateful<P extends Props.Clear<unknown>, S> extends React.Compone
 		});
 	}
 	protected node<T extends Element = HTMLElement>() {
+		// eslint-disable-next-line react/no-find-dom-node
 		return ReactDOM.findDOMNode(this as React.Component) as T;
 	}
 }

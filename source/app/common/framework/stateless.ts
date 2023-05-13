@@ -36,6 +36,7 @@ abstract class Stateless<P extends Props.Clear<unknown>> extends React.PureCompo
 		});
 	}
 	public node<T extends Element = HTMLElement>() {
+		// eslint-disable-next-line react/no-find-dom-node
 		return ReactDOM.findDOMNode(this as React.Component) as T;
 	}
 }

@@ -138,21 +138,25 @@ class Viewer extends Stateful<ViewerProps, ViewerState> {
 		const _gallery = await gallery(this.props.gallery);
 		const _files = await _gallery.files();
 
-		await this.setState((state) => ({ gallery: { title: _gallery.title, files: _files } }));
+		this.setState((state) => ({ gallery: { title: _gallery.title, files: _files } }));
 	}
 	@autobind()
 	protected async onWheel(event: WheelEvent) {
 		if (!this.visible()) return;
 		if (!this.state.control) return;
 
-		await this.setState((state) => ({ width: (state.width - event.deltaY).clamp(resolution.width.minimum * 0.75, resolution.width.value) }));
+		this.setState((state) => ({ width: (state.width - event.deltaY).clamp(resolution.width.minimum * 0.75, resolution.width.value) }));
 	}
 	@autobind()
 	protected async onKeyUp(event: KeyboardEvent) {
 		if (!this.visible()) return;
-		if (event.key !== "Control") return;
 
-		this.state.control = false;
+		switch (event.key) {
+			case "Control": {
+				this.state.control = false;
+				break;
+			}
+		}
 	}
 	@autobind()
 	protected async onResize(event: UIEvent) {
@@ -163,9 +167,21 @@ class Viewer extends Stateful<ViewerProps, ViewerState> {
 	@autobind()
 	protected async onKeyDown(event: KeyboardEvent) {
 		if (!this.visible()) return;
-		if (event.key !== "Control") return;
 
-		this.state.control = true;
+		switch (event.key) {
+			case "=": {
+				this.setState((state) => ({ width: (state.width + 100).clamp(resolution.width.minimum * 0.75, resolution.width.value) }));
+				break;
+			}
+			case "-": {
+				this.setState((state) => ({ width: (state.width - 100).clamp(resolution.width.minimum * 0.75, resolution.width.value) }));
+				break;
+			}
+			case "Control": {
+				this.state.control = true;
+				break;
+			}
+		}
 	}
 }
 
